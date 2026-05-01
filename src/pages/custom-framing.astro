@@ -1,0 +1,339 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+import DisplayHeading from "../components/DisplayHeading.astro";
+import DarkCTA from "../components/DarkCTA.astro";
+import ReviewSection from "../components/ReviewSection.astro";
+import Stars from "../components/Stars.astro";
+import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
+import { business } from "../data/business";
+import reviewsData from "../data/reviews.json";
+
+const { rating, userRatingsTotal } = reviewsData;
+const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I have a piece I'd like custom framed.")}`;
+
+const description =
+  "Custom picture framing in Singapore. Choose from 14+ wood, painted, and metallic profiles. Conservation mats and glazing on request. Fast turnaround under one roof.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  serviceType: "Custom picture framing",
+  provider: {
+    "@type": "LocalBusiness",
+    name: "Fine Art Printing",
+    url: "https://fineartprinting.com.sg",
+  },
+  areaServed: { "@type": "Country", name: "Singapore" },
+};
+
+interface FrameProfile {
+  id: string;
+  label: string;
+  swatch: string;
+}
+
+const profileGroups: { heading: string; intro: string; profiles: FrameProfile[] }[] = [
+  {
+    heading: "Black",
+    intro: "Versatile, gallery-neutral, the safe default for most photography and graphic work.",
+    profiles: [
+      { id: "1.5cm-smooth-black", label: '1.5cm Smooth Black', swatch: "#171717" },
+      { id: "2cm-smooth-black", label: '2cm Smooth Black', swatch: "#1a1a1a" },
+      { id: "2.2cm-wood-grain-black", label: '2.2cm Wood Grain Black', swatch: "linear-gradient(135deg, #1f1f1f 0%, #2a2825 100%)" },
+      { id: "3cm-smooth-black", label: '3cm Smooth Black', swatch: "#1a1a1a" },
+    ],
+  },
+  {
+    heading: "White",
+    intro: "Soft, contemporary, a clean surround that lets the work speak.",
+    profiles: [
+      { id: "2cm-smooth-white", label: '2cm Smooth White', swatch: "#fafafa" },
+      { id: "2.2cm-wood-grain-white", label: '2.2cm Wood Grain White', swatch: "linear-gradient(135deg, #f7f4ee 0%, #efe9dd 100%)" },
+      { id: "3cm-smooth-white", label: '3cm Smooth White', swatch: "#fafafa" },
+    ],
+  },
+  {
+    heading: "Wood",
+    intro: "Natural-finish profiles for warmer, lived-in spaces.",
+    profiles: [
+      { id: "natural-pine", label: '2.2cm Natural Pine', swatch: "linear-gradient(135deg, #d8b888 0%, #b89067 100%)" },
+      { id: "raw-oak", label: '2cm Raw Oak', swatch: "linear-gradient(135deg, #c8a97a 0%, #94724a 100%)" },
+      { id: "raw-oak-deep", label: '2cm Raw Oak, 3.5cm depth', swatch: "linear-gradient(135deg, #c8a97a 0%, #7a5b39 100%)" },
+    ],
+  },
+  {
+    heading: "Metallic",
+    intro: "For classical work, certificates, and pieces that earn a more formal surround.",
+    profiles: [
+      { id: "classic-gold", label: '2.5cm Classic Gold', swatch: "linear-gradient(135deg, #f0d693 0%, #b89441 100%)" },
+      { id: "classic-silver", label: '2.5cm Classic Silver', swatch: "linear-gradient(135deg, #e6e6e6 0%, #a9a9a9 100%)" },
+      { id: "metallic-silver", label: '2cm Metallic Silver', swatch: "linear-gradient(135deg, #f4f4f4 0%, #b8b8b8 100%)" },
+      { id: "black-gold-inlet", label: '2cm Black, Gold Inlet', swatch: "linear-gradient(90deg, #1a1a1a 0%, #1a1a1a 60%, #c89a3e 60%, #c89a3e 70%, #1a1a1a 70%, #1a1a1a 100%)" },
+    ],
+  },
+];
+
+const totalProfiles = profileGroups.reduce((s, g) => s + g.profiles.length, 0);
+
+const whyChooseUs = [
+  {
+    title: "Solid wood, all profiles",
+    body:
+      "Every profile in our range is solid wood, cut and joined in-house. We don't stock thin, hollow, or composite mouldings.",
+  },
+  {
+    title: "Conservation-grade materials",
+    body:
+      "Acid-free mat boards and proper backing as standard for any piece you want to hold up over time. Anti-reflection or UV-filtering glazing on request.",
+  },
+  {
+    title: "Print, mat, frame, all here",
+    body:
+      "If you're printing with us first, the file goes straight from the printer to the framing bench. Faster turnaround, one team accountable for the result.",
+  },
+];
+
+const faqs = [
+  {
+    q: "What can you frame?",
+    a: `Most flat work, including prints, photographs, original paintings on paper, posters, certificates, maps, jerseys, and small memorabilia (e.g. medals, signed items). For deep objects you'll want a shadow box, message us with a photo and we'll quote.`,
+  },
+  {
+    q: "What sizes do you frame to?",
+    a: `Anything from postcard up to roughly 100 × 150cm with our standard profiles. For larger pieces, message us, we'll see what's possible based on the profile and the glazing.`,
+  },
+  {
+    q: "Do you offer mat boards?",
+    a: `Yes. Standard mat is acid-free, single-thickness, in white, off-white, or black. We can cut to any window size, with single or double mats, and we have a wider range of conservation-grade colours on request.`,
+  },
+  {
+    q: "What about glazing?",
+    a: `Standard glazing is clear acrylic, lighter and safer than glass for shipping or larger sizes. Anti-reflection and UV-filtering options are available on request. For smaller pieces or when you specifically want glass, just ask.`,
+  },
+  {
+    q: "How long does it take?",
+    a: `Standard turnaround is 5 to 7 working days from approval. If you're combining framing with printing or canvas work, we'll do them in sequence and confirm timing up front. Rush jobs sometimes possible, message us.`,
+  },
+  {
+    q: "How does it work?",
+    a: `1. Drop off the piece at the studio, or message us a photo and dimensions.
+2. We'll talk you through profiles, mats, and glazing, and quote.
+3. On approval we frame, fit, and prepare for hanging (wire and hooks included).
+4. Pick up at the studio, or arrange local delivery.`,
+  },
+];
+---
+<BaseLayout
+  title="Custom framing · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-12 md:pt-20 md:pb-20">
+      <div class="grid gap-10 md:grid-cols-12 md:items-center md:gap-14">
+        <div class="md:col-span-6">
+          <Eyebrow>Custom framing</Eyebrow>
+          <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
+            Bring us your piece,<br />we'll frame it.
+          </h1>
+          <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+            Solid-wood profiles in {totalProfiles} finishes, conservation mats and
+            glazing on request, and the option to print, stretch, and frame all
+            in one place. Drop off the piece, pick a profile, walk out with it
+            ready to hang.
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a
+              href="#profiles"
+              class="inline-flex items-center gap-2 rounded-pill bg-petrol px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
+            >
+              See the profiles <span aria-hidden="true">↓</span>
+            </a>
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 rounded-pill border border-[#1ebe5b] bg-[#25D366] px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#1ebe5b]"
+            >
+              <WhatsAppIcon size={16} />
+              <span>WhatsApp us</span>
+            </a>
+          </div>
+
+          <a
+            href={business.googleReviewsUrl}
+            target="_blank"
+            rel="noopener"
+            class="mt-6 inline-flex items-center gap-3 text-[14px] text-subtle hover:text-ink transition-colors"
+          >
+            <Stars rating={rating} size={18} ariaHidden />
+            <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
+            <span aria-hidden="true">·</span>
+            <span>{userRatingsTotal} Google reviews</span>
+          </a>
+        </div>
+
+        <div class="md:col-span-6">
+          <figure class="relative">
+            <div class="aspect-[4/5] w-full rounded-card bg-gradient-to-br from-[#ebe3d3] to-[#a89a7d] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)] flex items-center justify-center">
+              <span class="font-serif italic text-white/80 text-[15px]">
+                Framing photo to come
+              </span>
+            </div>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why us -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>Why us</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">
+            Why bring it to us?
+          </DisplayHeading>
+          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+            We frame every week, mostly for our own print and stretching
+            customers. Same studio, same standard.
+          </p>
+        </div>
+        <ol class="md:col-span-8 grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-3">
+          {whyChooseUs.map((row, i) => (
+            <li class="border-t border-ink/10 pt-5">
+              <span class="font-serif italic text-[14px] text-gold">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 class="mt-2 font-serif text-[18px] font-medium leading-[1.25] text-ink">
+                {row.title}
+              </h3>
+              <p class="mt-3 text-[14px] leading-relaxed text-subtle">
+                {row.body}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- Profile range -->
+  <section id="profiles" class="border-t border-border-soft bg-[#FAF7F1] scroll-mt-6">
+    <div class="mx-auto max-w-[1180px] px-6 py-20 md:py-24">
+      <div class="max-w-[640px]">
+        <Eyebrow>Our range</Eyebrow>
+        <DisplayHeading level={2} class="mt-3">
+          {totalProfiles} profiles, four families.
+        </DisplayHeading>
+        <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
+          Every profile below is solid wood and held in stock. Drop in to see
+          and feel the samples in person, or message us with a photo of the
+          piece you want framed and we'll suggest options.
+        </p>
+      </div>
+
+      <div class="mt-14 flex flex-col gap-12">
+        {profileGroups.map((group) => (
+          <div class="grid gap-8 md:grid-cols-12">
+            <div class="md:col-span-3">
+              <h3 class="font-serif text-[20px] font-medium text-ink">
+                {group.heading}
+              </h3>
+              <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+                {group.intro}
+              </p>
+            </div>
+            <ul class="md:col-span-9 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {group.profiles.map((p) => (
+                <li class="frame-tile">
+                  <span
+                    class="frame-tile__swatch"
+                    style={`background: ${p.swatch};`}
+                    aria-hidden="true"
+                  ></span>
+                  <span class="frame-tile__label">{p.label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>FAQ</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">
+            Common questions.
+          </DisplayHeading>
+          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+            If yours isn't here, WhatsApp us, easier with a photo of the piece
+            if you have one.
+          </p>
+        </div>
+        <div class="md:col-span-8">
+          <ul class="border-t border-ink/15">
+            {faqs.map((item) => (
+              <li class="border-b border-ink/15">
+                <details class="faq-item">
+                  <summary>
+                    <span class="faq-item__q">{item.q}</span>
+                    <span class="faq-item__chevron" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </summary>
+                  <div class="faq-item__a">
+                    {item.a.split("\n").map((line) => (
+                      <p>{line}</p>
+                    ))}
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <ReviewSection />
+  <DarkCTA />
+</BaseLayout>
+
+<style>
+  .frame-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 12px;
+    background: #ffffff;
+  }
+  .frame-tile__swatch {
+    display: block;
+    aspect-ratio: 4 / 3;
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+  .frame-tile__label {
+    font-family: var(--font-sans);
+    font-size: 12.5px;
+    line-height: 1.3;
+    color: var(--color-ink);
+  }
+</style>
