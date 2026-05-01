@@ -3,7 +3,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
-import PaperFinder from "../components/PaperFinder.astro";
 import PaperQuoteCalculator from "../components/PaperQuoteCalculator.astro";
 import ReviewSection from "../components/ReviewSection.astro";
 import Stars from "../components/Stars.astro";
@@ -34,6 +33,17 @@ const featuredPapers = PAPERS.filter((p) => p.featured);
 
 const finishLabel = (f: string) => f.replace("-", " ");
 const durabilityLabel = (d: string) => d.charAt(0).toUpperCase() + d.slice(1);
+
+// Filter taxonomies — derived from existing fields so the data file stays simple.
+const surfaceOf = (p: typeof featuredPapers[number]): string => {
+  if (p.finish === "matt") {
+    return p.texture === "Smooth" ? "matt-smooth" : "matt-textured";
+  }
+  if (p.finish === "pearl" || p.finish === "silk-gloss") return "satin";
+  return "gloss"; // gloss, high-gloss, metallic
+};
+const budgetOf = (p: typeof featuredPapers[number]): string =>
+  p.sellPricePerSqm <= 80 ? "value" : "standard";
 
 const whyChooseUs = [
   {
@@ -118,12 +128,6 @@ Default border around your print is 3mm, we can adjust to your preference. Don't
               Get a quote <span aria-hidden="true">↓</span>
             </a>
             <a
-              href="#paper-finder"
-              class="inline-flex items-center gap-2 rounded-pill border border-ink/15 bg-white px-5 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:border-petrol hover:bg-petrol hover:text-white"
-            >
-              Help me choose <span aria-hidden="true">↓</span>
-            </a>
-            <a
               href={waLink}
               target="_blank"
               rel="noopener"
@@ -164,10 +168,8 @@ Default border around your print is 3mm, we can adjust to your preference. Don't
     </div>
   </section>
 
-  <PaperFinder />
-
   <!-- Paper showcase: tabbed picker with one paper detail at a time -->
-  <section class="border-t border-border-soft bg-white">
+  <section id="papers" class="border-t border-border-soft bg-white scroll-mt-6">
     <div class="mx-auto max-w-[1180px] px-6 py-20">
       <div class="max-w-[640px]">
         <Eyebrow>Our papers</Eyebrow>
@@ -175,14 +177,36 @@ Default border around your print is 3mm, we can adjust to your preference. Don't
           Every paper, in detail.
         </DisplayHeading>
         <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
-          Each paper has its own personality. Some sit muted and contemplative,
-          others sing under gallery lighting. Tap any paper below to see
-          how it handles, what it's best for, and where it lives in the price
-          ladder.
+          Filter by what you're printing or the surface you want, then tap any
+          paper to see how it handles, what it's best for, and where it lives
+          in the price ladder.
         </p>
       </div>
 
-      <div class="paper-showcase mt-12" data-paper-showcase>
+      <!-- Filter chips -->
+      <div class="paper-filters mt-10" data-paper-filters>
+        <div class="paper-filters__row">
+          <span class="paper-filters__label">Best for</span>
+          <button type="button" class="paper-filter-chip" data-filter="bestFor" data-value="colour-photo">Colour photo</button>
+          <button type="button" class="paper-filter-chip" data-filter="bestFor" data-value="bw-photo">B&amp;W photo</button>
+          <button type="button" class="paper-filter-chip" data-filter="bestFor" data-value="original-art">Original art</button>
+          <button type="button" class="paper-filter-chip" data-filter="bestFor" data-value="illustration">Illustration</button>
+        </div>
+        <div class="paper-filters__row">
+          <span class="paper-filters__label">Surface</span>
+          <button type="button" class="paper-filter-chip" data-filter="surface" data-value="matt-smooth">Matt smooth</button>
+          <button type="button" class="paper-filter-chip" data-filter="surface" data-value="matt-textured">Matt textured</button>
+          <button type="button" class="paper-filter-chip" data-filter="surface" data-value="satin">Satin / pearl</button>
+          <button type="button" class="paper-filter-chip" data-filter="surface" data-value="gloss">Gloss / metallic</button>
+        </div>
+        <div class="paper-filters__row paper-filters__row--meta">
+          <button type="button" class="paper-filter-chip" data-filter="valueOnly">Value picks only</button>
+          <span class="paper-filters__count" data-paper-count></span>
+          <button type="button" class="paper-filter-clear" data-paper-clear hidden>Clear filters</button>
+        </div>
+      </div>
+
+      <div class="paper-showcase mt-8" data-paper-showcase>
         <div class="paper-showcase__tabs" role="tablist" aria-label="Paper">
           {featuredPapers.map((p, i) => (
             <button
@@ -191,6 +215,9 @@ Default border around your print is 3mm, we can adjust to your preference. Don't
               aria-selected={i === 0 ? "true" : "false"}
               aria-controls={`panel-${p.id}`}
               data-tab-target={p.id}
+              data-best-for={p.bestFor.join(" ")}
+              data-surface={surfaceOf(p)}
+              data-budget={budgetOf(p)}
               class:list={["paper-pick", i === 0 && "is-active"]}
             >
               {p.images[0] ? (
@@ -498,6 +525,115 @@ Default border around your print is 3mm, we can adjust to your preference. Don't
   if (document.readyState !== "loading") initShowcase();
   else document.addEventListener("DOMContentLoaded", initShowcase);
 
+  // Paper filter chips
+  function initPaperFilters() {
+    const filtersRoot = document.querySelector<HTMLElement>("[data-paper-filters]");
+    const showcase = document.querySelector<HTMLElement>("[data-paper-showcase]");
+    if (!filtersRoot || !showcase) return;
+
+    const tabs = Array.from(
+      showcase.querySelectorAll<HTMLButtonElement>(".paper-pick"),
+    );
+    const countEl = filtersRoot.querySelector<HTMLElement>("[data-paper-count]");
+    const clearBtn = filtersRoot.querySelector<HTMLButtonElement>("[data-paper-clear]");
+
+    const state = {
+      bestFor: new Set<string>(),
+      surface: null as string | null,
+      valueOnly: false,
+    };
+
+    function matches(tab: HTMLButtonElement): boolean {
+      const tabBestFor = (tab.dataset.bestFor ?? "").split(" ").filter(Boolean);
+      const tabSurface = tab.dataset.surface ?? "";
+      const tabBudget = tab.dataset.budget ?? "";
+
+      if (state.bestFor.size > 0) {
+        const anyMatch = Array.from(state.bestFor).some((b) =>
+          tabBestFor.includes(b),
+        );
+        if (!anyMatch) return false;
+      }
+      if (state.surface && tabSurface !== state.surface) return false;
+      if (state.valueOnly && tabBudget !== "value") return false;
+      return true;
+    }
+
+    function isFiltering(): boolean {
+      return state.bestFor.size > 0 || state.surface !== null || state.valueOnly;
+    }
+
+    function apply() {
+      const matching: HTMLButtonElement[] = [];
+      tabs.forEach((tab) => {
+        const ok = matches(tab);
+        tab.classList.toggle("is-dimmed", !ok);
+        if (ok) matching.push(tab);
+      });
+
+      if (countEl) {
+        countEl.textContent = isFiltering()
+          ? `${matching.length} of ${tabs.length} papers match`
+          : "";
+      }
+      if (clearBtn) clearBtn.hidden = !isFiltering();
+
+      // If the active tab is now dimmed, switch to the first matching one.
+      const active = tabs.find((t) => t.classList.contains("is-active"));
+      if (active && active.classList.contains("is-dimmed") && matching.length > 0) {
+        matching[0]!.click();
+      }
+    }
+
+    filtersRoot.querySelectorAll<HTMLButtonElement>("[data-filter]").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const filter = chip.dataset.filter;
+        const value = chip.dataset.value;
+
+        if (filter === "bestFor" && value) {
+          if (state.bestFor.has(value)) {
+            state.bestFor.delete(value);
+            chip.classList.remove("is-active");
+          } else {
+            state.bestFor.add(value);
+            chip.classList.add("is-active");
+          }
+        } else if (filter === "surface" && value) {
+          if (state.surface === value) {
+            state.surface = null;
+            chip.classList.remove("is-active");
+          } else {
+            state.surface = value;
+            filtersRoot
+              .querySelectorAll<HTMLButtonElement>('[data-filter="surface"]')
+              .forEach((c) => c.classList.toggle("is-active", c === chip));
+          }
+        } else if (filter === "valueOnly") {
+          state.valueOnly = !state.valueOnly;
+          chip.classList.toggle("is-active", state.valueOnly);
+        }
+        apply();
+      });
+    });
+
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        state.bestFor.clear();
+        state.surface = null;
+        state.valueOnly = false;
+        filtersRoot
+          .querySelectorAll<HTMLButtonElement>(".paper-filter-chip")
+          .forEach((c) => c.classList.remove("is-active"));
+        apply();
+      });
+    }
+
+    apply();
+  }
+
+  if (document.readyState !== "loading") initPaperFilters();
+  else document.addEventListener("DOMContentLoaded", initPaperFilters);
+
   // Comparison table expand/collapse
   function initComparison() {
     const toggle = document.querySelector<HTMLButtonElement>("[data-comparison-toggle]");
@@ -521,3 +657,92 @@ Default border around your print is 3mm, we can adjust to your preference. Don't
   if (document.readyState !== "loading") initComparison();
   else document.addEventListener("DOMContentLoaded", initComparison);
 </script>
+
+<style is:global>
+  /* Paper filters — chip rows above the showcase */
+  .paper-filters {
+    display: grid;
+    gap: 12px;
+    padding: 18px 18px 16px;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 14px;
+    background: #fff;
+  }
+  .paper-filters__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .paper-filters__row--meta {
+    margin-top: 2px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.08);
+  }
+  .paper-filters__label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+    margin-right: 4px;
+    flex: 0 0 auto;
+    min-width: 64px;
+  }
+  .paper-filter-chip {
+    appearance: none;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: #fff;
+    color: var(--color-ink);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
+  }
+  .paper-filter-chip:hover {
+    border-color: rgba(0, 0, 0, 0.30);
+    background: rgba(0, 0, 0, 0.02);
+  }
+  .paper-filter-chip.is-active {
+    background: var(--color-petrol);
+    border-color: var(--color-petrol);
+    color: #fff;
+  }
+  .paper-filter-chip.is-active:hover {
+    background: #142a40;
+    border-color: #142a40;
+  }
+  .paper-filters__count {
+    font-size: 13px;
+    color: var(--color-subtle);
+    margin-left: auto;
+  }
+  .paper-filter-clear {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin-left: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-muted);
+    cursor: pointer;
+  }
+  .paper-filter-clear:hover {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Dimmed paper tabs */
+  .paper-pick.is-dimmed {
+    opacity: 0.32;
+    filter: grayscale(0.4);
+  }
+  .paper-pick.is-dimmed:hover {
+    opacity: 0.55;
+    filter: grayscale(0.2);
+  }
+</style>
