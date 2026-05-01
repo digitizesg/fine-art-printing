@@ -70,7 +70,7 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
   <script type="application/json" data-pr-lookup set:html={JSON.stringify(paperLookup)}></script>
 </section>
 
-<style>
+<style is:global>
   .paper-recommender {
     border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
     border-radius: 16px;
