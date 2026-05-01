@@ -25,6 +25,16 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
     </p>
   </div>
 
+  <!-- Surface preference (always visible) -->
+  <div class="paper-recommender__pref" data-pr-pref>
+    <p class="paper-recommender__pref-label">Finish preference</p>
+    <div class="paper-recommender__pref-row" role="radiogroup" aria-label="Finish preference">
+      <button type="button" class="paper-recommender__pref-btn is-active" data-pref="any">Either</button>
+      <button type="button" class="paper-recommender__pref-btn" data-pref="matt">Matt</button>
+      <button type="button" class="paper-recommender__pref-btn" data-pref="sheen">Sheen / gloss</button>
+    </div>
+  </div>
+
   <!-- Drop state -->
   <div data-pr-drop-state>
     <label class="paper-recommender__drop" data-pr-drop>
@@ -58,6 +68,7 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
 
     <div class="paper-recommender__suggestions">
       <p class="paper-recommender__suggestions-label">Papers we'd suggest</p>
+      <p class="paper-recommender__warn" data-pr-warn hidden></p>
       <ul class="paper-recommender__list" data-pr-list></ul>
       <p class="paper-recommender__caveat">
         These are starting points based on colour and contrast only. We
@@ -112,6 +123,46 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
     font-size: 14px;
     line-height: 1.5;
     color: var(--color-subtle);
+  }
+
+  /* Surface preference */
+  .paper-recommender__pref {
+    display: grid;
+    gap: 8px;
+  }
+  .paper-recommender__pref-label {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+  .paper-recommender__pref-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .paper-recommender__pref-btn {
+    appearance: none;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: #fff;
+    color: var(--color-ink);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
+  }
+  .paper-recommender__pref-btn:hover {
+    border-color: rgba(0, 0, 0, 0.30);
+    background: rgba(0, 0, 0, 0.02);
+  }
+  .paper-recommender__pref-btn.is-active {
+    background: var(--color-petrol);
+    border-color: var(--color-petrol);
+    color: #fff;
   }
 
   /* Drop state */
@@ -257,6 +308,16 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
     letter-spacing: 0.06em;
     color: var(--color-muted);
   }
+  .paper-recommender__warn {
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(245, 158, 11, 0.10);
+    border-left: 3px solid #d97706;
+    color: #92400e;
+    font-size: 13px;
+    line-height: 1.5;
+  }
   .paper-recommender__list {
     list-style: none;
     margin: 0;
@@ -369,6 +430,8 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
   };
   type Pick = { paperId: string; reason: string };
 
+  type Preference = "any" | "matt" | "sheen";
+
   const root = document.querySelector<HTMLElement>("[data-paper-recommender]");
   if (root) initRecommender(root);
 
@@ -389,9 +452,15 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
     const thumbEl = root.querySelector<HTMLImageElement>("[data-pr-thumb]")!;
     const traitsEl = root.querySelector<HTMLUListElement>("[data-pr-traits]")!;
     const listEl = root.querySelector<HTMLUListElement>("[data-pr-list]")!;
+    const warnEl = root.querySelector<HTMLElement>("[data-pr-warn]")!;
     const resetBtn = root.querySelector<HTMLButtonElement>("[data-pr-reset]")!;
+    const prefBtns = Array.from(
+      root.querySelectorAll<HTMLButtonElement>(".paper-recommender__pref-btn"),
+    );
 
     let lastObjectUrl: string | null = null;
+    let lastTraits: Traits | null = null;
+    let preference: Preference = "any";
 
     function showError(msg: string) {
       errorEl.textContent = msg;
@@ -510,66 +579,60 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
       return labels;
     }
 
-    function recommend(t: Traits): Pick[] {
-      const recs: Pick[] = [];
+    function mattPicks(t: Traits): Pick[] {
+      const out: Pick[] = [];
       const { saturation, contrast, brightness, warmth } = t;
-
-      // Note: Photo Rag Matt Baryta dampens colour at the studio's experience,
-      // so it's reserved for the mono branch only.
-
       if (saturation === "mono") {
-        // B&W / mostly-tonal — Matt Baryta is the studio's go-to here.
         if (contrast === "high" || brightness === "dark") {
-          recs.push({
+          out.push({
             paperId: "hahnemuhle-photo-rag-matt-baryta",
             reason:
               "For high-contrast or dark B&W, the baryta coating gives Photo Rag enhanced tonal range and deeper blacks.",
           });
-          recs.push({
-            paperId: "hahnemuhle-metallic-rag",
-            reason:
-              "Architectural and night-scene B&W picks up dramatic depth on the silvery metallic surface.",
-          });
-          recs.push({
+          out.push({
             paperId: "hahnemuhle-photo-rag",
             reason:
-              "Classic smooth matt cotton — quieter alternative if you prefer subtle blacks to punchy ones.",
+              "Classic smooth matt cotton — quieter alternative if you prefer subtle blacks.",
+          });
+          out.push({
+            paperId: "hahnemuhle-german-etching",
+            reason:
+              "Heavy texture and deeper blacks for dramatic, hand-crafted B&W.",
           });
         } else if (warmth === "warm") {
-          recs.push({
+          out.push({
             paperId: "hahnemuhle-bamboo",
             reason: "Warm bamboo base flatters warm-toned monochrome work.",
           });
-          recs.push({
+          out.push({
             paperId: "hahnemuhle-photo-rag-matt-baryta",
             reason:
               "Baryta-coated Photo Rag adds tonal depth — a punchier alternative for warm B&W.",
           });
-          recs.push({
+          out.push({
             paperId: "hahnemuhle-photo-rag",
             reason:
               "Smooth matt cotton — neutral alternative with the cleanest tonal range.",
           });
         } else {
-          // Soft, low- to mid-contrast B&W
-          recs.push({
+          out.push({
             paperId: "hahnemuhle-photo-rag",
             reason:
               "For soft or low-contrast B&W, smooth matt cotton gives the cleanest tonal range and a contemplative feel.",
           });
-          recs.push({
+          out.push({
             paperId: "hahnemuhle-photo-rag-matt-baryta",
             reason:
               "Baryta-coated alternative — slightly deeper blacks and enhanced tonal range than plain Photo Rag.",
           });
           if (contrast === "low") {
-            recs.push({
+            out.push({
               paperId: "hahnemuhle-hemp",
               reason:
                 "Subtle hemp texture adds gentle character to soft monochrome work.",
             });
           } else {
-            recs.push({
+            out.push({
               paperId: "datajet-100-cotton-rag",
               reason:
                 "Photo Rag character at a more accessible price — same matt cotton feel.",
@@ -577,120 +640,249 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
           }
         }
       } else if (saturation === "high") {
-        // Vivid colour — only papers that preserve saturation.
-        recs.push({
+        // Matt + vivid is a tradeoff — be honest in reasons.
+        if (warmth === "warm") {
+          out.push({
+            paperId: "hahnemuhle-bamboo",
+            reason:
+              "Warm bamboo's matt cotton flatters the warm tones, though any matt paper will mute saturation somewhat.",
+          });
+        } else {
+          out.push({
+            paperId: "hahnemuhle-photo-rag",
+            reason:
+              "Smooth matt cotton — the calmest, no-glare choice, accepting that vivid colour will read more muted.",
+          });
+        }
+        if (contrast === "high") {
+          out.push({
+            paperId: "hahnemuhle-german-etching",
+            reason:
+              "Strong texture and deeper blacks compensate for matt's dampening — a hand-crafted feel.",
+          });
+        } else {
+          out.push({
+            paperId: "hahnemuhle-bamboo",
+            reason:
+              "Warm bamboo matt — softer take that still pulls warm colour through.",
+          });
+        }
+        out.push({
+          paperId: "datajet-100-cotton-rag",
+          reason:
+            "Photo Rag character at a value price — same matt cotton character.",
+        });
+      } else if (saturation === "medium") {
+        out.push({
+          paperId: "hahnemuhle-photo-rag",
+          reason:
+            "Smooth matt cotton — clean colour and tonal range with no surface sheen.",
+        });
+        if (warmth === "warm") {
+          out.push({
+            paperId: "hahnemuhle-bamboo",
+            reason:
+              "Warm bamboo base reinforces warm-leaning balanced palettes.",
+          });
+        } else {
+          out.push({
+            paperId: "hahnemuhle-hemp",
+            reason:
+              "Lightly textured hemp — subtle character without disturbing balanced colour.",
+          });
+        }
+        if (contrast === "high") {
+          out.push({
+            paperId: "hahnemuhle-german-etching",
+            reason:
+              "Heavy texture and deeper blacks suit high-contrast subjects.",
+          });
+        } else {
+          out.push({
+            paperId: "datajet-100-cotton-rag",
+            reason: "Photo Rag character at a more accessible price.",
+          });
+        }
+      } else {
+        // low saturation
+        out.push({
+          paperId: "hahnemuhle-photo-rag",
+          reason:
+            "Soft, muted images sit beautifully on smooth matt cotton — no surface shimmer to compete.",
+        });
+        if (warmth === "warm") {
+          out.push({
+            paperId: "hahnemuhle-bamboo",
+            reason: "Warm bamboo base reinforces a warm, contemplative mood.",
+          });
+        } else if (warmth === "cool") {
+          out.push({
+            paperId: "hahnemuhle-hemp",
+            reason:
+              "Hemp's silky light texture and natural-white tone flatters cool, muted palettes.",
+          });
+        } else {
+          out.push({
+            paperId: "datajet-100-cotton-rag",
+            reason:
+              "Photo Rag character at a more accessible price — smooth matt cotton, archival.",
+          });
+        }
+        if (contrast === "high") {
+          out.push({
+            paperId: "hahnemuhle-german-etching",
+            reason:
+              "High contrast benefits from German Etching's deeper blacks and strongly textured surface.",
+          });
+        } else {
+          out.push({
+            paperId: "hahnemuhle-hemp",
+            reason:
+              "Lightly textured hemp adds gentle character to muted palettes.",
+          });
+        }
+      }
+      return dedupe(out);
+    }
+
+    function sheenPicks(t: Traits): Pick[] {
+      const out: Pick[] = [];
+      const { saturation, contrast, brightness, warmth } = t;
+      if (saturation === "mono") {
+        if (contrast === "high" || brightness === "dark") {
+          out.push({
+            paperId: "hahnemuhle-metallic-rag",
+            reason:
+              "Architectural and night-scene B&W picks up dramatic depth on the silvery metallic surface.",
+          });
+          out.push({
+            paperId: "hahnemuhle-fineart-pearl",
+            reason:
+              "Pearl satin — gentle sheen that adds depth without distracting from B&W tonal range.",
+          });
+        } else {
+          out.push({
+            paperId: "hahnemuhle-fineart-pearl",
+            reason:
+              "Pearl satin — subtle sheen suits B&W with mid-range tones.",
+          });
+          out.push({
+            paperId: "hahnemuhle-metallic-rag",
+            reason:
+              "Silvery shimmer adds drama to monochrome work where you want a more cinematic feel.",
+          });
+        }
+      } else if (saturation === "high") {
+        out.push({
           paperId: "hahnemuhle-bamboo-gloss",
           reason:
             warmth === "warm"
               ? "Vivid warm-toned colour comes alive on glossy bamboo baryta — the warm-white base reinforces it."
-              : "Gloss baryta keeps saturated colour cinematic — matt papers would mute the punch.",
+              : "Gloss baryta keeps saturated colour cinematic — the natural choice for vivid work.",
         });
-
         if (contrast === "high" || brightness === "dark") {
-          recs.push({
+          out.push({
             paperId: "hahnemuhle-metallic-rag",
             reason:
-              "Bright colour against dark or high-contrast backdrops shines on the metallic surface — strong on architecture, night, and high-impact work.",
+              "Bright colour against dark or high-contrast backdrops shines on the metallic surface — strong on architecture, night, high-impact work.",
           });
-          recs.push({
+          out.push({
             paperId: "hahnemuhle-fineart-pearl",
             reason:
               "Pearl satin — softer-sheen alternative that still carries saturated colour.",
           });
         } else {
-          recs.push({
+          out.push({
             paperId: "hahnemuhle-fineart-pearl",
             reason:
-              "Pearl satin carries saturation with a softer surface than full gloss — a more contemplative alternative.",
+              "Pearl satin carries saturation with a softer surface than full gloss — more contemplative.",
           });
-          recs.push({
+          out.push({
             paperId: "hahnemuhle-photo-silk-baryta",
             reason:
               "Silky-gloss alpha-cellulose at a more accessible price — strong on photo and poster work.",
           });
         }
       } else if (saturation === "medium") {
-        // Balanced colour — pearl/satin first, then a paper to match temperament.
-        recs.push({
+        out.push({
           paperId: "hahnemuhle-fineart-pearl",
           reason:
             "Pearl satin handles balanced colour beautifully, with subtle sheen and excellent detail.",
         });
-
-        if (warmth === "warm") {
-          recs.push({
-            paperId: "hahnemuhle-bamboo",
-            reason: "Warm bamboo base reinforces warm-leaning subjects.",
-          });
-        } else {
-          recs.push({
-            paperId: "hahnemuhle-photo-rag",
-            reason:
-              "Smooth matt cotton — clean colour and tonal range without surface sheen.",
-          });
-        }
-
-        if (contrast === "high") {
-          recs.push({
-            paperId: "hahnemuhle-german-etching",
-            reason:
-              "High contrast benefits from German Etching's deeper blacks and strongly textured surface — a hand-crafted feel.",
-          });
-        } else if (brightness === "dark") {
-          recs.push({
+        if (brightness === "dark") {
+          out.push({
             paperId: "hahnemuhle-metallic-rag",
             reason:
               "Dark, balanced palettes pick up depth on the metallic surface.",
           });
         } else {
-          recs.push({
-            paperId: "hahnemuhle-hemp",
+          out.push({
+            paperId: "hahnemuhle-photo-silk-baryta",
             reason:
-              "Lightly textured hemp adds gentle character to balanced colour subjects.",
+              "Silky-gloss alpha-cellulose — value alternative with a smoother sheen.",
           });
         }
-      } else {
-        // Low saturation — soft, muted
-        recs.push({
-          paperId: "hahnemuhle-photo-rag",
+        out.push({
+          paperId: "hahnemuhle-bamboo-gloss",
           reason:
-            "Soft, muted images sit beautifully on smooth matt cotton — no surface shimmer to compete.",
+            warmth === "warm"
+              ? "Glossy bamboo baryta — warm-toned mid-saturation pops nicely."
+              : "Glossy bamboo baryta — a punchier sheen pick for balanced colour.",
         });
-
-        if (warmth === "warm") {
-          recs.push({
-            paperId: "hahnemuhle-bamboo",
-            reason: "Warm bamboo base reinforces a warm, contemplative mood.",
-          });
-        } else if (warmth === "cool") {
-          recs.push({
-            paperId: "hahnemuhle-hemp",
-            reason:
-              "Hemp's silky light texture and natural-white tone flatters cool, muted palettes.",
-          });
-        } else {
-          recs.push({
-            paperId: "datajet-100-cotton-rag",
-            reason:
-              "Photo Rag character at a more accessible price — smooth matt cotton, archival.",
-          });
-        }
-
-        if (contrast === "high") {
-          recs.push({
-            paperId: "hahnemuhle-german-etching",
-            reason:
-              "High contrast benefits from German Etching's deeper blacks and strongly textured surface.",
-          });
-        } else {
-          recs.push({
-            paperId: "hahnemuhle-fineart-pearl",
-            reason:
-              "Pearl satin offers a slightly more refined surface for the muted palette.",
-          });
-        }
+      } else {
+        // low saturation + sheen — unusual but valid
+        out.push({
+          paperId: "hahnemuhle-fineart-pearl",
+          reason:
+            "Pearl satin adds gentle depth and refinement to muted palettes — soft sheen, not glossy.",
+        });
+        out.push({
+          paperId: "hahnemuhle-photo-silk-baryta",
+          reason:
+            "Silky-gloss surface — softer than full gloss, accessible price.",
+        });
       }
-      return recs.slice(0, 3);
+      return dedupe(out);
+    }
+
+    function dedupe(picks: Pick[]): Pick[] {
+      const seen = new Set<string>();
+      return picks.filter((p) => {
+        if (seen.has(p.paperId)) return false;
+        seen.add(p.paperId);
+        return true;
+      });
+    }
+
+    function combinedPicks(t: Traits): Pick[] {
+      const matt = mattPicks(t);
+      const sheen = sheenPicks(t);
+      // Lean matt for B&W; lean sheen for vivid; mix for medium/low.
+      let combined: Pick[];
+      if (t.saturation === "mono") {
+        combined = [matt[0]!, matt[1]!, sheen[0]!];
+      } else if (t.saturation === "high") {
+        combined = [sheen[0]!, sheen[1]!, sheen[2] ?? matt[0]!];
+      } else {
+        combined = [matt[0]!, sheen[0]!, matt[1] ?? sheen[1]!];
+      }
+      return dedupe(combined.filter(Boolean));
+    }
+
+    function pickWarning(t: Traits, pref: Preference): string | null {
+      if (pref === "matt" && t.saturation === "high") {
+        return "Heads up: matt papers will mute vivid colour. If colour punch matters more than no-glare, switch to Sheen / gloss.";
+      }
+      if (pref === "sheen" && t.saturation === "low") {
+        return "Note: sheen finishes are less common for muted, soft images — most studios reach for matt instead.";
+      }
+      return null;
+    }
+
+    function recommendFor(t: Traits, pref: Preference): Pick[] {
+      if (pref === "matt") return mattPicks(t).slice(0, 3);
+      if (pref === "sheen") return sheenPicks(t).slice(0, 3);
+      return combinedPicks(t).slice(0, 3);
     }
 
     function jumpToPaper(paperId: string) {
@@ -737,6 +929,22 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
       });
     }
 
+    function renderForCurrentTraits() {
+      if (!lastTraits) return;
+      const picks = recommendFor(lastTraits, preference);
+      const labels = traitLabels(lastTraits);
+      const warn = pickWarning(lastTraits, preference);
+      renderTraits(labels);
+      renderPicks(picks);
+      if (warn) {
+        warnEl.textContent = warn;
+        warnEl.hidden = false;
+      } else {
+        warnEl.textContent = "";
+        warnEl.hidden = true;
+      }
+    }
+
     async function handleFile(file: File) {
       clearError();
       if (!ALLOWED_TYPES.has(file.type)) {
@@ -749,17 +957,14 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
       }
       try {
         const stats = await analyseImage(file);
-        const traits = categorize(stats);
-        const picks = recommend(traits);
-        const labels = traitLabels(traits);
+        lastTraits = categorize(stats);
 
         if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
         lastObjectUrl = URL.createObjectURL(file);
         thumbEl.src = lastObjectUrl;
         thumbEl.alt = file.name;
 
-        renderTraits(labels);
-        renderPicks(picks);
+        renderForCurrentTraits();
 
         dropState.hidden = true;
         resultEl.hidden = false;
@@ -771,6 +976,16 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
         );
       }
     }
+
+    prefBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const next = (btn.dataset.pref ?? "any") as Preference;
+        if (next === preference) return;
+        preference = next;
+        prefBtns.forEach((b) => b.classList.toggle("is-active", b === btn));
+        renderForCurrentTraits();
+      });
+    });
 
     input.addEventListener("change", () => {
       const f = input.files?.[0];
@@ -796,10 +1011,13 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
     resetBtn.addEventListener("click", () => {
       if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
       lastObjectUrl = null;
+      lastTraits = null;
       thumbEl.removeAttribute("src");
       input.value = "";
       listEl.innerHTML = "";
       traitsEl.innerHTML = "";
+      warnEl.textContent = "";
+      warnEl.hidden = true;
       resultEl.hidden = true;
       dropState.hidden = false;
       clearError();
