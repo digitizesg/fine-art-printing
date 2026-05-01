@@ -1,0 +1,733 @@
+---
+import { PAPERS } from "../data/pricing/paper";
+
+// Inline the paper info we need into the markup so the script doesn't have
+// to re-import everything from the pricing data on the client.
+const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: string; image: string }>>(
+  (acc, p) => {
+    acc[p.id] = {
+      brand: p.brand,
+      shortName: p.shortName,
+      image: p.images[0] ? `/photos/${p.images[0]}` : "",
+    };
+    return acc;
+  },
+  {},
+);
+---
+<section class="paper-recommender" data-paper-recommender>
+  <div class="paper-recommender__intro">
+    <p class="paper-recommender__eyebrow">Find your match</p>
+    <h3 class="paper-recommender__heading">Drop in your image, we'll suggest a paper.</h3>
+    <p class="paper-recommender__sub">
+      We check the colours, brightness, and contrast in your image and
+      suggest 2 to 3 papers that fit it. Nothing leaves your browser.
+    </p>
+  </div>
+
+  <!-- Drop state -->
+  <div data-pr-drop-state>
+    <label class="paper-recommender__drop" data-pr-drop>
+      <input type="file" accept="image/jpeg,image/png" hidden data-pr-input />
+      <div class="paper-recommender__drop-content">
+        <svg class="paper-recommender__drop-icon" width="40" height="40" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <path d="M14 30v6a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4v-6M24 8v22m0-22l-7 7m7-7l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p class="paper-recommender__drop-title">
+          Drop your image here, or
+          <span class="paper-recommender__drop-link">click to browse</span>.
+        </p>
+        <p class="paper-recommender__hint">JPG or PNG, up to 100 MB</p>
+      </div>
+    </label>
+    <p class="paper-recommender__error" data-pr-error hidden></p>
+  </div>
+
+  <!-- Result state -->
+  <div class="paper-recommender__result" data-pr-result hidden>
+    <div class="paper-recommender__result-head">
+      <img class="paper-recommender__thumb" data-pr-thumb alt="" />
+      <div class="paper-recommender__detected">
+        <p class="paper-recommender__detected-label">What we see</p>
+        <ul class="paper-recommender__traits" data-pr-traits></ul>
+      </div>
+      <button type="button" class="paper-recommender__reset" data-pr-reset>
+        Try another
+      </button>
+    </div>
+
+    <div class="paper-recommender__suggestions">
+      <p class="paper-recommender__suggestions-label">Papers we'd suggest</p>
+      <ul class="paper-recommender__list" data-pr-list></ul>
+      <p class="paper-recommender__caveat">
+        These are starting points based on colour and contrast only. We
+        can't see your subject matter or taste, so browse all papers below
+        if none of these feel right.
+      </p>
+    </div>
+  </div>
+
+  <script type="application/json" data-pr-lookup set:html={JSON.stringify(paperLookup)}></script>
+</section>
+
+<style>
+  .paper-recommender {
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 16px;
+    padding: 24px;
+    background: #fff;
+    display: grid;
+    gap: 22px;
+  }
+  @media (min-width: 760px) {
+    .paper-recommender {
+      padding: 28px;
+    }
+  }
+
+  .paper-recommender__intro {
+    display: grid;
+    gap: 8px;
+    max-width: 60ch;
+  }
+  .paper-recommender__eyebrow {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-petrol);
+  }
+  .paper-recommender__heading {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: clamp(20px, 2.5vw, 24px);
+    line-height: 1.2;
+    color: var(--color-ink);
+    letter-spacing: -0.005em;
+  }
+  .paper-recommender__sub {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--color-subtle);
+  }
+
+  /* Drop state */
+  .paper-recommender__drop {
+    display: block;
+    border: 2px dashed rgba(0, 0, 0, 0.18);
+    border-radius: 14px;
+    padding: 36px 20px;
+    background: #FAF7F1;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 150ms ease-out, background 150ms ease-out;
+  }
+  .paper-recommender__drop:hover,
+  .paper-recommender__drop:focus-within {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.03);
+  }
+  .paper-recommender__drop.is-dragover {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.06);
+  }
+  .paper-recommender__drop-content {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+  }
+  .paper-recommender__drop-icon {
+    color: var(--color-muted);
+  }
+  .paper-recommender__drop-title {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 17px;
+    color: var(--color-ink);
+  }
+  .paper-recommender__drop-link {
+    color: var(--color-petrol);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .paper-recommender__hint {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--color-subtle);
+  }
+
+  .paper-recommender__error {
+    margin: 12px 0 0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: rgba(220, 38, 38, 0.06);
+    color: #b1271f;
+    font-size: 13.5px;
+  }
+
+  /* Result state */
+  .paper-recommender__result-head {
+    display: grid;
+    grid-template-columns: 96px 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+  @media (max-width: 540px) {
+    .paper-recommender__result-head {
+      grid-template-columns: 72px 1fr;
+      grid-template-areas:
+        "thumb detected"
+        "reset reset";
+    }
+    .paper-recommender__thumb { grid-area: thumb; }
+    .paper-recommender__detected { grid-area: detected; }
+    .paper-recommender__reset { grid-area: reset; justify-self: start; }
+  }
+
+  .paper-recommender__thumb {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: 10px;
+    background: #f4efe7;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  @media (max-width: 540px) {
+    .paper-recommender__thumb { width: 72px; height: 72px; }
+  }
+
+  .paper-recommender__detected-label {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+  .paper-recommender__traits {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .paper-recommender__traits li {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
+    background: rgba(26, 53, 80, 0.06);
+    color: var(--color-petrol);
+  }
+
+  .paper-recommender__reset {
+    appearance: none;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: #fff;
+    color: var(--color-ink);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease-out;
+  }
+  .paper-recommender__reset:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  /* Suggestions */
+  .paper-recommender__suggestions {
+    border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    padding-top: 20px;
+    display: grid;
+    gap: 14px;
+  }
+  .paper-recommender__suggestions-label {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+  .paper-recommender__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .paper-recommender__pick {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 12px;
+    background: #fff;
+    transition: border-color 150ms ease-out, background 150ms ease-out;
+  }
+  .paper-recommender__pick:hover {
+    border-color: rgba(0, 0, 0, 0.18);
+    background: rgba(0, 0, 0, 0.015);
+  }
+  .paper-recommender__pick-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #f4efe7;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  .paper-recommender__pick-body {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  .paper-recommender__pick-brand {
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--color-muted);
+    line-height: 1.2;
+  }
+  .paper-recommender__pick-name {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 15.5px;
+    color: var(--color-ink);
+    line-height: 1.2;
+  }
+  .paper-recommender__pick-reason {
+    margin: 4px 0 0;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--color-subtle);
+  }
+  .paper-recommender__pick-cta {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--color-petrol);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 6px 4px;
+    align-self: start;
+    justify-self: end;
+    white-space: nowrap;
+  }
+  .paper-recommender__pick-cta:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  @media (max-width: 540px) {
+    .paper-recommender__pick {
+      grid-template-columns: 56px 1fr;
+      grid-template-areas:
+        "thumb body"
+        "reason reason"
+        "cta cta";
+    }
+    .paper-recommender__pick-thumb { grid-area: thumb; }
+    .paper-recommender__pick-body { grid-area: body; }
+    .paper-recommender__pick-reason { grid-area: reason; margin-top: 6px; }
+    .paper-recommender__pick-cta { grid-area: cta; justify-self: start; padding-left: 0; }
+  }
+
+  .paper-recommender__caveat {
+    margin: 4px 0 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--color-subtle);
+  }
+</style>
+
+<script>
+  const MAX_BYTES = 100 * 1024 * 1024;
+  const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
+  const SAMPLE_MAX_DIM = 400;
+
+  type PaperLookup = Record<string, { brand: string; shortName: string; image: string }>;
+  type Saturation = "mono" | "low" | "medium" | "high";
+  type Contrast = "low" | "medium" | "high";
+  type Brightness = "dark" | "mid" | "bright";
+  type Warmth = "cool" | "neutral" | "warm";
+  type Traits = {
+    saturation: Saturation;
+    contrast: Contrast;
+    brightness: Brightness;
+    warmth: Warmth;
+  };
+  type Pick = { paperId: string; reason: string };
+
+  const root = document.querySelector<HTMLElement>("[data-paper-recommender]");
+  if (root) initRecommender(root);
+
+  function initRecommender(root: HTMLElement) {
+    const lookupRaw = root.querySelector<HTMLElement>("[data-pr-lookup]")?.textContent ?? "{}";
+    let lookup: PaperLookup = {};
+    try {
+      lookup = JSON.parse(lookupRaw);
+    } catch {
+      // empty lookup -> fall back to id strings
+    }
+
+    const dropState = root.querySelector<HTMLElement>("[data-pr-drop-state]")!;
+    const drop = root.querySelector<HTMLLabelElement>("[data-pr-drop]")!;
+    const input = root.querySelector<HTMLInputElement>("[data-pr-input]")!;
+    const errorEl = root.querySelector<HTMLElement>("[data-pr-error]")!;
+    const resultEl = root.querySelector<HTMLElement>("[data-pr-result]")!;
+    const thumbEl = root.querySelector<HTMLImageElement>("[data-pr-thumb]")!;
+    const traitsEl = root.querySelector<HTMLUListElement>("[data-pr-traits]")!;
+    const listEl = root.querySelector<HTMLUListElement>("[data-pr-list]")!;
+    const resetBtn = root.querySelector<HTMLButtonElement>("[data-pr-reset]")!;
+
+    let lastObjectUrl: string | null = null;
+
+    function showError(msg: string) {
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+    }
+    function clearError() {
+      errorEl.textContent = "";
+      errorEl.hidden = true;
+    }
+
+    async function analyseImage(file: File) {
+      const bitmap = await createImageBitmap(file);
+      const ratio = Math.min(
+        SAMPLE_MAX_DIM / bitmap.width,
+        SAMPLE_MAX_DIM / bitmap.height,
+        1,
+      );
+      const w = Math.max(1, Math.round(bitmap.width * ratio));
+      const h = Math.max(1, Math.round(bitmap.height * ratio));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Canvas unavailable.");
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      bitmap.close?.();
+
+      const data = ctx.getImageData(0, 0, w, h).data;
+      let sumS = 0,
+        sumL = 0,
+        sumL2 = 0,
+        warmAcc = 0,
+        satWeight = 0,
+        n = 0;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i]! / 255;
+        const g = data[i + 1]! / 255;
+        const b = data[i + 2]! / 255;
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const l = (max + min) / 2;
+        let s = 0;
+        if (max !== min) {
+          s = l < 0.5 ? (max - min) / (max + min) : (max - min) / (2 - max - min);
+        }
+        let hue = 0;
+        if (max !== min) {
+          const d = max - min;
+          if (max === r) hue = ((g - b) / d) % 6;
+          else if (max === g) hue = (b - r) / d + 2;
+          else hue = (r - g) / d + 4;
+          hue *= 60;
+          if (hue < 0) hue += 360;
+        }
+        sumS += s;
+        sumL += l;
+        sumL2 += l * l;
+        if (s > 0.05) {
+          // Warmth: positive at red/orange/yellow, negative at cyan/blue.
+          const radian = ((hue - 30) * Math.PI) / 180;
+          warmAcc += Math.cos(radian) * s;
+          satWeight += s;
+        }
+        n++;
+      }
+      const meanS = sumS / n;
+      const meanL = sumL / n;
+      const stdL = Math.sqrt(Math.max(0, sumL2 / n - meanL * meanL));
+      const warmth = satWeight > 0 ? warmAcc / satWeight : 0;
+      return { meanS, meanL, stdL, warmth };
+    }
+
+    function categorize(stats: {
+      meanS: number;
+      meanL: number;
+      stdL: number;
+      warmth: number;
+    }): Traits {
+      let saturation: Saturation;
+      if (stats.meanS < 0.07) saturation = "mono";
+      else if (stats.meanS < 0.2) saturation = "low";
+      else if (stats.meanS < 0.38) saturation = "medium";
+      else saturation = "high";
+
+      let contrast: Contrast;
+      if (stats.stdL < 0.15) contrast = "low";
+      else if (stats.stdL < 0.25) contrast = "medium";
+      else contrast = "high";
+
+      let brightness: Brightness;
+      if (stats.meanL < 0.35) brightness = "dark";
+      else if (stats.meanL < 0.65) brightness = "mid";
+      else brightness = "bright";
+
+      let warmth: Warmth;
+      if (stats.warmth > 0.18) warmth = "warm";
+      else if (stats.warmth < -0.18) warmth = "cool";
+      else warmth = "neutral";
+
+      return { saturation, contrast, brightness, warmth };
+    }
+
+    function traitLabels(t: Traits): string[] {
+      const labels: string[] = [];
+      if (t.saturation === "mono") labels.push("Mostly tones / B&W");
+      else if (t.saturation === "high") labels.push("Vibrant colour");
+      else if (t.saturation === "medium") labels.push("Balanced colour");
+      else labels.push("Muted colour");
+      if (t.contrast === "high") labels.push("High contrast");
+      else if (t.contrast === "low") labels.push("Soft contrast");
+      if (t.brightness === "dark") labels.push("Dark scene");
+      else if (t.brightness === "bright") labels.push("Bright scene");
+      if (t.warmth === "warm") labels.push("Warm-toned");
+      else if (t.warmth === "cool") labels.push("Cool-toned");
+      return labels;
+    }
+
+    function recommend(t: Traits): Pick[] {
+      const recs: Pick[] = [];
+      const { saturation, contrast, brightness, warmth } = t;
+
+      if (saturation === "mono") {
+        recs.push({
+          paperId: "hahnemuhle-photo-rag",
+          reason:
+            "For mostly-tonal or B&W work, smooth matt cotton gives clean tonal range and even shadow detail.",
+        });
+        if (contrast === "high" || brightness === "dark") {
+          recs.push({
+            paperId: "hahnemuhle-metallic-rag",
+            reason:
+              "High-contrast and dark scenes pick up depth on the metallic surface — particularly strong on architectural and night-scene B&W.",
+          });
+        }
+        if (warmth === "warm" && recs.length < 3) {
+          recs.push({
+            paperId: "hahnemuhle-bamboo",
+            reason: "A warm bamboo base flatters warm-toned B&W work.",
+          });
+        }
+        if (recs.length < 2) {
+          recs.push({
+            paperId: "hahnemuhle-fineart-pearl",
+            reason:
+              "A subtle pearl sheen adds depth without distracting — versatile for B&W with mid-range tones.",
+          });
+        }
+      } else if (saturation === "high") {
+        recs.push({
+          paperId: "hahnemuhle-bamboo-gloss",
+          reason:
+            "Vibrant colours stay punchy on glossy baryta — matt papers would mute the saturation.",
+        });
+        recs.push({
+          paperId: "hahnemuhle-photo-rag-matt-baryta",
+          reason:
+            "Matt baryta keeps colours vivid without surface gloss — the calmer, no-glare alternative.",
+        });
+        if (contrast === "high" || brightness === "dark") {
+          recs.push({
+            paperId: "hahnemuhle-metallic-rag",
+            reason:
+              "Bright saturated colour against dark or high-contrast backgrounds shines on the metallic surface.",
+          });
+        } else {
+          recs.push({
+            paperId: "hahnemuhle-fineart-pearl",
+            reason:
+              "Pearl sheen carries saturation with a softer surface than full gloss.",
+          });
+        }
+      } else if (saturation === "medium") {
+        recs.push({
+          paperId: "hahnemuhle-photo-rag-matt-baryta",
+          reason:
+            "Balanced colour reads beautifully on matt baryta — full colour fidelity, no glare.",
+        });
+        recs.push({
+          paperId: "hahnemuhle-fineart-pearl",
+          reason:
+            "Pearl satin adds gentle depth and excellent detail — versatile across colour subjects.",
+        });
+        if (warmth === "warm") {
+          recs.push({
+            paperId: "hahnemuhle-bamboo",
+            reason: "Warm bamboo base reinforces warm-leaning subjects.",
+          });
+        } else {
+          recs.push({
+            paperId: "hahnemuhle-photo-rag",
+            reason:
+              "For a softer, more muted look, smooth matt cotton dials down the colour pleasantly.",
+          });
+        }
+      } else {
+        // low saturation
+        recs.push({
+          paperId: "hahnemuhle-photo-rag",
+          reason:
+            "Soft, muted images sit beautifully on smooth matt cotton — no surface shimmer to compete.",
+        });
+        if (warmth === "warm") {
+          recs.push({
+            paperId: "hahnemuhle-bamboo",
+            reason: "Warm bamboo base reinforces a warm, contemplative mood.",
+          });
+        }
+        if (contrast === "high") {
+          recs.push({
+            paperId: "hahnemuhle-german-etching",
+            reason:
+              "High contrast benefits from the deeper blacks of German Etching's strongly textured surface.",
+          });
+        }
+        if (recs.length < 2) {
+          recs.push({
+            paperId: "datajet-100-cotton-rag",
+            reason:
+              "Photo Rag character at a more accessible price — smooth matt cotton, archival.",
+          });
+        }
+      }
+      return recs.slice(0, 3);
+    }
+
+    function jumpToPaper(paperId: string) {
+      const showcase = document.querySelector<HTMLElement>("[data-paper-showcase]");
+      if (!showcase) return;
+      const tab = showcase.querySelector<HTMLButtonElement>(
+        `[data-tab-target="${paperId}"]`,
+      );
+      tab?.click();
+      const tabsRow = showcase.querySelector<HTMLElement>(".paper-showcase__tabs");
+      (tabsRow ?? showcase).scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function renderPicks(picks: Pick[]) {
+      listEl.innerHTML = "";
+      picks.forEach((pick) => {
+        const meta = lookup[pick.paperId];
+        const li = document.createElement("li");
+        li.className = "paper-recommender__pick";
+        const thumb = meta?.image
+          ? `<img class="paper-recommender__pick-thumb" src="${meta.image}" alt="" loading="lazy" />`
+          : `<span class="paper-recommender__pick-thumb"></span>`;
+        li.innerHTML = `
+          ${thumb}
+          <div class="paper-recommender__pick-body">
+            <p class="paper-recommender__pick-brand">${meta?.brand ?? ""}</p>
+            <p class="paper-recommender__pick-name">${meta?.shortName ?? pick.paperId}</p>
+            <p class="paper-recommender__pick-reason">${pick.reason}</p>
+          </div>
+          <button type="button" class="paper-recommender__pick-cta">See in detail →</button>
+        `;
+        const cta = li.querySelector<HTMLButtonElement>(".paper-recommender__pick-cta")!;
+        cta.addEventListener("click", () => jumpToPaper(pick.paperId));
+        listEl.appendChild(li);
+      });
+    }
+
+    function renderTraits(labels: string[]) {
+      traitsEl.innerHTML = "";
+      labels.forEach((l) => {
+        const li = document.createElement("li");
+        li.textContent = l;
+        traitsEl.appendChild(li);
+      });
+    }
+
+    async function handleFile(file: File) {
+      clearError();
+      if (!ALLOWED_TYPES.has(file.type)) {
+        showError("That file isn't a JPG or PNG. Try one of those formats.");
+        return;
+      }
+      if (file.size > MAX_BYTES) {
+        showError("That file is over the 100 MB limit. Try a smaller version.");
+        return;
+      }
+      try {
+        const stats = await analyseImage(file);
+        const traits = categorize(stats);
+        const picks = recommend(traits);
+        const labels = traitLabels(traits);
+
+        if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+        lastObjectUrl = URL.createObjectURL(file);
+        thumbEl.src = lastObjectUrl;
+        thumbEl.alt = file.name;
+
+        renderTraits(labels);
+        renderPicks(picks);
+
+        dropState.hidden = true;
+        resultEl.hidden = false;
+      } catch (err) {
+        showError(
+          err instanceof Error
+            ? err.message
+            : "Could not analyse this image. Try a different file.",
+        );
+      }
+    }
+
+    input.addEventListener("change", () => {
+      const f = input.files?.[0];
+      if (f) handleFile(f);
+    });
+
+    ["dragenter", "dragover"].forEach((ev) =>
+      drop.addEventListener(ev, (e) => {
+        e.preventDefault();
+        drop.classList.add("is-dragover");
+      }),
+    );
+    ["dragleave", "dragend"].forEach((ev) =>
+      drop.addEventListener(ev, () => drop.classList.remove("is-dragover")),
+    );
+    drop.addEventListener("drop", (e) => {
+      e.preventDefault();
+      drop.classList.remove("is-dragover");
+      const f = (e as DragEvent).dataTransfer?.files?.[0];
+      if (f) handleFile(f);
+    });
+
+    resetBtn.addEventListener("click", () => {
+      if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+      lastObjectUrl = null;
+      thumbEl.removeAttribute("src");
+      input.value = "";
+      listEl.innerHTML = "";
+      traitsEl.innerHTML = "";
+      resultEl.hidden = true;
+      dropState.hidden = false;
+      clearError();
+    });
+  }
+</script>
