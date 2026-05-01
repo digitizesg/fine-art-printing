@@ -17,12 +17,14 @@ const navLinks = [
 
 const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'd like a quick quote.")}`;
 ---
-<header class="border-b border-border-soft bg-white">
-  <div class="mx-auto flex max-w-[1180px] items-center justify-between px-6 py-5">
+<header class="relative border-b border-border-soft bg-white">
+  <div class="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-6 py-5">
     <a href="/" class="font-serif text-[20px] font-medium tracking-tight text-ink">
       Fine Art Printing
     </a>
-    <nav class="flex items-center gap-5 sm:gap-7">
+
+    <!-- Desktop nav -->
+    <nav class="hidden md:flex items-center gap-5 lg:gap-7">
       <details class="services-menu">
         <summary class="services-menu__trigger text-[14px] text-muted hover:text-ink transition-colors">
           Services
@@ -49,13 +51,79 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
         target="_blank"
         rel="noopener"
         aria-label="Chat with us on WhatsApp"
-        class="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#25D366] text-white transition-colors hover:bg-[#1ebe5b]"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#25D366] text-white transition-colors hover:bg-[#1ebe5b]"
       >
         <WhatsAppIcon size={16} />
       </a>
       <Button href="/contact" variant="secondary" class="!py-2 !px-4">
         Get in touch <span aria-hidden="true">→</span>
       </Button>
+    </nav>
+
+    <!-- Mobile hamburger -->
+    <button
+      id="mobile-menu-toggle"
+      type="button"
+      aria-controls="mobile-menu-panel"
+      aria-expanded="false"
+      aria-label="Toggle menu"
+      class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md text-ink hover:bg-black/5 transition-colors"
+    >
+      <svg class="mobile-menu__icon-open" width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+        <path d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+      </svg>
+      <svg class="mobile-menu__icon-close" width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true" hidden>
+        <path d="M5 5l12 12M17 5L5 17" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile menu panel -->
+  <div
+    id="mobile-menu-panel"
+    class="md:hidden border-t border-border-soft bg-white"
+    hidden
+  >
+    <nav class="mx-auto flex max-w-[1180px] flex-col px-6 pt-4 pb-6">
+      <p class="text-[11px] font-semibold uppercase tracking-wide text-muted">Services</p>
+      <div class="mt-1 flex flex-col">
+        {services.map((s) => (
+          <a
+            href={s.href}
+            class="block py-2.5 text-[15px] text-ink hover:text-petrol transition-colors"
+          >
+            {s.label}
+          </a>
+        ))}
+      </div>
+
+      <hr class="my-4 border-border-soft" />
+
+      <div class="flex flex-col">
+        {navLinks.map((link) => (
+          <a
+            href={link.href}
+            class="block py-2.5 text-[15px] text-ink hover:text-petrol transition-colors"
+          >
+            {link.label}
+          </a>
+        ))}
+      </div>
+
+      <div class="mt-5 flex flex-col gap-2.5">
+        <a
+          href={waHref}
+          target="_blank"
+          rel="noopener"
+          class="inline-flex items-center justify-center gap-2 rounded-pill border border-[#1ebe5b] bg-[#25D366] px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#1ebe5b]"
+        >
+          <WhatsAppIcon size={16} />
+          <span>WhatsApp us</span>
+        </a>
+        <Button href="/contact" variant="secondary" class="w-full">
+          Get in touch <span aria-hidden="true">→</span>
+        </Button>
+      </div>
     </nav>
   </div>
 </header>
@@ -112,8 +180,8 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 </style>
 
 <script>
-  // Close the Services dropdown when clicking outside or pressing Escape.
   function init() {
+    // Services dropdown — close on outside click or Escape.
     const menus = document.querySelectorAll<HTMLDetailsElement>(".services-menu");
     menus.forEach((menu) => {
       document.addEventListener("click", (e) => {
@@ -127,6 +195,38 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
           menu.querySelector<HTMLElement>("summary")?.focus();
         }
       });
+    });
+
+    // Mobile hamburger menu.
+    const toggle = document.getElementById("mobile-menu-toggle");
+    const panel = document.getElementById("mobile-menu-panel");
+    if (!toggle || !panel) return;
+    const iconOpen = toggle.querySelector<HTMLElement>(".mobile-menu__icon-open");
+    const iconClose = toggle.querySelector<HTMLElement>(".mobile-menu__icon-close");
+
+    const setExpanded = (expanded: boolean) => {
+      toggle.setAttribute("aria-expanded", String(expanded));
+      panel.hidden = !expanded;
+      if (iconOpen) iconOpen.hidden = expanded;
+      if (iconClose) iconClose.hidden = !expanded;
+    };
+
+    toggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const expanded = toggle.getAttribute("aria-expanded") === "true";
+      setExpanded(!expanded);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && toggle.getAttribute("aria-expanded") === "true") {
+        setExpanded(false);
+        toggle.focus();
+      }
+    });
+
+    // Close when navigating away to a hash on the same page.
+    panel.querySelectorAll<HTMLAnchorElement>("a[href^='#']").forEach((a) => {
+      a.addEventListener("click", () => setExpanded(false));
     });
   }
   if (document.readyState !== "loading") init();

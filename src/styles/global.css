@@ -116,6 +116,22 @@
     transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1),
     box-shadow 200ms ease-out;
 }
+@media (max-width: 640px) {
+  .fap-yt-frame .fap-yt-bigplay {
+    width: 64px;
+    height: 64px;
+  }
+  .fap-yt-frame .fap-yt-bigplay svg {
+    width: 24px;
+    height: 24px;
+  }
+  .fap-yt-frame .fap-yt-pill {
+    left: 12px;
+    bottom: 12px;
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+}
 .fap-yt-frame .fap-yt-bigplay svg {
   margin-left: 4px; /* optical centering of the play triangle */
 }
