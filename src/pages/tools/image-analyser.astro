@@ -1,0 +1,842 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Eyebrow from "../../components/Eyebrow.astro";
+import DisplayHeading from "../../components/DisplayHeading.astro";
+import DarkCTA from "../../components/DarkCTA.astro";
+import WhatsAppIcon from "../../components/icons/WhatsAppIcon.astro";
+import { business } from "../../data/business";
+
+const description =
+  "Free image resolution and print-size checker. Drop in any JPG or PNG to see its pixel dimensions, file size, and the maximum sharp print size at 300 PPI. Runs entirely in your browser.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Image Analyser",
+  applicationCategory: "MultimediaApplication",
+  operatingSystem: "Any (web browser)",
+  url: "https://fineartprinting.com.sg/tools/image-analyser",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "SGD",
+  },
+};
+
+const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I just used the image analyser tool and would like to discuss a print.")}`;
+---
+<BaseLayout
+  title="Image analyser · Free PPI and print-size checker · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-12 pb-8 md:pt-16 md:pb-10">
+      <p class="text-[12.5px] text-muted">
+        <a href="/tools" class="hover:text-ink hover:underline underline-offset-2">Tools</a>
+        <span class="px-1.5 text-subtle" aria-hidden="true">›</span>
+        <span class="text-ink">Image analyser</span>
+      </p>
+      <div class="mt-5 max-w-[820px]">
+        <Eyebrow>Free tool</Eyebrow>
+        <h1 class="mt-4 font-serif text-[clamp(2rem,4.5vw,2.7rem)] font-medium leading-[1.1] text-ink">
+          Will my image print sharp at the size I want?
+        </h1>
+        <p class="mt-5 max-w-[680px] text-[16px] leading-relaxed text-subtle">
+          Drop a JPG or PNG below. We'll show you its pixel dimensions and let
+          you preview how sharp it'll print at any size, in inches or
+          centimetres. Nothing leaves your browser.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tool -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pb-16">
+      <div class="image-analyser" data-image-analyser>
+        <!-- Initial state: dropzone -->
+        <label class="image-analyser__drop" data-drop>
+          <input
+            type="file"
+            accept="image/jpeg,image/png"
+            class="sr-only"
+            data-file-input
+          />
+          <div class="image-analyser__drop-content">
+            <svg
+              class="image-analyser__drop-icon"
+              width="48"
+              height="48"
+              viewBox="0 0 48 48"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M14 30v6a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4v-6M24 8v22m0-22l-7 7m7-7l7 7"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <p class="image-analyser__drop-title">
+              Drop your image here, or
+              <span class="image-analyser__drop-link">click to browse</span>.
+            </p>
+            <p class="image-analyser__drop-hint">JPG or PNG, up to 100 MB</p>
+          </div>
+        </label>
+
+        <p class="image-analyser__error" data-error hidden></p>
+
+        <!-- Result state -->
+        <div class="image-analyser__result" data-result hidden>
+          <div class="image-analyser__top">
+            <figure class="image-analyser__preview">
+              <img alt="" data-preview />
+              <figcaption data-filename></figcaption>
+            </figure>
+            <dl class="image-analyser__meta">
+              <div>
+                <dt>Pixel dimensions</dt>
+                <dd data-meta-dimensions>—</dd>
+              </div>
+              <div>
+                <dt>Megapixels</dt>
+                <dd data-meta-megapixels>—</dd>
+              </div>
+              <div>
+                <dt>File size</dt>
+                <dd data-meta-filesize>—</dd>
+              </div>
+              <div>
+                <dt>File type</dt>
+                <dd data-meta-filetype>—</dd>
+              </div>
+            </dl>
+          </div>
+
+          <div class="image-analyser__bench">
+            <p class="image-analyser__bench-title">Print size to check</p>
+
+            <div class="image-analyser__bench-row">
+              <label class="image-analyser__field">
+                <span>Width</span>
+                <input
+                  type="number"
+                  inputmode="decimal"
+                  min="1"
+                  step="0.1"
+                  data-target-width
+                />
+              </label>
+              <span class="image-analyser__by" aria-hidden="true">×</span>
+              <label class="image-analyser__field">
+                <span>Height</span>
+                <input
+                  type="number"
+                  inputmode="decimal"
+                  min="1"
+                  step="0.1"
+                  data-target-height
+                />
+              </label>
+              <div class="image-analyser__units" role="radiogroup" aria-label="Units">
+                <label>
+                  <input type="radio" name="ia-units" value="cm" checked data-units />
+                  <span>cm</span>
+                </label>
+                <label>
+                  <input type="radio" name="ia-units" value="in" data-units />
+                  <span>in</span>
+                </label>
+              </div>
+            </div>
+
+            <p class="image-analyser__lock-row">
+              <label class="image-analyser__lock">
+                <input type="checkbox" checked data-lock />
+                <span>Lock aspect ratio</span>
+              </label>
+            </p>
+
+            <div class="image-analyser__readout" data-readout>
+              <div class="image-analyser__ppi">
+                <span class="image-analyser__ppi-value" data-ppi>—</span>
+                <span class="image-analyser__ppi-unit">PPI</span>
+              </div>
+              <div class="image-analyser__band" data-band></div>
+            </div>
+
+            <p class="image-analyser__hint">
+              For reference, 300 PPI is the gold standard for sharp prints,
+              150 PPI usually meets expectations, and below 100 PPI you'll
+              likely see softness.
+            </p>
+          </div>
+
+          <div class="image-analyser__actions">
+            <button type="button" class="image-analyser__reset" data-reset>
+              Try a different image
+            </button>
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener"
+              class="image-analyser__cta"
+            >
+              <WhatsAppIcon size={16} />
+              <span>Send this to us on WhatsApp</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Quality guide -->
+  <section class="border-t border-border-soft bg-[#FAF7F1]">
+    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>Quality guide</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">What the numbers mean.</DisplayHeading>
+          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+            Pixels per inch (PPI) is how many image pixels land in each inch
+            of your printed piece. The lower it is at your target size, the
+            softer the print will look.
+          </p>
+        </div>
+        <ol class="md:col-span-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <li class="rounded-card border border-border-soft bg-white p-5">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-emerald-700">300 PPI and up</p>
+            <p class="mt-2 font-serif text-[18px] font-medium text-ink">Excellent</p>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+              High resolution. Edges are crisp, fine detail is preserved.
+              No concerns at all for fine art printing.
+            </p>
+          </li>
+          <li class="rounded-card border border-border-soft bg-white p-5">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">150 to 299 PPI</p>
+            <p class="mt-2 font-serif text-[18px] font-medium text-ink">Good</p>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+              Meets the expectations most people have for a sharp print. Worth
+              checking on a 1:1 crop, but usually fine.
+            </p>
+          </li>
+          <li class="rounded-card border border-border-soft bg-white p-5">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-amber-700">100 to 149 PPI</p>
+            <p class="mt-2 font-serif text-[18px] font-medium text-ink">Borderline</p>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+              You can still print, but expect some softness. Either reduce
+              the print size, or send us the file for enlargement and
+              sharpening.
+            </p>
+          </li>
+          <li class="rounded-card border border-border-soft bg-white p-5">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-rose-700">Below 100 PPI</p>
+            <p class="mt-2 font-serif text-[18px] font-medium text-ink">Not ideal</p>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+              You'll likely see pixelation or visible blur. Print smaller, or
+              ask us about our enlargement service before committing.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <DarkCTA />
+</BaseLayout>
+
+<style>
+  .image-analyser {
+    display: grid;
+    gap: 24px;
+  }
+
+  /* Dropzone */
+  .image-analyser__drop {
+    display: block;
+    border: 2px dashed rgba(0, 0, 0, 0.18);
+    border-radius: 16px;
+    padding: 56px 24px;
+    background: #fff;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 150ms ease-out, background 150ms ease-out;
+  }
+  .image-analyser__drop:hover,
+  .image-analyser__drop:focus-within {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.02);
+  }
+  .image-analyser__drop.is-dragover {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.05);
+  }
+  .image-analyser__drop-content {
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+  }
+  .image-analyser__drop-icon {
+    color: var(--color-muted);
+  }
+  .image-analyser__drop-title {
+    font-family: var(--font-serif);
+    font-size: 19px;
+    font-weight: 500;
+    color: var(--color-ink);
+    margin: 0;
+  }
+  .image-analyser__drop-link {
+    color: var(--color-petrol);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .image-analyser__drop-hint {
+    font-size: 13px;
+    color: var(--color-subtle);
+    margin: 0;
+  }
+
+  .image-analyser__error {
+    margin: 0;
+    padding: 14px 18px;
+    border-radius: 10px;
+    background: rgba(220, 38, 38, 0.06);
+    color: #b1271f;
+    font-size: 14px;
+  }
+
+  /* Result */
+  .image-analyser__result {
+    display: grid;
+    gap: 28px;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 16px;
+    padding: 28px;
+    background: #fff;
+  }
+  @media (max-width: 640px) {
+    .image-analyser__result {
+      padding: 18px;
+      gap: 22px;
+      border-radius: 12px;
+    }
+  }
+
+  .image-analyser__top {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 760px) {
+    .image-analyser__top {
+      grid-template-columns: minmax(220px, 280px) 1fr;
+      align-items: start;
+    }
+  }
+
+  .image-analyser__preview {
+    margin: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .image-analyser__preview img {
+    display: block;
+    width: 100%;
+    max-height: 280px;
+    object-fit: contain;
+    background: #f4efe7;
+    border-radius: 10px;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+  }
+  .image-analyser__preview figcaption {
+    font-size: 12px;
+    color: var(--color-muted);
+    word-break: break-all;
+  }
+
+  .image-analyser__meta {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 24px;
+    margin: 0;
+    align-self: start;
+  }
+  .image-analyser__meta dt {
+    font-size: 12px;
+    color: var(--color-muted);
+    margin-bottom: 3px;
+  }
+  .image-analyser__meta dd {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Bench (size input + readout) */
+  .image-analyser__bench {
+    border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    padding-top: 22px;
+    display: grid;
+    gap: 16px;
+  }
+  .image-analyser__bench-title {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--color-ink);
+    margin: 0;
+  }
+  .image-analyser__bench-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 12px;
+  }
+  .image-analyser__field {
+    display: grid;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+  .image-analyser__field input {
+    padding: 10px 12px;
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.15));
+    border-radius: 8px;
+    font-size: 16px;
+    width: 110px;
+    font-variant-numeric: tabular-nums;
+    background: #fff;
+    color: var(--color-ink);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .image-analyser__field input:focus {
+    outline: 2px solid var(--color-petrol);
+    outline-offset: 0;
+    border-color: var(--color-petrol);
+  }
+  .image-analyser__by {
+    align-self: end;
+    padding-bottom: 12px;
+    color: var(--color-subtle);
+  }
+  .image-analyser__units {
+    display: inline-flex;
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.15));
+    border-radius: 999px;
+    padding: 3px;
+    background: #fff;
+    align-self: end;
+  }
+  .image-analyser__units label { cursor: pointer; }
+  .image-analyser__units input { position: absolute; opacity: 0; pointer-events: none; }
+  .image-analyser__units span {
+    display: inline-block;
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+  .image-analyser__units label:has(input:checked) span {
+    background: var(--color-petrol);
+    color: #fff;
+  }
+  .image-analyser__lock-row {
+    margin: 0;
+  }
+  .image-analyser__lock {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--color-muted);
+    cursor: pointer;
+    user-select: none;
+  }
+  .image-analyser__lock input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-petrol);
+  }
+
+  /* Readout (PPI + band) */
+  .image-analyser__readout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 22px;
+    margin-top: 6px;
+    padding: 18px 20px;
+    border-radius: 12px;
+    background: #FAF7F1;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+  }
+  .image-analyser__ppi {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .image-analyser__ppi-value {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: clamp(34px, 5vw, 44px);
+    line-height: 1;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .image-analyser__ppi-unit {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .image-analyser__band {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .image-analyser__band[data-level="great"] {
+    background: rgba(16, 185, 129, 0.12);
+    color: #047857;
+  }
+  .image-analyser__band[data-level="good"] {
+    background: rgba(26, 53, 80, 0.10);
+    color: var(--color-petrol);
+  }
+  .image-analyser__band[data-level="borderline"] {
+    background: rgba(245, 158, 11, 0.14);
+    color: #92400e;
+  }
+  .image-analyser__band[data-level="poor"] {
+    background: rgba(244, 63, 94, 0.12);
+    color: #b1271f;
+  }
+
+  .image-analyser__hint {
+    font-size: 13px;
+    color: var(--color-subtle);
+    margin: 0;
+  }
+
+  /* Actions */
+  .image-analyser__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    padding-top: 22px;
+  }
+  .image-analyser__reset {
+    appearance: none;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: #fff;
+    color: var(--color-ink);
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease-out;
+  }
+  .image-analyser__reset:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+  .image-analyser__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    background: #25D366;
+    color: #fff;
+    transition: background 150ms ease-out;
+  }
+  .image-analyser__cta:hover {
+    background: #1ebe5b;
+  }
+  @media (max-width: 640px) {
+    .image-analyser__actions .image-analyser__reset,
+    .image-analyser__actions .image-analyser__cta {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  type Level = "great" | "good" | "borderline" | "poor";
+
+  const MAX_BYTES = 100 * 1024 * 1024; // 100 MB
+  const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
+
+  const root = document.querySelector<HTMLElement>("[data-image-analyser]");
+  if (root) initAnalyser(root);
+
+  function initAnalyser(root: HTMLElement) {
+    const drop = root.querySelector<HTMLLabelElement>("[data-drop]")!;
+    const fileInput = root.querySelector<HTMLInputElement>("[data-file-input]")!;
+    const errorEl = root.querySelector<HTMLElement>("[data-error]")!;
+    const result = root.querySelector<HTMLElement>("[data-result]")!;
+    const previewImg = root.querySelector<HTMLImageElement>("[data-preview]")!;
+    const filenameEl = root.querySelector<HTMLElement>("[data-filename]")!;
+    const dimsEl = root.querySelector<HTMLElement>("[data-meta-dimensions]")!;
+    const mpEl = root.querySelector<HTMLElement>("[data-meta-megapixels]")!;
+    const sizeEl = root.querySelector<HTMLElement>("[data-meta-filesize]")!;
+    const typeEl = root.querySelector<HTMLElement>("[data-meta-filetype]")!;
+    const widthInput = root.querySelector<HTMLInputElement>("[data-target-width]")!;
+    const heightInput = root.querySelector<HTMLInputElement>("[data-target-height]")!;
+    const lockInput = root.querySelector<HTMLInputElement>("[data-lock]")!;
+    const ppiEl = root.querySelector<HTMLElement>("[data-ppi]")!;
+    const bandEl = root.querySelector<HTMLElement>("[data-band]")!;
+    const resetBtn = root.querySelector<HTMLButtonElement>("[data-reset]")!;
+    const unitInputs = Array.from(
+      root.querySelectorAll<HTMLInputElement>("[data-units]"),
+    );
+
+    let imgPxW = 0;
+    let imgPxH = 0;
+    let lastObjectUrl: string | null = null;
+
+    function showError(msg: string) {
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+    }
+    function clearError() {
+      errorEl.textContent = "";
+      errorEl.hidden = true;
+    }
+
+    function readDimensions(file: File): Promise<{ w: number; h: number; url: string }> {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight, url });
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(new Error("Could not read this image. Try a different file."));
+        };
+        img.src = url;
+      });
+    }
+
+    function formatBytes(bytes: number): string {
+      if (bytes < 1024) return `${bytes} B`;
+      if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+      return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+    }
+
+    function unit(): "cm" | "in" {
+      const sel = unitInputs.find((i) => i.checked);
+      return (sel?.value as "cm" | "in") ?? "cm";
+    }
+
+    function toInches(v: number, u: "cm" | "in"): number {
+      return u === "in" ? v : v / 2.54;
+    }
+
+    function fromInches(v: number, u: "cm" | "in"): number {
+      return u === "in" ? v : v * 2.54;
+    }
+
+    function bandFor(ppi: number): { level: Level; label: string } {
+      if (ppi >= 300) return { level: "great", label: "Excellent · ready to print" };
+      if (ppi >= 150) return { level: "good", label: "Good · meets most expectations" };
+      if (ppi >= 100) return { level: "borderline", label: "Borderline · expect some softness" };
+      return { level: "poor", label: "Low · likely visible blur" };
+    }
+
+    function recalc() {
+      if (!imgPxW || !imgPxH) return;
+      const u = unit();
+      const w = parseFloat(widthInput.value);
+      const h = parseFloat(heightInput.value);
+      if (!Number.isFinite(w) || !Number.isFinite(h) || w <= 0 || h <= 0) {
+        ppiEl.textContent = "—";
+        bandEl.textContent = "";
+        bandEl.removeAttribute("data-level");
+        return;
+      }
+      const ppiW = imgPxW / toInches(w, u);
+      const ppiH = imgPxH / toInches(h, u);
+      const ppi = Math.min(ppiW, ppiH);
+      ppiEl.textContent = String(Math.round(ppi));
+      const b = bandFor(ppi);
+      bandEl.textContent = b.label;
+      bandEl.dataset.level = b.level;
+    }
+
+    function applyAspectFromWidth() {
+      if (!lockInput.checked || !imgPxW || !imgPxH) return;
+      const u = unit();
+      const w = parseFloat(widthInput.value);
+      if (!Number.isFinite(w) || w <= 0) return;
+      const wIn = toInches(w, u);
+      const hIn = wIn * (imgPxH / imgPxW);
+      heightInput.value = fromInches(hIn, u).toFixed(1);
+    }
+
+    function applyAspectFromHeight() {
+      if (!lockInput.checked || !imgPxW || !imgPxH) return;
+      const u = unit();
+      const h = parseFloat(heightInput.value);
+      if (!Number.isFinite(h) || h <= 0) return;
+      const hIn = toInches(h, u);
+      const wIn = hIn * (imgPxW / imgPxH);
+      widthInput.value = fromInches(wIn, u).toFixed(1);
+    }
+
+    function setDefaultPrintSize() {
+      // Default: width such that PPI = 300 at the image's native resolution.
+      const u = unit();
+      const wIn = imgPxW / 300;
+      const hIn = imgPxH / 300;
+      widthInput.value = fromInches(wIn, u).toFixed(1);
+      heightInput.value = fromInches(hIn, u).toFixed(1);
+    }
+
+    function convertCurrentSizeToUnit(prev: "cm" | "in", next: "cm" | "in") {
+      if (prev === next) return;
+      const w = parseFloat(widthInput.value);
+      const h = parseFloat(heightInput.value);
+      if (Number.isFinite(w) && w > 0) {
+        const wIn = toInches(w, prev);
+        widthInput.value = fromInches(wIn, next).toFixed(1);
+      }
+      if (Number.isFinite(h) && h > 0) {
+        const hIn = toInches(h, prev);
+        heightInput.value = fromInches(hIn, next).toFixed(1);
+      }
+    }
+
+    async function handleFile(file: File) {
+      clearError();
+      if (!ALLOWED_TYPES.has(file.type)) {
+        showError("That file isn't a JPG or PNG. Try one of those formats.");
+        return;
+      }
+      if (file.size > MAX_BYTES) {
+        showError(
+          `That file is ${formatBytes(file.size)}. The limit is 100 MB. Try a smaller version.`,
+        );
+        return;
+      }
+
+      try {
+        const { w, h, url } = await readDimensions(file);
+        if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+        lastObjectUrl = url;
+
+        imgPxW = w;
+        imgPxH = h;
+        previewImg.src = url;
+        previewImg.alt = file.name;
+        filenameEl.textContent = file.name;
+        dimsEl.textContent = `${w.toLocaleString()} × ${h.toLocaleString()} px`;
+        mpEl.textContent = `${((w * h) / 1_000_000).toFixed(1)} MP`;
+        sizeEl.textContent = formatBytes(file.size);
+        typeEl.textContent = file.type === "image/png" ? "PNG" : "JPEG";
+
+        setDefaultPrintSize();
+        recalc();
+
+        drop.hidden = true;
+        result.hidden = false;
+        result.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (err) {
+        showError(
+          err instanceof Error ? err.message : "Could not read this image.",
+        );
+      }
+    }
+
+    // --- Wire up events ---
+
+    fileInput.addEventListener("change", () => {
+      const f = fileInput.files?.[0];
+      if (f) handleFile(f);
+    });
+
+    ["dragenter", "dragover"].forEach((ev) =>
+      drop.addEventListener(ev, (e) => {
+        e.preventDefault();
+        drop.classList.add("is-dragover");
+      }),
+    );
+    ["dragleave", "dragend"].forEach((ev) =>
+      drop.addEventListener(ev, () => drop.classList.remove("is-dragover")),
+    );
+    drop.addEventListener("drop", (e) => {
+      e.preventDefault();
+      drop.classList.remove("is-dragover");
+      const f = (e as DragEvent).dataTransfer?.files?.[0];
+      if (f) handleFile(f);
+    });
+
+    widthInput.addEventListener("input", () => {
+      applyAspectFromWidth();
+      recalc();
+    });
+    heightInput.addEventListener("input", () => {
+      applyAspectFromHeight();
+      recalc();
+    });
+    lockInput.addEventListener("change", () => {
+      // Re-snap height to width when re-locked.
+      if (lockInput.checked) applyAspectFromWidth();
+      recalc();
+    });
+
+    let prevUnit: "cm" | "in" = unit();
+    unitInputs.forEach((u) =>
+      u.addEventListener("change", () => {
+        const next = unit();
+        convertCurrentSizeToUnit(prevUnit, next);
+        prevUnit = next;
+        recalc();
+      }),
+    );
+
+    resetBtn.addEventListener("click", () => {
+      if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+      lastObjectUrl = null;
+      imgPxW = 0;
+      imgPxH = 0;
+      previewImg.removeAttribute("src");
+      filenameEl.textContent = "";
+      dimsEl.textContent = "—";
+      mpEl.textContent = "—";
+      sizeEl.textContent = "—";
+      typeEl.textContent = "—";
+      widthInput.value = "";
+      heightInput.value = "";
+      ppiEl.textContent = "—";
+      bandEl.textContent = "";
+      bandEl.removeAttribute("data-level");
+      fileInput.value = "";
+      result.hidden = true;
+      drop.hidden = false;
+      clearError();
+    });
+  }
+</script>
