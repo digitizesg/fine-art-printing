@@ -3,6 +3,13 @@ import Button from "./Button.astro";
 import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
 import { business } from "../data/business";
 
+const services = [
+  { href: "/print-on-paper", label: "Print on paper" },
+  { href: "/print-on-canvas", label: "Print on canvas" },
+  { href: "/canvas-stretching", label: "Stretch existing canvas" },
+  { href: "/custom-framing", label: "Custom framing" },
+];
+
 const navLinks = [
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
@@ -16,6 +23,19 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       Fine Art Printing
     </a>
     <nav class="flex items-center gap-5 sm:gap-7">
+      <details class="services-menu">
+        <summary class="services-menu__trigger text-[14px] text-muted hover:text-ink transition-colors">
+          Services
+          <svg class="services-menu__chevron" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+            <path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </summary>
+        <div class="services-menu__panel">
+          {services.map((s) => (
+            <a href={s.href} class="services-menu__link">{s.label}</a>
+          ))}
+        </div>
+      </details>
       {navLinks.map((link) => (
         <a
           href={link.href}
@@ -39,3 +59,76 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     </nav>
   </div>
 </header>
+
+<style>
+  .services-menu {
+    position: relative;
+  }
+  .services-menu__trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    list-style: none;
+    user-select: none;
+  }
+  .services-menu__trigger::-webkit-details-marker {
+    display: none;
+  }
+  .services-menu__chevron {
+    transition: transform 150ms ease-out;
+  }
+  .services-menu[open] .services-menu__chevron {
+    transform: rotate(180deg);
+  }
+  .services-menu__panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 240px;
+    background: #fff;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 12px;
+    box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.18);
+    padding: 6px;
+    display: grid;
+    gap: 1px;
+    z-index: 50;
+  }
+  .services-menu__link {
+    display: block;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--color-ink);
+    text-decoration: none;
+    transition: background 120ms ease-out;
+    white-space: nowrap;
+  }
+  .services-menu__link:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+</style>
+
+<script>
+  // Close the Services dropdown when clicking outside or pressing Escape.
+  function init() {
+    const menus = document.querySelectorAll<HTMLDetailsElement>(".services-menu");
+    menus.forEach((menu) => {
+      document.addEventListener("click", (e) => {
+        if (menu.open && !menu.contains(e.target as Node)) {
+          menu.open = false;
+        }
+      });
+      menu.addEventListener("keydown", (e) => {
+        if ((e as KeyboardEvent).key === "Escape" && menu.open) {
+          menu.open = false;
+          menu.querySelector<HTMLElement>("summary")?.focus();
+        }
+      });
+    });
+  }
+  if (document.readyState !== "loading") init();
+  else document.addEventListener("DOMContentLoaded", init);
+</script>
