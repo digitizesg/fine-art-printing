@@ -514,67 +514,109 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
       const recs: Pick[] = [];
       const { saturation, contrast, brightness, warmth } = t;
 
+      // Note: Photo Rag Matt Baryta dampens colour at the studio's experience,
+      // so it's reserved for the mono branch only.
+
       if (saturation === "mono") {
-        recs.push({
-          paperId: "hahnemuhle-photo-rag",
-          reason:
-            "For mostly-tonal or B&W work, smooth matt cotton gives clean tonal range and even shadow detail.",
-        });
+        // B&W / mostly-tonal — Matt Baryta is the studio's go-to here.
         if (contrast === "high" || brightness === "dark") {
+          recs.push({
+            paperId: "hahnemuhle-photo-rag-matt-baryta",
+            reason:
+              "For high-contrast or dark B&W, the baryta coating gives Photo Rag enhanced tonal range and deeper blacks.",
+          });
           recs.push({
             paperId: "hahnemuhle-metallic-rag",
             reason:
-              "High-contrast and dark scenes pick up depth on the metallic surface — particularly strong on architectural and night-scene B&W.",
+              "Architectural and night-scene B&W picks up dramatic depth on the silvery metallic surface.",
           });
-        }
-        if (warmth === "warm" && recs.length < 3) {
+          recs.push({
+            paperId: "hahnemuhle-photo-rag",
+            reason:
+              "Classic smooth matt cotton — quieter alternative if you prefer subtle blacks to punchy ones.",
+          });
+        } else if (warmth === "warm") {
           recs.push({
             paperId: "hahnemuhle-bamboo",
-            reason: "A warm bamboo base flatters warm-toned B&W work.",
+            reason: "Warm bamboo base flatters warm-toned monochrome work.",
           });
-        }
-        if (recs.length < 2) {
           recs.push({
-            paperId: "hahnemuhle-fineart-pearl",
+            paperId: "hahnemuhle-photo-rag-matt-baryta",
             reason:
-              "A subtle pearl sheen adds depth without distracting — versatile for B&W with mid-range tones.",
+              "Baryta-coated Photo Rag adds tonal depth — a punchier alternative for warm B&W.",
           });
+          recs.push({
+            paperId: "hahnemuhle-photo-rag",
+            reason:
+              "Smooth matt cotton — neutral alternative with the cleanest tonal range.",
+          });
+        } else {
+          // Soft, low- to mid-contrast B&W
+          recs.push({
+            paperId: "hahnemuhle-photo-rag",
+            reason:
+              "For soft or low-contrast B&W, smooth matt cotton gives the cleanest tonal range and a contemplative feel.",
+          });
+          recs.push({
+            paperId: "hahnemuhle-photo-rag-matt-baryta",
+            reason:
+              "Baryta-coated alternative — slightly deeper blacks and enhanced tonal range than plain Photo Rag.",
+          });
+          if (contrast === "low") {
+            recs.push({
+              paperId: "hahnemuhle-hemp",
+              reason:
+                "Subtle hemp texture adds gentle character to soft monochrome work.",
+            });
+          } else {
+            recs.push({
+              paperId: "datajet-100-cotton-rag",
+              reason:
+                "Photo Rag character at a more accessible price — same matt cotton feel.",
+            });
+          }
         }
       } else if (saturation === "high") {
+        // Vivid colour — only papers that preserve saturation.
         recs.push({
           paperId: "hahnemuhle-bamboo-gloss",
           reason:
-            "Vibrant colours stay punchy on glossy baryta — matt papers would mute the saturation.",
+            warmth === "warm"
+              ? "Vivid warm-toned colour comes alive on glossy bamboo baryta — the warm-white base reinforces it."
+              : "Gloss baryta keeps saturated colour cinematic — matt papers would mute the punch.",
         });
-        recs.push({
-          paperId: "hahnemuhle-photo-rag-matt-baryta",
-          reason:
-            "Matt baryta keeps colours vivid without surface gloss — the calmer, no-glare alternative.",
-        });
+
         if (contrast === "high" || brightness === "dark") {
           recs.push({
             paperId: "hahnemuhle-metallic-rag",
             reason:
-              "Bright saturated colour against dark or high-contrast backgrounds shines on the metallic surface.",
+              "Bright colour against dark or high-contrast backdrops shines on the metallic surface — strong on architecture, night, and high-impact work.",
+          });
+          recs.push({
+            paperId: "hahnemuhle-fineart-pearl",
+            reason:
+              "Pearl satin — softer-sheen alternative that still carries saturated colour.",
           });
         } else {
           recs.push({
             paperId: "hahnemuhle-fineart-pearl",
             reason:
-              "Pearl sheen carries saturation with a softer surface than full gloss.",
+              "Pearl satin carries saturation with a softer surface than full gloss — a more contemplative alternative.",
+          });
+          recs.push({
+            paperId: "hahnemuhle-photo-silk-baryta",
+            reason:
+              "Silky-gloss alpha-cellulose at a more accessible price — strong on photo and poster work.",
           });
         }
       } else if (saturation === "medium") {
-        recs.push({
-          paperId: "hahnemuhle-photo-rag-matt-baryta",
-          reason:
-            "Balanced colour reads beautifully on matt baryta — full colour fidelity, no glare.",
-        });
+        // Balanced colour — pearl/satin first, then a paper to match temperament.
         recs.push({
           paperId: "hahnemuhle-fineart-pearl",
           reason:
-            "Pearl satin adds gentle depth and excellent detail — versatile across colour subjects.",
+            "Pearl satin handles balanced colour beautifully, with subtle sheen and excellent detail.",
         });
+
         if (warmth === "warm") {
           recs.push({
             paperId: "hahnemuhle-bamboo",
@@ -584,34 +626,67 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
           recs.push({
             paperId: "hahnemuhle-photo-rag",
             reason:
-              "For a softer, more muted look, smooth matt cotton dials down the colour pleasantly.",
+              "Smooth matt cotton — clean colour and tonal range without surface sheen.",
+          });
+        }
+
+        if (contrast === "high") {
+          recs.push({
+            paperId: "hahnemuhle-german-etching",
+            reason:
+              "High contrast benefits from German Etching's deeper blacks and strongly textured surface — a hand-crafted feel.",
+          });
+        } else if (brightness === "dark") {
+          recs.push({
+            paperId: "hahnemuhle-metallic-rag",
+            reason:
+              "Dark, balanced palettes pick up depth on the metallic surface.",
+          });
+        } else {
+          recs.push({
+            paperId: "hahnemuhle-hemp",
+            reason:
+              "Lightly textured hemp adds gentle character to balanced colour subjects.",
           });
         }
       } else {
-        // low saturation
+        // Low saturation — soft, muted
         recs.push({
           paperId: "hahnemuhle-photo-rag",
           reason:
             "Soft, muted images sit beautifully on smooth matt cotton — no surface shimmer to compete.",
         });
+
         if (warmth === "warm") {
           recs.push({
             paperId: "hahnemuhle-bamboo",
             reason: "Warm bamboo base reinforces a warm, contemplative mood.",
           });
-        }
-        if (contrast === "high") {
+        } else if (warmth === "cool") {
           recs.push({
-            paperId: "hahnemuhle-german-etching",
+            paperId: "hahnemuhle-hemp",
             reason:
-              "High contrast benefits from the deeper blacks of German Etching's strongly textured surface.",
+              "Hemp's silky light texture and natural-white tone flatters cool, muted palettes.",
           });
-        }
-        if (recs.length < 2) {
+        } else {
           recs.push({
             paperId: "datajet-100-cotton-rag",
             reason:
               "Photo Rag character at a more accessible price — smooth matt cotton, archival.",
+          });
+        }
+
+        if (contrast === "high") {
+          recs.push({
+            paperId: "hahnemuhle-german-etching",
+            reason:
+              "High contrast benefits from German Etching's deeper blacks and strongly textured surface.",
+          });
+        } else {
+          recs.push({
+            paperId: "hahnemuhle-fineart-pearl",
+            reason:
+              "Pearl satin offers a slightly more refined surface for the muted palette.",
           });
         }
       }
