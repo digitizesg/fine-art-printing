@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
+import PaperFinder from "../components/PaperFinder.astro";
 import PaperQuoteCalculator from "../components/PaperQuoteCalculator.astro";
 import ReviewSection from "../components/ReviewSection.astro";
 import Stars from "../components/Stars.astro";
@@ -117,6 +118,12 @@ Default border around your print is 3mm, we can adjust to your preference. Don't
               Get a quote <span aria-hidden="true">↓</span>
             </a>
             <a
+              href="#paper-finder"
+              class="inline-flex items-center gap-2 rounded-pill border border-ink/15 bg-white px-5 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:border-petrol hover:bg-petrol hover:text-white"
+            >
+              Help me choose <span aria-hidden="true">↓</span>
+            </a>
+            <a
               href={waLink}
               target="_blank"
               rel="noopener"
@@ -156,6 +163,8 @@ Default border around your print is 3mm, we can adjust to your preference. Don't
       </div>
     </div>
   </section>
+
+  <PaperFinder />
 
   <!-- Paper showcase: tabbed picker with one paper detail at a time -->
   <section class="border-t border-border-soft bg-white">
