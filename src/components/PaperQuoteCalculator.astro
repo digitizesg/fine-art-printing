@@ -1,0 +1,551 @@
+---
+import { PAPERS, formatSGD } from "../data/pricing/paper";
+import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
+
+const featured = PAPERS.filter((p) => p.featured);
+---
+<form
+  class="paper-quote"
+  data-quote-form
+  novalidate
+>
+  <fieldset class="paper-quote__group">
+    <legend class="paper-quote__legend">Print size</legend>
+    <div class="paper-quote__dims">
+      <label class="paper-quote__field">
+        <span>Width</span>
+        <input type="number" name="width" inputmode="decimal" min="1" step="0.1" value="50" />
+      </label>
+      <span class="paper-quote__by" aria-hidden="true">×</span>
+      <label class="paper-quote__field">
+        <span>Height</span>
+        <input type="number" name="height" inputmode="decimal" min="1" step="0.1" value="50" />
+      </label>
+      <div class="paper-quote__units" role="radiogroup" aria-label="Units">
+        <label>
+          <input type="radio" name="units" value="cm" checked />
+          <span>cm</span>
+        </label>
+        <label>
+          <input type="radio" name="units" value="in" />
+          <span>in</span>
+        </label>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="paper-quote__group">
+    <legend class="paper-quote__legend">Choose a paper</legend>
+    <div class="paper-quote__papers" role="radiogroup" aria-label="Paper choice">
+      {featured.map((p, i) => (
+        <label class="paper-card">
+          <input
+            type="radio"
+            name="paperId"
+            value={p.id}
+            checked={i === 0}
+            class="paper-card__input sr-only"
+          />
+          {p.images[0] ? (
+            <img
+              src={`/photos/${p.images[0]}`}
+              alt=""
+              loading="lazy"
+              decoding="async"
+              class="paper-card__photo"
+            />
+          ) : (
+            <span class="paper-card__swatch" data-finish={p.finish} aria-hidden="true"></span>
+          )}
+          <span class="paper-card__body">
+            <span class="paper-card__brand">{p.brand}</span>
+            <span class="paper-card__name">{p.shortName}</span>
+            <span class="paper-card__chips">
+              <span class="chip chip--gsm">
+                <strong>{p.gsm}</strong>gsm
+              </span>
+              <span class:list={["chip", "chip--finish", `chip--${p.finish}`]}>
+                {p.finish.replace("-", " ")}
+              </span>
+            </span>
+            <span class="paper-card__blurb">{p.blurb}</span>
+          </span>
+          <span class="paper-card__check" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7.5l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </label>
+      ))}
+    </div>
+  </fieldset>
+
+  <div class="paper-quote__output" data-quote-output>
+    <!-- populated by JS -->
+  </div>
+
+  <div class="paper-quote__actions" data-quote-actions hidden>
+    <a class="paper-quote__btn paper-quote__btn--wa" data-quote-wa href="#" target="_blank" rel="noopener">
+      <WhatsAppIcon size={16} />
+      <span>WhatsApp this quote</span>
+    </a>
+    <a class="paper-quote__btn paper-quote__btn--secondary" data-quote-contact href="#">
+      Send via contact form
+    </a>
+  </div>
+</form>
+
+<style is:global>
+  .paper-quote {
+    border: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+    border-radius: 16px;
+    padding: 28px;
+    background: #ffffff;
+    display: grid;
+    gap: 28px;
+  }
+
+  .paper-quote__legend {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 18px;
+    color: var(--color-ink);
+    margin-bottom: 14px;
+  }
+
+  .paper-quote__group { border: 0; padding: 0; margin: 0; }
+
+  /* Paper cards */
+  .paper-quote__papers {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 700px) {
+    .paper-quote__papers { grid-template-columns: 1fr 1fr; }
+  }
+
+  .paper-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 150ms ease-out, background 150ms ease-out;
+  }
+  .paper-card:hover { border-color: rgba(0,0,0,0.18); background: rgba(0,0,0,0.015); }
+  .paper-card:has(input:checked) {
+    border-color: #1A3550;
+    background: rgba(26, 53, 80, 0.04);
+  }
+  .paper-card:focus-within {
+    outline: 2px solid #1A3550;
+    outline-offset: 2px;
+  }
+
+  .paper-card__photo {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    object-fit: cover;
+    display: block;
+    background: #f0e9d9;
+  }
+  .paper-card__swatch {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #f4ece0 0%, #ddd0bb 100%);
+  }
+  .paper-card__swatch[data-finish="gloss"],
+  .paper-card__swatch[data-finish="high-gloss"],
+  .paper-card__swatch[data-finish="silk-gloss"] {
+    background: linear-gradient(135deg, #faf6ee 0%, #c8b691 50%, #faf6ee 100%);
+  }
+  .paper-card__swatch[data-finish="metallic"] {
+    background: linear-gradient(135deg, #d8d2c4 0%, #918878 50%, #d8d2c4 100%);
+  }
+  .paper-card__swatch[data-finish="pearl"],
+  .paper-card__swatch[data-finish="satin"] {
+    background: linear-gradient(135deg, #f8efde 0%, #e0caa3 100%);
+  }
+
+  .paper-card__body {
+    display: grid;
+    gap: 2px;
+    line-height: 1.3;
+  }
+  .paper-card__brand {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    color: var(--color-muted, #555);
+    line-height: 1.2;
+    margin-bottom: 1px;
+    letter-spacing: 0.01em;
+  }
+  .paper-card__name {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--color-ink);
+    line-height: 1.2;
+  }
+  .paper-card__chips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    margin-bottom: 2px;
+  }
+  .chip {
+    display: inline-flex;
+    align-items: baseline;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    text-transform: capitalize;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .chip--gsm {
+    background: #1A1A1A;
+    color: #ffffff;
+    text-transform: none;
+  }
+  .chip--gsm strong {
+    font-weight: 700;
+    margin-right: 2px;
+    font-size: 12px;
+  }
+  .chip--matt {
+    background: #efece4;
+    color: #595037;
+  }
+  .chip--gloss,
+  .chip--high-gloss {
+    background: linear-gradient(135deg, #faecc6 0%, #e6c98a 100%);
+    color: #6e521a;
+  }
+  .chip--pearl,
+  .chip--satin {
+    background: #f6e6cf;
+    color: #8a6532;
+  }
+  .chip--silk-gloss {
+    background: linear-gradient(135deg, #f0e8dd 0%, #d8c8b6 100%);
+    color: #5e503e;
+  }
+  .chip--metallic {
+    background: linear-gradient(135deg, #e6e0d4 0%, #b3a796 100%);
+    color: #3f3a30;
+  }
+  .paper-card__blurb {
+    font-size: 12px;
+    color: var(--color-subtle, #6b6b6b);
+    margin-top: 4px;
+  }
+  .paper-card__price {
+    font-size: 12px;
+    color: var(--color-subtle, #6b6b6b);
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .paper-card__check {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(0,0,0,0.18);
+    color: transparent;
+    background: #fff;
+    transition: all 150ms ease-out;
+  }
+  .paper-card:has(input:checked) .paper-card__check {
+    border-color: #1A3550;
+    background: #1A3550;
+    color: #fff;
+  }
+
+  /* Dimensions */
+  .paper-quote__dims {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 12px;
+  }
+  .paper-quote__by {
+    align-self: end;
+    padding-bottom: 12px;
+    color: var(--color-subtle);
+  }
+  .paper-quote__field {
+    display: grid;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+  .paper-quote__field input {
+    padding: 10px 12px;
+    border: 1px solid var(--color-border, rgba(0,0,0,0.15));
+    border-radius: 8px;
+    font-size: 16px;
+    width: 110px;
+    font-variant-numeric: tabular-nums;
+    background: #fff;
+    color: var(--color-ink);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .paper-quote__field input:focus {
+    outline: 2px solid #1A3550;
+    outline-offset: 0;
+    border-color: #1A3550;
+  }
+  .paper-quote__field--qty input { width: 90px; }
+
+  .paper-quote__units {
+    display: inline-flex;
+    border: 1px solid var(--color-border, rgba(0,0,0,0.15));
+    border-radius: 999px;
+    padding: 3px;
+    background: #fff;
+    align-self: end;
+    margin-bottom: 0;
+  }
+  .paper-quote__units label {
+    cursor: pointer;
+  }
+  .paper-quote__units input { position: absolute; opacity: 0; pointer-events: none; }
+  .paper-quote__units span {
+    display: inline-block;
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+  .paper-quote__units label:has(input:checked) span {
+    background: #1A3550;
+    color: #fff;
+  }
+
+  /* Editing toggle */
+  .paper-quote__editing {
+    border-top: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+    padding-top: 18px;
+  }
+  .paper-quote__editing summary {
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--color-muted);
+    list-style: none;
+  }
+  .paper-quote__editing summary::-webkit-details-marker { display: none; }
+  .paper-quote__editing summary::before {
+    content: "▸";
+    display: inline-block;
+    margin-right: 6px;
+    transition: transform 150ms ease-out;
+    color: var(--color-subtle);
+  }
+  .paper-quote__editing[open] summary::before { transform: rotate(90deg); }
+  .paper-quote__editing p {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--color-subtle);
+    max-width: 60ch;
+    line-height: 1.55;
+  }
+  .paper-quote__editing .paper-quote__field { margin-top: 10px; }
+
+  /* Output */
+  .paper-quote__output {
+    border-top: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+    padding-top: 22px;
+  }
+
+  .quote-result {
+    display: grid;
+    gap: 4px;
+    padding: 14px 0;
+  }
+  .quote-result__label {
+    font-size: 12px;
+    color: var(--color-muted);
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .quote-result__amount {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: clamp(40px, 6vw, 56px);
+    line-height: 1.05;
+    color: #1A3550;
+    font-variant-numeric: tabular-nums;
+  }
+  .quote-result__sub {
+    font-size: 13px;
+    color: var(--color-subtle);
+  }
+
+  .quote-error {
+    border-radius: 12px;
+    padding: 16px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: #92400e;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Actions */
+  .paper-quote__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+    padding-top: 22px;
+  }
+  .paper-quote__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 150ms ease-out, color 150ms ease-out;
+  }
+  .paper-quote__btn--wa {
+    background: #25D366;
+    color: #fff;
+  }
+  .paper-quote__btn--wa:hover { background: #1ebe5b; }
+  .paper-quote__btn--secondary {
+    border: 1px solid rgba(0,0,0,0.18);
+    color: var(--color-ink);
+    background: #fff;
+  }
+  .paper-quote__btn--secondary:hover { background: rgba(0,0,0,0.03); }
+  .paper-quote__legalese {
+    font-size: 12px;
+    color: var(--color-subtle);
+    flex-basis: 100%;
+    margin-top: 4px;
+  }
+</style>
+
+<script>
+  import { quotePaperPrint, formatSGD, formatSGDWhole, PAPERS } from "../data/pricing/paper";
+  import { business } from "../data/business";
+
+  type FormState = {
+    paperId: string;
+    width: number;
+    height: number;
+    units: "cm" | "in";
+  };
+
+  function readForm(form: HTMLFormElement): FormState {
+    const data = new FormData(form);
+    return {
+      paperId: String(data.get("paperId") ?? PAPERS[0]!.id),
+      width: parseFloat(String(data.get("width") ?? "0")),
+      height: parseFloat(String(data.get("height") ?? "0")),
+      units: (data.get("units") as "cm" | "in") ?? "cm",
+    };
+  }
+
+  function toCm(v: number, units: "cm" | "in"): number {
+    return units === "in" ? v * 2.54 : v;
+  }
+
+  function buildQuoteMessage(state: FormState, totalText: string): string {
+    const paper = PAPERS.find((p) => p.id === state.paperId);
+    return [
+      "Hi Fine Art Printing, I'd like a quote.",
+      "",
+      `Paper: ${paper?.name ?? state.paperId}`,
+      `Size: ${state.width} × ${state.height} ${state.units}`,
+      `Estimated total: ${totalText}`,
+    ].join("\n");
+  }
+
+  function render(form: HTMLFormElement) {
+    const state = readForm(form);
+    const widthCm = toCm(state.width, state.units);
+    const heightCm = toCm(state.height, state.units);
+
+    const result = quotePaperPrint({
+      paperId: state.paperId,
+      widthCm,
+      heightCm,
+      quantity: 1,
+    });
+
+    const output = form.querySelector<HTMLElement>("[data-quote-output]")!;
+    const actions = form.querySelector<HTMLElement>("[data-quote-actions]")!;
+
+    if (!result.ok) {
+      output.innerHTML = `
+        <div class="quote-error">
+          <strong>Hold up.</strong> ${escapeHtml(result.message)}
+        </div>
+      `;
+      actions.hidden = true;
+      return;
+    }
+
+    output.innerHTML = `
+      <div class="quote-result" aria-live="polite">
+        <div class="quote-result__label">Estimated total, all-in</div>
+        <div class="quote-result__amount">${formatSGDWhole(result.grandTotal)}</div>
+      </div>
+    `;
+
+    actions.hidden = false;
+    const wa = actions.querySelector<HTMLAnchorElement>("[data-quote-wa]")!;
+    const contact = actions.querySelector<HTMLAnchorElement>("[data-quote-contact]")!;
+    const message = buildQuoteMessage(state, formatSGD(result.grandTotal));
+    wa.href = `${import.meta.env.PUBLIC_WA_LINK ?? "https://wa.me/6588753330"}?text=${encodeURIComponent(message)}`;
+    // TODO: wire to /contact when that page exists. Until then, mailto fallback.
+    const subject = `Quote enquiry: ${result.paper.shortName} ${state.width}×${state.height}${state.units}`;
+    contact.href = `mailto:hello@fineartprinting.com.sg?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+  }
+
+  function escapeHtml(s: string) {
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function init() {
+    document
+      .querySelectorAll<HTMLFormElement>("[data-quote-form]")
+      .forEach((form) => {
+        const update = () => render(form);
+        form.addEventListener("input", update);
+        form.addEventListener("change", update);
+        update();
+      });
+  }
+
+  if (document.readyState !== "loading") init();
+  else document.addEventListener("DOMContentLoaded", init);
+</script>

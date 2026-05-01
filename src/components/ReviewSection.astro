@@ -1,0 +1,65 @@
+---
+import Eyebrow from "./Eyebrow.astro";
+import DisplayHeading from "./DisplayHeading.astro";
+import LiveFromGooglePill from "./LiveFromGooglePill.astro";
+import ReviewCard from "./ReviewCard.astro";
+import Stars from "./Stars.astro";
+import reviewsData from "../data/reviews.json";
+import { business } from "../data/business";
+
+const { rating, userRatingsTotal, reviews } = reviewsData;
+const cardsToShow = reviews.slice(0, 5);
+---
+<section class="border-t border-border-soft bg-white">
+  <div class="mx-auto max-w-[1180px] px-6 py-20">
+    <div class="flex items-start justify-between gap-6">
+      <Eyebrow>Reviews</Eyebrow>
+      <LiveFromGooglePill />
+    </div>
+
+    <div class="mt-3 max-w-[680px]">
+      <DisplayHeading level={2}>
+        Real reviews. From real customers.
+      </DisplayHeading>
+      <p class="mt-4 text-[15px] leading-relaxed text-subtle">
+        We pull these live from Google. Names, words, dates, all unedited. Ours
+        is the slow, genuine kind: {userRatingsTotal} reviews accumulated one at
+        a time over the years, not 50 uploaded in the same week. Click any
+        review below to verify on Google.
+      </p>
+      <p class="mt-5 flex flex-wrap items-center gap-3 text-[16px] text-ink">
+        <Stars rating={rating} size={22} ariaHidden />
+        <span class="font-semibold">{rating.toFixed(1)} average</span>
+        <span class="text-subtle">·</span>
+        <a
+          href={business.googleReviewsUrl}
+          target="_blank"
+          rel="noopener"
+          class="text-muted hover:text-ink underline-offset-2 hover:underline"
+        >
+          view all {userRatingsTotal} on Google →
+        </a>
+      </p>
+    </div>
+
+    <div class="mt-10 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {cardsToShow.map((review) => (
+        <ReviewCard review={review} />
+      ))}
+
+      <a
+        href={business.googleReviewsUrl}
+        target="_blank"
+        rel="noopener"
+        class="flex flex-col items-center justify-center rounded-card border border-border-soft bg-black/[0.02] p-6 text-center transition-colors hover:bg-black/[0.04]"
+      >
+        <Stars rating={rating} size={24} ariaHidden />
+        <p class="mt-3 font-serif text-[26px] font-medium">{rating.toFixed(1)} average</p>
+        <p class="text-[14px] text-subtle">from {userRatingsTotal} Google reviews</p>
+        <p class="mt-4 text-[14px] font-semibold text-petrol">
+          Read all on Google →
+        </p>
+      </a>
+    </div>
+  </div>
+</section>

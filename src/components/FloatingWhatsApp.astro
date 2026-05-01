@@ -1,0 +1,75 @@
+---
+import { business } from "../data/business";
+import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
+
+interface Props {
+  message?: string;
+}
+const {
+  message = "Hi Fine Art Printing, I'd like a quick quote.",
+} = Astro.props;
+
+const href = `${business.whatsappLink}?text=${encodeURIComponent(message)}`;
+---
+<a
+  class="fap-fab-wa"
+  href={href}
+  target="_blank"
+  rel="noopener"
+  aria-label="Chat with us on WhatsApp"
+>
+  <WhatsAppIcon size={28} class="text-white" />
+  <span class="fap-fab-wa__label">WhatsApp us</span>
+</a>
+
+<style>
+  .fap-fab-wa {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 50;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px 14px 18px;
+    background: #25D366;
+    color: #ffffff;
+    border-radius: 999px;
+    box-shadow:
+      0 12px 32px rgba(37, 211, 102, 0.35),
+      0 4px 12px rgba(0, 0, 0, 0.18);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    transition:
+      transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1),
+      box-shadow 200ms ease-out,
+      background 200ms ease-out;
+  }
+  .fap-fab-wa:hover {
+    transform: translateY(-2px);
+    background: #1ebe5b;
+    box-shadow:
+      0 16px 40px rgba(37, 211, 102, 0.45),
+      0 6px 16px rgba(0, 0, 0, 0.22);
+  }
+  .fap-fab-wa:focus-visible {
+    outline: 3px solid #1A3550;
+    outline-offset: 3px;
+  }
+
+  /* On narrow screens, collapse to an icon-only circle. */
+  @media (max-width: 640px) {
+    .fap-fab-wa {
+      padding: 14px;
+      gap: 0;
+      right: 16px;
+      bottom: 16px;
+    }
+    .fap-fab-wa__label {
+      display: none;
+    }
+  }
+</style>

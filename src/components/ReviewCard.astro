@@ -1,0 +1,64 @@
+---
+import Stars from "./Stars.astro";
+import { getInitials } from "../lib/initials";
+import { formatDistanceToNow } from "date-fns";
+
+interface Props {
+  review: {
+    author_name: string;
+    author_url: string;
+    profile_photo_url: string | null;
+    rating: number;
+    relative_time_description?: string;
+    text: string;
+    time: number; // unix seconds
+  };
+}
+
+const { review } = Astro.props;
+const initials = getInitials(review.author_name);
+const dateFromTime = review.time
+  ? formatDistanceToNow(new Date(review.time * 1000), { addSuffix: true })
+  : review.relative_time_description ?? "";
+---
+<article class="flex h-full flex-col rounded-card border border-border-soft p-6">
+  <header class="flex items-center gap-3">
+    {review.profile_photo_url ? (
+      <img
+        src={review.profile_photo_url}
+        alt=""
+        class="h-10 w-10 rounded-full object-cover"
+        loading="lazy"
+        referrerpolicy="no-referrer"
+      />
+    ) : (
+      <span
+        aria-hidden="true"
+        class="flex h-10 w-10 items-center justify-center rounded-full bg-black/[0.06] text-[12px] font-semibold text-muted"
+      >
+        {initials}
+      </span>
+    )}
+    <div class="min-w-0 flex-1">
+      <p class="truncate text-[14px] font-semibold text-ink">
+        {review.author_name}
+      </p>
+      <p class="text-[12px] text-subtle">{dateFromTime}</p>
+    </div>
+  </header>
+
+  <Stars rating={review.rating} class="mt-4" />
+
+  <p class="mt-3 text-[14px] leading-relaxed text-ink/90">
+    {review.text}
+  </p>
+
+  <a
+    href={review.author_url}
+    target="_blank"
+    rel="noopener nofollow"
+    class="mt-auto pt-5 text-[12px] text-muted hover:text-ink"
+  >
+    View on Google →
+  </a>
+</article>

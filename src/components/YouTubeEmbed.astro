@@ -1,0 +1,81 @@
+---
+interface Props {
+  videoId: string;
+  title: string;
+  caption?: string;
+  maxWidth?: string; // CSS length, e.g. "880px" or "100%"
+  align?: "left" | "center";
+  pillLabel?: string;
+}
+const {
+  videoId,
+  title,
+  caption,
+  maxWidth = "100%",
+  align = "left",
+  pillLabel = "Watch the Canon feature",
+} = Astro.props;
+
+const posterUrl = `https://i.ytimg.com/vi/${videoId}/maxresdefault.jpg`;
+const wrapperAlign = align === "center" ? "mx-auto" : "";
+---
+<figure class:list={["w-full", wrapperAlign]} style={`max-width: ${maxWidth};`}>
+  <div class="fap-yt-frame relative overflow-hidden rounded-card border border-border-soft bg-black">
+    <lite-youtube
+      videoid={videoId}
+      playlabel={title}
+      style={`background-image: url('${posterUrl}');`}
+    >
+      <a
+        class="lty-playbtn"
+        title={`Play: ${title}`}
+        href={`https://www.youtube.com/watch?v=${videoId}`}
+      >
+        <span class="lyt-visually-hidden">{title}</span>
+      </a>
+    </lite-youtube>
+
+    <div class="fap-yt-overlay" aria-hidden="true">
+      <div class="fap-yt-shade"></div>
+      <button class="fap-yt-bigplay" type="button" tabindex="-1" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="32" height="32" aria-hidden="true">
+          <path d="M8 5v14l11-7L8 5z" fill="#1A3550" />
+        </svg>
+      </button>
+      <span class="fap-yt-pill">{pillLabel}</span>
+    </div>
+  </div>
+  {caption && (
+    <figcaption class="mt-4 max-w-[640px] font-serif text-[15px] italic leading-relaxed text-subtle">
+      {caption}
+    </figcaption>
+  )}
+</figure>
+
+<script>
+  import "lite-youtube-embed";
+
+  // Hide our overlay once the user clicks play (lite-youtube swaps in the iframe).
+  document.addEventListener("astro:page-load", () => {
+    const frames = document.querySelectorAll<HTMLElement>(".fap-yt-frame");
+    frames.forEach((frame) => {
+      const lite = frame.querySelector("lite-youtube");
+      if (!lite) return;
+      const observer = new MutationObserver(() => {
+        if (lite.classList.contains("lyt-activated")) {
+          frame.classList.add("is-playing");
+          observer.disconnect();
+        }
+      });
+      observer.observe(lite, { attributes: true, attributeFilter: ["class"] });
+    });
+  });
+  // Also run on first load (astro:page-load fires for client-side nav, not initial).
+  if (document.readyState !== "loading") {
+    document.dispatchEvent(new Event("astro:page-load"));
+  } else {
+    document.addEventListener("DOMContentLoaded", () =>
+      document.dispatchEvent(new Event("astro:page-load")),
+    );
+  }
+</script>

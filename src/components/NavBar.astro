@@ -1,0 +1,41 @@
+---
+import Button from "./Button.astro";
+import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
+import { business } from "../data/business";
+
+const navLinks = [
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+];
+
+const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'd like a quick quote.")}`;
+---
+<header class="border-b border-border-soft bg-white">
+  <div class="mx-auto flex max-w-[1180px] items-center justify-between px-6 py-5">
+    <a href="/" class="font-serif text-[20px] font-medium tracking-tight text-ink">
+      Fine Art Printing
+    </a>
+    <nav class="flex items-center gap-5 sm:gap-7">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class="text-[14px] text-muted hover:text-ink transition-colors"
+        >
+          {link.label}
+        </a>
+      ))}
+      <a
+        href={waHref}
+        target="_blank"
+        rel="noopener"
+        aria-label="Chat with us on WhatsApp"
+        class="hidden sm:inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#25D366] text-white transition-colors hover:bg-[#1ebe5b]"
+      >
+        <WhatsAppIcon size={16} />
+      </a>
+      <Button href="/contact" variant="secondary" class="!py-2 !px-4">
+        Get in touch <span aria-hidden="true">→</span>
+      </Button>
+    </nav>
+  </div>
+</header>

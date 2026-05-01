@@ -1,0 +1,32 @@
+---
+interface Props {
+  rating?: number; // 0..5
+  size?: number;
+  class?: string;
+  ariaHidden?: boolean;
+}
+const {
+  rating = 5,
+  size = 14,
+  class: className = "",
+  ariaHidden = false,
+} = Astro.props;
+
+const filled = Math.round(rating);
+---
+<span
+  class:list={["inline-flex items-center gap-[1px] text-gold", className]}
+  aria-hidden={ariaHidden ? "true" : undefined}
+>
+  {Array.from({ length: 5 }).map((_, i) => (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 20 20"
+      fill={i < filled ? "currentColor" : "rgba(0,0,0,0.12)"}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M10 1.5l2.6 5.27 5.81.84-4.2 4.1.99 5.79L10 14.78 4.8 17.5l.99-5.79-4.2-4.1 5.81-.84L10 1.5z" />
+    </svg>
+  ))}
+</span>

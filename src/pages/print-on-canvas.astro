@@ -1,0 +1,473 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+import DisplayHeading from "../components/DisplayHeading.astro";
+import DarkCTA from "../components/DarkCTA.astro";
+import CanvasQuoteCalculator from "../components/CanvasQuoteCalculator.astro";
+import ReviewSection from "../components/ReviewSection.astro";
+import Stars from "../components/Stars.astro";
+import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
+import { CANVASES } from "../data/pricing/canvas";
+import { business } from "../data/business";
+import reviewsData from "../data/reviews.json";
+
+const { rating, userRatingsTotal } = reviewsData;
+const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'd like a quote for printing on canvas.")}`;
+
+const description =
+  "Archival canvas printing on Hahnemühle and Datajet substrates, with optional gallery-wrap stretching and float frames. Singapore's only Hahnemühle Gold-certified studio.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  serviceType: "Fine art printing on canvas",
+  provider: {
+    "@type": "LocalBusiness",
+    name: "Fine Art Printing",
+    url: "https://fineartprinting.com.sg",
+  },
+  areaServed: { "@type": "Country", name: "Singapore" },
+};
+
+const featuredCanvases = CANVASES.filter((c) => c.featured);
+
+const finishLabel = (f: string) => {
+  if (f === "high-gloss") return "High gloss";
+  if (f === "smooth-matt") return "Smooth matt";
+  return f.charAt(0).toUpperCase() + f.slice(1);
+};
+
+const whyChooseUs = [
+  {
+    title: "Highest-quality canvas",
+    body:
+      "Most of our canvases come direct from Hahnemühle in Germany, the global market leader in fine-art media. Plus our value Datajet polycotton for high-volume work. There's nobody better.",
+  },
+  {
+    title: "Hahnemühle Gold-certified",
+    body:
+      "We are the first and only print studio in Singapore to achieve Gold-certified accreditation directly from Hahnemühle. The certification recognises our ability to produce consistently excellent prints.",
+  },
+  {
+    title: "Premium Hahnemühle varnish",
+    body:
+      "Every canvas print receives a coating of premium Hahnemühle varnish. It improves colour output, reduces colour fade over time, and protects the canvas from fungal damage in our climate.",
+  },
+];
+
+const faqs = [
+  {
+    q: "Do you stretch and frame the canvas, or do I need to arrange that elsewhere?",
+    a: `We do the full job in-house. Choose Standard 1" or Deep 1.5" stretching in the calculator and we stretch onto solid pine bars, gallery-wrapped (the image continues around the sides). Or pick Float Frame and we mount the stretched canvas inside a solid, treated-wood frame for the "floating" look. Wire and hooks for hanging are included whenever a canvas is stretched or framed.`,
+  },
+  {
+    q: "What's the difference between Standard 1\" and Deep 1.5\" stretching?",
+    a: `Standard 1" gives a classic, traditional canvas profile that sits close to the wall. Deep 1.5" has a more substantial side profile and reads more contemporary. Both use solid pine bars; the choice is aesthetic. Deep 1.5" costs slightly more because the bars use more material.`,
+  },
+  {
+    q: "What is float framing?",
+    a: `A float frame is a solid, treated-wood surround that the stretched canvas sits inside, with a small visible gap between the canvas edge and the frame, so the canvas appears to "float". Adds a finished gallery look without obscuring the print. We offer seven colours from smooth white through to natural black oak.`,
+  },
+  {
+    q: "What file types do you need, and how should I prepare the file?",
+    a: `TIFF, JPG, and PNG are ideal. If you can supply your file along these lines we're set:
+
+- Saved as a JPEG or flattened TIF
+- 300 pixels per inch at the printed size
+- 8-bit
+- RGB colour space, or converted to the ICC profile of the canvas you're printing on
+
+Don't worry if you can't hit these exactly. Send what you have and we'll check it for you.`,
+  },
+  {
+    q: "My image quality might not be good enough, can you check?",
+    a: `Absolutely. Send us your file via email or our contact form, and let us know the size you're looking to print at, so we can compare image resolution to the desired print size. We frequently apply enlargement and sharpening techniques on files that aren't quite print-ready.`,
+  },
+  {
+    q: "Do you offer image editing services?",
+    a: `Yes, we offer a range of image editing, enhancement, and enlargement services. Tell us what you'd like done with your file and we'll quote it.`,
+  },
+  {
+    q: "Can you do really large prints?",
+    a: `Up to 152cm wide across our canvas range, with length up to 12m for most Hahnemühle canvases and up to 20m for Photo Canvas and Polycotton. For anything larger message us, we sometimes do composite prints across multiple panels.`,
+  },
+  {
+    q: "How long does it take?",
+    a: `Standard turnaround is 5 to 7 working days for a single piece, longer for larger jobs or corporate runs. For rush jobs message us, we can often turn things around faster.`,
+  },
+];
+---
+<BaseLayout
+  title="Print on canvas · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-12 md:pt-20 md:pb-20">
+      <div class="grid gap-10 md:grid-cols-12 md:items-center md:gap-14">
+        <div class="md:col-span-6">
+          <Eyebrow>Print on canvas</Eyebrow>
+          <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
+            Canvas prints,<br />stretched and framed.
+          </h1>
+          <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+            Hahnemühle Gold-certified printing on five canvas substrates, with
+            optional gallery-wrap stretching or float framing. We print, stretch,
+            and frame in-house, you walk out with a finished, ready-to-hang piece.
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a
+              href="#calculator"
+              class="inline-flex items-center gap-2 rounded-pill bg-petrol px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
+            >
+              Get a quote <span aria-hidden="true">↓</span>
+            </a>
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 rounded-pill border border-[#1ebe5b] bg-[#25D366] px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#1ebe5b]"
+            >
+              <WhatsAppIcon size={16} />
+              <span>WhatsApp us</span>
+            </a>
+          </div>
+
+          <a
+            href={business.googleReviewsUrl}
+            target="_blank"
+            rel="noopener"
+            class="mt-6 inline-flex items-center gap-3 text-[14px] text-subtle hover:text-ink transition-colors"
+          >
+            <Stars rating={rating} size={18} ariaHidden />
+            <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
+            <span aria-hidden="true">·</span>
+            <span>{userRatingsTotal} Google reviews</span>
+          </a>
+        </div>
+
+        <div class="md:col-span-6">
+          <figure class="relative">
+            <img
+              src="/photos/hahnemuhle-canvas-metallic.jpg"
+              alt="A canvas print of an aerial city view at night on Hahnemühle Metallic Canvas"
+              class="aspect-[4/5] w-full rounded-card object-cover shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)]"
+            />
+            <figcaption class="absolute left-4 bottom-4 inline-flex items-center gap-2 rounded-pill bg-white/95 px-3 py-1.5 text-[11.5px] font-semibold text-petrol shadow-sm backdrop-blur-sm">
+              <span class="text-[10.5px] text-muted font-normal">printed on</span>
+              Hahnemühle Metallic Canvas
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Canvas showcase -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="max-w-[640px]">
+        <Eyebrow>Our canvases</Eyebrow>
+        <DisplayHeading level={2} class="mt-3">
+          Five canvases, every character.
+        </DisplayHeading>
+        <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
+          From the painterly coarse weave of Artist Canvas to the silvery
+          shimmer of Metallic, our canvas range covers every brief. Tap any
+          canvas to see how it handles, what it's best for, and how it sits
+          in the price ladder.
+        </p>
+      </div>
+
+      <div class="paper-showcase mt-12" data-paper-showcase>
+        <div class="paper-showcase__tabs" role="tablist" aria-label="Canvas">
+          {featuredCanvases.map((c, i) => (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={i === 0 ? "true" : "false"}
+              aria-controls={`canvas-panel-${c.id}`}
+              data-tab-target={c.id}
+              class:list={["paper-pick", i === 0 && "is-active"]}
+            >
+              {c.images[0] ? (
+                <img
+                  src={`/photos/${c.images[0]}`}
+                  alt=""
+                  loading="lazy"
+                  class="paper-pick__thumb"
+                />
+              ) : (
+                <span class="paper-pick__thumb paper-pick__thumb--placeholder" aria-hidden="true"></span>
+              )}
+              <span class="paper-pick__name">{c.shortName}</span>
+            </button>
+          ))}
+        </div>
+
+        <div class="paper-showcase__panels">
+          {featuredCanvases.map((canvas, i) => (
+            <article
+              id={`canvas-panel-${canvas.id}`}
+              role="tabpanel"
+              data-paper={canvas.id}
+              class:list={["paper-showcase__panel", i === 0 && "is-active"]}
+            >
+              <div class="paper-showcase__media">
+                {canvas.images[0] ? (
+                  <img
+                    src={`/photos/${canvas.images[0]}`}
+                    alt={`Sample print on ${canvas.name}`}
+                    loading="lazy"
+                    class="paper-showcase__image"
+                  />
+                ) : (
+                  <div class="paper-showcase__image paper-showcase__image--placeholder"></div>
+                )}
+              </div>
+              <div class="paper-showcase__body">
+                <p class="paper-showcase__brand">{canvas.brand}</p>
+                <h3 class="paper-showcase__name">{canvas.shortName}</h3>
+                <p class="paper-showcase__copy">{canvas.longDescription}</p>
+
+                <dl class="paper-showcase__specs">
+                  <div>
+                    <dt>Weight</dt>
+                    <dd>{canvas.gsm}gsm</dd>
+                  </div>
+                  <div>
+                    <dt>Finish</dt>
+                    <dd>{finishLabel(canvas.finish)}</dd>
+                  </div>
+                  <div>
+                    <dt>Tone</dt>
+                    <dd>{canvas.tone}</dd>
+                  </div>
+                  <div>
+                    <dt>Texture</dt>
+                    <dd>{canvas.texture}</dd>
+                  </div>
+                  <div>
+                    <dt>Max width</dt>
+                    <dd>{canvas.maxPrintWidthCm.toFixed(0)}cm</dd>
+                  </div>
+                  <div>
+                    <dt>Max length</dt>
+                    <dd>{(canvas.maxPrintLengthCm / 100).toFixed(0)}m</dd>
+                  </div>
+                </dl>
+
+                <a
+                  class="paper-showcase__cta"
+                  href={`#calculator?canvas=${canvas.id}`}
+                  data-quote-with={canvas.id}
+                >
+                  Get a price for {canvas.shortName}
+                  <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison table -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="max-w-[640px]">
+        <Eyebrow>At a glance</Eyebrow>
+        <DisplayHeading level={2} class="mt-3">Canvas comparison.</DisplayHeading>
+        <p class="mt-5 text-[15px] leading-relaxed text-subtle">
+          Quick reference for the full canvas range. Every canvas here is in
+          stock and ready to print on.
+        </p>
+      </div>
+
+      <div class="mt-10 overflow-x-auto">
+        <table class="w-full min-w-[760px] border-collapse text-[14px]">
+          <thead>
+            <tr class="border-b border-ink/20 text-left text-[14px] font-semibold text-ink">
+              <th class="py-3 pr-4">Canvas</th>
+              <th class="py-3 px-3 tabular-nums">Weight</th>
+              <th class="py-3 px-3">Finish</th>
+              <th class="py-3 px-3">Texture</th>
+              <th class="py-3 px-3">Tone</th>
+              <th class="py-3 pl-3 tabular-nums">Max width</th>
+            </tr>
+          </thead>
+          <tbody>
+            {featuredCanvases.map((c) => (
+              <tr class="border-b border-border-soft align-top">
+                <td class="py-4 pr-4">
+                  <div class="text-[12px] text-muted">{c.brand}</div>
+                  <div class="font-serif text-[15px] font-medium text-ink">
+                    {c.shortName}
+                  </div>
+                </td>
+                <td class="py-4 px-3 tabular-nums text-ink">{c.gsm}gsm</td>
+                <td class="py-4 px-3 text-ink">{finishLabel(c.finish)}</td>
+                <td class="py-4 px-3 text-ink">{c.texture}</td>
+                <td class="py-4 px-3 text-ink">{c.tone}</td>
+                <td class="py-4 pl-3 tabular-nums text-ink">{c.maxPrintWidthCm.toFixed(0)} cm</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Calculator -->
+  <section id="calculator" class="border-t border-border-soft bg-[#FAF7F1] scroll-mt-6">
+    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>Quote</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">Get a price now.</DisplayHeading>
+          <p class="mt-5 max-w-[380px] text-[15px] leading-relaxed text-subtle">
+            Pick your size, canvas, and how you want it finished. The total
+            covers print, stretching or framing if chosen, wire and hooks for
+            hanging, and delivery.
+          </p>
+          <p class="mt-5 max-w-[380px] text-[14px] leading-relaxed text-subtle">
+            Need help choosing, or have a corporate-scale order? WhatsApp us,
+            we'll guide you to the right canvas and finish.
+          </p>
+        </div>
+        <div class="md:col-span-8">
+          <CanvasQuoteCalculator />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why us -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>Why us</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">
+            Why print canvas with us?
+          </DisplayHeading>
+          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+            One studio, one team, every step under one roof.
+          </p>
+        </div>
+        <ol class="md:col-span-8 grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-3">
+          {whyChooseUs.map((row, i) => (
+            <li class="border-t border-ink/10 pt-5">
+              <span class="font-serif italic text-[14px] text-gold">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 class="mt-2 font-serif text-[18px] font-medium leading-[1.25] text-ink">
+                {row.title}
+              </h3>
+              <p class="mt-3 text-[14px] leading-relaxed text-subtle">
+                {row.body}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>FAQ</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">
+            Common questions.
+          </DisplayHeading>
+          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+            If yours isn't here, WhatsApp us, we usually reply within the hour
+            during studio hours.
+          </p>
+        </div>
+        <div class="md:col-span-8">
+          <ul class="border-t border-ink/15">
+            {faqs.map((item) => (
+              <li class="border-b border-ink/15">
+                <details class="faq-item">
+                  <summary>
+                    <span class="faq-item__q">{item.q}</span>
+                    <span class="faq-item__chevron" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </summary>
+                  <div class="faq-item__a">
+                    {item.a.split("\n").map((line) => (
+                      <p>{line}</p>
+                    ))}
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews -->
+  <ReviewSection />
+
+  <!-- Closing CTA -->
+  <DarkCTA />
+</BaseLayout>
+
+
+<script>
+  // Reuse the same showcase tab pattern as the paper page.
+  function initShowcase() {
+    const showcase = document.querySelector<HTMLElement>("[data-paper-showcase]");
+    if (!showcase) return;
+
+    const tabs = showcase.querySelectorAll<HTMLButtonElement>("[data-tab-target]");
+    const panels = showcase.querySelectorAll<HTMLElement>(".paper-showcase__panel");
+
+    function activate(canvasId: string) {
+      tabs.forEach((t) => {
+        const match = t.dataset.tabTarget === canvasId;
+        t.classList.toggle("is-active", match);
+        t.setAttribute("aria-selected", match ? "true" : "false");
+      });
+      panels.forEach((p) => {
+        p.classList.toggle("is-active", p.dataset.paper === canvasId);
+      });
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => activate(tab.dataset.tabTarget!));
+    });
+
+    showcase.querySelectorAll<HTMLAnchorElement>("[data-quote-with]").forEach((cta) => {
+      cta.addEventListener("click", (e) => {
+        e.preventDefault();
+        const canvasId = cta.dataset.quoteWith!;
+        const radio = document.querySelector<HTMLInputElement>(
+          `[data-canvas-quote-form] input[name="canvasId"][value="${canvasId}"]`,
+        );
+        if (radio) {
+          radio.checked = true;
+          radio.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        document
+          .getElementById("calculator")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  }
+
+  if (document.readyState !== "loading") initShowcase();
+  else document.addEventListener("DOMContentLoaded", initShowcase);
+</script>

@@ -1,0 +1,514 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+import DisplayHeading from "../components/DisplayHeading.astro";
+import DarkCTA from "../components/DarkCTA.astro";
+import PaperQuoteCalculator from "../components/PaperQuoteCalculator.astro";
+import ReviewSection from "../components/ReviewSection.astro";
+import Stars from "../components/Stars.astro";
+import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
+import { PAPERS } from "../data/pricing/paper";
+import { business } from "../data/business";
+import reviewsData from "../data/reviews.json";
+
+const { rating, userRatingsTotal } = reviewsData;
+const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'd like a quote for printing on paper.")}`;
+
+const description =
+  "Archival fine art printing on Hahnemühle, Fotospeed, and Datajet papers. Singapore's only Hahnemühle Gold-certified studio. Get an instant indicative quote below.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  serviceType: "Fine art printing on paper",
+  provider: {
+    "@type": "LocalBusiness",
+    name: "Fine Art Printing",
+    url: "https://fineartprinting.com.sg",
+  },
+  areaServed: { "@type": "Country", name: "Singapore" },
+};
+
+const featuredPapers = PAPERS.filter((p) => p.featured);
+
+const finishLabel = (f: string) => f.replace("-", " ");
+const durabilityLabel = (d: string) => d.charAt(0).toUpperCase() + d.slice(1);
+
+const whyChooseUs = [
+  {
+    title: "Highest-quality papers",
+    body:
+      "We source the majority of our papers from Hahnemühle in Germany. They are the global market leader in archival fine-art paper. There's nobody better.",
+  },
+  {
+    title: "Hahnemühle Gold-certified studio",
+    body:
+      "We are the first and only print studio in Singapore to achieve Gold-certified accreditation directly from Hahnemühle. The certification recognises our ability to produce consistently excellent prints.",
+  },
+  {
+    title: "Knowledgeable printers",
+    body:
+      "Many printers will print whatever you send them, even when they know the result will be poor. We check every file and actively suggest adjustments where they'd help.",
+  },
+];
+
+const faqs = [
+  {
+    q: "I'd like to order, what should I do?",
+    a: `Get in touch via WhatsApp, our contact form, email, or phone. If you already know the paper and size, the calculator above gives you a quick indicative price. The price excludes packaging or shipping. Add-ons:
+- Self collection, no tube: free
+- Self collection, with tube: S$6
+- Local Singapore delivery via tube: S$11
+For international shipments, message us for a shipping quote.`,
+  },
+  {
+    q: "What file types can you print from?",
+    a: "We can work from most file types, but the best options are TIFF, JPG, and PNG. If you can convert to one of those before sending, that's ideal. If you're not sure how, send what you have and we'll take a look.",
+  },
+  {
+    q: "I'm not sure my image is good enough, what should I do?",
+    a: "Send it via the contact form or to hello@fineartprinting.com.sg and we'll look at it for you. Plenty of files we receive aren't print-ready as-is, but enlargement and enhancement techniques can often get them to a state you're happy with.",
+  },
+  {
+    q: "How should I prepare my print file?",
+    a: `If you can supply a JPG or TIFF along these lines, we're set:
+- Saved as a JPEG or flattened TIF
+- 300 pixels per inch
+- 8-bit
+- RGB colour space, or converted to the ICC profile of the paper you're printing on (e.g. Hahnemühle Photo Rag 308)
+
+Default border around your print is 3mm, we can adjust to your preference. Don't worry if you can't hit these exactly, we'll work with you.`,
+  },
+  {
+    q: "Do you offer image editing and enlargement?",
+    a: "Yes, we have a full range of editing services. Get in touch with your file and what you want done, and we'll quote.",
+  },
+  {
+    q: "Can I combine multiple images into a single print?",
+    a: "Yes. If you have several smaller images of consistent size, you can combine them into a single image file and we'll print it as one sheet, which usually saves money. You'll need to consolidate the images and add any crop marks. If you want us to cut the prints out from the sheet afterwards, that's chargeable, message us first to discuss.",
+  },
+];
+---
+<BaseLayout
+  title="Print on paper · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-12 md:pt-20 md:pb-20">
+      <div class="grid gap-10 md:grid-cols-12 md:items-center md:gap-14">
+        <div class="md:col-span-6">
+          <Eyebrow>Print on paper</Eyebrow>
+          <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
+            Archival prints,<br />made to your size.
+          </h1>
+          <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+            Hahnemühle Gold-certified, 12-colour Canon Pro-566, original Canon
+            inks. We print one-offs, limited editions, and corporate runs on
+            archival fine-art papers, sized exactly the way you want them.
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a
+              href="#calculator"
+              class="inline-flex items-center gap-2 rounded-pill bg-petrol px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
+            >
+              Get a quote <span aria-hidden="true">↓</span>
+            </a>
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 rounded-pill border border-[#1ebe5b] bg-[#25D366] px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#1ebe5b]"
+            >
+              <WhatsAppIcon size={16} />
+              <span>WhatsApp us</span>
+            </a>
+          </div>
+
+          <a
+            href={business.googleReviewsUrl}
+            target="_blank"
+            rel="noopener"
+            class="mt-6 inline-flex items-center gap-3 text-[14px] text-subtle hover:text-ink transition-colors"
+          >
+            <Stars rating={rating} size={18} ariaHidden />
+            <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
+            <span aria-hidden="true">·</span>
+            <span>{userRatingsTotal} Google reviews</span>
+          </a>
+        </div>
+
+        <div class="md:col-span-6">
+          <figure class="relative">
+            <img
+              src="/photos/photo-rag-matt-baryta.jpg"
+              alt="An archival print of the Taj Mahal on Hahnemühle Photo Rag Matt Baryta"
+              class="aspect-[4/5] w-full rounded-card object-cover shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)]"
+            />
+            <figcaption class="absolute left-4 bottom-4 inline-flex items-center gap-2 rounded-pill bg-white/95 px-3 py-1.5 text-[11.5px] font-semibold text-petrol shadow-sm backdrop-blur-sm">
+              <span class="text-[10.5px] text-muted font-normal">printed on</span>
+              Hahnemühle Photo Rag Matt Baryta
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Paper showcase: tabbed picker with one paper detail at a time -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="max-w-[640px]">
+        <Eyebrow>Our papers</Eyebrow>
+        <DisplayHeading level={2} class="mt-3">
+          Every paper, in detail.
+        </DisplayHeading>
+        <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
+          Each paper has its own personality. Some sit muted and contemplative,
+          others sing under gallery lighting. Tap any paper below to see
+          how it handles, what it's best for, and where it lives in the price
+          ladder.
+        </p>
+      </div>
+
+      <div class="paper-showcase mt-12" data-paper-showcase>
+        <div class="paper-showcase__tabs" role="tablist" aria-label="Paper">
+          {featuredPapers.map((p, i) => (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={i === 0 ? "true" : "false"}
+              aria-controls={`panel-${p.id}`}
+              data-tab-target={p.id}
+              class:list={["paper-pick", i === 0 && "is-active"]}
+            >
+              {p.images[0] ? (
+                <img
+                  src={`/photos/${p.images[0]}`}
+                  alt=""
+                  loading="lazy"
+                  class="paper-pick__thumb"
+                />
+              ) : (
+                <span class="paper-pick__thumb paper-pick__thumb--placeholder" aria-hidden="true"></span>
+              )}
+              <span class="paper-pick__name">{p.shortName}</span>
+            </button>
+          ))}
+        </div>
+
+        <div class="paper-showcase__panels">
+          {featuredPapers.map((paper, i) => (
+            <article
+              id={`panel-${paper.id}`}
+              role="tabpanel"
+              data-paper={paper.id}
+              class:list={["paper-showcase__panel", i === 0 && "is-active"]}
+            >
+              <div class="paper-showcase__media">
+                {paper.images[0] ? (
+                  <img
+                    src={`/photos/${paper.images[0]}`}
+                    alt={`Sample print on ${paper.name}`}
+                    loading="lazy"
+                    class="paper-showcase__image"
+                  />
+                ) : (
+                  <div class="paper-showcase__image paper-showcase__image--placeholder"></div>
+                )}
+              </div>
+              <div class="paper-showcase__body">
+                <p class="paper-showcase__brand">{paper.brand}</p>
+                <h3 class="paper-showcase__name">{paper.shortName}</h3>
+
+                <p class="paper-showcase__copy">{paper.longDescription}</p>
+
+                <dl class="paper-showcase__specs">
+                  <div>
+                    <dt>Weight</dt>
+                    <dd>{paper.gsm}gsm</dd>
+                  </div>
+                  <div>
+                    <dt>Finish</dt>
+                    <dd class="capitalize">{finishLabel(paper.finish)}</dd>
+                  </div>
+                  <div>
+                    <dt>Tone</dt>
+                    <dd>{paper.tone}</dd>
+                  </div>
+                  <div>
+                    <dt>Texture</dt>
+                    <dd>{paper.texture}</dd>
+                  </div>
+                  <div>
+                    <dt>Durability</dt>
+                    <dd>{durabilityLabel(paper.durability)}</dd>
+                  </div>
+                  <div>
+                    <dt>Max width</dt>
+                    <dd>{paper.maxPrintWidthCm.toFixed(0)}cm</dd>
+                  </div>
+                </dl>
+
+                <a
+                  class="paper-showcase__cta"
+                  href={`#calculator?paper=${paper.id}`}
+                  data-quote-with={paper.id}
+                >
+                  Get a price for {paper.shortName}
+                  <span aria-hidden="true">→</span>
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison table -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="max-w-[640px]">
+        <Eyebrow>At a glance</Eyebrow>
+        <DisplayHeading level={2} class="mt-3">Paper comparison.</DisplayHeading>
+        <p class="mt-5 text-[15px] leading-relaxed text-subtle">
+          Quick reference for the full range. Every paper here is in stock and
+          ready to print on.
+        </p>
+      </div>
+
+      <div class="mt-10 overflow-x-auto">
+        <table class="comparison-table w-full min-w-[760px] border-collapse text-[14px]">
+          <thead>
+            <tr class="border-b border-ink/20 text-left text-[14px] font-semibold text-ink">
+              <th class="py-3 pr-4">Paper</th>
+              <th class="py-3 px-3 tabular-nums">Weight</th>
+              <th class="py-3 px-3">Finish</th>
+              <th class="py-3 px-3">Texture</th>
+              <th class="py-3 px-3">Tone</th>
+              <th class="py-3 px-3">Durability</th>
+              <th class="py-3 pl-3 tabular-nums">Max width</th>
+            </tr>
+          </thead>
+          <tbody data-comparison-table>
+            {featuredPapers.map((p, i) => (
+              <tr class:list={[
+                "border-b border-border-soft align-top",
+                i >= 5 && "comparison-extra",
+              ]}>
+                <td class="py-4 pr-4">
+                  <div class="text-[12px] text-muted">{p.brand}</div>
+                  <div class="font-serif text-[15px] font-medium text-ink">
+                    {p.shortName}
+                  </div>
+                </td>
+                <td class="py-4 px-3 tabular-nums text-ink">{p.gsm}gsm</td>
+                <td class="py-4 px-3 capitalize text-ink">{finishLabel(p.finish)}</td>
+                <td class="py-4 px-3 text-ink">{p.texture}</td>
+                <td class="py-4 px-3 text-ink">{p.tone}</td>
+                <td class="py-4 px-3 text-ink">{durabilityLabel(p.durability)}</td>
+                <td class="py-4 pl-3 tabular-nums text-ink">{p.maxPrintWidthCm.toFixed(0)} cm</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {featuredPapers.length > 5 && (
+        <div class="mt-6 flex justify-center">
+          <button
+            type="button"
+            data-comparison-toggle
+            class="comparison-toggle"
+          >
+            <span data-toggle-label>Show all {featuredPapers.length} papers</span>
+            <span class="comparison-toggle__chevron" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </button>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <!-- Calculator -->
+  <section id="calculator" class="border-t border-border-soft bg-[#FAF7F1] scroll-mt-6">
+    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>Quote</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">Get a price now.</DisplayHeading>
+          <p class="mt-5 max-w-[380px] text-[15px] leading-relaxed text-subtle">
+            Found your paper above? Pick your size and see a real number.
+            Indicative only, we'll confirm the final price once we see your
+            file.
+          </p>
+          <p class="mt-5 max-w-[380px] text-[14px] leading-relaxed text-subtle">
+            Still deciding, or have an order of 10+? WhatsApp us, we'll guide
+            you to the right paper for your work.
+          </p>
+        </div>
+        <div class="md:col-span-8">
+          <PaperQuoteCalculator />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why choose us -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>Why us</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">
+            Why print with us?
+          </DisplayHeading>
+          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+            We source the best materials and combine them with a passion for
+            being the best in the market.
+          </p>
+        </div>
+        <ol class="md:col-span-8 grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-3">
+          {whyChooseUs.map((row, i) => (
+            <li class="border-t border-ink/10 pt-5">
+              <span class="font-serif italic text-[14px] text-gold">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 class="mt-2 font-serif text-[18px] font-medium leading-[1.25] text-ink">
+                {row.title}
+              </h3>
+              <p class="mt-3 text-[14px] leading-relaxed text-subtle">
+                {row.body}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>FAQ</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">
+            Common questions.
+          </DisplayHeading>
+          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+            If yours isn't here, WhatsApp us, we usually reply within the hour
+            during studio hours.
+          </p>
+        </div>
+        <div class="md:col-span-8">
+          <ul class="border-t border-ink/15">
+            {faqs.map((item) => (
+              <li class="border-b border-ink/15">
+                <details class="faq-item">
+                  <summary>
+                    <span class="faq-item__q">{item.q}</span>
+                    <span class="faq-item__chevron" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </summary>
+                  <div class="faq-item__a">
+                    {item.a.split("\n").map((line) => (
+                      <p>{line}</p>
+                    ))}
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews -->
+  <ReviewSection />
+
+  <!-- Closing CTA -->
+  <DarkCTA />
+</BaseLayout>
+
+
+<script>
+  // Paper showcase tabs + "Get a price for X" pre-select.
+  function initShowcase() {
+    const showcase = document.querySelector<HTMLElement>("[data-paper-showcase]");
+    if (!showcase) return;
+
+    const tabs = showcase.querySelectorAll<HTMLButtonElement>("[data-tab-target]");
+    const panels = showcase.querySelectorAll<HTMLElement>(".paper-showcase__panel");
+
+    function activate(paperId: string) {
+      tabs.forEach((t) => {
+        const match = t.dataset.tabTarget === paperId;
+        t.classList.toggle("is-active", match);
+        t.setAttribute("aria-selected", match ? "true" : "false");
+      });
+      panels.forEach((p) => {
+        p.classList.toggle("is-active", p.dataset.paper === paperId);
+      });
+    }
+
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => activate(tab.dataset.tabTarget!));
+    });
+
+    // "Get a price for X" CTAs select the matching paper in the calculator
+    // and scroll the calculator into view.
+    showcase.querySelectorAll<HTMLAnchorElement>("[data-quote-with]").forEach((cta) => {
+      cta.addEventListener("click", (e) => {
+        e.preventDefault();
+        const paperId = cta.dataset.quoteWith!;
+        const radio = document.querySelector<HTMLInputElement>(
+          `[data-quote-form] input[name="paperId"][value="${paperId}"]`,
+        );
+        if (radio) {
+          radio.checked = true;
+          radio.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        document
+          .getElementById("calculator")
+          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+  }
+
+  if (document.readyState !== "loading") initShowcase();
+  else document.addEventListener("DOMContentLoaded", initShowcase);
+
+  // Comparison table expand/collapse
+  function initComparison() {
+    const toggle = document.querySelector<HTMLButtonElement>("[data-comparison-toggle]");
+    const tbody = document.querySelector<HTMLElement>("[data-comparison-table]");
+    if (!toggle || !tbody) return;
+
+    const label = toggle.querySelector<HTMLElement>("[data-toggle-label]");
+    const totalCount = tbody.querySelectorAll("tr").length;
+
+    toggle.addEventListener("click", () => {
+      const expanded = tbody.classList.toggle("is-expanded");
+      toggle.classList.toggle("is-expanded", expanded);
+      if (label) {
+        label.textContent = expanded
+          ? "Show fewer"
+          : `Show all ${totalCount} papers`;
+      }
+    });
+  }
+
+  if (document.readyState !== "loading") initComparison();
+  else document.addEventListener("DOMContentLoaded", initComparison);
+</script>

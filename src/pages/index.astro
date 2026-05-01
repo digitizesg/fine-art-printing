@@ -1,0 +1,245 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+import DisplayHeading from "../components/DisplayHeading.astro";
+import Stars from "../components/Stars.astro";
+import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
+import YouTubeEmbed from "../components/YouTubeEmbed.astro";
+import ReviewSection from "../components/ReviewSection.astro";
+import ServiceTile from "../components/ServiceTile.astro";
+import TrustedBy from "../components/TrustedBy.astro";
+import LocationCard from "../components/LocationCard.astro";
+import DarkCTA from "../components/DarkCTA.astro";
+import { business } from "../data/business";
+import reviewsData from "../data/reviews.json";
+
+const { rating, userRatingsTotal } = reviewsData;
+
+const coreServices = [
+  {
+    title: "Print on paper",
+    description: "Archival Hahnemühle papers",
+    href: "/print-on-paper",
+    image: "/photos/photo-rag-1.jpg",
+    imageAlt: "Archival print of a lion on Hahnemühle Photo Rag",
+  },
+  {
+    title: "Print on canvas",
+    description: "Premium canvas substrates",
+    href: "/print-on-canvas",
+    image: "/photos/hahnemuhle-daguerre-canvas-1.jpg",
+    imageAlt: "Canvas print of a Cuban car at the beach on Hahnemühle Daguerre Canvas",
+  },
+  {
+    title: "Canvas stretching",
+    description: "Solid wood, gallery-wrapped",
+    href: "/canvas-stretching",
+  },
+  {
+    title: "Custom framing",
+    description: "Pine and oak profiles",
+    href: "/custom-framing",
+  },
+];
+
+const differentiators = [
+  {
+    title: "The only Hahnemühle Gold-certified studio in Singapore.",
+    body:
+      "A benchmark for archival quality and consistency, awarded only to studios that meet Hahnemühle's standards over time.",
+  },
+  {
+    title: "Latest Canon Pro-566, manufacturer inks only.",
+    body:
+      "12-colour large-format pigment printer with original Canon inks, no third-party substitutes that compromise longevity or colour.",
+  },
+  {
+    title: "Colour-managed end to end.",
+    body:
+      "ICC profiling and consistent calibration so what comes off the printer matches what you saw on screen.",
+  },
+  {
+    title: "Print, stretch, frame, under one roof.",
+    body:
+      "Same showroom, same team. Walk out with a finished, framed piece in days rather than coordinating across vendors for weeks.",
+  },
+];
+
+const description =
+  "Singapore's only Hahnemühle Gold-certified printing studio. Archival fine art prints, canvas, stretching and framing for businesses and homes in Singapore.";
+
+const localBusinessJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "LocalBusiness",
+  name: business.name,
+  url: `https://${business.domain}`,
+  email: business.contactEmail,
+  telephone: business.phone,
+  image: `https://${business.domain}/og-default.jpg`,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: `${business.address.line2} ${business.address.line3}`,
+    addressLocality: "Singapore",
+    postalCode: business.address.postcode.replace("Singapore ", ""),
+    addressCountry: "SG",
+  },
+  priceRange: "$$",
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: rating,
+    reviewCount: userRatingsTotal,
+  },
+};
+---
+<BaseLayout
+  title="Fine Art Printing · Singapore's print and framing studio"
+  description={description}
+  jsonLd={localBusinessJsonLd}
+>
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-16 pb-10 md:pt-24 md:pb-14">
+      <div class="max-w-[820px]">
+        <span class="inline-flex items-center rounded-pill bg-petrol/[0.06] px-3 py-1 text-[12px] text-petrol">
+          Singapore's print and framing studio
+        </span>
+        <h1 class="mt-6 font-serif text-[clamp(2.6rem,6vw,3.5rem)] font-medium leading-[1.05] text-ink">
+          We produce beautiful prints<br />
+          on paper and canvas.
+        </h1>
+        <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+          Singapore's first and only Hahnemühle Gold-certified print studio. We
+          offer printing, framing, and canvas stretching for businesses and
+          homes across Singapore. Competitive pricing and exceptional quality!
+        </p>
+        <div class="mt-10">
+          <p class="font-serif text-[20px] italic text-ink">
+            What's your primary need today?
+          </p>
+
+          <div class="mt-4 flex flex-wrap gap-2.5">
+            {[
+              { href: "/print-on-paper", label: "Print on paper" },
+              { href: "/print-on-canvas", label: "Print on canvas" },
+              { href: "/canvas-stretching", label: "Stretch an existing canvas" },
+              { href: "/custom-framing", label: "Custom framing" },
+            ].map((p) => (
+              <a
+                href={p.href}
+                class="group inline-flex items-center gap-1.5 rounded-pill border border-ink/15 bg-white px-4 py-2.5 text-[14px] font-semibold text-ink transition-colors duration-150 hover:border-petrol hover:bg-petrol hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-petrol"
+              >
+                <span>{p.label}</span>
+                <span
+                  class="text-muted transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-white"
+                  aria-hidden="true"
+                >→</span>
+              </a>
+            ))}
+          </div>
+
+          <a
+            href={`${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'm not sure what I need yet, can you help?")}`}
+            target="_blank"
+            rel="noopener"
+            class="mt-5 inline-flex items-center gap-2 text-[14px] text-subtle hover:text-ink transition-colors"
+          >
+            <WhatsAppIcon size={15} class="text-[#25D366]" />
+            Not sure? WhatsApp us, we'll help you decide.
+          </a>
+
+          <a
+            href={business.googleReviewsUrl}
+            target="_blank"
+            rel="noopener"
+            class="mt-6 inline-flex items-center gap-3 text-[15px] text-subtle hover:text-ink transition-colors"
+          >
+            <Stars rating={rating} size={20} ariaHidden />
+            <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
+            <span aria-hidden="true">·</span>
+            <span>{userRatingsTotal} Google reviews</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pb-20">
+      <YouTubeEmbed
+        videoId={business.youtubeVideoId}
+        title="Canon × Fine Art Printing"
+        caption="Canon sat down with our founder Ben to talk about printing as craft, the move to the Pro-566, and why we obsess over media and ink."
+      />
+    </div>
+  </section>
+
+  <TrustedBy />
+
+  <ReviewSection />
+
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="flex flex-col items-start gap-3">
+        <Eyebrow>What we do</Eyebrow>
+        <DisplayHeading level={2}>Services we offer.</DisplayHeading>
+      </div>
+
+      <div class="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {coreServices.map((service) => (
+          <ServiceTile {...service} />
+        ))}
+      </div>
+
+      <p class="mt-8 text-[13px] text-subtle">
+        We also offer{" "}
+        <a href="/art-restoration" class="underline-offset-2 hover:text-ink hover:underline">art restoration</a>,{" "}
+        <a href="/art-valuation" class="underline-offset-2 hover:text-ink hover:underline">art valuation</a>, and{" "}
+        <a href="/custom-mat-boards" class="underline-offset-2 hover:text-ink hover:underline">custom mat boards</a>.
+      </p>
+    </div>
+  </section>
+
+  <section class="border-t border-border-soft bg-[#FAF7F1]">
+    <div class="mx-auto max-w-[1180px] px-6 py-24">
+      <div class="grid gap-12 md:grid-cols-12">
+        <div class="md:col-span-5">
+          <Eyebrow>Why Fine Art Printing</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">What sets us apart.</DisplayHeading>
+          <p class="mt-6 max-w-[420px] font-serif italic text-[18px] leading-relaxed text-subtle">
+            Four things that show up in every job we do, whether it's a single
+            archival print or a full corporate fit-out.
+          </p>
+        </div>
+
+        <ol class="md:col-span-7 grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2">
+          {differentiators.map((row, i) => (
+            <li class="border-t border-ink/10 pt-6">
+              <span class="font-serif italic text-[14px] text-gold">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 class="mt-3 font-serif text-[22px] font-medium leading-[1.25] text-ink">
+                {row.title}
+              </h3>
+              <p class="mt-3 text-[14.5px] leading-relaxed text-subtle">
+                {row.body}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="flex flex-col items-start gap-3">
+        <Eyebrow>Visit us</Eyebrow>
+        <DisplayHeading level={2}>Where to find us.</DisplayHeading>
+      </div>
+      <div class="mt-10">
+        <LocationCard />
+      </div>
+    </div>
+  </section>
+
+  <DarkCTA />
+</BaseLayout>

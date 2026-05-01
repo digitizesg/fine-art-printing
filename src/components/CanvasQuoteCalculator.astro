@@ -1,0 +1,499 @@
+---
+import {
+  CANVASES,
+  FLOAT_FRAME_COLOURS,
+  formatSGD,
+} from "../data/pricing/canvas";
+import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
+import "../styles/canvas-quote.css";
+
+const featured = CANVASES.filter((c) => c.featured);
+---
+<form class="canvas-quote" data-canvas-quote-form novalidate>
+  <fieldset class="canvas-quote__group">
+    <legend class="canvas-quote__legend">Print size</legend>
+    <div class="canvas-quote__dims">
+      <label class="canvas-quote__field">
+        <span>Width</span>
+        <input type="number" name="width" inputmode="decimal" min="1" step="0.1" value="60" />
+      </label>
+      <span class="canvas-quote__by" aria-hidden="true">×</span>
+      <label class="canvas-quote__field">
+        <span>Height</span>
+        <input type="number" name="height" inputmode="decimal" min="1" step="0.1" value="40" />
+      </label>
+      <div class="canvas-quote__units" role="radiogroup" aria-label="Units">
+        <label>
+          <input type="radio" name="units" value="cm" checked />
+          <span>cm</span>
+        </label>
+        <label>
+          <input type="radio" name="units" value="in" />
+          <span>in</span>
+        </label>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="canvas-quote__group">
+    <legend class="canvas-quote__legend">Choose a canvas</legend>
+    <div class="canvas-quote__canvases" role="radiogroup" aria-label="Canvas">
+      {featured.map((c, i) => (
+        <label class="canvas-card">
+          <input
+            type="radio"
+            name="canvasId"
+            value={c.id}
+            checked={i === 0}
+            class="sr-only"
+          />
+          {c.images[0] ? (
+            <img
+              src={`/photos/${c.images[0]}`}
+              alt=""
+              loading="lazy"
+              class="canvas-card__photo"
+            />
+          ) : (
+            <span class="canvas-card__swatch" data-finish={c.finish} aria-hidden="true"></span>
+          )}
+          <span class="canvas-card__body">
+            <span class="canvas-card__brand">{c.brand}</span>
+            <span class="canvas-card__name">{c.shortName}</span>
+            <span class="canvas-card__chips">
+              <span class="chip chip--gsm">
+                <strong>{c.gsm}</strong>gsm
+              </span>
+              <span class:list={["chip", "chip--finish", `chip--${c.finish}`]}>
+                {c.finish === "smooth-matt" ? "smooth matt" : c.finish === "high-gloss" ? "high gloss" : c.finish}
+              </span>
+            </span>
+            <span class="canvas-card__blurb">{c.blurb}</span>
+          </span>
+          <span class="canvas-card__check" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M3 7.5l3 3 5-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </label>
+      ))}
+    </div>
+  </fieldset>
+
+  <fieldset class="canvas-quote__group">
+    <legend class="canvas-quote__legend">Finishing</legend>
+    <div class="finishing-grid">
+      <label class="finishing-card">
+        <input type="radio" name="finishing" value="none" checked />
+        <span class="finishing-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
+            <rect x="2.5" y="6" width="35" height="16" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <span class="finishing-card__body">
+          <span class="finishing-card__title">No stretching</span>
+          <span class="finishing-card__desc">Rolled, ready for your own framer.</span>
+        </span>
+      </label>
+
+      <label class="finishing-card">
+        <input type="radio" name="finishing" value="1in" />
+        <span class="finishing-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
+            <rect x="3" y="4" width="34" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="3" y="18" width="34" height="4" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <span class="finishing-card__body">
+          <span class="finishing-card__title">Standard 1"</span>
+          <span class="finishing-card__desc">Solid wood, gallery-wrapped.</span>
+        </span>
+      </label>
+
+      <label class="finishing-card">
+        <input type="radio" name="finishing" value="1.5in" />
+        <span class="finishing-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
+            <rect x="3" y="3" width="34" height="13" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="3" y="16" width="34" height="7" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <span class="finishing-card__body">
+          <span class="finishing-card__title">Deep 1.5"</span>
+          <span class="finishing-card__desc">Deeper bars, more substantial profile.</span>
+        </span>
+      </label>
+
+      <label class="finishing-card">
+        <input type="radio" name="finishing" value="float" />
+        <span class="finishing-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
+            <rect x="1.5" y="3" width="37" height="22" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="6" y="6.5" width="28" height="15" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <span class="finishing-card__body">
+          <span class="finishing-card__title">Float frame</span>
+          <span class="finishing-card__desc">Stretched on 1" bars, then mounted in a wooden frame.</span>
+        </span>
+      </label>
+    </div>
+  </fieldset>
+
+  <fieldset class="canvas-quote__group canvas-quote__frame-colour" data-frame-colour-fieldset>
+    <legend class="canvas-quote__legend">Float frame colour</legend>
+    <div class="frame-colour-grid">
+      {FLOAT_FRAME_COLOURS.map((colour, i) => (
+        <label class="frame-colour">
+          <input
+            type="radio"
+            name="floatFrameColour"
+            value={colour.id}
+            checked={i === 0}
+            class="sr-only"
+          />
+          <span
+            class="frame-colour__swatch"
+            style={`background: ${colour.swatch};`}
+            aria-hidden="true"
+          ></span>
+          <span class="frame-colour__name">{colour.label}</span>
+        </label>
+      ))}
+    </div>
+  </fieldset>
+
+  <fieldset class="canvas-quote__group">
+    <legend class="canvas-quote__legend">Delivery</legend>
+    <div class="delivery-grid">
+      <label class="delivery-card">
+        <input type="radio" name="delivery" value="self" checked />
+        <span class="delivery-card__title">Self collection</span>
+        <span class="delivery-card__desc">From our studio, free.</span>
+      </label>
+      <label class="delivery-card">
+        <input type="radio" name="delivery" value="local" />
+        <span class="delivery-card__title">Local delivery</span>
+        <span class="delivery-card__desc">Anywhere in Singapore, +S$30.</span>
+      </label>
+    </div>
+  </fieldset>
+
+  <div class="canvas-quote__output" data-canvas-quote-output></div>
+
+  <div class="canvas-quote__actions" data-canvas-quote-actions hidden>
+    <a class="canvas-quote__btn canvas-quote__btn--wa" data-canvas-quote-wa href="#" target="_blank" rel="noopener">
+      <WhatsAppIcon size={16} />
+      <span>WhatsApp this quote</span>
+    </a>
+    <a class="canvas-quote__btn canvas-quote__btn--secondary" data-canvas-quote-contact href="#">
+      Send via contact form
+    </a>
+  </div>
+</form>
+
+<style is:global>
+  /* Canvas cards (mirror paper-card) — print-on-canvas only */
+  .canvas-quote__canvases {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 700px) {
+    .canvas-quote__canvases { grid-template-columns: 1fr 1fr; }
+  }
+  .canvas-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 150ms ease-out, background 150ms ease-out;
+  }
+  .canvas-card:hover { border-color: rgba(0,0,0,0.18); background: rgba(0,0,0,0.015); }
+  .canvas-card:has(input:checked) {
+    border-color: #1A3550;
+    background: rgba(26, 53, 80, 0.04);
+  }
+  .canvas-card:focus-within {
+    outline: 2px solid #1A3550;
+    outline-offset: 2px;
+  }
+  .canvas-card__photo {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    object-fit: cover;
+    display: block;
+    background: #f0e9d9;
+  }
+  .canvas-card__swatch {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #ebe3d3 0%, #c4b59c 100%);
+  }
+  .canvas-card__swatch[data-finish="high-gloss"] {
+    background: linear-gradient(135deg, #f4e8c8 0%, #b8a072 50%, #f4e8c8 100%);
+  }
+  .canvas-card__swatch[data-finish="smooth-matt"] {
+    background: linear-gradient(135deg, #f0eadc 0%, #d3c8b3 100%);
+  }
+  .canvas-card__body {
+    display: grid;
+    gap: 1px;
+    line-height: 1.3;
+  }
+  .canvas-card__brand {
+    font-family: var(--font-sans);
+    font-size: 11px;
+    color: var(--color-muted, #555);
+    line-height: 1.2;
+    margin-bottom: 1px;
+    letter-spacing: 0.01em;
+  }
+  .canvas-card__name {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--color-ink);
+    line-height: 1.2;
+  }
+  .canvas-card__chips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+    margin-bottom: 2px;
+  }
+  .chip--smooth-matt {
+    background: #ece7da;
+    color: #5e533c;
+  }
+  .canvas-card__blurb {
+    font-size: 12px;
+    color: var(--color-subtle, #6b6b6b);
+    margin-top: 4px;
+  }
+  .canvas-card__check {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    border: 1px solid rgba(0,0,0,0.18);
+    color: transparent;
+    background: #fff;
+    transition: all 150ms ease-out;
+  }
+  .canvas-card:has(input:checked) .canvas-card__check {
+    border-color: #1A3550;
+    background: #1A3550;
+    color: #fff;
+  }
+
+  /* Show the float-frame colour picker only when finishing=float. */
+  .canvas-quote:has(input[name="finishing"][value="float"]:checked) .canvas-quote__frame-colour {
+    display: block;
+  }
+</style>
+
+<script>
+  import {
+    quoteCanvasPrint,
+    formatSGDWhole,
+    formatSGDCeil,
+    CANVASES,
+    FLOAT_FRAME_COLOURS,
+  } from "../data/pricing/canvas";
+  import { business } from "../data/business";
+
+  type FormState = {
+    canvasId: string;
+    width: number;
+    height: number;
+    units: "cm" | "in";
+    finishing: "none" | "1in" | "1.5in" | "float";
+    floatFrameColourId: string;
+    delivery: "self" | "local";
+  };
+
+  function readForm(form: HTMLFormElement): FormState {
+    const data = new FormData(form);
+    return {
+      canvasId: String(data.get("canvasId") ?? CANVASES[0]!.id),
+      width: parseFloat(String(data.get("width") ?? "0")),
+      height: parseFloat(String(data.get("height") ?? "0")),
+      units: (data.get("units") as "cm" | "in") ?? "cm",
+      finishing: (data.get("finishing") as FormState["finishing"]) ?? "none",
+      floatFrameColourId:
+        String(data.get("floatFrameColour") ?? FLOAT_FRAME_COLOURS[0]!.id),
+      delivery: (data.get("delivery") as "self" | "local") ?? "self",
+    };
+  }
+
+  const toCm = (v: number, units: "cm" | "in") => (units === "in" ? v * 2.54 : v);
+
+  function buildMessage(state: FormState, totalText: string): string {
+    const canvas = CANVASES.find((c) => c.id === state.canvasId);
+    const finishingLabel =
+      state.finishing === "none"
+        ? "No stretching"
+        : state.finishing === "1in"
+          ? 'Standard 1" stretching'
+          : state.finishing === "1.5in"
+            ? 'Deep 1.5" stretching'
+            : `Float frame (${FLOAT_FRAME_COLOURS.find((c) => c.id === state.floatFrameColourId)?.label ?? state.floatFrameColourId})`;
+    const deliveryLabel =
+      state.delivery === "self" ? "Self collection" : "Local delivery";
+    return [
+      "Hi Fine Art Printing, I'd like a quote for canvas printing.",
+      "",
+      `Canvas: ${canvas?.name ?? state.canvasId}`,
+      `Size: ${state.width} × ${state.height} ${state.units}`,
+      `Finishing: ${finishingLabel}`,
+      `Delivery: ${deliveryLabel}`,
+      `Estimated total: ${totalText}`,
+    ].join("\n");
+  }
+
+  function escapeHtml(s: string) {
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function render(form: HTMLFormElement) {
+    const state = readForm(form);
+    const widthCm = toCm(state.width, state.units);
+    const heightCm = toCm(state.height, state.units);
+
+    const result = quoteCanvasPrint({
+      canvasId: state.canvasId,
+      widthCm,
+      heightCm,
+      stretching:
+        state.finishing === "1in"
+          ? "1in"
+          : state.finishing === "1.5in"
+            ? "1.5in"
+            : "none",
+      floatFrameColourId:
+        state.finishing === "float" ? state.floatFrameColourId : null,
+      delivery: state.delivery,
+    });
+
+    const output = form.querySelector<HTMLElement>("[data-canvas-quote-output]")!;
+    const actions = form.querySelector<HTMLElement>("[data-canvas-quote-actions]")!;
+
+    if (!result.ok) {
+      output.innerHTML = `
+        <div class="quote-error">
+          <strong>Hold up.</strong> ${escapeHtml(result.message)}
+        </div>
+      `;
+      actions.hidden = true;
+      return;
+    }
+
+    // Group the detailed line items into top-level categories.
+    const printingLabels = new Set([
+      "Canvas",
+      "Ink",
+      "Studio labour",
+      "Large-print handling",
+      "Oversize handling",
+    ]);
+    const printingTotal = result.lines
+      .filter((l) => printingLabels.has(l.label))
+      .reduce((s, l) => s + l.amount, 0);
+    const stretchingLine = result.lines.find((l) =>
+      l.label.startsWith("Stretching"),
+    );
+    const floatFrameLine = result.lines.find((l) =>
+      l.label.startsWith("Float frame"),
+    );
+    const wireHooksLine = result.lines.find((l) => l.label === "Wire & hooks");
+    const deliveryLine = result.lines.find((l) => l.label === "Local delivery");
+
+    const groups: { label: string; amount: number }[] = [];
+    groups.push({ label: "Printing", amount: Math.round(printingTotal * 100) / 100 });
+    if (stretchingLine) {
+      // Wire & hooks rolls into the stretching line — they always come together.
+      const stretchingWithHooks =
+        stretchingLine.amount + (wireHooksLine?.amount ?? 0);
+      groups.push({
+        label: "Stretching",
+        amount: Math.round(stretchingWithHooks * 100) / 100,
+      });
+    }
+    if (floatFrameLine) {
+      groups.push({ label: "Float frame", amount: floatFrameLine.amount });
+    }
+    if (deliveryLine) {
+      groups.push({ label: "Local delivery", amount: deliveryLine.amount });
+    }
+
+    const lineRows = groups
+      .map(
+        (g) => `
+          <div class="quote-row">
+            <span>${escapeHtml(g.label)}</span>
+            <span class="quote-row__amount">${formatSGDCeil(g.amount)}</span>
+          </div>`,
+      )
+      .join("");
+
+    const minRow =
+      result.minTopUp > 0
+        ? `
+          <div class="quote-row quote-row--min">
+            <span>Minimum order top-up</span>
+            <span class="quote-row__amount">+${formatSGDCeil(result.minTopUp)}</span>
+          </div>`
+        : "";
+
+    output.innerHTML = `
+      <div class="quote-result" aria-live="polite">
+        <div class="quote-breakdown">
+          ${lineRows}
+          ${minRow}
+        </div>
+        <div class="quote-result__totalbar">
+          <div class="quote-result__label">Estimated total, all-in</div>
+          <div class="quote-result__amount">${formatSGDWhole(result.grandTotal)}</div>
+        </div>
+      </div>
+    `;
+
+    actions.hidden = false;
+    const wa = actions.querySelector<HTMLAnchorElement>("[data-canvas-quote-wa]")!;
+    const contact = actions.querySelector<HTMLAnchorElement>("[data-canvas-quote-contact]")!;
+    const message = buildMessage(state, formatSGDWhole(result.grandTotal));
+    wa.href = `${business.whatsappLink}?text=${encodeURIComponent(message)}`;
+    const subject = `Canvas quote: ${result.canvas.shortName} ${state.width}×${state.height}${state.units}`;
+    contact.href = `mailto:${business.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+  }
+
+  function init() {
+    document
+      .querySelectorAll<HTMLFormElement>("[data-canvas-quote-form]")
+      .forEach((form) => {
+        const update = () => render(form);
+        form.addEventListener("input", update);
+        form.addEventListener("change", update);
+        update();
+      });
+  }
+
+  if (document.readyState !== "loading") init();
+  else document.addEventListener("DOMContentLoaded", init);
+</script>

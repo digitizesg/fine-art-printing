@@ -1,0 +1,354 @@
+---
+import { FLOAT_FRAME_COLOURS } from "../data/pricing/canvas";
+import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
+import "../styles/canvas-quote.css";
+---
+<form class="canvas-quote" data-stretching-form novalidate>
+  <fieldset class="canvas-quote__group">
+    <legend class="canvas-quote__legend">Finished size</legend>
+    <p class="canvas-quote__hint">
+      The visible size you want when finished. We'll tell you how big a canvas
+      you need to bring.
+    </p>
+    <div class="canvas-quote__dims">
+      <label class="canvas-quote__field">
+        <span>Width</span>
+        <input type="number" name="width" inputmode="decimal" min="1" step="0.1" value="60" />
+      </label>
+      <span class="canvas-quote__by" aria-hidden="true">×</span>
+      <label class="canvas-quote__field">
+        <span>Height</span>
+        <input type="number" name="height" inputmode="decimal" min="1" step="0.1" value="40" />
+      </label>
+      <div class="canvas-quote__units" role="radiogroup" aria-label="Units">
+        <label>
+          <input type="radio" name="units" value="cm" checked />
+          <span>cm</span>
+        </label>
+        <label>
+          <input type="radio" name="units" value="in" />
+          <span>in</span>
+        </label>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="canvas-quote__group">
+    <legend class="canvas-quote__legend">Stretcher depth</legend>
+    <div class="finishing-grid">
+      <label class="finishing-card">
+        <input type="radio" name="depth" value="1in" checked />
+        <span class="finishing-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
+            <rect x="3" y="4" width="34" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="3" y="18" width="34" height="4" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <span class="finishing-card__body">
+          <span class="finishing-card__title">Standard 1"</span>
+          <span class="finishing-card__desc">Classic profile, sits close to the wall.</span>
+        </span>
+      </label>
+      <label class="finishing-card">
+        <input type="radio" name="depth" value="1.5in" />
+        <span class="finishing-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
+            <rect x="3" y="3" width="34" height="13" rx="1" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="3" y="16" width="34" height="7" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <span class="finishing-card__body">
+          <span class="finishing-card__title">Deep 1.5"</span>
+          <span class="finishing-card__desc">More substantial side profile.</span>
+        </span>
+      </label>
+    </div>
+  </fieldset>
+
+  <fieldset class="canvas-quote__group">
+    <legend class="canvas-quote__legend">Float frame?</legend>
+    <div class="finishing-grid">
+      <label class="finishing-card">
+        <input type="radio" name="addFrame" value="no" checked />
+        <span class="finishing-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
+            <rect x="3" y="4" width="34" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <span class="finishing-card__body">
+          <span class="finishing-card__title">No frame</span>
+          <span class="finishing-card__desc">Just stretched, ready to hang.</span>
+        </span>
+      </label>
+      <label class="finishing-card">
+        <input type="radio" name="addFrame" value="yes" />
+        <span class="finishing-card__icon" aria-hidden="true">
+          <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
+            <rect x="1.5" y="3" width="37" height="22" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="6" y="6.5" width="28" height="15" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+        </span>
+        <span class="finishing-card__body">
+          <span class="finishing-card__title">Add float frame</span>
+          <span class="finishing-card__desc">Mount inside a wooden surround.</span>
+        </span>
+      </label>
+    </div>
+  </fieldset>
+
+  <fieldset class="canvas-quote__group canvas-quote__frame-colour" data-stretching-frame-colour>
+    <legend class="canvas-quote__legend">Float frame colour</legend>
+    <div class="frame-colour-grid">
+      {FLOAT_FRAME_COLOURS.map((colour, i) => (
+        <label class="frame-colour">
+          <input
+            type="radio"
+            name="floatFrameColour"
+            value={colour.id}
+            checked={i === 0}
+            class="sr-only"
+          />
+          <span
+            class="frame-colour__swatch"
+            style={`background: ${colour.swatch};`}
+            aria-hidden="true"
+          ></span>
+          <span class="frame-colour__name">{colour.label}</span>
+        </label>
+      ))}
+    </div>
+  </fieldset>
+
+  <fieldset class="canvas-quote__group">
+    <legend class="canvas-quote__legend">Delivery</legend>
+    <div class="delivery-grid">
+      <label class="delivery-card">
+        <input type="radio" name="delivery" value="self" checked />
+        <span class="delivery-card__title">Self collection</span>
+        <span class="delivery-card__desc">From our studio, free.</span>
+      </label>
+      <label class="delivery-card">
+        <input type="radio" name="delivery" value="local" />
+        <span class="delivery-card__title">Local delivery</span>
+        <span class="delivery-card__desc">Anywhere in Singapore, +S$30.</span>
+      </label>
+    </div>
+  </fieldset>
+
+  <p class="canvas-quote__bring" data-bring-canvas hidden></p>
+
+  <div class="canvas-quote__output" data-stretching-output></div>
+
+  <div class="canvas-quote__actions" data-stretching-actions hidden>
+    <a class="canvas-quote__btn canvas-quote__btn--wa" data-stretching-wa href="#" target="_blank" rel="noopener">
+      <WhatsAppIcon size={16} />
+      <span>WhatsApp this quote</span>
+    </a>
+    <a class="canvas-quote__btn canvas-quote__btn--secondary" data-stretching-contact href="#">
+      Send via contact form
+    </a>
+  </div>
+</form>
+
+<style is:global>
+  .canvas-quote__hint {
+    font-size: 13px;
+    color: var(--color-subtle);
+    margin: -8px 0 14px;
+    max-width: 60ch;
+    line-height: 1.5;
+  }
+  .canvas-quote__bring {
+    font-size: 13.5px;
+    color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.06);
+    border-radius: 8px;
+    padding: 10px 14px;
+    line-height: 1.45;
+    margin: 0;
+  }
+  /* Show the float-frame colour picker only when "Add float frame" is selected. */
+  .canvas-quote:has(input[name="addFrame"][value="yes"]:checked) .canvas-quote__frame-colour {
+    display: block;
+  }
+</style>
+
+<script>
+  import {
+    quoteCanvasStretching,
+    formatSGDWhole,
+    formatSGDCeil,
+    FLOAT_FRAME_COLOURS,
+  } from "../data/pricing/canvas";
+  import { business } from "../data/business";
+
+  type FormState = {
+    width: number;
+    height: number;
+    units: "cm" | "in";
+    depth: "1in" | "1.5in";
+    addFrame: "yes" | "no";
+    floatFrameColourId: string;
+    delivery: "self" | "local";
+  };
+
+  function readForm(form: HTMLFormElement): FormState {
+    const data = new FormData(form);
+    return {
+      width: parseFloat(String(data.get("width") ?? "0")),
+      height: parseFloat(String(data.get("height") ?? "0")),
+      units: (data.get("units") as "cm" | "in") ?? "cm",
+      depth: (data.get("depth") as "1in" | "1.5in") ?? "1in",
+      addFrame: (data.get("addFrame") as "yes" | "no") ?? "no",
+      floatFrameColourId: String(
+        data.get("floatFrameColour") ?? FLOAT_FRAME_COLOURS[0]!.id,
+      ),
+      delivery: (data.get("delivery") as "self" | "local") ?? "self",
+    };
+  }
+
+  const toCm = (v: number, units: "cm" | "in") =>
+    units === "in" ? v * 2.54 : v;
+
+  function buildMessage(state: FormState, totalText: string): string {
+    const depthLabel =
+      state.depth === "1in" ? 'Standard 1" stretching' : 'Deep 1.5" stretching';
+    const frameLabel =
+      state.addFrame === "yes"
+        ? `+ Float frame (${FLOAT_FRAME_COLOURS.find((c) => c.id === state.floatFrameColourId)?.label ?? state.floatFrameColourId})`
+        : "No float frame";
+    return [
+      "Hi Fine Art Printing, I'd like a quote for canvas stretching.",
+      "",
+      `Finished size: ${state.width} × ${state.height} ${state.units}`,
+      `Depth: ${depthLabel}`,
+      `Frame: ${frameLabel}`,
+      `Delivery: ${state.delivery === "self" ? "Self collection" : "Local delivery"}`,
+      `Estimated total: ${totalText}`,
+    ].join("\n");
+  }
+
+  function escapeHtml(s: string) {
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function render(form: HTMLFormElement) {
+    const state = readForm(form);
+    const widthCm = toCm(state.width, state.units);
+    const heightCm = toCm(state.height, state.units);
+
+    const result = quoteCanvasStretching({
+      frameWidthCm: widthCm,
+      frameHeightCm: heightCm,
+      depth: state.depth,
+      floatFrameColourId:
+        state.addFrame === "yes" ? state.floatFrameColourId : null,
+      delivery: state.delivery,
+    });
+
+    const output = form.querySelector<HTMLElement>("[data-stretching-output]")!;
+    const actions = form.querySelector<HTMLElement>(
+      "[data-stretching-actions]",
+    )!;
+    const bring = form.querySelector<HTMLElement>("[data-bring-canvas]")!;
+
+    if (!result.ok) {
+      output.innerHTML = `<div class="quote-error"><strong>Hold up.</strong> ${escapeHtml(result.message)}</div>`;
+      actions.hidden = true;
+      bring.hidden = true;
+      return;
+    }
+
+    // Show "you'll need to bring a canvas of X × Y cm" hint.
+    const reqW = result.requiredCanvasWidthCm;
+    const reqH = result.requiredCanvasHeightCm;
+    const reqUnitW = state.units === "in" ? (reqW / 2.54).toFixed(1) : reqW.toFixed(1);
+    const reqUnitH = state.units === "in" ? (reqH / 2.54).toFixed(1) : reqH.toFixed(1);
+    bring.textContent = `Bring a canvas of at least ${reqUnitW} × ${reqUnitH} ${state.units} so we have enough wrap allowance.`;
+    bring.hidden = false;
+
+    // Group lines: stretching (incl. wire & hooks), float frame (if any), delivery.
+    const stretchingLine = result.lines.find((l) =>
+      l.label.startsWith("Stretching"),
+    );
+    const floatFrameLine = result.lines.find((l) =>
+      l.label.startsWith("Float frame"),
+    );
+    const wireHooksLine = result.lines.find((l) => l.label === "Wire & hooks");
+    const deliveryLine = result.lines.find((l) => l.label === "Local delivery");
+
+    const groups: { label: string; amount: number }[] = [];
+    if (stretchingLine) {
+      groups.push({
+        label: "Stretching",
+        amount: stretchingLine.amount + (wireHooksLine?.amount ?? 0),
+      });
+    }
+    if (floatFrameLine) {
+      groups.push({ label: "Float frame", amount: floatFrameLine.amount });
+    }
+    if (deliveryLine) {
+      groups.push({ label: "Local delivery", amount: deliveryLine.amount });
+    }
+
+    const lineRows = groups
+      .map(
+        (g) => `
+          <div class="quote-row">
+            <span>${escapeHtml(g.label)}</span>
+            <span class="quote-row__amount">${formatSGDCeil(g.amount)}</span>
+          </div>`,
+      )
+      .join("");
+
+    const minRow =
+      result.minTopUp > 0
+        ? `
+          <div class="quote-row quote-row--min">
+            <span>Minimum order top-up</span>
+            <span class="quote-row__amount">+${formatSGDCeil(result.minTopUp)}</span>
+          </div>`
+        : "";
+
+    output.innerHTML = `
+      <div class="quote-result" aria-live="polite">
+        <div class="quote-breakdown">
+          ${lineRows}
+          ${minRow}
+        </div>
+        <div class="quote-result__totalbar">
+          <div class="quote-result__label">Estimated total, all-in</div>
+          <div class="quote-result__amount">${formatSGDWhole(result.grandTotal)}</div>
+        </div>
+      </div>
+    `;
+
+    actions.hidden = false;
+    const wa = actions.querySelector<HTMLAnchorElement>("[data-stretching-wa]")!;
+    const contact = actions.querySelector<HTMLAnchorElement>(
+      "[data-stretching-contact]",
+    )!;
+    const message = buildMessage(state, formatSGDWhole(result.grandTotal));
+    wa.href = `${business.whatsappLink}?text=${encodeURIComponent(message)}`;
+    const subject = `Stretching quote: ${state.width}×${state.height}${state.units}`;
+    contact.href = `mailto:${business.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+  }
+
+  function init() {
+    document
+      .querySelectorAll<HTMLFormElement>("[data-stretching-form]")
+      .forEach((form) => {
+        const update = () => render(form);
+        form.addEventListener("input", update);
+        form.addEventListener("change", update);
+        update();
+      });
+  }
+
+  if (document.readyState !== "loading") init();
+  else document.addEventListener("DOMContentLoaded", init);
+</script>

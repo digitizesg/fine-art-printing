@@ -1,0 +1,400 @@
+@import "tailwindcss";
+@import "@fontsource/lora/400.css";
+@import "@fontsource/lora/500.css";
+@import "@fontsource/nunito/400.css";
+@import "@fontsource/nunito/600.css";
+@import "lite-youtube-embed/src/lite-yt-embed.css";
+
+@theme {
+  --color-ink: #1A1A1A;
+  --color-muted: #555555;
+  --color-subtle: #6B6B6B;
+  --color-petrol: #1A3550;
+  --color-gold: #D9B36C;
+  --color-border: rgba(0, 0, 0, 0.15);
+  --color-border-soft: rgba(0, 0, 0, 0.08);
+
+  --font-serif: "Lora", Georgia, serif;
+  --font-sans: "Nunito", system-ui, sans-serif;
+
+  --radius-card: 12px;
+  --radius-pill: 999px;
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: #ffffff;
+    font-size: 15px;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    letter-spacing: -0.005em;
+  }
+
+  ::selection {
+    background: var(--color-petrol);
+    color: #fff;
+  }
+}
+
+/* ---------- YouTube embed overrides ----------
+   The lite-yt-embed package's CSS is imported above. These rules win the
+   cascade because they come after, and use higher specificity + !important
+   for the rules that fight package defaults. */
+
+.fap-yt-frame lite-youtube {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  aspect-ratio: 16 / 9 !important;
+  padding-bottom: 0 !important;
+  background-color: #000 !important;
+  background-position: center center !important;
+  background-size: cover !important;
+  cursor: pointer;
+}
+.fap-yt-frame lite-youtube::before {
+  display: none !important;
+}
+/* Hide the default red play rectangle entirely; we paint our own. */
+.fap-yt-frame lite-youtube > .lty-playbtn {
+  opacity: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  top: 0 !important;
+  left: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  filter: none !important;
+}
+
+/* Decorative overlay sits above the thumbnail, click-through to lite-youtube. */
+.fap-yt-frame .fap-yt-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  transition: opacity 220ms ease-out;
+}
+.fap-yt-frame.is-playing .fap-yt-overlay {
+  opacity: 0;
+}
+
+.fap-yt-frame .fap-yt-shade {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.42) 75%);
+}
+
+.fap-yt-frame .fap-yt-bigplay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 92px;
+  height: 92px;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border: 0;
+  border-radius: 999px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
+  cursor: pointer;
+  transition:
+    transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 200ms ease-out;
+}
+.fap-yt-frame .fap-yt-bigplay svg {
+  margin-left: 4px; /* optical centering of the play triangle */
+}
+.fap-yt-frame:hover .fap-yt-bigplay {
+  transform: translate(-50%, -50%) scale(1.06);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55);
+}
+
+.fap-yt-frame .fap-yt-pill {
+  position: absolute;
+  left: 18px;
+  bottom: 18px;
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 13px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #1A3550;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+}
+
+/* ---------- Paper / Canvas service-page shared components ----------
+   Used by /print-on-paper and /print-on-canvas. Kept global so both pages
+   pick up the same styles regardless of which file declared the markup. */
+
+.paper-showcase__tabs {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 14px;
+  margin-bottom: 36px;
+  padding: 4px 0 14px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+.paper-showcase__tabs::-webkit-scrollbar { display: none; }
+
+.paper-pick {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 96px;
+  padding: 4px 2px 6px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: transform 200ms cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.paper-pick:hover { transform: translateY(-2px); }
+
+.paper-pick__thumb {
+  display: block;
+  width: 84px;
+  height: 84px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #f4efe7;
+  border: 2px solid transparent;
+  box-shadow: 0 0 0 0 rgba(26, 53, 80, 0);
+  transition: border-color 150ms ease-out, box-shadow 200ms ease-out;
+}
+.paper-pick__thumb--placeholder {
+  background: linear-gradient(135deg, #f4ece0 0%, #ddd0bb 100%);
+}
+.paper-pick:hover .paper-pick__thumb { border-color: rgba(0, 0, 0, 0.18); }
+.paper-pick.is-active .paper-pick__thumb {
+  border-color: var(--color-petrol);
+  box-shadow: 0 0 0 4px rgba(26, 53, 80, 0.10);
+}
+
+.paper-pick__name {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  line-height: 1.25;
+  color: var(--color-muted);
+  text-align: center;
+  font-weight: 500;
+  width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 28px;
+}
+.paper-pick.is-active .paper-pick__name {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.paper-pick:focus-visible .paper-pick__thumb {
+  outline: 2px solid var(--color-petrol);
+  outline-offset: 4px;
+}
+
+.paper-showcase__panels { position: relative; }
+.paper-showcase__panel {
+  display: none;
+  grid-template-columns: 1fr;
+  gap: 32px;
+}
+@media (min-width: 768px) {
+  .paper-showcase__panel {
+    grid-template-columns: 5fr 7fr;
+    gap: 48px;
+    align-items: start;
+  }
+}
+.paper-showcase__panel.is-active { display: grid; }
+
+.paper-showcase__image {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+  display: block;
+}
+.paper-showcase__image--placeholder { background: #f4efe7; }
+
+.paper-showcase__brand {
+  font-size: 12px;
+  color: var(--color-muted);
+  margin-bottom: 4px;
+}
+.paper-showcase__name {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  line-height: 1.15;
+  color: var(--color-ink);
+}
+.paper-showcase__copy {
+  margin-top: 16px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: rgba(26, 26, 26, 0.85);
+  max-width: 60ch;
+}
+
+.paper-showcase__specs {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 24px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  font-size: 13px;
+}
+@media (min-width: 600px) {
+  .paper-showcase__specs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.paper-showcase__specs dt {
+  color: var(--color-muted);
+  font-size: 12px;
+}
+.paper-showcase__specs dd {
+  color: var(--color-ink);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+
+.paper-showcase__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 28px;
+  padding: 12px 18px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink);
+  background: #fff;
+  text-decoration: none;
+  transition: background 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
+}
+.paper-showcase__cta:hover {
+  background: var(--color-petrol);
+  border-color: var(--color-petrol);
+  color: #fff;
+}
+
+/* Comparison table — extra rows hidden until expanded */
+.comparison-extra { display: none; }
+[data-comparison-table].is-expanded .comparison-extra { display: table-row; }
+
+.comparison-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 999px;
+  background: #fff;
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: background 150ms ease-out, border-color 150ms ease-out;
+}
+.comparison-toggle:hover {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.30);
+}
+.comparison-toggle__chevron {
+  color: var(--color-muted);
+  transition: transform 200ms ease-out;
+}
+.comparison-toggle.is-expanded .comparison-toggle__chevron {
+  transform: rotate(180deg);
+}
+
+/* FAQ collapsible */
+.faq-item summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 22px 0;
+}
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item__q {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.35;
+  color: var(--color-ink);
+  flex: 1;
+}
+.faq-item__chevron {
+  flex: 0 0 auto;
+  color: var(--color-muted);
+  transition: transform 200ms ease-out;
+}
+.faq-item[open] .faq-item__chevron { transform: rotate(180deg); }
+.faq-item__a {
+  padding: 0 0 24px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--color-subtle);
+  max-width: 60ch;
+}
+.faq-item__a p {
+  margin-bottom: 8px;
+  white-space: pre-line;
+}
+.faq-item__a p:last-child { margin-bottom: 0; }
+
+@layer utilities {
+  .live-pulse {
+    position: relative;
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-gold);
+  }
+  .live-pulse::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: var(--color-gold);
+    opacity: 0.4;
+    animation: live-pulse 1.8s ease-out infinite;
+  }
+  @keyframes live-pulse {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    100% { transform: scale(2.2); opacity: 0; }
+  }
+}

@@ -1,0 +1,236 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+import DisplayHeading from "../components/DisplayHeading.astro";
+import DarkCTA from "../components/DarkCTA.astro";
+import CanvasStretchingCalculator from "../components/CanvasStretchingCalculator.astro";
+import ReviewSection from "../components/ReviewSection.astro";
+import Stars from "../components/Stars.astro";
+import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
+import { business } from "../data/business";
+import reviewsData from "../data/reviews.json";
+
+const { rating, userRatingsTotal } = reviewsData;
+const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I have a canvas I'd like stretched.")}`;
+
+const description =
+  "Canvas stretching in Singapore for original artworks, existing canvas works, and re-stretching of damaged pieces. Solid pine bars, professional finish, optional float frame.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  serviceType: "Canvas stretching",
+  provider: {
+    "@type": "LocalBusiness",
+    name: "Fine Art Printing",
+    url: "https://fineartprinting.com.sg",
+  },
+  areaServed: { "@type": "Country", name: "Singapore" },
+};
+
+const whyChooseUs = [
+  {
+    title: "Solid pine, properly stretched",
+    body:
+      "We stretch on solid pine bars, the same we use for our own gallery-wrapped prints. Tight, square, ready to hang.",
+  },
+  {
+    title: "Stretching, framing, all under one roof",
+    body:
+      "Choose Standard 1\" or Deep 1.5\" depth, with the option to mount inside a wooden float frame in seven colours. Wire and hooks always included.",
+  },
+  {
+    title: "Premium varnish on request",
+    body:
+      "If you brought a canvas without UV protection, we can apply a coating of premium Hahnemühle varnish to improve longevity. Mention it when you drop off.",
+  },
+];
+
+const faqs = [
+  {
+    q: "Whose canvases do you stretch?",
+    a: `Mostly two kinds: original artworks (paintings on raw canvas), and printed canvases bought rolled, ready to stretch. We also re-stretch damaged or sagging pieces. Drop in or message us if you're unsure whether yours is suitable.`,
+  },
+  {
+    q: "How big a canvas do I need to bring?",
+    a: `For a finished size of W × H, you need a canvas of at least (W + 7.6cm) × (H + 7.6cm) for Standard 1" stretching, or (W + 10cm) × (H + 10cm) for Deep 1.5". The calculator shows you the exact size as you enter the finished dimensions. The extra is the wrap allowance that goes around the back of the bars.`,
+  },
+  {
+    q: "What's the difference between Standard 1\" and Deep 1.5\"?",
+    a: `Standard 1" gives a classic, traditional canvas profile that sits close to the wall. Deep 1.5" has a more substantial side profile and reads more contemporary. Both use solid pine bars; the choice is aesthetic. Deep 1.5" costs slightly more because the bars use more material.`,
+  },
+  {
+    q: "What is float framing?",
+    a: `A float frame is a solid, treated-wood surround that the stretched canvas sits inside, with a small visible gap between the canvas edge and the frame, so the canvas appears to "float". Adds a finished gallery look without obscuring the work. We offer seven colours from smooth white through to natural black oak.`,
+  },
+  {
+    q: "How long does it take?",
+    a: `Standard turnaround is 5 to 7 working days. Float-framed jobs can take a day or two longer because of the additional fitting step. Drop off in person or arrange a courier, we'll quote and confirm before any work starts.`,
+  },
+  {
+    q: "What's the maximum size you can stretch?",
+    a: `We can stretch up to roughly 152 × 200 cm in-house. For anything larger, message us and we'll see what's possible.`,
+  },
+];
+---
+<BaseLayout
+  title="Canvas stretching · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-12 md:pt-20 md:pb-20">
+      <div class="grid gap-10 md:grid-cols-12 md:items-center md:gap-14">
+        <div class="md:col-span-6">
+          <Eyebrow>Canvas stretching</Eyebrow>
+          <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
+            Bring us your canvas,<br />we'll finish it.
+          </h1>
+          <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+            Whether it's an original painting, a print you bought rolled, or a
+            piece that needs re-stretching, we mount it onto solid pine bars and
+            return it ready to hang. Optional float frame for a gallery finish.
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a
+              href="#calculator"
+              class="inline-flex items-center gap-2 rounded-pill bg-petrol px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
+            >
+              Get a quote <span aria-hidden="true">↓</span>
+            </a>
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 rounded-pill border border-[#1ebe5b] bg-[#25D366] px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#1ebe5b]"
+            >
+              <WhatsAppIcon size={16} />
+              <span>WhatsApp us</span>
+            </a>
+          </div>
+
+          <a
+            href={business.googleReviewsUrl}
+            target="_blank"
+            rel="noopener"
+            class="mt-6 inline-flex items-center gap-3 text-[14px] text-subtle hover:text-ink transition-colors"
+          >
+            <Stars rating={rating} size={18} ariaHidden />
+            <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
+            <span aria-hidden="true">·</span>
+            <span>{userRatingsTotal} Google reviews</span>
+          </a>
+        </div>
+
+        <div class="md:col-span-6">
+          <figure class="relative">
+            <div class="aspect-[4/5] w-full rounded-card bg-gradient-to-br from-[#ebe3d3] to-[#a89a7d] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)] flex items-center justify-center">
+              <span class="font-serif italic text-white/80 text-[15px]">
+                Stretching photo to come
+              </span>
+            </div>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="calculator" class="border-t border-border-soft bg-[#FAF7F1] scroll-mt-6">
+    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>Quote</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">Get a price now.</DisplayHeading>
+          <p class="mt-5 max-w-[380px] text-[15px] leading-relaxed text-subtle">
+            Enter the finished size you'd like, pick a depth and frame option,
+            and we'll show you the price. Wire and hooks for hanging are
+            always included.
+          </p>
+          <p class="mt-5 max-w-[380px] text-[14px] leading-relaxed text-subtle">
+            Not sure if your canvas is suitable, or have a non-standard piece?
+            WhatsApp us a photo, we'll tell you what's possible.
+          </p>
+        </div>
+        <div class="md:col-span-8">
+          <CanvasStretchingCalculator />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>Why us</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">
+            Why bring it to us?
+          </DisplayHeading>
+          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+            We stretch and frame canvases every week, using the same materials
+            and methods as our own gallery prints.
+          </p>
+        </div>
+        <ol class="md:col-span-8 grid grid-cols-1 gap-x-8 gap-y-8 sm:grid-cols-3">
+          {whyChooseUs.map((row, i) => (
+            <li class="border-t border-ink/10 pt-5">
+              <span class="font-serif italic text-[14px] text-gold">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 class="mt-2 font-serif text-[18px] font-medium leading-[1.25] text-ink">
+                {row.title}
+              </h3>
+              <p class="mt-3 text-[14px] leading-relaxed text-subtle">
+                {row.body}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>FAQ</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">
+            Common questions.
+          </DisplayHeading>
+          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+            If yours isn't here, WhatsApp us, easier with a photo of the canvas
+            if you have one.
+          </p>
+        </div>
+        <div class="md:col-span-8">
+          <ul class="border-t border-ink/15">
+            {faqs.map((item) => (
+              <li class="border-b border-ink/15">
+                <details class="faq-item">
+                  <summary>
+                    <span class="faq-item__q">{item.q}</span>
+                    <span class="faq-item__chevron" aria-hidden="true">
+                      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </summary>
+                  <div class="faq-item__a">
+                    {item.a.split("\n").map((line) => (
+                      <p>{line}</p>
+                    ))}
+                  </div>
+                </details>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <ReviewSection />
+  <DarkCTA />
+</BaseLayout>

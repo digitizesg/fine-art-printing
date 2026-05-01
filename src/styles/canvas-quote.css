@@ -1,0 +1,327 @@
+/* Shared styles for the canvas-print and canvas-stretching quote calculators. */
+
+.canvas-quote {
+  border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+  border-radius: 16px;
+  padding: 28px;
+  background: #ffffff;
+  display: grid;
+  gap: 28px;
+}
+.canvas-quote__legend {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--color-ink);
+  margin-bottom: 14px;
+}
+.canvas-quote__group {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.canvas-quote__dims {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 12px;
+}
+.canvas-quote__by {
+  align-self: end;
+  padding-bottom: 12px;
+  color: var(--color-subtle);
+}
+.canvas-quote__field {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-muted);
+}
+.canvas-quote__field input {
+  padding: 10px 12px;
+  border: 1px solid var(--color-border, rgba(0, 0, 0, 0.15));
+  border-radius: 8px;
+  font-size: 16px;
+  width: 110px;
+  font-variant-numeric: tabular-nums;
+  background: #fff;
+  color: var(--color-ink);
+  -webkit-appearance: none;
+  appearance: none;
+}
+.canvas-quote__field input:focus {
+  outline: 2px solid #1a3550;
+  outline-offset: 0;
+  border-color: #1a3550;
+}
+.canvas-quote__units {
+  display: inline-flex;
+  border: 1px solid var(--color-border, rgba(0, 0, 0, 0.15));
+  border-radius: 999px;
+  padding: 3px;
+  background: #fff;
+  align-self: end;
+}
+.canvas-quote__units label {
+  cursor: pointer;
+}
+.canvas-quote__units input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.canvas-quote__units span {
+  display: inline-block;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+.canvas-quote__units label:has(input:checked) span {
+  background: #1a3550;
+  color: #fff;
+}
+
+/* Finishing / depth / frame-toggle cards */
+.finishing-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 700px) {
+  .finishing-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.finishing-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: 48px 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 150ms ease-out, background 150ms ease-out;
+}
+.finishing-card:hover {
+  border-color: rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.015);
+}
+.finishing-card:has(input:checked) {
+  border-color: #1a3550;
+  background: rgba(26, 53, 80, 0.04);
+}
+.finishing-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.finishing-card__icon {
+  color: var(--color-muted);
+  display: inline-flex;
+}
+.finishing-card:has(input:checked) .finishing-card__icon {
+  color: var(--color-petrol);
+}
+.finishing-card__body {
+  display: grid;
+  gap: 2px;
+}
+.finishing-card__title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--color-ink);
+}
+.finishing-card__desc {
+  font-size: 12px;
+  color: var(--color-subtle);
+}
+
+/* Float-frame colour fieldset — base hidden state. Each calculator
+   provides its own :has(...) selector to show it. */
+.canvas-quote__frame-colour {
+  display: none;
+  padding-top: 4px;
+}
+
+.frame-colour-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+@media (min-width: 600px) {
+  .frame-colour-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 900px) {
+  .frame-colour-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.frame-colour {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+  border-radius: 999px;
+  cursor: pointer;
+  transition: border-color 150ms ease-out, background 150ms ease-out;
+}
+.frame-colour:hover {
+  border-color: rgba(0, 0, 0, 0.18);
+}
+.frame-colour:has(input:checked) {
+  border-color: #1a3550;
+  background: rgba(26, 53, 80, 0.04);
+}
+.frame-colour__swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 0, 0, 0.10);
+  flex: 0 0 auto;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+.frame-colour__name {
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  color: var(--color-ink);
+  line-height: 1.2;
+}
+
+/* Delivery */
+.delivery-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+@media (min-width: 600px) {
+  .delivery-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.delivery-card {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 150ms ease-out, background 150ms ease-out;
+}
+.delivery-card:hover {
+  border-color: rgba(0, 0, 0, 0.18);
+}
+.delivery-card:has(input:checked) {
+  border-color: #1a3550;
+  background: rgba(26, 53, 80, 0.04);
+}
+.delivery-card input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.delivery-card__title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 15px;
+  color: var(--color-ink);
+}
+.delivery-card__desc {
+  font-size: 12.5px;
+  color: var(--color-subtle);
+}
+
+/* Output */
+.canvas-quote__output {
+  border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+  padding-top: 22px;
+}
+
+.quote-breakdown {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+.quote-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 13.5px;
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+.quote-row__amount {
+  color: var(--color-ink);
+  font-weight: 500;
+}
+.quote-row--min {
+  color: #92400e;
+  font-style: italic;
+}
+.quote-result__totalbar {
+  border-top: 2px solid var(--color-petrol);
+  padding-top: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+}
+.quote-result__totalbar .quote-result__label {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--color-muted);
+  margin: 0;
+}
+.quote-result__totalbar .quote-result__amount {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: clamp(32px, 5vw, 44px);
+  line-height: 1;
+  color: var(--color-petrol);
+  font-variant-numeric: tabular-nums;
+}
+
+.canvas-quote__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+  padding-top: 22px;
+}
+.canvas-quote__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 150ms ease-out, color 150ms ease-out;
+}
+.canvas-quote__btn--wa {
+  background: #25d366;
+  color: #fff;
+}
+.canvas-quote__btn--wa:hover {
+  background: #1ebe5b;
+}
+.canvas-quote__btn--secondary {
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  color: var(--color-ink);
+  background: #fff;
+}
+.canvas-quote__btn--secondary:hover {
+  background: rgba(0, 0, 0, 0.03);
+}

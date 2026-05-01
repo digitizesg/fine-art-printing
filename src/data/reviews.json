@@ -1,0 +1,53 @@
+{
+  "rating": 5.0,
+  "userRatingsTotal": 68,
+  "fetchedAt": "2026-04-30T00:00:00.000Z",
+  "source": "placeholder",
+  "reviews": [
+    {
+      "author_name": "Aaron Lim",
+      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
+      "profile_photo_url": null,
+      "rating": 5,
+      "relative_time_description": "2 months ago",
+      "text": "Ben and his team did a beautiful job printing and framing a set of archival prints for my wife's 50th. Colour was spot on, paper was beautiful, and they gave honest advice about which sizes worked. Will be back.",
+      "time": 1738281600
+    },
+    {
+      "author_name": "Priya Subramaniam",
+      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
+      "profile_photo_url": null,
+      "rating": 5,
+      "relative_time_description": "5 months ago",
+      "text": "Excellent attention to detail. We had four large pieces printed on Hahnemühle paper and stretched on canvas for our office reception. Crisp, neutral, and finished on schedule. The team walked us through paper choices without overselling.",
+      "time": 1730419200
+    },
+    {
+      "author_name": "Marcus Tan",
+      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
+      "profile_photo_url": null,
+      "rating": 5,
+      "relative_time_description": "8 months ago",
+      "text": "Took my late father's photographs in for restoration and reprinting. The work they did to bring back damaged sections was extraordinary. Beautifully framed too. Thank you.",
+      "time": 1722470400
+    },
+    {
+      "author_name": "Hannah Goh",
+      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
+      "profile_photo_url": null,
+      "rating": 5,
+      "relative_time_description": "11 months ago",
+      "text": "Best printing experience I've had in Singapore. Studio is calm, the team actually looks at your file before printing, and they pulled a test print before running the full size. Pricing felt fair for the quality.",
+      "time": 1714521600
+    },
+    {
+      "author_name": "Jonathan Wee",
+      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
+      "profile_photo_url": null,
+      "rating": 5,
+      "relative_time_description": "a year ago",
+      "text": "Used them for a corporate gifting project, 30 framed prints across two offices. Quality was uniform across the run, deliveries were on time, and the framing options matched our brand without us having to over-specify. Recommended.",
+      "time": 1706659200
+    }
+  ]
+}

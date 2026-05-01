@@ -1,0 +1,32 @@
+---
+import { business } from "../data/business";
+---
+<div class="rounded-card border border-border-soft p-6 md:p-8">
+  <div class="grid gap-8 md:grid-cols-2">
+    <div>
+      <p class="text-[12px] text-muted">Studio</p>
+      <p class="mt-2 font-serif text-[20px] font-medium text-ink">
+        {business.address.line1}
+      </p>
+      <p class="mt-2 text-[14px] text-subtle leading-relaxed">
+        {business.address.line2}<br />
+        {business.address.line3}<br />
+        {business.address.postcode}
+      </p>
+      <p class="mt-4 text-[13px] text-muted">
+        10 min walk from Tiong Bahru MRT · Ample parking on-site
+      </p>
+    </div>
+    <div>
+      <p class="text-[12px] text-muted">Hours</p>
+      <ul class="mt-2 space-y-1.5 text-[14px] text-ink">
+        {business.hours.map((row) => (
+          <li class="flex justify-between gap-6">
+            <span class="text-subtle">{row.day}</span>
+            <span class="font-mono text-[13px] tabular-nums">{row.time}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</div>

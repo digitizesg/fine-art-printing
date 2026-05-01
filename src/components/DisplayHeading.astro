@@ -1,0 +1,17 @@
+---
+interface Props {
+  level?: 1 | 2 | 3;
+  class?: string;
+}
+const { level = 2, class: className = "" } = Astro.props;
+const Tag = `h${level}` as const;
+
+const sizeMap: Record<number, string> = {
+  1: "text-[clamp(2.6rem,6vw,3.5rem)] leading-[1.05]",
+  2: "text-[clamp(1.75rem,3vw,2rem)] leading-[1.15]",
+  3: "text-[1.125rem] leading-[1.3]",
+};
+---
+<Tag class:list={["font-serif font-medium text-ink", sizeMap[level], className]}>
+  <slot />
+</Tag>

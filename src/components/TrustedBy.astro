@@ -1,0 +1,110 @@
+---
+import Eyebrow from "./Eyebrow.astro";
+import DisplayHeading from "./DisplayHeading.astro";
+
+// Files live in /public/logos/clients/. Render heights tuned per-logo so
+// crests and wordmarks carry similar visual weight in the marquee.
+const clients = [
+  { name: "Canon", file: "canon.svg", h: 30 },
+  { name: "AWS", file: "aws.svg", h: 40 },
+  { name: "OpenAI", file: "open-ai.png", h: 30 },
+  { name: "Bandai Namco", file: "bandai-namco.png", h: 42 },
+  { name: "Tokio Marine", file: "tokio-marine.png", h: 36 },
+  { name: "Bentley", file: "bentley.png", h: 50 },
+  { name: "Immigration & Checkpoints Authority", file: "ica.png", h: 52 },
+  { name: "Ministry of Education", file: "moe.png", h: 50 },
+  { name: "Singapore Police Force", file: "spf.png", h: 52 },
+  { name: "Nexus International School", file: "nexus-international-school.png", h: 36 },
+];
+
+// Render the list twice so the marquee can loop seamlessly.
+const looped = [...clients, ...clients];
+---
+<section class="border-t border-border-soft bg-white">
+  <div class="mx-auto max-w-[1180px] px-6 py-16">
+    <div class="flex flex-col items-center text-center">
+      <Eyebrow>Selected clients</Eyebrow>
+      <DisplayHeading level={2} class="mt-3">Trusted by.</DisplayHeading>
+    </div>
+
+    <div class="fap-marquee mt-12">
+      <ul class="fap-marquee__track" aria-label="Selected clients">
+        {looped.map((client, i) => (
+          <li class="fap-marquee__item" aria-hidden={i >= clients.length ? "true" : undefined}>
+            <img
+              src={`/logos/clients/${client.file}`}
+              alt={i < clients.length ? client.name : ""}
+              title={client.name}
+              loading="lazy"
+              decoding="async"
+              style={`height: ${client.h}px;`}
+              class="w-auto max-w-[180px] object-contain"
+            />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .fap-marquee {
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 6%,
+      black 94%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      black 6%,
+      black 94%,
+      transparent 100%
+    );
+  }
+
+  .fap-marquee__track {
+    display: flex;
+    width: max-content;
+    align-items: center;
+    gap: 72px;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    animation: fap-marquee-scroll 55s linear infinite;
+  }
+
+  .fap-marquee__item {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .fap-marquee:hover .fap-marquee__track,
+  .fap-marquee:focus-within .fap-marquee__track {
+    animation-play-state: paused;
+  }
+
+  @keyframes fap-marquee-scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fap-marquee__track {
+      animation: none;
+      flex-wrap: wrap;
+      justify-content: center;
+      width: 100%;
+    }
+  }
+</style>
