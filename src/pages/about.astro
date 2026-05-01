@@ -1,0 +1,156 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+import DisplayHeading from "../components/DisplayHeading.astro";
+import Stars from "../components/Stars.astro";
+import YouTubeEmbed from "../components/YouTubeEmbed.astro";
+import ReviewSection from "../components/ReviewSection.astro";
+import DarkCTA from "../components/DarkCTA.astro";
+import { business } from "../data/business";
+import reviewsData from "../data/reviews.json";
+
+const { rating, userRatingsTotal } = reviewsData;
+
+const description =
+  "Fine Art Printing is a Hahnemühle Gold-certified print, stretching, and framing studio in Singapore. Meet the team and see how we work.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: "About Fine Art Printing",
+  url: `https://${business.domain}/about`,
+  about: {
+    "@type": "LocalBusiness",
+    name: business.name,
+    url: `https://${business.domain}`,
+  },
+};
+
+const differentiators = [
+  {
+    title: "Hahnemühle Gold-certified.",
+    body:
+      "We're the first and only studio in Singapore awarded Gold certification by Hahnemühle, granted only to studios that meet their print quality standards over time. Not a one-off badge, an ongoing benchmark.",
+  },
+  {
+    title: "Latest Canon Pro-566, manufacturer inks only.",
+    body:
+      "A 12-colour large-format pigment printer paired with original Canon inks. We never substitute third-party inks, the savings aren't worth the loss in colour accuracy and longevity.",
+  },
+  {
+    title: "Colour-managed end to end.",
+    body:
+      "ICC profiling and consistent calibration across every paper and canvas we stock, so what comes off the printer matches what you saw on screen.",
+  },
+  {
+    title: "Print, stretch, frame, all under one roof.",
+    body:
+      "Same studio, same team. Drop in a file or a canvas and walk out with a finished, ready-to-hang piece in days rather than coordinating across vendors for weeks.",
+  },
+];
+
+---
+<BaseLayout
+  title="About · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-12 md:pt-20 md:pb-16">
+      <div class="max-w-[820px]">
+        <Eyebrow>About us</Eyebrow>
+        <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
+          A small studio in Singapore,<br />
+          obsessed with how prints turn out.
+        </h1>
+        <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+          Fine Art Printing is a print, canvas stretching, and framing studio
+          based in Lower Delta. We work with photographers, artists, galleries,
+          collectors, and businesses across Singapore. The work covers
+          everything from one-off archival prints to corporate fit-outs across
+          multiple offices.
+        </p>
+
+        <a
+          href={business.googleReviewsUrl}
+          target="_blank"
+          rel="noopener"
+          class="mt-6 inline-flex items-center gap-3 text-[14px] text-subtle hover:text-ink transition-colors"
+        >
+          <Stars rating={rating} size={18} ariaHidden />
+          <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
+          <span aria-hidden="true">·</span>
+          <span>{userRatingsTotal} Google reviews</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- What sets us apart -->
+  <section class="border-t border-border-soft bg-[#FAF7F1]">
+    <div class="mx-auto max-w-[1180px] px-6 py-20 md:py-24">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-5">
+          <Eyebrow>What sets us apart</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">
+            Four things that show up in every job.
+          </DisplayHeading>
+          <p class="mt-6 max-w-[420px] font-serif italic text-[18px] leading-relaxed text-subtle">
+            Whether it's a single archival print or a full corporate fit-out,
+            these are the constants.
+          </p>
+        </div>
+
+        <ol class="md:col-span-7 grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2">
+          {differentiators.map((row, i) => (
+            <li class="border-t border-ink/10 pt-6">
+              <span class="font-serif italic text-[14px] text-gold">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <h3 class="mt-3 font-serif text-[20px] font-medium leading-[1.25] text-ink">
+                {row.title}
+              </h3>
+              <p class="mt-3 text-[14.5px] leading-relaxed text-subtle">
+                {row.body}
+              </p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- Founder + Canon video -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20 md:py-24">
+      <div class="grid gap-12 md:grid-cols-12 md:items-center">
+        <div class="md:col-span-5">
+          <Eyebrow>The founder</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">
+            Why we obsess over media and ink.
+          </DisplayHeading>
+          <p class="mt-6 text-[15.5px] leading-relaxed text-subtle">
+            Canon sat down with our founder Ben to talk about printing as a
+            craft, the move to the Pro-566, and why the choice of paper and
+            ink decides whether a print holds up over decades or fades in a
+            few years.
+          </p>
+          <p class="mt-4 text-[15.5px] leading-relaxed text-subtle">
+            If you're considering a piece for your home or office and want to
+            understand what you're paying for, this is a good place to start.
+          </p>
+        </div>
+        <div class="md:col-span-7">
+          <YouTubeEmbed
+            videoId={business.youtubeVideoId}
+            title="Canon × Fine Art Printing"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <ReviewSection />
+  <DarkCTA />
+</BaseLayout>

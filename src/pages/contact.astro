@@ -1,0 +1,163 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+import DisplayHeading from "../components/DisplayHeading.astro";
+import LocationCard from "../components/LocationCard.astro";
+import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
+import { business } from "../data/business";
+
+const description =
+  "Visit our studio in Lower Delta, or reach us by WhatsApp, email, or phone. Hours, address, and directions for Fine Art Printing in Singapore.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ContactPage",
+  name: "Contact Fine Art Printing",
+  url: `https://${business.domain}/contact`,
+  about: {
+    "@type": "LocalBusiness",
+    name: business.name,
+    email: business.contactEmail,
+    telephone: business.phone,
+    url: `https://${business.domain}`,
+  },
+};
+
+const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'd like to ask about a print.")}`;
+const mailtoHref = `mailto:${business.contactEmail}?subject=${encodeURIComponent("Enquiry from fineartprinting.com.sg")}`;
+
+const channels = [
+  {
+    title: "WhatsApp",
+    desc: "Fastest, especially with a photo of the piece you want printed, stretched, or framed.",
+    cta: "Open WhatsApp",
+    href: waHref,
+    external: true,
+    accent: "wa",
+  },
+  {
+    title: "Email",
+    desc: "For files larger than a phone snap, or anything that needs back-and-forth.",
+    cta: business.contactEmail,
+    href: mailtoHref,
+    external: false,
+    accent: "default",
+  },
+  {
+    title: "Phone",
+    desc: "If you'd rather speak to someone, we're at the studio during opening hours.",
+    cta: business.phone,
+    href: `tel:${business.phone.replace(/\s+/g, "")}`,
+    external: false,
+    accent: "default",
+  },
+];
+
+const mapsDirectionsHref = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+  `${business.address.line1}, ${business.address.line2} ${business.address.line3}, ${business.address.postcode}`,
+)}&destination_place_id=${business.placeId}`;
+---
+<BaseLayout
+  title="Contact · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-12 md:pt-20 md:pb-16">
+      <div class="max-w-[820px]">
+        <Eyebrow>Contact</Eyebrow>
+        <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
+          Get in touch.<br />
+          Or come by the studio.
+        </h1>
+        <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+          Tell us what you're trying to print, stretch, or frame, and we'll
+          come back with a quote and a recommendation. If you can include a
+          photo of the piece (or a sample of the file), even better.
+        </p>
+
+        <div class="mt-8 flex flex-wrap items-center gap-3">
+          <a
+            href={waHref}
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center gap-2 rounded-pill border border-[#1ebe5b] bg-[#25D366] px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#1ebe5b]"
+          >
+            <WhatsAppIcon size={16} />
+            <span>WhatsApp us</span>
+          </a>
+          <a
+            href={mailtoHref}
+            class="inline-flex items-center gap-2 rounded-pill bg-petrol px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
+          >
+            Email us <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Channels -->
+  <section class="border-t border-border-soft bg-[#FAF7F1]">
+    <div class="mx-auto max-w-[1180px] px-6 py-20 md:py-24">
+      <div class="max-w-[640px]">
+        <Eyebrow>How to reach us</Eyebrow>
+        <DisplayHeading level={2} class="mt-3">Pick whichever's easiest.</DisplayHeading>
+        <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
+          We answer everywhere, but WhatsApp is usually fastest. Photos help
+          us quote faster.
+        </p>
+      </div>
+
+      <div class="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
+        {channels.map((c) => (
+          <a
+            href={c.href}
+            target={c.external ? "_blank" : undefined}
+            rel={c.external ? "noopener" : undefined}
+            class="group flex h-full flex-col rounded-card border border-border-soft bg-white p-6 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
+          >
+            <p class="font-serif text-[18px] font-medium text-ink">{c.title}</p>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">{c.desc}</p>
+            <span class={`mt-5 inline-flex items-center gap-1.5 text-[14px] font-semibold ${c.accent === "wa" ? "text-[#1ebe5b]" : "text-petrol"}`}>
+              {c.cta}
+              <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
+            </span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- Studio + map -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20 md:py-24">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-5">
+          <Eyebrow>Visit the studio</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">Where to find us.</DisplayHeading>
+          <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
+            We're at Cendex Centre on Lower Delta Road, ten minutes' walk from
+            Tiong Bahru MRT, with parking on-site. Drop in during opening
+            hours, or message ahead so we can have your job ready when you
+            arrive.
+          </p>
+
+          <a
+            href={mapsDirectionsHref}
+            target="_blank"
+            rel="noopener"
+            class="mt-6 inline-flex items-center gap-2 rounded-pill border border-ink/15 bg-white px-5 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:border-petrol hover:bg-petrol hover:text-white"
+          >
+            Get directions <span aria-hidden="true">→</span>
+          </a>
+        </div>
+        <div class="md:col-span-7">
+          <LocationCard />
+        </div>
+      </div>
+    </div>
+  </section>
+
+</BaseLayout>
