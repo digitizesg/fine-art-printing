@@ -152,11 +152,13 @@ const featured = CANVASES.filter((c) => c.featured);
             checked={i === 0}
             class="sr-only"
           />
-          <span
+          <img
             class="frame-colour__swatch"
-            style={`background: ${colour.swatch};`}
+            src={`/photos/float-frames/${colour.image}`}
+            alt=""
+            loading="lazy"
             aria-hidden="true"
-          ></span>
+          />
           <span class="frame-colour__name">{colour.label}</span>
         </label>
       ))}

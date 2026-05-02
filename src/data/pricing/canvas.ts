@@ -246,18 +246,18 @@ export const LABOUR_MARKUP = 2;
 export interface FloatFrameColour {
   id: string;
   label: string;
-  /** Approximate hex for the colour swatch in the picker. */
-  swatch: string;
+  /** Filename in /public/photos/float-frames/ for the picker thumbnail. */
+  image: string;
 }
 
 export const FLOAT_FRAME_COLOURS: readonly FloatFrameColour[] = [
-  { id: "smooth-white", label: "Smooth White", swatch: "#fafafa" },
-  { id: "smooth-black", label: "Smooth Black", swatch: "#1a1a1a" },
-  { id: "champagne", label: "Champagne", swatch: "#d4be8e" },
-  { id: "glossy-light-brown-pine", label: "Glossy Light Brown Pine", swatch: "#b8956a" },
-  { id: "natural-brown-oak", label: "Natural Brown Oak", swatch: "#8b6f47" },
-  { id: "natural-dark-brown-oak", label: "Natural Dark Brown Oak", swatch: "#5d4427" },
-  { id: "natural-black-oak", label: "Natural Black Oak", swatch: "#2d2117" },
+  { id: "smooth-white", label: "Smooth White", image: "3740-W-Smooth-White.jpg" },
+  { id: "smooth-black", label: "Smooth Black", image: "3740-B-Smooth-Black.jpg" },
+  { id: "champagne", label: "Champagne", image: "3740-S-Champagne.jpg" },
+  { id: "glossy-light-brown-pine", label: "Glossy Light Brown Pine", image: "S3536-Glossy-Light-Brown-Pine.jpg" },
+  { id: "natural-brown-oak", label: "Natural Brown Oak", image: "3535-19-Natural-Brown-Oak.jpg" },
+  { id: "natural-dark-brown-oak", label: "Natural Dark Brown Oak", image: "3535-15-Natural-Dark-Brown-Oak.jpg" },
+  { id: "natural-black-oak", label: "Natural Black Oak", image: "3535-11-Natural-Black-Oak.jpg" },
 ] as const;
 
 export const FLOAT_FRAME_ADD_CM = 1.2;
