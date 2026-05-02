@@ -16,15 +16,6 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
 );
 ---
 <section class="paper-recommender" data-paper-recommender>
-  <div class="paper-recommender__intro">
-    <p class="paper-recommender__eyebrow">Find your match</p>
-    <h3 class="paper-recommender__heading">Drop in your image, we'll suggest a paper.</h3>
-    <p class="paper-recommender__sub">
-      We check the colours, brightness, and contrast in your image and
-      suggest 2 to 3 papers that fit it. Nothing leaves your browser.
-    </p>
-  </div>
-
   <!-- Surface preference (always visible) -->
   <div class="paper-recommender__pref" data-pr-pref>
     <p class="paper-recommender__pref-label">Finish preference</p>
@@ -94,35 +85,6 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
     .paper-recommender {
       padding: 28px;
     }
-  }
-
-  .paper-recommender__intro {
-    display: grid;
-    gap: 8px;
-    max-width: 60ch;
-  }
-  .paper-recommender__eyebrow {
-    margin: 0;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--color-petrol);
-  }
-  .paper-recommender__heading {
-    margin: 0;
-    font-family: var(--font-serif);
-    font-weight: 500;
-    font-size: clamp(20px, 2.5vw, 24px);
-    line-height: 1.2;
-    color: var(--color-ink);
-    letter-spacing: -0.005em;
-  }
-  .paper-recommender__sub {
-    margin: 0;
-    font-size: 14px;
-    line-height: 1.5;
-    color: var(--color-subtle);
   }
 
   /* Surface preference */
