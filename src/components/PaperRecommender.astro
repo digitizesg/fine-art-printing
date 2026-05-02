@@ -31,7 +31,7 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
     <div class="paper-recommender__pref-row" role="radiogroup" aria-label="Finish preference">
       <button type="button" class="paper-recommender__pref-btn is-active" data-pref="any">Either</button>
       <button type="button" class="paper-recommender__pref-btn" data-pref="matt">Matt</button>
-      <button type="button" class="paper-recommender__pref-btn" data-pref="sheen">Sheen / gloss</button>
+      <button type="button" class="paper-recommender__pref-btn" data-pref="sheen">Glossy</button>
     </div>
   </div>
 
@@ -871,7 +871,7 @@ const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: str
 
     function pickWarning(t: Traits, pref: Preference): string | null {
       if (pref === "matt" && t.saturation === "high") {
-        return "Heads up: matt papers will mute vivid colour. If colour punch matters more than no-glare, switch to Sheen / gloss.";
+        return "Heads up: matt papers will mute vivid colour. If colour punch matters more than no-glare, switch to Glossy.";
       }
       if (pref === "sheen" && t.saturation === "low") {
         return "Note: sheen finishes are less common for muted, soft images — most studios reach for matt instead.";
