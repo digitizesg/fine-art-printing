@@ -4,6 +4,7 @@ import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
 import CanvasQuoteCalculator from "../components/CanvasQuoteCalculator.astro";
+import CanvasRecommender from "../components/CanvasRecommender.astro";
 import ReviewSection from "../components/ReviewSection.astro";
 import Stars from "../components/Stars.astro";
 import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
@@ -171,14 +172,19 @@ Don't worry if you can't hit these exactly. Send what you have and we'll check i
       <div class="max-w-[640px]">
         <Eyebrow>Our canvases</Eyebrow>
         <DisplayHeading level={2} class="mt-3">
-          Five canvases, every character.
+          Find out more about our canvas options.
         </DisplayHeading>
         <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
-          From the painterly coarse weave of Artist Canvas to the silvery
-          shimmer of Metallic, our canvas range covers every brief. Tap any
-          canvas to see how it handles, what it's best for, and how it sits
-          in the price ladder.
+          If you aren't quite sure which canvas is right for you, drop your
+          image into the panel below to get a few initial ideas based on your
+          image's colour and contrast. The results don't mean your image
+          won't print great on other canvases too, it's just some general
+          direction.
         </p>
+      </div>
+
+      <div class="mt-10">
+        <CanvasRecommender />
       </div>
 
       <div class="paper-showcase mt-12" data-paper-showcase>

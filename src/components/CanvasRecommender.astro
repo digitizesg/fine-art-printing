@@ -1,0 +1,841 @@
+---
+import { CANVASES } from "../data/pricing/canvas";
+
+const lookup = CANVASES.reduce<Record<string, { brand: string; shortName: string; image: string }>>(
+  (acc, c) => {
+    acc[c.id] = {
+      brand: c.brand,
+      shortName: c.shortName,
+      image: c.images[0] ? `/photos/${c.images[0]}` : "",
+    };
+    return acc;
+  },
+  {},
+);
+---
+<section class="canvas-recommender" data-canvas-recommender>
+  <!-- Finish preference -->
+  <div class="canvas-recommender__pref" data-cr-pref>
+    <p class="canvas-recommender__pref-label">Finish preference</p>
+    <div class="canvas-recommender__pref-row" role="radiogroup" aria-label="Finish preference">
+      <button type="button" class="canvas-recommender__pref-btn is-active" data-pref="any">Either</button>
+      <button type="button" class="canvas-recommender__pref-btn" data-pref="matt">Matt</button>
+      <button type="button" class="canvas-recommender__pref-btn" data-pref="sheen">Glossy</button>
+    </div>
+  </div>
+
+  <!-- Drop state -->
+  <div data-cr-drop-state>
+    <label class="canvas-recommender__drop" data-cr-drop>
+      <input type="file" accept="image/jpeg,image/png" hidden data-cr-input />
+      <div class="canvas-recommender__drop-content">
+        <svg class="canvas-recommender__drop-icon" width="40" height="40" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+          <path d="M14 30v6a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4v-6M24 8v22m0-22l-7 7m7-7l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p class="canvas-recommender__drop-title">
+          Drop your image here, or
+          <span class="canvas-recommender__drop-link">click to browse</span>.
+        </p>
+        <p class="canvas-recommender__hint">JPG or PNG, up to 100 MB</p>
+      </div>
+    </label>
+    <p class="canvas-recommender__error" data-cr-error hidden></p>
+  </div>
+
+  <!-- Result state -->
+  <div class="canvas-recommender__result" data-cr-result hidden>
+    <div class="canvas-recommender__result-head">
+      <img class="canvas-recommender__thumb" data-cr-thumb alt="" />
+      <div class="canvas-recommender__detected">
+        <p class="canvas-recommender__detected-label">What we see</p>
+        <ul class="canvas-recommender__traits" data-cr-traits></ul>
+      </div>
+      <button type="button" class="canvas-recommender__reset" data-cr-reset>
+        Try another
+      </button>
+    </div>
+
+    <div class="canvas-recommender__suggestions">
+      <p class="canvas-recommender__suggestions-label">Canvases we'd suggest</p>
+      <p class="canvas-recommender__warn" data-cr-warn hidden></p>
+      <ul class="canvas-recommender__list" data-cr-list></ul>
+      <p class="canvas-recommender__caveat">
+        These are starting points based on colour and contrast only. We
+        can't see your subject matter or taste, so browse all canvases below
+        if none of these feel right.
+      </p>
+    </div>
+  </div>
+
+  <script type="application/json" data-cr-lookup set:html={JSON.stringify(lookup)}></script>
+</section>
+
+<style is:global>
+  .canvas-recommender {
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 16px;
+    padding: 24px;
+    background: #fff;
+    display: grid;
+    gap: 22px;
+  }
+  @media (min-width: 760px) {
+    .canvas-recommender {
+      padding: 28px;
+    }
+  }
+
+  /* Finish preference */
+  .canvas-recommender__pref {
+    display: grid;
+    gap: 8px;
+  }
+  .canvas-recommender__pref-label {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+  .canvas-recommender__pref-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .canvas-recommender__pref-btn {
+    appearance: none;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: #fff;
+    color: var(--color-ink);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
+  }
+  .canvas-recommender__pref-btn:hover {
+    border-color: rgba(0, 0, 0, 0.30);
+    background: rgba(0, 0, 0, 0.02);
+  }
+  .canvas-recommender__pref-btn.is-active {
+    background: var(--color-petrol);
+    border-color: var(--color-petrol);
+    color: #fff;
+  }
+
+  /* Drop state */
+  .canvas-recommender__drop {
+    display: block;
+    border: 2px dashed rgba(0, 0, 0, 0.18);
+    border-radius: 14px;
+    padding: 36px 20px;
+    background: #FAF7F1;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 150ms ease-out, background 150ms ease-out;
+  }
+  .canvas-recommender__drop:hover,
+  .canvas-recommender__drop:focus-within {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.03);
+  }
+  .canvas-recommender__drop.is-dragover {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.06);
+  }
+  .canvas-recommender__drop-content {
+    display: grid;
+    justify-items: center;
+    gap: 10px;
+  }
+  .canvas-recommender__drop-icon {
+    color: var(--color-muted);
+  }
+  .canvas-recommender__drop-title {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 17px;
+    color: var(--color-ink);
+  }
+  .canvas-recommender__drop-link {
+    color: var(--color-petrol);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .canvas-recommender__hint {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--color-subtle);
+  }
+
+  .canvas-recommender__error {
+    margin: 12px 0 0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: rgba(220, 38, 38, 0.06);
+    color: #b1271f;
+    font-size: 13.5px;
+  }
+
+  /* Result */
+  .canvas-recommender__result-head {
+    display: grid;
+    grid-template-columns: 96px 1fr auto;
+    gap: 16px;
+    align-items: center;
+  }
+  @media (max-width: 540px) {
+    .canvas-recommender__result-head {
+      grid-template-columns: 72px 1fr;
+      grid-template-areas:
+        "thumb detected"
+        "reset reset";
+    }
+    .canvas-recommender__thumb { grid-area: thumb; }
+    .canvas-recommender__detected { grid-area: detected; }
+    .canvas-recommender__reset { grid-area: reset; justify-self: start; }
+  }
+
+  .canvas-recommender__thumb {
+    width: 96px;
+    height: 96px;
+    object-fit: cover;
+    border-radius: 10px;
+    background: #f4efe7;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  @media (max-width: 540px) {
+    .canvas-recommender__thumb { width: 72px; height: 72px; }
+  }
+
+  .canvas-recommender__detected-label {
+    margin: 0 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+  .canvas-recommender__traits {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .canvas-recommender__traits li {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
+    background: rgba(26, 53, 80, 0.06);
+    color: var(--color-petrol);
+  }
+
+  .canvas-recommender__reset {
+    appearance: none;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: #fff;
+    color: var(--color-ink);
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease-out;
+  }
+  .canvas-recommender__reset:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  .canvas-recommender__suggestions {
+    border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    padding-top: 20px;
+    display: grid;
+    gap: 14px;
+  }
+  .canvas-recommender__suggestions-label {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+  .canvas-recommender__warn {
+    margin: 0;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(245, 158, 11, 0.10);
+    border-left: 3px solid #d97706;
+    color: #92400e;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .canvas-recommender__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .canvas-recommender__pick {
+    display: grid;
+    grid-template-columns: 56px 1fr auto;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 12px;
+    background: #fff;
+    transition: border-color 150ms ease-out, background 150ms ease-out;
+  }
+  .canvas-recommender__pick:hover {
+    border-color: rgba(0, 0, 0, 0.18);
+    background: rgba(0, 0, 0, 0.015);
+  }
+  .canvas-recommender__pick-thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #f4efe7;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+  .canvas-recommender__pick-body {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  .canvas-recommender__pick-brand {
+    margin: 0;
+    font-size: 11.5px;
+    color: var(--color-muted);
+    line-height: 1.2;
+  }
+  .canvas-recommender__pick-name {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 15.5px;
+    color: var(--color-ink);
+    line-height: 1.2;
+  }
+  .canvas-recommender__pick-reason {
+    margin: 4px 0 0;
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: var(--color-subtle);
+  }
+  .canvas-recommender__pick-cta {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--color-petrol);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 6px 4px;
+    align-self: start;
+    justify-self: end;
+    white-space: nowrap;
+  }
+  .canvas-recommender__pick-cta:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  @media (max-width: 540px) {
+    .canvas-recommender__pick {
+      grid-template-columns: 56px 1fr;
+      grid-template-areas:
+        "thumb body"
+        "reason reason"
+        "cta cta";
+    }
+    .canvas-recommender__pick-thumb { grid-area: thumb; }
+    .canvas-recommender__pick-body { grid-area: body; }
+    .canvas-recommender__pick-reason { grid-area: reason; margin-top: 6px; }
+    .canvas-recommender__pick-cta { grid-area: cta; justify-self: start; padding-left: 0; }
+  }
+
+  .canvas-recommender__caveat {
+    margin: 4px 0 0;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--color-subtle);
+  }
+</style>
+
+<script>
+  const MAX_BYTES = 100 * 1024 * 1024;
+  const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
+  const SAMPLE_MAX_DIM = 400;
+
+  type Lookup = Record<string, { brand: string; shortName: string; image: string }>;
+  type Saturation = "mono" | "low" | "medium" | "high";
+  type Contrast = "low" | "medium" | "high";
+  type Brightness = "dark" | "mid" | "bright";
+  type Warmth = "cool" | "neutral" | "warm";
+  type Traits = {
+    saturation: Saturation;
+    contrast: Contrast;
+    brightness: Brightness;
+    warmth: Warmth;
+  };
+  type Pick = { canvasId: string; reason: string };
+  type Preference = "any" | "matt" | "sheen";
+
+  const root = document.querySelector<HTMLElement>("[data-canvas-recommender]");
+  if (root) initRecommender(root);
+
+  function initRecommender(root: HTMLElement) {
+    const lookupRaw = root.querySelector<HTMLElement>("[data-cr-lookup]")?.textContent ?? "{}";
+    let lookup: Lookup = {};
+    try {
+      lookup = JSON.parse(lookupRaw);
+    } catch {
+      // empty
+    }
+
+    const dropState = root.querySelector<HTMLElement>("[data-cr-drop-state]")!;
+    const drop = root.querySelector<HTMLLabelElement>("[data-cr-drop]")!;
+    const input = root.querySelector<HTMLInputElement>("[data-cr-input]")!;
+    const errorEl = root.querySelector<HTMLElement>("[data-cr-error]")!;
+    const resultEl = root.querySelector<HTMLElement>("[data-cr-result]")!;
+    const thumbEl = root.querySelector<HTMLImageElement>("[data-cr-thumb]")!;
+    const traitsEl = root.querySelector<HTMLUListElement>("[data-cr-traits]")!;
+    const listEl = root.querySelector<HTMLUListElement>("[data-cr-list]")!;
+    const warnEl = root.querySelector<HTMLElement>("[data-cr-warn]")!;
+    const resetBtn = root.querySelector<HTMLButtonElement>("[data-cr-reset]")!;
+    const prefBtns = Array.from(
+      root.querySelectorAll<HTMLButtonElement>(".canvas-recommender__pref-btn"),
+    );
+
+    let lastObjectUrl: string | null = null;
+    let lastTraits: Traits | null = null;
+    let preference: Preference = "any";
+
+    function showError(msg: string) {
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+    }
+    function clearError() {
+      errorEl.textContent = "";
+      errorEl.hidden = true;
+    }
+
+    async function analyseImage(file: File) {
+      const bitmap = await createImageBitmap(file);
+      const ratio = Math.min(
+        SAMPLE_MAX_DIM / bitmap.width,
+        SAMPLE_MAX_DIM / bitmap.height,
+        1,
+      );
+      const w = Math.max(1, Math.round(bitmap.width * ratio));
+      const h = Math.max(1, Math.round(bitmap.height * ratio));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Canvas unavailable.");
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      bitmap.close?.();
+
+      const data = ctx.getImageData(0, 0, w, h).data;
+      let sumS = 0,
+        sumL = 0,
+        sumL2 = 0,
+        warmAcc = 0,
+        satWeight = 0,
+        n = 0;
+
+      for (let i = 0; i < data.length; i += 4) {
+        const r = data[i]! / 255;
+        const g = data[i + 1]! / 255;
+        const b = data[i + 2]! / 255;
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        const l = (max + min) / 2;
+        let s = 0;
+        if (max !== min) {
+          s = l < 0.5 ? (max - min) / (max + min) : (max - min) / (2 - max - min);
+        }
+        let hue = 0;
+        if (max !== min) {
+          const d = max - min;
+          if (max === r) hue = ((g - b) / d) % 6;
+          else if (max === g) hue = (b - r) / d + 2;
+          else hue = (r - g) / d + 4;
+          hue *= 60;
+          if (hue < 0) hue += 360;
+        }
+        sumS += s;
+        sumL += l;
+        sumL2 += l * l;
+        if (s > 0.05) {
+          const radian = ((hue - 30) * Math.PI) / 180;
+          warmAcc += Math.cos(radian) * s;
+          satWeight += s;
+        }
+        n++;
+      }
+      const meanS = sumS / n;
+      const meanL = sumL / n;
+      const stdL = Math.sqrt(Math.max(0, sumL2 / n - meanL * meanL));
+      const warmth = satWeight > 0 ? warmAcc / satWeight : 0;
+      return { meanS, meanL, stdL, warmth };
+    }
+
+    function categorize(stats: {
+      meanS: number;
+      meanL: number;
+      stdL: number;
+      warmth: number;
+    }): Traits {
+      let saturation: Saturation;
+      if (stats.meanS < 0.07) saturation = "mono";
+      else if (stats.meanS < 0.2) saturation = "low";
+      else if (stats.meanS < 0.38) saturation = "medium";
+      else saturation = "high";
+
+      let contrast: Contrast;
+      if (stats.stdL < 0.15) contrast = "low";
+      else if (stats.stdL < 0.25) contrast = "medium";
+      else contrast = "high";
+
+      let brightness: Brightness;
+      if (stats.meanL < 0.35) brightness = "dark";
+      else if (stats.meanL < 0.65) brightness = "mid";
+      else brightness = "bright";
+
+      let warmth: Warmth;
+      if (stats.warmth > 0.18) warmth = "warm";
+      else if (stats.warmth < -0.18) warmth = "cool";
+      else warmth = "neutral";
+
+      return { saturation, contrast, brightness, warmth };
+    }
+
+    function traitLabels(t: Traits): string[] {
+      const labels: string[] = [];
+      if (t.saturation === "mono") labels.push("Mostly tones / B&W");
+      else if (t.saturation === "high") labels.push("Vibrant colour");
+      else if (t.saturation === "medium") labels.push("Balanced colour");
+      else labels.push("Muted colour");
+      if (t.contrast === "high") labels.push("High contrast");
+      else if (t.contrast === "low") labels.push("Soft contrast");
+      if (t.brightness === "dark") labels.push("Dark scene");
+      else if (t.brightness === "bright") labels.push("Bright scene");
+      if (t.warmth === "warm") labels.push("Warm-toned");
+      else if (t.warmth === "cool") labels.push("Cool-toned");
+      return labels;
+    }
+
+    function dedupe(picks: Pick[]): Pick[] {
+      const seen = new Set<string>();
+      return picks.filter((p) => {
+        if (seen.has(p.canvasId)) return false;
+        seen.add(p.canvasId);
+        return true;
+      });
+    }
+
+    function mattPicks(t: Traits): Pick[] {
+      const out: Pick[] = [];
+      const { saturation, contrast, brightness } = t;
+      if (saturation === "mono") {
+        if (contrast === "high" || brightness === "dark") {
+          out.push({
+            canvasId: "hahnemuhle-daguerre-canvas",
+            reason:
+              "Fine, even-textured matt — preserves tonal range and deep blacks for high-contrast B&W.",
+          });
+          out.push({
+            canvasId: "hahnemuhle-artist-canvas",
+            reason:
+              "Coarse weave reads through the image for a more painterly, hand-crafted B&W feel.",
+          });
+          out.push({
+            canvasId: "hahnemuhle-photo-canvas",
+            reason:
+              "Photo Canvas — fine matt at a more accessible price point, strong on photographic B&W.",
+          });
+        } else {
+          out.push({
+            canvasId: "hahnemuhle-daguerre-canvas",
+            reason:
+              "Fine, uniform matt — the calmest surface for soft, contemplative B&W.",
+          });
+          out.push({
+            canvasId: "hahnemuhle-photo-canvas",
+            reason:
+              "Photo Canvas — finer surface and lower price, a good middle-ground for B&W on canvas.",
+          });
+          out.push({
+            canvasId: "datajet-polycotton-canvas",
+            reason:
+              "Smooth, heavyweight value canvas — Daguerre-level output at the most accessible price.",
+          });
+        }
+      } else if (saturation === "high") {
+        out.push({
+          canvasId: "hahnemuhle-daguerre-canvas",
+          reason:
+            "Vivid colours, crisp detail on a clean, bright-white matt surface — the studio default for vibrant work on canvas.",
+        });
+        out.push({
+          canvasId: "hahnemuhle-photo-canvas",
+          reason:
+            "Photo Canvas — fine matt surface optimised for photographic prints, more accessible price.",
+        });
+        out.push({
+          canvasId: "datajet-polycotton-canvas",
+          reason:
+            "Smooth, heavyweight value canvas — saturation-friendly matt at the most accessible price.",
+        });
+      } else if (saturation === "medium") {
+        out.push({
+          canvasId: "hahnemuhle-daguerre-canvas",
+          reason:
+            "All-rounder matt — fine even surface for balanced colour with vivid output.",
+        });
+        out.push({
+          canvasId: "hahnemuhle-artist-canvas",
+          reason:
+            "Coarse-weave matt — adds painterly character for artwork reproductions and balanced subjects.",
+        });
+        out.push({
+          canvasId: "hahnemuhle-photo-canvas",
+          reason: "Photographic matt at a more accessible price point.",
+        });
+      } else {
+        // Low saturation — soft, muted
+        out.push({
+          canvasId: "hahnemuhle-daguerre-canvas",
+          reason:
+            "Fine, even-textured matt — keeps muted palettes calm without surface character competing.",
+        });
+        out.push({
+          canvasId: "hahnemuhle-photo-canvas",
+          reason:
+            "Photo Canvas — finer surface for restrained, low-saturation work.",
+        });
+        if (contrast === "high") {
+          out.push({
+            canvasId: "hahnemuhle-artist-canvas",
+            reason:
+              "Coarse weave adds drama to high-contrast muted subjects — hand-crafted feel.",
+          });
+        } else {
+          out.push({
+            canvasId: "datajet-polycotton-canvas",
+            reason:
+              "Smooth value canvas — Daguerre-level output, more accessible price.",
+          });
+        }
+      }
+      return dedupe(out);
+    }
+
+    function sheenPicks(t: Traits): Pick[] {
+      // Only Metallic Canvas is glossy — reasoning varies by image traits.
+      const { saturation, contrast, brightness } = t;
+      let reason: string;
+      if (saturation === "mono" && (contrast === "high" || brightness === "dark")) {
+        reason =
+          "Architectural and night-scene B&W picks up dramatic depth on the silvery-shimmer surface — Metallic's natural niche.";
+      } else if (saturation === "high" && (contrast === "high" || brightness === "dark")) {
+        reason =
+          "Bright vivid colour against dark or high-contrast backgrounds shines on the metallic surface — strong for high-impact work.";
+      } else if (saturation === "high") {
+        reason =
+          "Saturated colour gains a cinematic depth from the silvery shimmer — particularly suited to bright, eye-catching subjects.";
+      } else if (saturation === "mono") {
+        reason =
+          "Silvery-shimmer surface adds dimensional drama to monochrome work.";
+      } else {
+        reason =
+          "High-gloss metallic surface — a specialty pick for images featuring reflective or atmospheric elements.";
+      }
+      return [{ canvasId: "hahnemuhle-metallic-canvas", reason }];
+    }
+
+    function combinedPicks(t: Traits): Pick[] {
+      const matt = mattPicks(t);
+      const metallic = sheenPicks(t)[0]!;
+      const { saturation, contrast, brightness } = t;
+      // Surface Metallic when its niche fits: high contrast / dark / B&W with drama.
+      if (saturation === "mono" && (contrast === "high" || brightness === "dark")) {
+        return dedupe([metallic, matt[0]!, matt[1]!]);
+      }
+      if (saturation === "high" && (contrast === "high" || brightness === "dark")) {
+        return dedupe([matt[0]!, metallic, matt[1]!]);
+      }
+      // Otherwise lean matt — that's the studio's default for canvas.
+      const out: Pick[] = [];
+      if (matt[0]) out.push(matt[0]);
+      if (matt[1]) out.push(matt[1]);
+      if (matt[2]) out.push(matt[2]);
+      return dedupe(out).slice(0, 3);
+    }
+
+    function pickWarning(t: Traits, pref: Preference): string | null {
+      if (pref === "sheen" && t.saturation !== "mono" && t.saturation !== "high") {
+        return "Heads up: Metallic Canvas is a specialty surface — it shines brightest on vivid colour, B&W, and architectural or night work. For balanced or muted images, the matt canvases are usually a better fit.";
+      }
+      if (pref === "sheen" && t.contrast === "low" && t.brightness === "bright") {
+        return "Heads up: Metallic Canvas can overpower bright, low-contrast images. Switch to Matt if the shimmer feels too much.";
+      }
+      return null;
+    }
+
+    function recommendFor(t: Traits, pref: Preference): Pick[] {
+      if (pref === "matt") return mattPicks(t).slice(0, 3);
+      if (pref === "sheen") return sheenPicks(t).slice(0, 3);
+      return combinedPicks(t).slice(0, 3);
+    }
+
+    function jumpToCanvas(canvasId: string) {
+      const showcase = document.querySelector<HTMLElement>("[data-paper-showcase]");
+      if (!showcase) return;
+      const tab = showcase.querySelector<HTMLButtonElement>(
+        `[data-tab-target="${canvasId}"]`,
+      );
+      tab?.click();
+      const tabsRow = showcase.querySelector<HTMLElement>(".paper-showcase__tabs");
+      (tabsRow ?? showcase).scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function renderPicks(picks: Pick[]) {
+      listEl.innerHTML = "";
+      picks.forEach((pick) => {
+        const meta = lookup[pick.canvasId];
+        const li = document.createElement("li");
+        li.className = "canvas-recommender__pick";
+        const thumb = meta?.image
+          ? `<img class="canvas-recommender__pick-thumb" src="${meta.image}" alt="" loading="lazy" />`
+          : `<span class="canvas-recommender__pick-thumb"></span>`;
+        li.innerHTML = `
+          ${thumb}
+          <div class="canvas-recommender__pick-body">
+            <p class="canvas-recommender__pick-brand">${meta?.brand ?? ""}</p>
+            <p class="canvas-recommender__pick-name">${meta?.shortName ?? pick.canvasId}</p>
+            <p class="canvas-recommender__pick-reason">${pick.reason}</p>
+          </div>
+          <button type="button" class="canvas-recommender__pick-cta">See in detail →</button>
+        `;
+        const cta = li.querySelector<HTMLButtonElement>(".canvas-recommender__pick-cta")!;
+        cta.addEventListener("click", () => jumpToCanvas(pick.canvasId));
+        listEl.appendChild(li);
+      });
+    }
+
+    function renderTraits(labels: string[]) {
+      traitsEl.innerHTML = "";
+      labels.forEach((l) => {
+        const li = document.createElement("li");
+        li.textContent = l;
+        traitsEl.appendChild(li);
+      });
+    }
+
+    function renderForCurrentTraits() {
+      if (!lastTraits) return;
+      const picks = recommendFor(lastTraits, preference);
+      const labels = traitLabels(lastTraits);
+      const warn = pickWarning(lastTraits, preference);
+      renderTraits(labels);
+      renderPicks(picks);
+      if (warn) {
+        warnEl.textContent = warn;
+        warnEl.hidden = false;
+      } else {
+        warnEl.textContent = "";
+        warnEl.hidden = true;
+      }
+    }
+
+    async function handleFile(file: File) {
+      clearError();
+      if (!ALLOWED_TYPES.has(file.type)) {
+        showError("That file isn't a JPG or PNG. Try one of those formats.");
+        return;
+      }
+      if (file.size > MAX_BYTES) {
+        showError("That file is over the 100 MB limit. Try a smaller version.");
+        return;
+      }
+      try {
+        const stats = await analyseImage(file);
+        lastTraits = categorize(stats);
+
+        if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+        lastObjectUrl = URL.createObjectURL(file);
+        thumbEl.src = lastObjectUrl;
+        thumbEl.alt = file.name;
+
+        renderForCurrentTraits();
+
+        dropState.hidden = true;
+        resultEl.hidden = false;
+      } catch (err) {
+        showError(
+          err instanceof Error
+            ? err.message
+            : "Could not analyse this image. Try a different file.",
+        );
+      }
+    }
+
+    prefBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const next = (btn.dataset.pref ?? "any") as Preference;
+        if (next === preference) return;
+        preference = next;
+        prefBtns.forEach((b) => b.classList.toggle("is-active", b === btn));
+        renderForCurrentTraits();
+      });
+    });
+
+    input.addEventListener("change", () => {
+      const f = input.files?.[0];
+      if (f) handleFile(f);
+    });
+
+    ["dragenter", "dragover"].forEach((ev) =>
+      drop.addEventListener(ev, (e) => {
+        e.preventDefault();
+        drop.classList.add("is-dragover");
+      }),
+    );
+    ["dragleave", "dragend"].forEach((ev) =>
+      drop.addEventListener(ev, () => drop.classList.remove("is-dragover")),
+    );
+    drop.addEventListener("drop", (e) => {
+      e.preventDefault();
+      drop.classList.remove("is-dragover");
+      const f = (e as DragEvent).dataTransfer?.files?.[0];
+      if (f) handleFile(f);
+    });
+
+    resetBtn.addEventListener("click", () => {
+      if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+      lastObjectUrl = null;
+      lastTraits = null;
+      thumbEl.removeAttribute("src");
+      input.value = "";
+      listEl.innerHTML = "";
+      traitsEl.innerHTML = "";
+      warnEl.textContent = "";
+      warnEl.hidden = true;
+      resultEl.hidden = true;
+      dropState.hidden = false;
+      clearError();
+    });
+  }
+</script>
