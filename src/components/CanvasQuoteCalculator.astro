@@ -5,6 +5,7 @@ import {
   formatSGD,
 } from "../data/pricing/canvas";
 import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
+import FloatFrameLightbox from "./FloatFrameLightbox.astro";
 import "../styles/canvas-quote.css";
 
 const featured = CANVASES.filter((c) => c.featured);
@@ -160,6 +161,19 @@ const featured = CANVASES.filter((c) => c.featured);
             aria-hidden="true"
           />
           <span class="frame-colour__name">{colour.label}</span>
+          <button
+            type="button"
+            class="frame-colour__zoom"
+            data-frame-zoom
+            data-frame-image={`/photos/float-frames/${colour.image}`}
+            data-frame-name={colour.label}
+            aria-label={`View ${colour.label} larger`}
+          >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.6"/>
+              <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+            </svg>
+          </button>
         </label>
       ))}
     </div>
@@ -193,6 +207,8 @@ const featured = CANVASES.filter((c) => c.featured);
     </a>
   </div>
 </form>
+
+<FloatFrameLightbox />
 
 <style is:global>
   /* Canvas cards (mirror paper-card) — print-on-canvas only */
