@@ -436,15 +436,6 @@ export const FRAME_EXAMPLES: FrameExample[] = [
     subject: "photo-colour",
   },
 
-  /* Textured wood float frame — likely the glossy light brown pine */
-  {
-    id: "textured-wood-float-1",
-    image: "1-textured-wood-float-frame.jpg",
-    service: "canvas-printing",
-    floatFrameId: "glossy-light-brown-pine",
-    subject: "photo-colour",
-  },
-
   /* White float frame */
   {
     id: "white-float-1",
@@ -453,6 +444,137 @@ export const FRAME_EXAMPLES: FrameExample[] = [
     floatFrameId: "smooth-white",
     subject: "photo-colour",
     featured: true,
+  },
+
+  /* --------------------------------------------------------------------------
+   * Canvas-substrate-tagged examples
+   * -------------------------------------------------------------------------- */
+  {
+    id: "daguerre-1",
+    image: "1-daguerre-canvas-1.jpg",
+    service: "canvas-printing",
+    canvasId: "hahnemuhle-daguerre-canvas",
+    subject: "photo-bw",
+    caption: "Vintage B&W photograph on Daguerre Canvas",
+    featured: true,
+  },
+  {
+    id: "artist-canvas-1",
+    image: "1-hahnemuhle-artist-canvas-1.jpg",
+    service: "canvas-printing",
+    canvasId: "hahnemuhle-artist-canvas",
+    subject: "illustration",
+    caption: "Mixed-media portrait collage on Artist Canvas",
+    featured: true,
+  },
+  {
+    id: "polycotton-1",
+    image: "1-polycotton-canvas-1.jpg",
+    service: "canvas-printing",
+    canvasId: "datajet-polycotton-canvas",
+    subject: "artwork",
+    caption: "Painted-style sailing scene on Polycotton Canvas",
+    featured: true,
+  },
+  {
+    id: "polycotton-2",
+    image: "2-polycotton-canvas-3.jpg",
+    service: "canvas-printing",
+    canvasId: "datajet-polycotton-canvas",
+    subject: "photo-colour",
+    caption: "Pastel beach scene on Polycotton Canvas",
+  },
+  {
+    id: "polycotton-3",
+    image: "3-polycotton-canvas-3.jpg",
+    service: "canvas-printing",
+    canvasId: "datajet-polycotton-canvas",
+    subject: "artwork",
+    caption: "Hopper-style interior on Polycotton Canvas",
+  },
+
+  /* --------------------------------------------------------------------------
+   * Generic numbered canvas examples (no substrate hint in filename).
+   * Mostly look like original paintings (canvas-stretching), with the botanicals
+   * looking more like printed reproductions (canvas-printing).
+   * -------------------------------------------------------------------------- */
+  {
+    id: "canvas-stretched-1",
+    image: "1-canvas-1.jpg",
+    service: "canvas-stretching",
+    subject: "artwork",
+    caption: "Abstract dot/ring composition",
+  },
+  {
+    id: "canvas-stretched-2",
+    image: "2-canvas-1.jpg",
+    service: "canvas-stretching",
+    subject: "artwork",
+    caption: "Tonal green-gold abstract",
+  },
+  {
+    id: "canvas-stretched-3",
+    image: "3-canvas-1.jpg",
+    service: "canvas-stretching",
+    subject: "artwork",
+    caption: "Tonal red-black abstract",
+  },
+  {
+    id: "canvas-stretched-4",
+    image: "4-canvas-1.jpg",
+    service: "canvas-stretching",
+    subject: "artwork",
+    caption: "Village scene painting",
+    featured: true,
+  },
+  {
+    id: "canvas-printed-tree",
+    image: "5-canvas-1.jpg",
+    service: "canvas-printing",
+    subject: "illustration",
+    caption: "Silvered tree silhouette",
+  },
+  {
+    id: "canvas-stretched-6",
+    image: "6-canvas.jpg",
+    service: "canvas-stretching",
+    subject: "artwork",
+    caption: "Gold-leaf abstract landscape",
+  },
+  {
+    id: "canvas-printed-bird-1",
+    image: "7-canvas.jpg",
+    service: "canvas-printing",
+    subject: "illustration",
+    caption: "Vintage botanical print, single bird",
+  },
+  {
+    id: "canvas-printed-bird-2",
+    image: "8-canvas.jpg",
+    service: "canvas-printing",
+    subject: "illustration",
+    caption: "Vintage botanical print, paired birds",
+    featured: true,
+  },
+
+  /* --------------------------------------------------------------------------
+   * Multi-canvas custom framing — multiple panels presented inside a single
+   * picture frame with mat / text-band layout.
+   * -------------------------------------------------------------------------- */
+  {
+    id: "multi-canvas-1",
+    image: "1-multi-canvas-frame.jpg",
+    service: "custom-framing",
+    subject: "artwork",
+    caption: "Three small paintings, single oak frame",
+    featured: true,
+  },
+  {
+    id: "multi-canvas-5",
+    image: "5-multi-canvas-frame.jpg",
+    service: "custom-framing",
+    subject: "illustration",
+    caption: "Quadriptych watercolour with verse banding",
   },
 ];
 
