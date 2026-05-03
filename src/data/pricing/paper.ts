@@ -232,10 +232,9 @@ export const PAPERS: PaperFamily[] = [
       "Hahnemühle Hemp is made from 60% hemp fibre and 40% cotton, making it a more environmentally friendly choice. It has a natural-white tone and a lightly textured surface that gives the paper a pleasant, silky feel. Colours and details are brilliantly reproduced, and the depth of the black truly stands out. Free of acid and lignin, the paper can last 100+ years in fair environmental conditions.",
     featured: true,
     bestFor: ["original-art", "colour-photo", "bw-photo"],
-    // TODO: confirm Hemp pricing with Ben. Using Bamboo's S$125.94/sqm as a
-    // placeholder since the papers are closest cousins (both 290gsm matt
-    // sustainable-fibre Hahnemühle FineArt). V6 spreadsheet has no Hemp row.
-    sellPricePerSqm: 125.94,
+    // Roll: 111.76 × 1200 cm = 13.41 sqm. Unit cost S$620 / 13.41 = S$46.23/sqm
+    // wholesale × markup 2 = S$92.46/sqm sell.
+    sellPricePerSqm: 92.46,
     maxPrintWidthCm: 111.76,
     maxPrintLengthCm: 1200,
     images: [
