@@ -66,8 +66,8 @@ export interface FrameExample {
  *
  * NOTE: a couple of the filename slugs reference profile ids that don't yet
  * exist in the /custom-framing picture-frame data ("2.2cm-raw-oak",
- * "2.2cm-soft-oak"). Ben to confirm whether those are new 2.2cm variants of
- * the 2cm Raw / Soft Oak profiles or mislabelled photos of the existing 2cm
+ * "2.2cm-smooth-oak"). Ben to confirm whether those are new 2.2cm variants of
+ * the 2cm Raw / Smooth Oak profiles or mislabelled photos of the existing 2cm
  * versions. Subjects are best-guessed as "photo-colour" until verified.
  * -------------------------------------------------------------------------- */
 
@@ -141,25 +141,25 @@ export const FRAME_EXAMPLES: FrameExample[] = [
 
   // 2.2cm Soft Oak — three examples (new natural-line profile, distinct from 2cm)
   {
-    id: "soft-oak-22-1",
-    image: "2.2cm-soft-oak-1.jpg",
+    id: "smooth-oak-22-1",
+    image: "2.2cm-smooth-oak-1.jpg",
     service: "custom-framing",
-    pictureFrameId: "2.2cm-soft-oak",
+    pictureFrameId: "2.2cm-smooth-oak",
     subject: "photo-colour",
     featured: true,
   },
   {
-    id: "soft-oak-22-2",
-    image: "2.2cm-soft-oak-2.jpg",
+    id: "smooth-oak-22-2",
+    image: "2.2cm-smooth-oak-2.jpg",
     service: "custom-framing",
-    pictureFrameId: "2.2cm-soft-oak",
+    pictureFrameId: "2.2cm-smooth-oak",
     subject: "photo-colour",
   },
   {
-    id: "soft-oak-22-3",
-    image: "2.2cm-soft-oak-3.jpg",
+    id: "smooth-oak-22-3",
+    image: "2.2cm-smooth-oak-3.jpg",
     service: "custom-framing",
-    pictureFrameId: "2.2cm-soft-oak",
+    pictureFrameId: "2.2cm-smooth-oak",
     subject: "photo-colour",
   },
 
