@@ -72,7 +72,7 @@ a:hover { text-decoration: underline; }
   font-size: 13px;
   color: var(--admin-muted);
 }
-.admin-form input,
+.admin-form input:not([type="checkbox"]):not([type="radio"]),
 .admin-form textarea,
 .admin-form select {
   font: inherit;
@@ -82,6 +82,12 @@ a:hover { text-decoration: underline; }
   background: #fff;
   color: var(--admin-ink);
   width: 100%;
+}
+.admin-form input[type="checkbox"],
+.admin-form input[type="radio"] {
+  width: auto;
+  margin: 0;
+  accent-color: var(--admin-petrol);
 }
 .admin-form textarea { min-height: 70px; resize: vertical; }
 .admin-form input:focus,
@@ -344,12 +350,13 @@ a:hover { text-decoration: underline; }
   .admin-form__row { grid-template-columns: 1fr; }
 }
 
-.admin-form__check {
+.admin-form .admin-form__check {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   font-size: 14px;
   color: var(--admin-ink);
+  margin: 0;
 }
 
 .admin-form__actions {

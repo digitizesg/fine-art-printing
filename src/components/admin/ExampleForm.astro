@@ -69,9 +69,9 @@ const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.
     <input type="text" name="caption" value={example?.caption ?? ""} maxlength="140" />
   </label>
 
-  <div class="admin-form__row">
+  <div data-only="custom-framing">
     <label>
-      <span>Picture frame (custom-framing only)</span>
+      <span>Picture frame</span>
       <select name="picture_frame_id">
         <option value="" selected={!example?.picture_frame_id}>—</option>
         {PICTURE_FRAME_GROUPS.map((group) => (
@@ -83,8 +83,11 @@ const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.
         ))}
       </select>
     </label>
+  </div>
+
+  <div data-only="canvas-printing">
     <label>
-      <span>Canvas substrate (canvas-printing only)</span>
+      <span>Canvas substrate</span>
       <select name="canvas_id">
         <option value="" selected={!example?.canvas_id}>—</option>
         {CANVASES.map((c) => (
@@ -94,9 +97,9 @@ const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.
     </label>
   </div>
 
-  <div class="admin-form__row">
+  <div class="admin-form__row" data-only="canvas-printing canvas-stretching">
     <label>
-      <span>Float frame (canvas only)</span>
+      <span>Float frame</span>
       <select name="float_frame_id">
         <option value="" selected={!example?.float_frame_id}>—</option>
         {FLOAT_FRAME_COLOURS.map((f) => (
@@ -105,7 +108,7 @@ const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.
       </select>
     </label>
     <label>
-      <span>Stretching depth (canvas only)</span>
+      <span>Stretching depth</span>
       <select name="stretching_depth">
         <option value="" selected={!example?.stretching_depth}>—</option>
         <option value="1in" selected={example?.stretching_depth === "1in"}>1"</option>
@@ -142,4 +145,19 @@ const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.
       if (!confirm(b.dataset.confirm ?? "Are you sure?")) e.preventDefault();
     });
   });
+
+  // Show/hide fields based on the selected service.
+  const serviceSelect = document.querySelector<HTMLSelectElement>('select[name="service"]');
+  const conditional = document.querySelectorAll<HTMLElement>("[data-only]");
+
+  function syncServiceFields() {
+    const current = serviceSelect?.value ?? "";
+    conditional.forEach((el) => {
+      const services = (el.dataset.only ?? "").split(/\s+/).filter(Boolean);
+      el.style.display = services.includes(current) ? "" : "none";
+    });
+  }
+
+  serviceSelect?.addEventListener("change", syncServiceFields);
+  syncServiceFields();
 </script>
