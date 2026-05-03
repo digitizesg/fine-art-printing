@@ -51,6 +51,7 @@ function detailFor(row: any): string {
     floatFrameId: row.float_frame_id,
     stretchingDepth: row.stretching_depth,
     canvasId: row.canvas_id,
+    paperId: row.paper_id ?? null,
     displayOrder: row.display_order,
   });
 }
@@ -122,7 +123,7 @@ function buildLink(params: Record<string, string | null>) {
 
   <div class="admin-grid">
     {rows?.map((row) => {
-      const detail = labelFor(row.picture_frame_id ?? row.canvas_id);
+      const detail = detailFor(row);
       return (
         <a class="admin-example" href={`/admin/examples/${row.id}`}>
           <img class="admin-example__photo" src={frameExampleUrl(row.image_path)} alt={row.caption ?? ""} loading="lazy" />
