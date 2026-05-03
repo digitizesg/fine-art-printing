@@ -126,7 +126,8 @@ export const FRAME_EXAMPLES: FrameExample[] = [
     image: "2.2cm-wood-grain-black-1.jpg",
     service: "custom-framing",
     pictureFrameId: "2.2cm-wood-grain-black",
-    subject: "photo-colour",
+    subject: "memorabilia",
+    caption: "Service medals, deep shadow box mount",
     featured: true,
   },
   {
@@ -134,7 +135,8 @@ export const FRAME_EXAMPLES: FrameExample[] = [
     image: "2.2cm-wood-grain-black-2.jpg",
     service: "custom-framing",
     pictureFrameId: "2.2cm-wood-grain-black",
-    subject: "photo-colour",
+    subject: "artwork",
+    caption: "Chinese ink calligraphy on paper",
   },
 
   // 2.2cm Soft Oak — three examples (new natural-line profile, distinct from 2cm)
