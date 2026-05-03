@@ -6,7 +6,9 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://fineartprinting.com.sg',
-  output: 'static',
+  // 'server' default + per-page prerender:true keeps marketing pages static
+  // (great for SEO and CDN caching) while admin/* pages run server-side.
+  output: 'server',
   adapter: vercel(),
   integrations: [sitemap()],
   vite: {
