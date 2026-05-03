@@ -1,0 +1,74 @@
+---
+export const prerender = false;
+import { createSupabaseServerClient } from "../../lib/supabase-server";
+
+const url = Astro.url;
+const next = url.searchParams.get("next") ?? "/admin";
+
+let status: "idle" | "sent" | "error" = "idle";
+let message = "";
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const email = String(form.get("email") ?? "").trim().toLowerCase();
+  if (!email) {
+    status = "error";
+    message = "Enter your email.";
+  } else {
+    const supabase = createSupabaseServerClient(Astro);
+    const redirectTo = new URL("/admin/auth/callback", url);
+    redirectTo.searchParams.set("next", next);
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: redirectTo.toString(),
+        shouldCreateUser: false,
+      },
+    });
+    if (error) {
+      status = "error";
+      message = error.message;
+    } else {
+      status = "sent";
+      message = `If ${email} is on the allowlist, a sign-in link is on its way. Check your inbox.`;
+    }
+  }
+}
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in · Fine Art Printing admin</title>
+    <link rel="stylesheet" href="/admin/admin.css" />
+  </head>
+  <body class="admin-shell admin-shell--auth">
+    <main class="admin-card">
+      <h1>Fine Art Printing</h1>
+      <p class="admin-card__sub">Admin sign-in</p>
+
+      <form method="POST" class="admin-form">
+        <label>
+          <span>Email</span>
+          <input
+            type="email"
+            name="email"
+            required
+            autocomplete="email"
+            autofocus
+          />
+        </label>
+        <button type="submit">Send magic link</button>
+      </form>
+
+      {status === "sent" && <p class="admin-note admin-note--ok">{message}</p>}
+      {status === "error" && <p class="admin-note admin-note--err">{message}</p>}
+
+      <p class="admin-card__hint">
+        Sign-up is disabled. The link only works if your email is already on
+        the allowlist.
+      </p>
+    </main>
+  </body>
+</html>

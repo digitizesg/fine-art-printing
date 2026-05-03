@@ -1,0 +1,14 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import ExampleForm from "../../../components/admin/ExampleForm.astro";
+---
+<AdminLayout title="New example">
+  <div class="admin-page-head">
+    <div>
+      <h1>New example</h1>
+      <p>Upload a photo and tag it. Saves trigger a marketing-site rebuild within ~60s.</p>
+    </div>
+  </div>
+  <ExampleForm mode="new" />
+</AdminLayout>

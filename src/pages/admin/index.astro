@@ -1,0 +1,81 @@
+---
+export const prerender = false;
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { createSupabaseServerClient } from "../../lib/supabase-server";
+import {
+  SERVICE_LABELS,
+  SUBJECT_LABELS,
+  type Service,
+  type Subject,
+} from "../../lib/frame-examples";
+import { frameExampleUrl } from "../../lib/supabase";
+
+const supabase = createSupabaseServerClient(Astro);
+const url = Astro.url;
+const filterService = url.searchParams.get("service") as Service | "" | null;
+const filterFeatured = url.searchParams.get("featured") === "1";
+
+let query = supabase
+  .from("frame_examples")
+  .select("*")
+  .order("display_order", { ascending: true });
+if (filterService) query = query.eq("service", filterService);
+if (filterFeatured) query = query.eq("featured", true);
+
+const { data: rows, error } = await query;
+
+const labelFor = (id: string | null) =>
+  id ? id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
+
+function buildLink(params: Record<string, string | null>) {
+  const u = new URL(url);
+  for (const [k, v] of Object.entries(params)) {
+    if (v === null) u.searchParams.delete(k);
+    else u.searchParams.set(k, v);
+  }
+  return u.pathname + (u.search ? u.search : "");
+}
+---
+<AdminLayout title="Frame examples">
+  <div class="admin-page-head">
+    <div>
+      <h1>Frame examples</h1>
+      <p>{rows?.length ?? 0} examples shown · drag-and-drop ordering coming later</p>
+    </div>
+    <a href="/admin/examples/new" class="admin-btn">+ New example</a>
+  </div>
+
+  <div class="admin-filters">
+    <a class:list={["admin-filter", !filterService && !filterFeatured && "is-active"]} href={buildLink({ service: null, featured: null })}>All</a>
+    {(Object.keys(SERVICE_LABELS) as Service[]).map((s) => (
+      <a class:list={["admin-filter", filterService === s && "is-active"]} href={buildLink({ service: s })}>{SERVICE_LABELS[s]}</a>
+    ))}
+    <a class:list={["admin-filter", filterFeatured && "is-active"]} href={buildLink({ featured: filterFeatured ? null : "1" })}>★ Featured</a>
+  </div>
+
+  {error && <p class="admin-note admin-note--err">Couldn't load examples: {error.message}</p>}
+
+  {rows && rows.length === 0 && (
+    <p class="admin-note">No examples match the current filter.</p>
+  )}
+
+  <div class="admin-grid">
+    {rows?.map((row) => {
+      const detail = labelFor(row.picture_frame_id ?? row.canvas_id);
+      return (
+        <a class="admin-example" href={`/admin/examples/${row.id}`}>
+          <img class="admin-example__photo" src={frameExampleUrl(row.image_path)} alt={row.caption ?? ""} loading="lazy" />
+          <div class="admin-example__meta">
+            <span class="admin-example__service">{SERVICE_LABELS[row.service as Service]}</span>
+            {row.caption && <span class="admin-example__caption">{row.caption}</span>}
+            {!row.caption && detail && <span class="admin-example__caption">{detail}</span>}
+            <span class="admin-example__row">
+              {SUBJECT_LABELS[row.subject as Subject]}
+              {row.featured && <span class="admin-example__featured" style="margin-left:8px">Featured</span>}
+            </span>
+          </div>
+        </a>
+      );
+    })}
+  </div>
+</AdminLayout>

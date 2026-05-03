@@ -1,0 +1,124 @@
+---
+import {
+  SERVICE_LABELS,
+  SUBJECT_LABELS,
+  type Service,
+  type Subject,
+} from "../../lib/frame-examples";
+
+interface Props {
+  mode: "new" | "edit";
+  example?: {
+    id: string;
+    image_path: string;
+    image_url: string;
+    service: Service;
+    subject: Subject;
+    caption: string | null;
+    featured: boolean;
+    picture_frame_id: string | null;
+    float_frame_id: string | null;
+    stretching_depth: "1in" | "1.5in" | null;
+    canvas_id: string | null;
+  };
+  error?: string;
+  message?: string;
+}
+const { mode, example, error, message } = Astro.props;
+
+const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.id}`;
+---
+<form class="admin-form admin-form--wide" method="POST" enctype="multipart/form-data" action={action}>
+  <div class="admin-form__photo">
+    {example?.image_url ? (
+      <img src={example.image_url} alt={example.caption ?? ""} />
+    ) : (
+      <div style="aspect-ratio:3/2;background:#f4efe7;border:1px dashed rgba(0,0,0,0.18);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#888;font-size:13px;">
+        No image yet
+      </div>
+    )}
+    <label>
+      <span>{mode === "new" ? "Image (JPG or PNG)" : "Replace image (optional)"}</span>
+      <input type="file" name="image" accept="image/jpeg,image/png" required={mode === "new"} />
+    </label>
+  </div>
+
+  <div class="admin-form__row">
+    <label>
+      <span>Service</span>
+      <select name="service" required>
+        {(Object.keys(SERVICE_LABELS) as Service[]).map((s) => (
+          <option value={s} selected={example?.service === s}>{SERVICE_LABELS[s]}</option>
+        ))}
+      </select>
+    </label>
+    <label>
+      <span>Subject</span>
+      <select name="subject" required>
+        {(Object.keys(SUBJECT_LABELS) as Subject[]).map((s) => (
+          <option value={s} selected={example?.subject === s}>{SUBJECT_LABELS[s]}</option>
+        ))}
+      </select>
+    </label>
+  </div>
+
+  <label>
+    <span>Caption (optional, shows in lightbox)</span>
+    <input type="text" name="caption" value={example?.caption ?? ""} maxlength="140" />
+  </label>
+
+  <div class="admin-form__row">
+    <label>
+      <span>Picture frame id (custom-framing only)</span>
+      <input type="text" name="picture_frame_id" value={example?.picture_frame_id ?? ""} placeholder="e.g. classic-champagne" />
+    </label>
+    <label>
+      <span>Canvas id (canvas-printing only)</span>
+      <input type="text" name="canvas_id" value={example?.canvas_id ?? ""} placeholder="e.g. hahnemuhle-daguerre-canvas" />
+    </label>
+  </div>
+
+  <div class="admin-form__row">
+    <label>
+      <span>Float frame id (canvas only)</span>
+      <input type="text" name="float_frame_id" value={example?.float_frame_id ?? ""} placeholder="e.g. natural-brown-oak" />
+    </label>
+    <label>
+      <span>Stretching depth (canvas only)</span>
+      <select name="stretching_depth">
+        <option value="" selected={!example?.stretching_depth}>—</option>
+        <option value="1in" selected={example?.stretching_depth === "1in"}>1"</option>
+        <option value="1.5in" selected={example?.stretching_depth === "1.5in"}>1.5"</option>
+      </select>
+    </label>
+  </div>
+
+  <label class="admin-form__check">
+    <input type="checkbox" name="featured" value="1" checked={example?.featured} />
+    <span>Featured (shows in the per-service strip on the marketing site)</span>
+  </label>
+
+  {error && <p class="admin-note admin-note--err">{error}</p>}
+  {message && <p class="admin-note admin-note--ok">{message}</p>}
+
+  <div class="admin-form__actions">
+    <button type="submit" class="admin-btn">
+      {mode === "new" ? "Create" : "Save changes"}
+    </button>
+    <a href="/admin" class="admin-btn admin-btn--ghost">Cancel</a>
+    <span class="spacer"></span>
+    {mode === "edit" && (
+      <button type="submit" formaction={`/admin/examples/${example?.id}/delete`} class="admin-btn admin-btn--danger" data-confirm="Delete this example permanently?">
+        Delete
+      </button>
+    )}
+  </div>
+</form>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("button[data-confirm]").forEach((b) => {
+    b.addEventListener("click", (e) => {
+      if (!confirm(b.dataset.confirm ?? "Are you sure?")) e.preventDefault();
+    });
+  });
+</script>

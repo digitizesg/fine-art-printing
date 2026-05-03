@@ -1,0 +1,93 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import ExampleForm from "../../../components/admin/ExampleForm.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import { frameExampleUrl } from "../../../lib/supabase";
+
+const id = Astro.params.id;
+const supabase = createSupabaseServerClient(Astro);
+
+let error: string | undefined;
+let message: string | undefined;
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const update: Record<string, unknown> = {
+    service: form.get("service"),
+    subject: form.get("subject"),
+    caption: (form.get("caption") as string)?.trim() || null,
+    featured: form.get("featured") === "1",
+    picture_frame_id: (form.get("picture_frame_id") as string)?.trim() || null,
+    float_frame_id: (form.get("float_frame_id") as string)?.trim() || null,
+    stretching_depth: (form.get("stretching_depth") as string)?.trim() || null,
+    canvas_id: (form.get("canvas_id") as string)?.trim() || null,
+  };
+
+  // Optional image replacement.
+  const file = form.get("image");
+  if (file instanceof File && file.size > 0) {
+    const allowed = new Set(["image/jpeg", "image/png"]);
+    if (!allowed.has(file.type)) {
+      error = "Replacement image must be JPG or PNG.";
+    } else if (file.size > 25 * 1024 * 1024) {
+      error = "Replacement image is over the 25 MB limit.";
+    } else {
+      const { randomUUID } = await import("node:crypto");
+      const { extname } = await import("node:path");
+      const ext = file.type === "image/png" ? ".png" : extname(file.name) || ".jpg";
+      const newPath = `${randomUUID()}${ext}`;
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const { error: upErr } = await supabase.storage
+        .from("frame-examples")
+        .upload(newPath, buffer, { contentType: file.type, upsert: false });
+      if (upErr) {
+        error = `Image upload failed: ${upErr.message}`;
+      } else {
+        update.image_path = newPath;
+      }
+    }
+  }
+
+  if (!error) {
+    const { error: updErr } = await supabase
+      .from("frame_examples")
+      .update(update)
+      .eq("id", id);
+    if (updErr) {
+      error = updErr.message;
+    } else {
+      message = "Saved.";
+    }
+  }
+}
+
+const { data: row, error: loadErr } = await supabase
+  .from("frame_examples")
+  .select("*")
+  .eq("id", id)
+  .single();
+
+if (loadErr || !row) {
+  return Astro.redirect("/admin?error=not_found");
+}
+
+const example = {
+  ...row,
+  image_url: frameExampleUrl(row.image_path),
+};
+
+if (Astro.url.searchParams.get("created") === "1" && !message) {
+  message = "Created.";
+}
+---
+<AdminLayout title="Edit example">
+  <div class="admin-page-head">
+    <div>
+      <h1>Edit example</h1>
+      <p style="font-family:monospace;font-size:11.5px;color:#888;">{example.id}</p>
+    </div>
+    <a href="/admin" class="admin-btn admin-btn--ghost">← Back to list</a>
+  </div>
+  <ExampleForm mode="edit" example={example} error={error} message={message} />
+</AdminLayout>
