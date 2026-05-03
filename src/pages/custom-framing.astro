@@ -4,6 +4,7 @@ import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
 import ReviewSection from "../components/ReviewSection.astro";
+import FrameLightbox from "../components/FrameLightbox.astro";
 import Stars from "../components/Stars.astro";
 import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
 import { business } from "../data/business";
@@ -30,7 +31,8 @@ const jsonLd = {
 interface FrameProfile {
   id: string;
   label: string;
-  swatch: string;
+  /** Filename in /public/photos/picture-frames/ */
+  image: string;
 }
 
 const profileGroups: { heading: string; intro: string; profiles: FrameProfile[] }[] = [
@@ -38,38 +40,39 @@ const profileGroups: { heading: string; intro: string; profiles: FrameProfile[] 
     heading: "Black",
     intro: "Versatile, gallery-neutral, the safe default for most photography and graphic work.",
     profiles: [
-      { id: "1.5cm-smooth-black", label: '1.5cm Smooth Black', swatch: "#171717" },
-      { id: "2cm-smooth-black", label: '2cm Smooth Black', swatch: "#1a1a1a" },
-      { id: "2.2cm-wood-grain-black", label: '2.2cm Wood Grain Black', swatch: "linear-gradient(135deg, #1f1f1f 0%, #2a2825 100%)" },
-      { id: "3cm-smooth-black", label: '3cm Smooth Black', swatch: "#1a1a1a" },
+      { id: "1.5cm-smooth-black", label: "1.5cm Smooth Black", image: "1.5cm-smooth-black.jpg" },
+      { id: "2cm-smooth-black", label: "2cm Smooth Black", image: "2030-B.jpg" },
+      { id: "2.2cm-wood-grain-black", label: "2.2cm Wood Grain Black", image: "Q2238-B.jpg" },
+      { id: "3cm-smooth-black", label: "3cm Smooth Black", image: "5030-B.jpg" },
     ],
   },
   {
     heading: "White",
     intro: "Soft, contemporary, a clean surround that lets the work speak.",
     profiles: [
-      { id: "2cm-smooth-white", label: '2cm Smooth White', swatch: "#fafafa" },
-      { id: "2.2cm-wood-grain-white", label: '2.2cm Wood Grain White', swatch: "linear-gradient(135deg, #f7f4ee 0%, #efe9dd 100%)" },
-      { id: "3cm-smooth-white", label: '3cm Smooth White', swatch: "#fafafa" },
+      { id: "1.5cm-smooth-white", label: "1.5cm Smooth White", image: "1.5cm-smooth-white.jpg" },
+      { id: "2cm-smooth-white", label: "2cm Smooth White", image: "2030-W.jpg" },
+      { id: "2.2cm-wood-grain-white", label: "2.2cm Wood Grain White", image: "Q2238-W.jpg" },
+      { id: "3cm-smooth-white", label: "3cm Smooth White", image: "5030-W.jpg" },
     ],
   },
   {
     heading: "Wood",
     intro: "Natural-finish profiles for warmer, lived-in spaces.",
     profiles: [
-      { id: "natural-pine", label: '2.2cm Natural Pine', swatch: "linear-gradient(135deg, #d8b888 0%, #b89067 100%)" },
-      { id: "raw-oak", label: '2cm Raw Oak', swatch: "linear-gradient(135deg, #c8a97a 0%, #94724a 100%)" },
-      { id: "raw-oak-deep", label: '2cm Raw Oak, 3.5cm depth', swatch: "linear-gradient(135deg, #c8a97a 0%, #7a5b39 100%)" },
+      { id: "natural-pine", label: "2.2cm Natural Pine", image: "Q2238-NW.jpg" },
+      { id: "raw-oak", label: "2cm Raw Oak", image: "KF238-STE.jpg" },
+      { id: "raw-oak-deep", label: "2cm Raw Oak, 3.5cm depth", image: "K332-STE.jpg" },
     ],
   },
   {
     heading: "Metallic",
     intro: "For classical work, certificates, and pieces that earn a more formal surround.",
     profiles: [
-      { id: "classic-gold", label: '2.5cm Classic Gold', swatch: "linear-gradient(135deg, #f0d693 0%, #b89441 100%)" },
-      { id: "classic-silver", label: '2.5cm Classic Silver', swatch: "linear-gradient(135deg, #e6e6e6 0%, #a9a9a9 100%)" },
-      { id: "metallic-silver", label: '2cm Metallic Silver', swatch: "linear-gradient(135deg, #f4f4f4 0%, #b8b8b8 100%)" },
-      { id: "black-gold-inlet", label: '2cm Black, Gold Inlet', swatch: "linear-gradient(90deg, #1a1a1a 0%, #1a1a1a 60%, #c89a3e 60%, #c89a3e 70%, #1a1a1a 70%, #1a1a1a 100%)" },
+      { id: "classic-gold", label: "2.5cm Classic Gold", image: "2628-G.jpg" },
+      { id: "classic-silver", label: "2.5cm Classic Silver", image: "2828-S.jpg" },
+      { id: "metallic-silver", label: "2cm Metallic Silver", image: "KF238-S-1.jpg" },
+      { id: "black-gold-inlet", label: "2cm Black, Gold Inlet", image: "120-BL-G.jpg" },
     ],
   },
 ];
@@ -251,11 +254,25 @@ const faqs = [
             <ul class="md:col-span-9 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {group.profiles.map((p) => (
                 <li class="frame-tile">
-                  <span
+                  <img
                     class="frame-tile__swatch"
-                    style={`background: ${p.swatch};`}
-                    aria-hidden="true"
-                  ></span>
+                    src={`/photos/picture-frames/${p.image}`}
+                    alt=""
+                    loading="lazy"
+                  />
+                  <button
+                    type="button"
+                    class="frame-tile__zoom"
+                    data-frame-zoom
+                    data-frame-image={`/photos/picture-frames/${p.image}`}
+                    data-frame-name={p.label}
+                    aria-label={`View ${p.label} larger`}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.6"/>
+                      <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                  </button>
                   <span class="frame-tile__label">{p.label}</span>
                 </li>
               ))}
@@ -309,10 +326,12 @@ const faqs = [
 
   <ReviewSection />
   <DarkCTA />
+  <FrameLightbox />
 </BaseLayout>
 
 <style>
   .frame-tile {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -328,7 +347,42 @@ const faqs = [
     width: 100%;
     border-radius: 8px;
     border: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    object-fit: cover;
+    object-position: center 28%;
+    background: #f4efe7;
+  }
+  .frame-tile__zoom {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 28px;
+    height: 28px;
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+    color: var(--color-petrol);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1;
+    opacity: 0.85;
+    transition: opacity 150ms ease-out, background 150ms ease-out, transform 120ms ease-out;
+  }
+  .frame-tile:hover .frame-tile__zoom,
+  .frame-tile__zoom:hover,
+  .frame-tile__zoom:focus-visible {
+    opacity: 1;
+    background: #fff;
+  }
+  .frame-tile__zoom:hover {
+    transform: scale(1.06);
+  }
+  .frame-tile__zoom:focus-visible {
+    outline: 2px solid var(--color-petrol);
+    outline-offset: 2px;
   }
   .frame-tile__label {
     font-family: var(--font-sans);

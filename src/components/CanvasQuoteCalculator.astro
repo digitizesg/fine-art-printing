@@ -5,7 +5,7 @@ import {
   formatSGD,
 } from "../data/pricing/canvas";
 import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
-import FloatFrameLightbox from "./FloatFrameLightbox.astro";
+import FrameLightbox from "./FrameLightbox.astro";
 import "../styles/canvas-quote.css";
 
 const featured = CANVASES.filter((c) => c.featured);
@@ -208,7 +208,7 @@ const featured = CANVASES.filter((c) => c.featured);
   </div>
 </form>
 
-<FloatFrameLightbox />
+<FrameLightbox />
 
 <style is:global>
   /* Canvas cards (mirror paper-card) — print-on-canvas only */
