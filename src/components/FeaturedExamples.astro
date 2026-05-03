@@ -1,6 +1,7 @@
 ---
 import {
   featuredFor,
+  detailLabelFor,
   SERVICE_LABELS,
   type Service,
 } from "../lib/frame-examples";
@@ -23,8 +24,6 @@ const {
 } = Astro.props;
 
 const examples = await featuredFor(service, limit);
-const labelFor = (id: string | null | undefined) =>
-  id ? id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
 ---
 {examples.length > 0 && (
   <section class="featured-examples border-t border-border-soft bg-white">
@@ -41,7 +40,7 @@ const labelFor = (id: string | null | undefined) =>
 
       <ul class="featured-examples__grid">
         {examples.map((ex) => {
-          const detail = labelFor(ex.pictureFrameId ?? ex.canvasId);
+          const detail = detailLabelFor(ex);
           const lightboxName = detail
             ? `${SERVICE_LABELS[ex.service]} · ${detail}`
             : SERVICE_LABELS[ex.service];

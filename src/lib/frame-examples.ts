@@ -6,6 +6,9 @@
  * supabase client but with the user's session for write access.
  */
 import { supabasePublic, frameExampleUrl } from "./supabase";
+import { PICTURE_FRAMES } from "../data/picture-frames";
+import { CANVASES, FLOAT_FRAME_COLOURS } from "../data/pricing/canvas";
+import { PAPERS } from "../data/pricing/paper";
 
 export type Service =
   | "custom-framing"
@@ -47,6 +50,7 @@ export interface FrameExample {
   floatFrameId: string | null;
   stretchingDepth: "1in" | "1.5in" | null;
   canvasId: string | null;
+  paperId: string | null;
   displayOrder: number;
 }
 
@@ -60,6 +64,7 @@ interface DbRow {
   float_frame_id: string | null;
   stretching_depth: "1in" | "1.5in" | null;
   canvas_id: string | null;
+  paper_id: string | null;
   image_path: string;
   display_order: number;
 }
@@ -77,6 +82,7 @@ function rowToExample(row: DbRow): FrameExample {
     floatFrameId: row.float_frame_id,
     stretchingDepth: row.stretching_depth,
     canvasId: row.canvas_id,
+    paperId: row.paper_id,
     displayOrder: row.display_order,
   };
 }
@@ -91,6 +97,43 @@ export async function listExamples(): Promise<FrameExample[]> {
     return [];
   }
   return (data as DbRow[]).map(rowToExample);
+}
+
+/**
+ * Pick the most relevant detail string for an example. Resolves the IDs
+ * stored on the row to the canonical user-facing labels (so e.g.
+ * "natural-brown-oak" becomes "Natural Brown Oak", from the float-frame
+ * catalog rather than a slug-titlecase guess).
+ *
+ * - custom-framing → picture frame name
+ * - canvas-stretching → float frame name (the canvas is the customer's;
+ *   what we did was stretch + frame it)
+ * - canvas-printing → canvas substrate name; falls back to float frame
+ */
+export function detailLabelFor(ex: FrameExample): string {
+  if (ex.service === "custom-framing") {
+    const paper = ex.paperId
+      ? PAPERS.find((p) => p.id === ex.paperId)?.shortName
+      : undefined;
+    const frame = ex.pictureFrameId
+      ? PICTURE_FRAMES.find((p) => p.id === ex.pictureFrameId)?.label
+      : undefined;
+    return [paper, frame].filter(Boolean).join(" · ");
+  }
+  if (ex.service === "canvas-stretching" && ex.floatFrameId) {
+    const f = FLOAT_FRAME_COLOURS.find((f) => f.id === ex.floatFrameId);
+    if (f) return f.label;
+  }
+  if (ex.service === "canvas-printing") {
+    const canvas = ex.canvasId
+      ? CANVASES.find((c) => c.id === ex.canvasId)?.shortName
+      : undefined;
+    const float = ex.floatFrameId
+      ? FLOAT_FRAME_COLOURS.find((f) => f.id === ex.floatFrameId)?.label
+      : undefined;
+    return [canvas, float].filter(Boolean).join(" · ");
+  }
+  return "";
 }
 
 export async function featuredFor(

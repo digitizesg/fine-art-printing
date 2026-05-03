@@ -7,13 +7,20 @@ import DarkCTA from "../components/DarkCTA.astro";
 import FrameLightbox from "../components/FrameLightbox.astro";
 import {
   listExamples,
+  detailLabelFor,
   SERVICE_LABELS,
   SUBJECT_LABELS,
   type Service,
   type Subject,
 } from "../lib/frame-examples";
+import { PAPERS } from "../data/pricing/paper";
 
 const examples = await listExamples();
+// Only show paper chips for papers that actually appear on at least one example.
+const paperIdsInUse = new Set(
+  examples.map((e) => e.paperId).filter(Boolean) as string[],
+);
+const papersInUse = PAPERS.filter((p) => paperIdsInUse.has(p.id));
 
 const description =
   "A growing gallery of finished work — custom framing, canvas printing, and canvas stretching. Filter by service or subject to find an example close to what you have in mind.";
@@ -72,6 +79,17 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
             </button>
           ))}
         </div>
+        {papersInUse.length > 0 && (
+          <div class="gallery-filters__row">
+            <span class="gallery-filters__label">Paper</span>
+            <button type="button" class="gallery-filter-chip is-active" data-filter="paper" data-value="all">All</button>
+            {papersInUse.map((p) => (
+              <button type="button" class="gallery-filter-chip" data-filter="paper" data-value={p.id}>
+                {p.shortName}
+              </button>
+            ))}
+          </div>
+        )}
         <div class="gallery-filters__row gallery-filters__row--meta">
           <span class="gallery-filters__count" data-gallery-count>
             Showing {examples.length} of {examples.length}
@@ -82,13 +100,7 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
 
       <div class="gallery-grid mt-10" data-gallery-grid>
         {examples.map((ex) => {
-          const detailLabel = ex.pictureFrameId
-            ? ex.pictureFrameId
-                .replace(/-/g, " ")
-                .replace(/\b\w/g, (c) => c.toUpperCase())
-            : ex.canvasId
-              ? ex.canvasId.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-              : "";
+          const detailLabel = detailLabelFor(ex);
           const lightboxName = detailLabel
             ? `${SERVICE_LABELS[ex.service]} · ${detailLabel}`
             : SERVICE_LABELS[ex.service];
@@ -97,6 +109,7 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
               class="gallery-tile"
               data-service={ex.service}
               data-subject={ex.subject}
+              data-paper={ex.paperId ?? ""}
               data-frame-zoom
               data-frame-image={ex.imageUrl}
               data-frame-name={lightboxName}
@@ -293,16 +306,18 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
     const state = {
       service: "all",
       subject: "all",
+      paper: "all",
     };
 
     function matches(tile: HTMLElement): boolean {
       if (state.service !== "all" && tile.dataset.service !== state.service) return false;
       if (state.subject !== "all" && tile.dataset.subject !== state.subject) return false;
+      if (state.paper !== "all" && tile.dataset.paper !== state.paper) return false;
       return true;
     }
 
     function isFiltering(): boolean {
-      return state.service !== "all" || state.subject !== "all";
+      return state.service !== "all" || state.subject !== "all" || state.paper !== "all";
     }
 
     function apply() {
@@ -321,7 +336,7 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
 
     filtersRoot.querySelectorAll<HTMLButtonElement>("[data-filter]").forEach((chip) => {
       chip.addEventListener("click", () => {
-        const filter = chip.dataset.filter as "service" | "subject";
+        const filter = chip.dataset.filter as "service" | "subject" | "paper";
         const value = chip.dataset.value!;
         state[filter] = value;
         // Toggle active across this filter group
@@ -336,6 +351,7 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
       clearBtn.addEventListener("click", () => {
         state.service = "all";
         state.subject = "all";
+        state.paper = "all";
         filtersRoot
           .querySelectorAll<HTMLButtonElement>(".gallery-filter-chip")
           .forEach((c) => {

@@ -50,6 +50,7 @@ export const POST: APIRoute = async (ctx) => {
     float_frame_id: (form.get("float_frame_id") as string)?.trim() || null,
     stretching_depth: (form.get("stretching_depth") as string)?.trim() || null,
     canvas_id: (form.get("canvas_id") as string)?.trim() || null,
+    paper_id: (form.get("paper_id") as string)?.trim() || null,
     image_path: imagePath,
   };
 

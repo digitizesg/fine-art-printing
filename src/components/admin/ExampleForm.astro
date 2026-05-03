@@ -7,6 +7,7 @@ import {
 } from "../../lib/frame-examples";
 import { PICTURE_FRAME_GROUPS } from "../../data/picture-frames";
 import { CANVASES, FLOAT_FRAME_COLOURS } from "../../data/pricing/canvas";
+import { PAPERS } from "../../data/pricing/paper";
 
 interface Props {
   mode: "new" | "edit";
@@ -22,6 +23,7 @@ interface Props {
     float_frame_id: string | null;
     stretching_depth: "1in" | "1.5in" | null;
     canvas_id: string | null;
+    paper_id: string | null;
   };
   error?: string;
   message?: string;
@@ -69,7 +71,7 @@ const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.
     <input type="text" name="caption" value={example?.caption ?? ""} maxlength="140" />
   </label>
 
-  <div data-only="custom-framing">
+  <div class="admin-form__row" data-only="custom-framing">
     <label>
       <span>Picture frame</span>
       <select name="picture_frame_id">
@@ -80,6 +82,15 @@ const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.
               <option value={p.id} selected={example?.picture_frame_id === p.id}>{p.label}</option>
             ))}
           </optgroup>
+        ))}
+      </select>
+    </label>
+    <label>
+      <span>Paper (if a paper print)</span>
+      <select name="paper_id">
+        <option value="" selected={!example?.paper_id}>—</option>
+        {PAPERS.map((p) => (
+          <option value={p.id} selected={example?.paper_id === p.id}>{p.brand} {p.shortName}</option>
         ))}
       </select>
     </label>

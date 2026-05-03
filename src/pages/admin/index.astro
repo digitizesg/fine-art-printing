@@ -3,6 +3,7 @@ export const prerender = false;
 import AdminLayout from "../../layouts/AdminLayout.astro";
 import { createSupabaseServerClient } from "../../lib/supabase-server";
 import {
+  detailLabelFor,
   SERVICE_LABELS,
   SUBJECT_LABELS,
   type Service,
@@ -35,8 +36,24 @@ const pendingCount = stateRow?.pending_count ?? 0;
 
 const publishStatus = url.searchParams.get("publish");
 
-const labelFor = (id: string | null) =>
-  id ? id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
+// Resolve a DB row to its detail label using the same logic the marketing
+// site uses (so admin sees what customers see).
+function detailFor(row: any): string {
+  return detailLabelFor({
+    id: row.id,
+    imagePath: row.image_path,
+    imageUrl: "",
+    service: row.service,
+    subject: row.subject,
+    caption: row.caption,
+    featured: row.featured,
+    pictureFrameId: row.picture_frame_id,
+    floatFrameId: row.float_frame_id,
+    stretchingDepth: row.stretching_depth,
+    canvasId: row.canvas_id,
+    displayOrder: row.display_order,
+  });
+}
 
 function buildLink(params: Record<string, string | null>) {
   const u = new URL(url);
