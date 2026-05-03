@@ -24,6 +24,20 @@ if (filterFeatured) query = query.eq("featured", true);
 
 const { data: rows, error } = await query;
 
+// Pending-changes count: rows with updated_at after the last publish.
+const { data: stateRow } = await supabase
+  .from("publish_state")
+  .select("last_published_at")
+  .eq("id", 1)
+  .single();
+const lastPublishedAt = stateRow?.last_published_at ?? "1970-01-01";
+const { count: pendingCount } = await supabase
+  .from("frame_examples")
+  .select("id", { count: "exact", head: true })
+  .gt("updated_at", lastPublishedAt);
+
+const publishStatus = url.searchParams.get("publish");
+
 const labelFor = (id: string | null) =>
   id ? id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
 
@@ -43,6 +57,39 @@ function buildLink(params: Record<string, string | null>) {
       <p>{rows?.length ?? 0} examples shown · drag-and-drop ordering coming later</p>
     </div>
     <a href="/admin/examples/new" class="admin-btn">+ New example</a>
+  </div>
+
+  {publishStatus === "ok" && (
+    <p class="admin-note admin-note--ok">
+      Publish queued. The marketing site will rebuild within ~60 seconds.
+    </p>
+  )}
+  {publishStatus === "error" && (
+    <p class="admin-note admin-note--err">
+      Couldn't trigger the publish. {url.searchParams.get("reason") ?? ""}
+    </p>
+  )}
+
+  <div class="admin-publish">
+    <div class="admin-publish__copy">
+      {pendingCount && pendingCount > 0 ? (
+        <>
+          <strong>{pendingCount} change{pendingCount === 1 ? "" : "s"}</strong>{" "}
+          pending publish — click to push to the live site.
+        </>
+      ) : (
+        <span>No changes pending. Live site is up to date.</span>
+      )}
+    </div>
+    <form method="POST" action="/admin/publish">
+      <button
+        type="submit"
+        class:list={["admin-btn", !pendingCount && "admin-btn--ghost"]}
+        disabled={!pendingCount || pendingCount === 0}
+      >
+        Publish to live site
+      </button>
+    </form>
   </div>
 
   <div class="admin-filters">
