@@ -30,10 +30,13 @@ export const POST: APIRoute = async (ctx) => {
     return ctx.redirect("/admin?publish=error&reason=hook_failed");
   }
 
-  // Update the last-published timestamp so the pending counter resets.
+  // Reset pending counter and bump last_published_at.
   const { error } = await supabase
     .from("publish_state")
-    .update({ last_published_at: new Date().toISOString() })
+    .update({
+      last_published_at: new Date().toISOString(),
+      pending_count: 0,
+    })
     .eq("id", 1);
 
   if (error) {

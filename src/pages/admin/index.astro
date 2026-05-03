@@ -24,17 +24,14 @@ if (filterFeatured) query = query.eq("featured", true);
 
 const { data: rows, error } = await query;
 
-// Pending-changes count: rows with updated_at after the last publish.
+// Pending-changes counter — bumped by a trigger on frame_examples for any
+// insert/update/delete. Reset to 0 on publish.
 const { data: stateRow } = await supabase
   .from("publish_state")
-  .select("last_published_at")
+  .select("pending_count")
   .eq("id", 1)
   .single();
-const lastPublishedAt = stateRow?.last_published_at ?? "1970-01-01";
-const { count: pendingCount } = await supabase
-  .from("frame_examples")
-  .select("id", { count: "exact", head: true })
-  .gt("updated_at", lastPublishedAt);
+const pendingCount = stateRow?.pending_count ?? 0;
 
 const publishStatus = url.searchParams.get("publish");
 
