@@ -5,6 +5,7 @@ import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
 import CanvasStretchingCalculator from "../components/CanvasStretchingCalculator.astro";
 import ReviewSection from "../components/ReviewSection.astro";
+import FeaturedExamples from "../components/FeaturedExamples.astro";
 import Stars from "../components/Stars.astro";
 import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
 import { business } from "../data/business";
@@ -230,6 +231,12 @@ const faqs = [
       </div>
     </div>
   </section>
+
+  <FeaturedExamples
+    service="canvas-stretching"
+    eyebrow="Recent work"
+    heading="Canvases we've stretched."
+  />
 
   <ReviewSection />
   <DarkCTA />

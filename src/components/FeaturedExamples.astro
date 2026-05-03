@@ -1,0 +1,159 @@
+---
+import {
+  featuredFor,
+  SERVICE_LABELS,
+  type Service,
+} from "../data/frame-examples";
+
+interface Props {
+  service: Service;
+  /** Override the section heading. */
+  heading?: string;
+  /** Override the section eyebrow. */
+  eyebrow?: string;
+  /** Max number of examples to surface. */
+  limit?: number;
+}
+
+const {
+  service,
+  heading = "See it in our work",
+  eyebrow = "Examples",
+  limit = 6,
+} = Astro.props;
+
+const examples = featuredFor(service, limit);
+const labelFor = (id: string | undefined) =>
+  id ? id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
+---
+{examples.length > 0 && (
+  <section class="featured-examples border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+      <div class="featured-examples__head">
+        <div>
+          <p class="featured-examples__eyebrow">{eyebrow}</p>
+          <h2 class="featured-examples__heading">{heading}</h2>
+        </div>
+        <a href="/gallery" class="featured-examples__link">
+          See all in the gallery <span aria-hidden="true">→</span>
+        </a>
+      </div>
+
+      <ul class="featured-examples__grid">
+        {examples.map((ex) => {
+          const detail = labelFor(ex.pictureFrameId ?? ex.canvasId);
+          const lightboxName = detail
+            ? `${SERVICE_LABELS[ex.service]} · ${detail}`
+            : SERVICE_LABELS[ex.service];
+          return (
+            <li
+              class="featured-examples__tile"
+              data-frame-zoom
+              data-frame-image={`/photos/frame-examples/${ex.image}`}
+              data-frame-name={lightboxName}
+            >
+              <img
+                src={`/photos/frame-examples/${ex.image}`}
+                alt={ex.caption ?? lightboxName}
+                loading="lazy"
+              />
+              {detail && (
+                <span class="featured-examples__caption">{detail}</span>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+)}
+
+<style>
+  .featured-examples__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .featured-examples__eyebrow {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-petrol);
+  }
+  .featured-examples__heading {
+    margin: 4px 0 0;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: clamp(1.5rem, 3vw, 1.875rem);
+    color: var(--color-ink);
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+  }
+  .featured-examples__link {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-petrol);
+    text-decoration: none;
+  }
+  .featured-examples__link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .featured-examples__grid {
+    list-style: none;
+    margin: 32px 0 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  @media (min-width: 600px) {
+    .featured-examples__grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+  }
+  @media (min-width: 900px) {
+    .featured-examples__grid {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+
+  .featured-examples__tile {
+    position: relative;
+    cursor: pointer;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    background: #fff;
+    transition: transform 150ms ease-out, box-shadow 150ms ease-out, border-color 150ms ease-out;
+  }
+  .featured-examples__tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -16px rgba(0, 0, 0, 0.20);
+    border-color: rgba(0, 0, 0, 0.18);
+  }
+  .featured-examples__tile img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    background: #f4efe7;
+  }
+  .featured-examples__caption {
+    position: absolute;
+    inset: auto 0 0 0;
+    padding: 22px 12px 10px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent);
+    color: #fff;
+    font-family: var(--font-serif);
+    font-size: 12.5px;
+    line-height: 1.25;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+  }
+</style>

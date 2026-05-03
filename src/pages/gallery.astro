@@ -1,0 +1,347 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+import DisplayHeading from "../components/DisplayHeading.astro";
+import DarkCTA from "../components/DarkCTA.astro";
+import FrameLightbox from "../components/FrameLightbox.astro";
+import {
+  FRAME_EXAMPLES,
+  SERVICE_LABELS,
+  SUBJECT_LABELS,
+  type Service,
+  type Subject,
+} from "../data/frame-examples";
+
+const description =
+  "A growing gallery of finished work — custom framing, canvas printing, and canvas stretching. Filter by service or subject to find an example close to what you have in mind.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Gallery",
+  url: "https://fineartprinting.com.sg/gallery",
+};
+
+const services = Object.keys(SERVICE_LABELS) as Service[];
+const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
+---
+<BaseLayout
+  title="Gallery · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-8 md:pt-20 md:pb-12">
+      <div class="max-w-[820px]">
+        <Eyebrow>Gallery</Eyebrow>
+        <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
+          Examples of our work.
+        </h1>
+        <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+          A growing collection of finished pieces from the studio. Use the
+          filters to narrow by service or subject. Tap any example to view
+          larger.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filters + grid -->
+  <section class="border-t border-border-soft bg-[#FAF7F1]">
+    <div class="mx-auto max-w-[1180px] px-6 py-12 md:py-16">
+      <div class="gallery-filters" data-gallery-filters>
+        <div class="gallery-filters__row">
+          <span class="gallery-filters__label">Service</span>
+          <button type="button" class="gallery-filter-chip is-active" data-filter="service" data-value="all">All</button>
+          {services.map((s) => (
+            <button type="button" class="gallery-filter-chip" data-filter="service" data-value={s}>
+              {SERVICE_LABELS[s]}
+            </button>
+          ))}
+        </div>
+        <div class="gallery-filters__row">
+          <span class="gallery-filters__label">Subject</span>
+          <button type="button" class="gallery-filter-chip is-active" data-filter="subject" data-value="all">All</button>
+          {subjects.map((s) => (
+            <button type="button" class="gallery-filter-chip" data-filter="subject" data-value={s}>
+              {SUBJECT_LABELS[s]}
+            </button>
+          ))}
+        </div>
+        <div class="gallery-filters__row gallery-filters__row--meta">
+          <span class="gallery-filters__count" data-gallery-count>
+            Showing {FRAME_EXAMPLES.length} of {FRAME_EXAMPLES.length}
+          </span>
+          <button type="button" class="gallery-filter-clear" data-gallery-clear hidden>Clear</button>
+        </div>
+      </div>
+
+      <div class="gallery-grid mt-10" data-gallery-grid>
+        {FRAME_EXAMPLES.map((ex) => {
+          const detailLabel = ex.pictureFrameId
+            ? ex.pictureFrameId
+                .replace(/-/g, " ")
+                .replace(/\b\w/g, (c) => c.toUpperCase())
+            : ex.canvasId
+              ? ex.canvasId.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+              : "";
+          const lightboxName = detailLabel
+            ? `${SERVICE_LABELS[ex.service]} · ${detailLabel}`
+            : SERVICE_LABELS[ex.service];
+          return (
+            <article
+              class="gallery-tile"
+              data-service={ex.service}
+              data-subject={ex.subject}
+              data-frame-zoom
+              data-frame-image={`/photos/frame-examples/${ex.image}`}
+              data-frame-name={lightboxName}
+            >
+              <img
+                class="gallery-tile__photo"
+                src={`/photos/frame-examples/${ex.image}`}
+                alt={ex.caption ?? lightboxName}
+                loading="lazy"
+              />
+              <div class="gallery-tile__meta">
+                <span class="gallery-tile__service">{SERVICE_LABELS[ex.service]}</span>
+                {detailLabel && (
+                  <span class="gallery-tile__detail">{detailLabel}</span>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      <p class="gallery-empty" data-gallery-empty hidden>
+        No examples match the current filters. Try a different combination, or
+        clear the filters.
+      </p>
+    </div>
+  </section>
+
+  <DarkCTA />
+  <FrameLightbox />
+</BaseLayout>
+
+<style is:global>
+  .gallery-filters {
+    display: grid;
+    gap: 12px;
+    padding: 18px 20px;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 14px;
+    background: #fff;
+  }
+  .gallery-filters__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .gallery-filters__row--meta {
+    margin-top: 2px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.08);
+  }
+  .gallery-filters__label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+    margin-right: 4px;
+    flex: 0 0 auto;
+    min-width: 64px;
+  }
+  .gallery-filter-chip {
+    appearance: none;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: #fff;
+    color: var(--color-ink);
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease-out, border-color 150ms ease-out, color 150ms ease-out;
+  }
+  .gallery-filter-chip:hover {
+    border-color: rgba(0, 0, 0, 0.30);
+    background: rgba(0, 0, 0, 0.02);
+  }
+  .gallery-filter-chip.is-active {
+    background: var(--color-petrol);
+    border-color: var(--color-petrol);
+    color: #fff;
+  }
+  .gallery-filters__count {
+    font-size: 13px;
+    color: var(--color-subtle);
+    margin-left: auto;
+  }
+  .gallery-filter-clear {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin-left: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-muted);
+    cursor: pointer;
+  }
+  .gallery-filter-clear:hover {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  @media (min-width: 600px) {
+    .gallery-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+  }
+  @media (min-width: 900px) {
+    .gallery-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .gallery-tile {
+    position: relative;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 12px;
+    overflow: hidden;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 150ms ease-out, transform 150ms ease-out, box-shadow 150ms ease-out;
+  }
+  .gallery-tile:hover {
+    border-color: rgba(0, 0, 0, 0.18);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px -16px rgba(0, 0, 0, 0.20);
+  }
+  .gallery-tile.is-hidden {
+    display: none;
+  }
+  .gallery-tile__photo {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background: #f4efe7;
+  }
+  .gallery-tile__meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 10px 12px 12px;
+  }
+  .gallery-tile__service {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-petrol);
+  }
+  .gallery-tile__detail {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    color: var(--color-ink);
+    line-height: 1.25;
+  }
+
+  .gallery-empty {
+    margin: 32px 0 0;
+    padding: 24px;
+    text-align: center;
+    color: var(--color-subtle);
+    font-size: 14.5px;
+    background: #fff;
+    border: 1px dashed rgba(0, 0, 0, 0.18);
+    border-radius: 12px;
+  }
+</style>
+
+<script>
+  function init() {
+    const filtersRoot = document.querySelector<HTMLElement>("[data-gallery-filters]");
+    const grid = document.querySelector<HTMLElement>("[data-gallery-grid]");
+    const empty = document.querySelector<HTMLElement>("[data-gallery-empty]");
+    const countEl = document.querySelector<HTMLElement>("[data-gallery-count]");
+    const clearBtn = document.querySelector<HTMLButtonElement>("[data-gallery-clear]");
+    if (!filtersRoot || !grid || !empty) return;
+
+    const tiles = Array.from(
+      grid.querySelectorAll<HTMLElement>(".gallery-tile"),
+    );
+
+    const state = {
+      service: "all",
+      subject: "all",
+    };
+
+    function matches(tile: HTMLElement): boolean {
+      if (state.service !== "all" && tile.dataset.service !== state.service) return false;
+      if (state.subject !== "all" && tile.dataset.subject !== state.subject) return false;
+      return true;
+    }
+
+    function isFiltering(): boolean {
+      return state.service !== "all" || state.subject !== "all";
+    }
+
+    function apply() {
+      let visible = 0;
+      tiles.forEach((tile) => {
+        const ok = matches(tile);
+        tile.classList.toggle("is-hidden", !ok);
+        if (ok) visible++;
+      });
+      if (countEl) {
+        countEl.textContent = `Showing ${visible} of ${tiles.length}`;
+      }
+      empty.hidden = visible !== 0;
+      if (clearBtn) clearBtn.hidden = !isFiltering();
+    }
+
+    filtersRoot.querySelectorAll<HTMLButtonElement>("[data-filter]").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const filter = chip.dataset.filter as "service" | "subject";
+        const value = chip.dataset.value!;
+        state[filter] = value;
+        // Toggle active across this filter group
+        filtersRoot
+          .querySelectorAll<HTMLButtonElement>(`[data-filter="${filter}"]`)
+          .forEach((c) => c.classList.toggle("is-active", c === chip));
+        apply();
+      });
+    });
+
+    if (clearBtn) {
+      clearBtn.addEventListener("click", () => {
+        state.service = "all";
+        state.subject = "all";
+        filtersRoot
+          .querySelectorAll<HTMLButtonElement>(".gallery-filter-chip")
+          .forEach((c) => {
+            c.classList.toggle("is-active", c.dataset.value === "all");
+          });
+        apply();
+      });
+    }
+
+    apply();
+  }
+
+  if (document.readyState !== "loading") init();
+  else document.addEventListener("DOMContentLoaded", init);
+</script>

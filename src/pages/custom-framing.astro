@@ -5,6 +5,7 @@ import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
 import ReviewSection from "../components/ReviewSection.astro";
 import FrameLightbox from "../components/FrameLightbox.astro";
+import FeaturedExamples from "../components/FeaturedExamples.astro";
 import Stars from "../components/Stars.astro";
 import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
 import { business } from "../data/business";
@@ -70,7 +71,7 @@ const profileGroups: { heading: string; intro: string; profiles: FrameProfile[] 
     intro: "For classical work, certificates, and pieces that earn a more formal surround.",
     profiles: [
       { id: "classic-gold", label: "2.5cm Classic Gold", image: "2628-G.jpg" },
-      { id: "classic-silver", label: "2.5cm Classic Silver", image: "2828-S.jpg" },
+      { id: "classic-champagne", label: "2.5cm Classic Champagne", image: "2828-S.jpg" },
       { id: "metallic-silver", label: "2cm Metallic Silver", image: "KF238-S-1.jpg" },
       { id: "black-gold-inlet", label: "2cm Black, Gold Inlet", image: "120-BL-G.jpg" },
     ],
@@ -323,6 +324,12 @@ const faqs = [
       </div>
     </div>
   </section>
+
+  <FeaturedExamples
+    service="custom-framing"
+    eyebrow="Recent work"
+    heading="Pieces we've framed."
+  />
 
   <ReviewSection />
   <DarkCTA />
