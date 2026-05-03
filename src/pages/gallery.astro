@@ -199,34 +199,38 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
     text-underline-offset: 3px;
   }
 
+  /* Masonry-style layout — each tile takes its image's natural aspect so
+     landscape, portrait, and square photos all show edge-to-edge. */
   .gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
+    column-count: 2;
+    column-gap: 12px;
   }
   @media (min-width: 600px) {
     .gallery-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 16px;
+      column-count: 3;
+      column-gap: 16px;
     }
   }
   @media (min-width: 900px) {
     .gallery-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      column-count: 4;
     }
   }
   .gallery-tile {
     position: relative;
+    display: block;
+    width: 100%;
+    margin: 0 0 16px;
+    break-inside: avoid;
     border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
     border-radius: 12px;
     overflow: hidden;
     background: #fff;
     cursor: pointer;
-    transition: border-color 150ms ease-out, transform 150ms ease-out, box-shadow 150ms ease-out;
+    transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
   }
   .gallery-tile:hover {
     border-color: rgba(0, 0, 0, 0.18);
-    transform: translateY(-2px);
     box-shadow: 0 12px 28px -16px rgba(0, 0, 0, 0.20);
   }
   .gallery-tile.is-hidden {
@@ -235,8 +239,7 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
   .gallery-tile__photo {
     display: block;
     width: 100%;
-    aspect-ratio: 3 / 2;
-    object-fit: contain;
+    height: auto;
     background: #f4efe7;
   }
   .gallery-tile__meta {
