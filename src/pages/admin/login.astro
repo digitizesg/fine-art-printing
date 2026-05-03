@@ -5,32 +5,24 @@ import { createSupabaseServerClient } from "../../lib/supabase-server";
 const url = Astro.url;
 const next = url.searchParams.get("next") ?? "/admin";
 
-let status: "idle" | "sent" | "error" = "idle";
-let message = "";
+let error = "";
 
 if (Astro.request.method === "POST") {
   const form = await Astro.request.formData();
   const email = String(form.get("email") ?? "").trim().toLowerCase();
-  if (!email) {
-    status = "error";
-    message = "Enter your email.";
+  const password = String(form.get("password") ?? "");
+  if (!email || !password) {
+    error = "Enter both email and password.";
   } else {
     const supabase = createSupabaseServerClient(Astro);
-    const redirectTo = new URL("/admin/auth/callback", url);
-    redirectTo.searchParams.set("next", next);
-    const { error } = await supabase.auth.signInWithOtp({
+    const { error: signInErr } = await supabase.auth.signInWithPassword({
       email,
-      options: {
-        emailRedirectTo: redirectTo.toString(),
-        shouldCreateUser: false,
-      },
+      password,
     });
-    if (error) {
-      status = "error";
-      message = error.message;
+    if (signInErr) {
+      error = signInErr.message;
     } else {
-      status = "sent";
-      message = `If ${email} is on the allowlist, a sign-in link is on its way. Check your inbox.`;
+      return Astro.redirect(next);
     }
   }
 }
@@ -59,15 +51,22 @@ if (Astro.request.method === "POST") {
             autofocus
           />
         </label>
-        <button type="submit">Send magic link</button>
+        <label>
+          <span>Password</span>
+          <input
+            type="password"
+            name="password"
+            required
+            autocomplete="current-password"
+          />
+        </label>
+        <button type="submit">Sign in</button>
       </form>
 
-      {status === "sent" && <p class="admin-note admin-note--ok">{message}</p>}
-      {status === "error" && <p class="admin-note admin-note--err">{message}</p>}
+      {error && <p class="admin-note admin-note--err">{error}</p>}
 
       <p class="admin-card__hint">
-        Sign-up is disabled. The link only works if your email is already on
-        the allowlist.
+        Sign-up is disabled. Only allowlisted accounts can sign in.
       </p>
     </main>
   </body>
