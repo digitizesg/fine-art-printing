@@ -189,6 +189,271 @@ export const FRAME_EXAMPLES: FrameExample[] = [
     pictureFrameId: "black-gold-inlet",
     subject: "photo-colour",
   },
+
+  /* --------------------------------------------------------------------------
+   * Custom framing — canvas-style mount + picture frame
+   * -------------------------------------------------------------------------- */
+  {
+    id: "canvas-black-frame-acrylic-1",
+    image: "canvas-black-frame-acrylic-1.jpg",
+    service: "custom-framing",
+    pictureFrameId: "2cm-smooth-black",
+    subject: "illustration",
+    caption: "Tiger illustration, black frame with mat",
+    featured: true,
+  },
+  {
+    id: "canvas-black-frame-black-mount",
+    image: "canvas-black-frame-black-mount.jpg",
+    service: "custom-framing",
+    pictureFrameId: "2cm-smooth-black",
+    subject: "illustration",
+    caption: "Black frame, black mat",
+  },
+
+  /* --------------------------------------------------------------------------
+   * Canvas stretching — original artworks stretched + float-framed.
+   * The _DSC* files and the Aboriginal piece (1-black-float-frame-1) are
+   * confirmed paintings; remaining numbered float-frame examples are assumed
+   * canvas-printing for now (easy to flip per file).
+   * -------------------------------------------------------------------------- */
+  {
+    id: "stretched-artwork-dsc0134",
+    image: "_DSC0134.jpg",
+    service: "canvas-stretching",
+    floatFrameId: "natural-dark-brown-oak",
+    subject: "artwork",
+    caption: "Original painting, dark oak float frame",
+    featured: true,
+  },
+  {
+    id: "stretched-artwork-dsc0135",
+    image: "_DSC0135.jpg",
+    service: "canvas-stretching",
+    floatFrameId: "natural-dark-brown-oak",
+    subject: "artwork",
+  },
+  {
+    id: "stretched-artwork-dsc0136",
+    image: "_DSC0136.jpg",
+    service: "canvas-stretching",
+    floatFrameId: "natural-dark-brown-oak",
+    subject: "artwork",
+  },
+  {
+    id: "stretched-artwork-dsc9654",
+    image: "_DSC9654.jpg",
+    service: "canvas-stretching",
+    floatFrameId: "natural-brown-oak",
+    subject: "artwork",
+    caption: "Pink orchids, light wood float frame",
+    featured: true,
+  },
+  {
+    id: "stretched-artwork-dsc9655",
+    image: "_DSC9655.jpg",
+    service: "canvas-stretching",
+    floatFrameId: "natural-brown-oak",
+    subject: "artwork",
+  },
+  {
+    id: "stretched-artwork-dsc9657",
+    image: "_DSC9657.jpg",
+    service: "canvas-stretching",
+    floatFrameId: "natural-brown-oak",
+    subject: "artwork",
+  },
+  {
+    id: "stretched-artwork-dsc9658",
+    image: "_DSC9658.jpg",
+    service: "canvas-stretching",
+    floatFrameId: "natural-brown-oak",
+    subject: "artwork",
+  },
+  {
+    id: "stretched-aboriginal-1",
+    image: "1-black-float-frame-1.jpg",
+    service: "canvas-stretching",
+    floatFrameId: "smooth-black",
+    subject: "artwork",
+    caption: "Aboriginal-style painting, black float frame",
+    featured: true,
+  },
+
+  /* --------------------------------------------------------------------------
+   * Black float frame — assumed canvas-printing for the remaining shots.
+   * -------------------------------------------------------------------------- */
+  {
+    id: "black-float-2",
+    image: "2-black-float-frame.jpg",
+    service: "canvas-printing",
+    floatFrameId: "smooth-black",
+    subject: "photo-colour",
+  },
+  {
+    id: "black-float-3",
+    image: "3-black-float-frame.jpg",
+    service: "canvas-printing",
+    floatFrameId: "smooth-black",
+    subject: "photo-colour",
+    featured: true,
+  },
+  {
+    id: "black-float-4",
+    image: "4-black-float-frame.jpg",
+    service: "canvas-printing",
+    floatFrameId: "smooth-black",
+    subject: "photo-colour",
+  },
+  {
+    id: "black-float-5",
+    image: "5-black-float-frame.jpg",
+    service: "canvas-printing",
+    floatFrameId: "smooth-black",
+    subject: "photo-colour",
+  },
+
+  /* Dark brown oak float frame */
+  {
+    id: "dark-oak-float-1",
+    image: "1-dark-brown-oak-float.jpg",
+    service: "canvas-printing",
+    floatFrameId: "natural-dark-brown-oak",
+    subject: "photo-colour",
+    featured: true,
+  },
+  {
+    id: "dark-oak-float-2",
+    image: "2-dark-brown-oak-float.jpg",
+    service: "canvas-printing",
+    floatFrameId: "natural-dark-brown-oak",
+    subject: "photo-colour",
+  },
+  {
+    id: "dark-oak-float-3",
+    image: "3-dark-brown-oak-float.jpg",
+    service: "canvas-printing",
+    floatFrameId: "natural-dark-brown-oak",
+    subject: "photo-colour",
+  },
+  {
+    id: "dark-oak-float-4",
+    image: "4-dark-brown-oak-float.jpg",
+    service: "canvas-printing",
+    floatFrameId: "natural-dark-brown-oak",
+    subject: "photo-colour",
+  },
+  {
+    id: "dark-oak-float-5",
+    image: "5-dark-brown-oak-float.jpg",
+    service: "canvas-printing",
+    floatFrameId: "natural-dark-brown-oak",
+    subject: "photo-colour",
+  },
+
+  /* Natural wood / oak float frame */
+  {
+    id: "natural-wood-float-1",
+    image: "1-natural-wood-float-1.jpg",
+    service: "canvas-printing",
+    floatFrameId: "natural-brown-oak",
+    subject: "photo-colour",
+    featured: true,
+  },
+  {
+    id: "natural-wood-float-2-polycotton",
+    image: "2-natural-wood-float-polycotton-canvas-1.jpg",
+    service: "canvas-printing",
+    canvasId: "datajet-polycotton-canvas",
+    floatFrameId: "natural-brown-oak",
+    subject: "photo-colour",
+    caption: "Polycotton canvas, light wood float frame",
+  },
+  {
+    id: "natural-oak-float-2",
+    image: "2-natural-oak-float-frame.jpg",
+    service: "canvas-printing",
+    floatFrameId: "natural-brown-oak",
+    subject: "photo-colour",
+  },
+  {
+    id: "natural-wood-float-3",
+    image: "3-natural-wood-float-1.jpg",
+    service: "canvas-printing",
+    floatFrameId: "natural-brown-oak",
+    subject: "photo-colour",
+  },
+  {
+    id: "natural-wood-float-4",
+    image: "4-natural-wood-float-1.jpg",
+    service: "canvas-printing",
+    floatFrameId: "natural-brown-oak",
+    subject: "photo-colour",
+  },
+  {
+    id: "natural-wood-float-5",
+    image: "5-natural-wood-float-1.jpg",
+    service: "canvas-printing",
+    floatFrameId: "natural-brown-oak",
+    subject: "photo-colour",
+  },
+  {
+    id: "natural-wood-float-6",
+    image: "6-natural-wood-float.jpg",
+    service: "canvas-printing",
+    floatFrameId: "natural-brown-oak",
+    subject: "photo-colour",
+  },
+  {
+    id: "natural-wood-float-7",
+    image: "7-natural-wood-float.jpg",
+    service: "canvas-printing",
+    floatFrameId: "natural-brown-oak",
+    subject: "photo-colour",
+  },
+
+  /* Silver float frame — no exact match in catalog, mapped to champagne */
+  {
+    id: "silver-float-1",
+    image: "1-silver-float-frame-1.jpg",
+    service: "canvas-printing",
+    floatFrameId: "champagne",
+    subject: "photo-colour",
+    featured: true,
+  },
+  {
+    id: "silver-float-2",
+    image: "2-silver-float-frame-1.jpg",
+    service: "canvas-printing",
+    floatFrameId: "champagne",
+    subject: "photo-colour",
+  },
+  {
+    id: "silver-float-3",
+    image: "3-silver-float-frame-1.jpg",
+    service: "canvas-printing",
+    floatFrameId: "champagne",
+    subject: "photo-colour",
+  },
+
+  /* Textured wood float frame — likely the glossy light brown pine */
+  {
+    id: "textured-wood-float-1",
+    image: "1-textured-wood-float-frame.jpg",
+    service: "canvas-printing",
+    floatFrameId: "glossy-light-brown-pine",
+    subject: "photo-colour",
+  },
+
+  /* White float frame */
+  {
+    id: "white-float-1",
+    image: "1-white-float-frame.jpg",
+    service: "canvas-printing",
+    floatFrameId: "smooth-white",
+    subject: "photo-colour",
+    featured: true,
+  },
 ];
 
 /* ----------------------------------------------------------------------------
