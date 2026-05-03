@@ -3,7 +3,7 @@ import {
   featuredFor,
   SERVICE_LABELS,
   type Service,
-} from "../data/frame-examples";
+} from "../lib/frame-examples";
 
 interface Props {
   service: Service;
@@ -22,8 +22,8 @@ const {
   limit = 6,
 } = Astro.props;
 
-const examples = featuredFor(service, limit);
-const labelFor = (id: string | undefined) =>
+const examples = await featuredFor(service, limit);
+const labelFor = (id: string | null | undefined) =>
   id ? id.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()) : "";
 ---
 {examples.length > 0 && (
@@ -49,11 +49,11 @@ const labelFor = (id: string | undefined) =>
             <li
               class="featured-examples__tile"
               data-frame-zoom
-              data-frame-image={`/photos/frame-examples/${ex.image}`}
+              data-frame-image={ex.imageUrl}
               data-frame-name={lightboxName}
             >
               <img
-                src={`/photos/frame-examples/${ex.image}`}
+                src={ex.imageUrl}
                 alt={ex.caption ?? lightboxName}
                 loading="lazy"
               />

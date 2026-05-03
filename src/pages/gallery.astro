@@ -6,12 +6,14 @@ import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
 import FrameLightbox from "../components/FrameLightbox.astro";
 import {
-  FRAME_EXAMPLES,
+  listExamples,
   SERVICE_LABELS,
   SUBJECT_LABELS,
   type Service,
   type Subject,
-} from "../data/frame-examples";
+} from "../lib/frame-examples";
+
+const examples = await listExamples();
 
 const description =
   "A growing gallery of finished work — custom framing, canvas printing, and canvas stretching. Filter by service or subject to find an example close to what you have in mind.";
@@ -72,14 +74,14 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
         </div>
         <div class="gallery-filters__row gallery-filters__row--meta">
           <span class="gallery-filters__count" data-gallery-count>
-            Showing {FRAME_EXAMPLES.length} of {FRAME_EXAMPLES.length}
+            Showing {examples.length} of {examples.length}
           </span>
           <button type="button" class="gallery-filter-clear" data-gallery-clear hidden>Clear</button>
         </div>
       </div>
 
       <div class="gallery-grid mt-10" data-gallery-grid>
-        {FRAME_EXAMPLES.map((ex) => {
+        {examples.map((ex) => {
           const detailLabel = ex.pictureFrameId
             ? ex.pictureFrameId
                 .replace(/-/g, " ")
@@ -96,12 +98,12 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
               data-service={ex.service}
               data-subject={ex.subject}
               data-frame-zoom
-              data-frame-image={`/photos/frame-examples/${ex.image}`}
+              data-frame-image={ex.imageUrl}
               data-frame-name={lightboxName}
             >
               <img
                 class="gallery-tile__photo"
-                src={`/photos/frame-examples/${ex.image}`}
+                src={ex.imageUrl}
                 alt={ex.caption ?? lightboxName}
                 loading="lazy"
               />
