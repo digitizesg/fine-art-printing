@@ -148,9 +148,14 @@ const stripeDashUrl = row.stripe_payment_intent_id
       <dl class="order-dl">
         <dt>Method</dt>
         <dd>{row.delivery_method === "local" ? "Local Singapore delivery (S$30)" : "Self-collection from studio"}</dd>
-        {row.delivery_method === "local" && (
+        {row.delivery_method === "local" ? (
           <Fragment>
             <dt>Address</dt><dd>{fmtAddress(shipping)}</dd>
+          </Fragment>
+        ) : (
+          <Fragment>
+            <dt>Pickup at</dt>
+            <dd>120 Lower Delta Road, 08-01/02 Cendex Centre, Singapore 169208</dd>
           </Fragment>
         )}
       </dl>

@@ -8,7 +8,7 @@ import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
 import { business } from "../data/business";
 
 const description =
-  "Visit our studio in Lower Delta, or reach us by WhatsApp, email, or phone. Hours, address, and directions for Fine Art Printing in Singapore.";
+  "Send us a message with reference photos for a quote, or visit our studio. Hours, address, and directions for Fine Art Printing in Singapore.";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -25,24 +25,15 @@ const jsonLd = {
 };
 
 const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'd like to ask about a print.")}`;
-const mailtoHref = `mailto:${business.contactEmail}?subject=${encodeURIComponent("Enquiry from fineartprinting.com.sg")}`;
 
 const channels = [
   {
     title: "WhatsApp",
-    desc: "Fastest, especially with a photo of the piece you want printed, stretched, or framed.",
+    desc: "Quick questions and on-the-fly photos. Often the fastest channel.",
     cta: "Open WhatsApp",
     href: waHref,
     external: true,
     accent: "wa",
-  },
-  {
-    title: "Email",
-    desc: "For files larger than a phone snap, or anything that needs back-and-forth.",
-    cta: business.contactEmail,
-    href: mailtoHref,
-    external: false,
-    accent: "default",
   },
   {
     title: "Phone",
@@ -57,6 +48,8 @@ const channels = [
 const mapsDirectionsHref = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
   `${business.address.line1}, ${business.address.line2} ${business.address.line3}, ${business.address.postcode}`,
 )}&destination_place_id=${business.placeId}`;
+
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
 ---
 <BaseLayout
   title="Contact · Fine Art Printing"
@@ -65,53 +58,102 @@ const mapsDirectionsHref = `https://www.google.com/maps/dir/?api=1&destination=$
 >
   <!-- Hero -->
   <section class="bg-white">
-    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-12 md:pt-20 md:pb-16">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-10 md:pt-20 md:pb-14">
       <div class="max-w-[820px]">
         <Eyebrow>Contact</Eyebrow>
         <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
-          Get in touch.<br />
-          Or come by the studio.
+          Send us your reference. We'll quote it.
         </h1>
         <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
-          Tell us what you're trying to print, stretch, or frame, and we'll
-          come back with a quote and a recommendation. If you can include a
-          photo of the piece (or a sample of the file), even better.
+          Tell us what you're trying to print, stretch, or frame, attach a
+          photo or two if you can, and we'll come back with a quote and a
+          recommendation, usually the same day.
         </p>
-
-        <div class="mt-8 flex flex-wrap items-center gap-3">
-          <a
-            href={waHref}
-            target="_blank"
-            rel="noopener"
-            class="inline-flex items-center gap-2 rounded-pill border border-[#1ebe5b] bg-[#25D366] px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#1ebe5b]"
-          >
-            <WhatsAppIcon size={16} />
-            <span>WhatsApp us</span>
-          </a>
-          <a
-            href={mailtoHref}
-            class="inline-flex items-center gap-2 rounded-pill bg-petrol px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
-          >
-            Email us <span aria-hidden="true">→</span>
-          </a>
-        </div>
       </div>
     </div>
   </section>
 
-  <!-- Channels -->
+  <!-- Form -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[820px] px-6 pb-20 md:pb-24">
+      <form class="contact-form" data-contact-form novalidate>
+        <div class="contact-form__row">
+          <label class="contact-form__field">
+            <span>Your name</span>
+            <input type="text" name="name" required maxlength="120" autocomplete="name" />
+          </label>
+          <label class="contact-form__field">
+            <span>Email</span>
+            <input type="email" name="email" required maxlength="254" autocomplete="email" />
+          </label>
+        </div>
+
+        <label class="contact-form__field">
+          <span>Phone <em>(optional)</em></span>
+          <input type="tel" name="phone" maxlength="40" autocomplete="tel" />
+        </label>
+
+        <label class="contact-form__field">
+          <span>What can we help with?</span>
+          <textarea name="message" required rows="6" maxlength="3000" placeholder="Size, finishing preferences, deadline — anything that helps us quote accurately."></textarea>
+        </label>
+
+        <div class="contact-form__field">
+          <span>Reference photos <em>(optional, up to 5)</em></span>
+          <label class="contact-form__dropzone" data-contact-dropzone>
+            <input type="file" name="files" accept="image/jpeg,image/png,image/heic,application/pdf" multiple data-contact-files hidden />
+            <div class="contact-form__dropzone-prompt">
+              <strong>Click to browse</strong> or drag files here
+              <span>JPG, PNG, HEIC, or PDF · 10 MB each, 5 max</span>
+            </div>
+          </label>
+          <ul class="contact-form__files" data-contact-file-list></ul>
+          <p class="contact-form__small">
+            <strong>Reference photos only.</strong> If you have a high-resolution print-ready file, mention it in your message and we'll send a secure upload link — please don't try to send it through this form.
+          </p>
+        </div>
+
+        <!-- Honeypot. Real users never see or fill this; bots usually do. -->
+        <div class="contact-form__honeypot" aria-hidden="true">
+          <label>
+            Website
+            <input type="text" name="website" tabindex="-1" autocomplete="off" />
+          </label>
+        </div>
+
+        {turnstileSiteKey && (
+          <div class="contact-form__turnstile cf-turnstile" data-sitekey={turnstileSiteKey}></div>
+        )}
+
+        <div class="contact-form__actions">
+          <button type="submit" class="contact-form__submit" data-contact-submit>
+            Send message
+          </button>
+          <p class="contact-form__hint" data-contact-hint></p>
+        </div>
+      </form>
+
+      <div class="contact-form__success" data-contact-success hidden>
+        <h2>Message sent.</h2>
+        <p>
+          Thanks. We've got it and we'll come back to you as soon as we can.
+          We aim to respond the same day during studio hours; weekends roll
+          into Monday.
+        </p>
+        <p class="contact-form__success-detail" data-contact-success-detail></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Alternative channels -->
   <section class="border-t border-border-soft bg-[#FAF7F1]">
     <div class="mx-auto max-w-[1180px] px-6 py-20 md:py-24">
       <div class="max-w-[640px]">
-        <Eyebrow>How to reach us</Eyebrow>
+        <Eyebrow>Other ways to reach us</Eyebrow>
         <DisplayHeading level={2} class="mt-3">Pick whichever's easiest.</DisplayHeading>
-        <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
-          We answer everywhere, but WhatsApp is usually fastest. Photos help
-          us quote faster.
-        </p>
       </div>
 
-      <div class="mt-12 grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div class="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2">
         {channels.map((c) => (
           <a
             href={c.href}
@@ -122,6 +164,7 @@ const mapsDirectionsHref = `https://www.google.com/maps/dir/?api=1&destination=$
             <p class="font-serif text-[18px] font-medium text-ink">{c.title}</p>
             <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">{c.desc}</p>
             <span class={`mt-5 inline-flex items-center gap-1.5 text-[14px] font-semibold ${c.accent === "wa" ? "text-[#1ebe5b]" : "text-petrol"}`}>
+              {c.cta === "Open WhatsApp" && <WhatsAppIcon size={14} />}
               {c.cta}
               <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
             </span>
@@ -161,4 +204,342 @@ const mapsDirectionsHref = `https://www.google.com/maps/dir/?api=1&destination=$
     </div>
   </section>
 
+  {turnstileSiteKey && (
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+      async
+      defer
+    ></script>
+  )}
 </BaseLayout>
+
+<style is:global>
+  .contact-form {
+    display: grid;
+    gap: 16px;
+  }
+  .contact-form__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 540px) {
+    .contact-form__row { grid-template-columns: 1fr; }
+  }
+  .contact-form__field {
+    display: grid;
+    gap: 6px;
+  }
+  .contact-form__field > span {
+    font-size: 13px;
+    color: var(--color-ink);
+    font-weight: 500;
+  }
+  .contact-form__field > span em {
+    font-style: normal;
+    color: var(--color-muted);
+    font-weight: 400;
+  }
+  .contact-form input[type="text"],
+  .contact-form input[type="email"],
+  .contact-form input[type="tel"],
+  .contact-form textarea {
+    padding: 12px 14px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    font: inherit;
+    font-size: 15px;
+    background: #fff;
+    color: var(--color-ink);
+  }
+  .contact-form input:focus,
+  .contact-form textarea:focus {
+    outline: 2px solid var(--color-petrol);
+    outline-offset: 0;
+    border-color: var(--color-petrol);
+  }
+  .contact-form textarea { resize: vertical; min-height: 120px; }
+
+  .contact-form__honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .contact-form__dropzone {
+    display: block;
+    padding: 28px 18px;
+    border: 1.5px dashed rgba(0, 0, 0, 0.20);
+    border-radius: 12px;
+    background: #FAF7F1;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 150ms, background 150ms;
+  }
+  .contact-form__dropzone:hover {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.04);
+  }
+  .contact-form__dropzone.is-dragover {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.06);
+  }
+  .contact-form__dropzone-prompt {
+    display: grid;
+    gap: 4px;
+    font-size: 13.5px;
+    color: var(--color-subtle);
+  }
+  .contact-form__dropzone-prompt strong {
+    color: var(--color-petrol);
+    font-weight: 600;
+  }
+  .contact-form__dropzone-prompt span {
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+  .contact-form__files {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 6px;
+  }
+  .contact-form__files li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--color-ink);
+  }
+  .contact-form__files li button {
+    background: none;
+    border: 0;
+    color: var(--color-muted);
+    font-size: 12px;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+  }
+  .contact-form__files li button:hover { color: var(--color-ink); }
+  .contact-form__files li.is-error {
+    border-color: rgba(180, 30, 30, 0.30);
+    background: rgba(180, 30, 30, 0.04);
+    color: #8a1414;
+  }
+
+  .contact-form__small {
+    margin: 8px 0 0;
+    font-size: 12.5px;
+    color: var(--color-subtle);
+    line-height: 1.55;
+  }
+
+  .contact-form__turnstile { margin-top: 4px; }
+
+  .contact-form__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .contact-form__submit {
+    appearance: none;
+    border: 0;
+    background: var(--color-petrol);
+    color: #fff;
+    border-radius: 999px;
+    padding: 12px 24px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 150ms ease-out;
+  }
+  .contact-form__submit:hover { background: #142a40; }
+  .contact-form__submit:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .contact-form__hint { margin: 0; font-size: 13px; color: var(--color-subtle); }
+  .contact-form__hint--err { color: #8a1414; }
+
+  .contact-form__success {
+    padding: 28px 32px;
+    border-radius: 12px;
+    background: #FAF7F1;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+  }
+  .contact-form__success h2 {
+    margin: 0 0 12px;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 22px;
+    color: var(--color-ink);
+  }
+  .contact-form__success p {
+    margin: 0 0 8px;
+    font-size: 15px;
+    color: var(--color-subtle);
+    line-height: 1.6;
+  }
+  .contact-form__success p:last-child { margin-bottom: 0; }
+  .contact-form__success-detail {
+    font-size: 13px !important;
+    color: var(--color-muted) !important;
+  }
+</style>
+
+<script>
+  const MAX_FILES = 5;
+  const MAX_BYTES = 10 * 1024 * 1024;
+  const ALLOWED = new Set(["image/jpeg", "image/png", "image/heic", "application/pdf"]);
+
+  const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
+  const fileInput = document.querySelector<HTMLInputElement>("[data-contact-files]");
+  const dropzone = document.querySelector<HTMLLabelElement>("[data-contact-dropzone]");
+  const fileList = document.querySelector<HTMLUListElement>("[data-contact-file-list]");
+  const submitBtn = document.querySelector<HTMLButtonElement>("[data-contact-submit]");
+  const hint = document.querySelector<HTMLElement>("[data-contact-hint]");
+  const success = document.querySelector<HTMLElement>("[data-contact-success]");
+  const successDetail = document.querySelector<HTMLElement>("[data-contact-success-detail]");
+
+  // We accumulate selections so users can drop files in multiple goes.
+  const selectedFiles: File[] = [];
+
+  function fmtBytes(n: number): string {
+    if (n < 1024) return `${n} B`;
+    if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
+    return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  function validateFile(f: File): string | null {
+    if (!ALLOWED.has(f.type) && !/\.(jpe?g|png|heic|pdf)$/i.test(f.name)) {
+      return "Unsupported file type";
+    }
+    if (f.size > MAX_BYTES) return "Over 10 MB";
+    return null;
+  }
+
+  function renderFiles() {
+    if (!fileList) return;
+    fileList.innerHTML = "";
+    selectedFiles.forEach((f, idx) => {
+      const li = document.createElement("li");
+      const err = validateFile(f);
+      if (err) li.classList.add("is-error");
+      const left = document.createElement("span");
+      left.textContent = err ? `${f.name} — ${err}` : `${f.name} · ${fmtBytes(f.size)}`;
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.textContent = "Remove";
+      remove.addEventListener("click", () => {
+        selectedFiles.splice(idx, 1);
+        renderFiles();
+      });
+      li.append(left, remove);
+      fileList.appendChild(li);
+    });
+  }
+
+  function addFiles(files: FileList | File[]) {
+    for (const f of Array.from(files)) {
+      if (selectedFiles.length >= MAX_FILES) {
+        if (hint) {
+          hint.textContent = `Maximum ${MAX_FILES} files. Remove one to add more.`;
+          hint.className = "contact-form__hint contact-form__hint--err";
+        }
+        break;
+      }
+      selectedFiles.push(f);
+    }
+    renderFiles();
+  }
+
+  fileInput?.addEventListener("change", () => {
+    if (fileInput.files) addFiles(fileInput.files);
+    fileInput.value = "";
+  });
+
+  dropzone?.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropzone.classList.add("is-dragover");
+  });
+  dropzone?.addEventListener("dragleave", () => dropzone.classList.remove("is-dragover"));
+  dropzone?.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropzone.classList.remove("is-dragover");
+    if (e.dataTransfer?.files) addFiles(e.dataTransfer.files);
+  });
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form || !submitBtn || !hint) return;
+
+    // Pre-flight validations
+    const fd = new FormData(form);
+    const name = String(fd.get("name") ?? "").trim();
+    const email = String(fd.get("email") ?? "").trim();
+    const message = String(fd.get("message") ?? "").trim();
+
+    if (!name) return setHint("Please tell us your name.", true);
+    if (!email || !/.+@.+\..+/.test(email)) return setHint("Please enter a valid email.", true);
+    if (!message) return setHint("Please add a message.", true);
+
+    for (const f of selectedFiles) {
+      const err = validateFile(f);
+      if (err) return setHint(`${f.name}: ${err}`, true);
+    }
+
+    // Replace the file input contents with our accumulated list, so the
+    // server receives exactly the files we've shown the user.
+    const dt = new DataTransfer();
+    for (const f of selectedFiles) dt.items.add(f);
+    if (fileInput) fileInput.files = dt.files;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending…";
+    setHint("");
+
+    try {
+      const formData = new FormData(form);
+      const res = await fetch("/api/contact", { method: "POST", body: formData });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.ok) {
+        setHint(data?.error ?? `Could not send (${res.status}). Please try again or WhatsApp us.`, true);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send message";
+        // Reset Turnstile if present so they can retry.
+        const ts = (window as any).turnstile;
+        if (ts && typeof ts.reset === "function") ts.reset();
+        return;
+      }
+
+      // Success — swap the form for the thanks panel.
+      form.hidden = true;
+      if (success) success.hidden = false;
+      if (successDetail && data.attachmentCount > 0) {
+        successDetail.textContent = `${data.attachmentCount} file${data.attachmentCount === 1 ? "" : "s"} attached.`;
+      }
+      window.scrollTo({ top: form.offsetTop - 80, behavior: "smooth" });
+    } catch (err) {
+      setHint("Network error. Please try again or WhatsApp us.", true);
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Send message";
+    }
+  });
+
+  function setHint(msg: string, isError = false) {
+    if (!hint) return;
+    hint.textContent = msg;
+    hint.className = isError
+      ? "contact-form__hint contact-form__hint--err"
+      : "contact-form__hint";
+  }
+</script>

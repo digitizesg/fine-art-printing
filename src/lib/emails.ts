@@ -71,6 +71,9 @@ function lineItemsHtml(lines: OrderEmailLine[]): string {
     .join("");
 }
 
+const STUDIO_ADDRESS_HTML =
+  "120 Lower Delta Road, 08-01/02 Cendex Centre, Singapore 169208";
+
 function shellHtml(opts: {
   heading: string;
   intro: string;
@@ -78,7 +81,10 @@ function shellHtml(opts: {
   footer: string;
 }): string {
   const { heading, intro, ctx, footer } = opts;
-  const addressLine = ctx.deliveryMethod === "local" ? formatAddress(ctx.shippingAddress) : "Self-collection from our studio";
+  const addressLine =
+    ctx.deliveryMethod === "local"
+      ? formatAddress(ctx.shippingAddress)
+      : `Self-collection from our studio · ${STUDIO_ADDRESS_HTML}`;
 
   return `<!doctype html>
 <html>

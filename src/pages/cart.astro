@@ -26,8 +26,15 @@ const catalogJson = JSON.stringify({
 <BaseLayout title="Cart · Fine Art Printing" description={description}>
   <section class="bg-white">
     <div class="mx-auto max-w-[920px] px-6 pt-10 pb-16 md:pt-14 md:pb-20">
-      <Eyebrow>Your cart</Eyebrow>
-      <h1 class="mt-3 font-serif text-[clamp(1.85rem,3.5vw,2.4rem)] font-medium leading-[1.1] text-ink">Cart</h1>
+      <div class="cart__head">
+        <div>
+          <Eyebrow>Your cart</Eyebrow>
+          <h1 class="mt-3 font-serif text-[clamp(1.85rem,3.5vw,2.4rem)] font-medium leading-[1.1] text-ink">Cart</h1>
+        </div>
+        <a href="/shop" class="cart__continue">
+          <span aria-hidden="true">←</span> Continue shopping
+        </a>
+      </div>
 
       <script type="application/json" data-cart-catalog set:html={catalogJson} />
 
@@ -43,15 +50,15 @@ const catalogJson = JSON.stringify({
             <label class="cart__delivery-opt">
               <input type="radio" name="delivery" value="self" checked />
               <span>
-                <strong>Self collection</strong>
-                <em>From our studio in Singapore. Free.</em>
+                <strong>Self collection · Free</strong>
+                <em>120 Lower Delta Road, 08-01/02 Cendex Centre, Singapore 169208. Open Mon–Fri, plus Saturday mornings — we'll confirm the pickup window once your print is ready.</em>
               </span>
             </label>
             <label class="cart__delivery-opt">
               <input type="radio" name="delivery" value="local" />
               <span>
-                <strong>Local Singapore delivery</strong>
-                <em>S$30, anywhere in Singapore.</em>
+                <strong>Local Singapore delivery · S$30</strong>
+                <em>Anywhere in Singapore. Address taken at checkout.</em>
               </span>
             </label>
           </fieldset>
@@ -85,6 +92,29 @@ const catalogJson = JSON.stringify({
 </BaseLayout>
 
 <style is:global>
+  .cart__head {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .cart__continue {
+    font-size: 13.5px;
+    color: var(--color-petrol);
+    font-weight: 600;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(26, 53, 80, 0.18);
+    background: #fff;
+    transition: background 120ms, border-color 120ms;
+  }
+  .cart__continue:hover {
+    background: rgba(26, 53, 80, 0.05);
+    border-color: var(--color-petrol);
+    text-decoration: none;
+  }
   .cart { margin-top: 28px; }
   .cart__empty {
     padding: 28px 0;
