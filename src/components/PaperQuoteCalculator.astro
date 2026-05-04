@@ -108,24 +108,6 @@ const papersJson = JSON.stringify(
   <script type="application/json" data-papers set:html={papersJson} />
 </form>
 
-<!-- Sticky summary for mobile: always-visible price + paper name so the
-     customer doesn't have to scroll back up to the output area while
-     they're tapping through paper choices. -->
-<aside class="paper-quote-sticky" data-quote-sticky hidden>
-  <div class="paper-quote-sticky__inner">
-    <div class="paper-quote-sticky__meta">
-      <span class="paper-quote-sticky__price" data-quote-sticky-price>—</span>
-      <span class="paper-quote-sticky__paper" data-quote-sticky-paper></span>
-    </div>
-    <button type="button" class="paper-quote-sticky__cta" data-quote-sticky-cta>
-      View quote
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
-        <path d="M3 5l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-    </button>
-  </div>
-</aside>
-
 <style is:global>
   .paper-quote {
     border: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
@@ -479,75 +461,6 @@ const papersJson = JSON.stringify(
     flex-basis: 100%;
     margin-top: 4px;
   }
-
-  /* Sticky mobile-only summary bar so the price stays visible while
-     the customer is scrolling through paper options. */
-  .paper-quote-sticky {
-    display: none;
-  }
-  @media (max-width: 768px) {
-    .paper-quote-sticky {
-      display: block;
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 40;
-      background: var(--color-petrol);
-      color: #fff;
-      box-shadow: 0 -8px 28px -10px rgba(0, 0, 0, 0.25);
-      padding: 10px 14px max(10px, env(safe-area-inset-bottom));
-    }
-    .paper-quote-sticky__inner {
-      max-width: 720px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .paper-quote-sticky__meta {
-      flex: 1;
-      min-width: 0;
-      display: grid;
-      gap: 1px;
-      align-items: center;
-    }
-    .paper-quote-sticky__price {
-      font-family: var(--font-serif);
-      font-size: 20px;
-      font-weight: 500;
-      line-height: 1.1;
-      font-variant-numeric: tabular-nums;
-    }
-    .paper-quote-sticky__paper {
-      font-size: 11.5px;
-      color: rgba(255, 255, 255, 0.72);
-      line-height: 1.2;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .paper-quote-sticky__cta {
-      appearance: none;
-      border: 0;
-      background: #fff;
-      color: var(--color-petrol);
-      border-radius: 999px;
-      padding: 9px 16px;
-      font-size: 13.5px;
-      font-weight: 700;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      flex-shrink: 0;
-    }
-    .paper-quote-sticky__cta svg { display: block; }
-
-    /* When the sticky bar is visible, push the page bottom-padding so
-       the calculator's "Send via contact form" button isn't hidden. */
-    .paper-quote-sticky:not([hidden]) ~ * { padding-bottom: 0; }
-  }
 </style>
 
 <script>
@@ -596,20 +509,6 @@ const papersJson = JSON.stringify(
     ].join("\n");
   }
 
-  function updateSticky(priceText: string | null, paperLabel: string | null) {
-    const sticky = document.querySelector<HTMLElement>("[data-quote-sticky]");
-    if (!sticky) return;
-    if (!priceText) {
-      sticky.hidden = true;
-      return;
-    }
-    sticky.hidden = false;
-    const priceEl = sticky.querySelector<HTMLElement>("[data-quote-sticky-price]");
-    const paperEl = sticky.querySelector<HTMLElement>("[data-quote-sticky-paper]");
-    if (priceEl) priceEl.textContent = priceText;
-    if (paperEl) paperEl.textContent = paperLabel ?? "";
-  }
-
   function render(form: HTMLFormElement) {
     const state = readForm(form);
     const widthCm = toCm(state.width, state.units);
@@ -619,7 +518,6 @@ const papersJson = JSON.stringify(
     if (!paper) {
       const output = form.querySelector<HTMLElement>("[data-quote-output]")!;
       output.innerHTML = "";
-      updateSticky(null, null);
       return;
     }
 
@@ -640,7 +538,6 @@ const papersJson = JSON.stringify(
         </div>
       `;
       actions.hidden = true;
-      updateSticky(null, null);
       return;
     }
 
@@ -650,11 +547,6 @@ const papersJson = JSON.stringify(
         <div class="quote-result__amount">${formatSGDWhole(result.grandTotal)}</div>
       </div>
     `;
-
-    updateSticky(
-      formatSGDWhole(result.grandTotal),
-      `${paper.name} · ${state.width} × ${state.height} ${state.units}`,
-    );
 
     actions.hidden = false;
     const wa = actions.querySelector<HTMLAnchorElement>("[data-quote-wa]")!;
@@ -683,15 +575,6 @@ const papersJson = JSON.stringify(
         form.addEventListener("change", update);
         update();
       });
-
-    // Sticky-bar "View quote" button scrolls to the output area.
-    const cta = document.querySelector<HTMLButtonElement>("[data-quote-sticky-cta]");
-    cta?.addEventListener("click", () => {
-      const output = document.querySelector<HTMLElement>("[data-quote-output]");
-      if (output) {
-        output.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-    });
   }
 
   if (document.readyState !== "loading") init();
