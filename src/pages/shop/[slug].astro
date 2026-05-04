@@ -325,7 +325,6 @@ const jsonLd = {
             <button type="button" class="artwork-config__cta" data-artwork-add-to-cart disabled>
               Add to cart
             </button>
-            <p class="artwork-config__cta-feedback" data-artwork-cart-feedback hidden></p>
 
             <p class="artwork-config__small">
               Self-collection from our studio is free. Local Singapore delivery is S$30, picked at checkout.
@@ -618,7 +617,6 @@ const jsonLd = {
     const noteEl = root.querySelector<HTMLElement>("[data-artwork-price-note]")!;
     const groups = root.querySelectorAll<HTMLElement>("[data-substrate]");
     const cartBtn = root.querySelector<HTMLButtonElement>("[data-artwork-add-to-cart]");
-    const cartFeedback = root.querySelector<HTMLElement>("[data-artwork-cart-feedback]");
 
     /** Latest valid line built by update(). null when the configuration
      *  is incomplete or oversize, in which case add-to-cart is disabled. */
@@ -793,13 +791,14 @@ const jsonLd = {
       cartBtn.addEventListener("click", () => {
         if (!pendingLine) return;
         cart.add(pendingLine);
-        if (cartFeedback) {
-          cartFeedback.hidden = false;
-          cartFeedback.innerHTML = `Added · <a href="/cart">View cart</a>`;
-          setTimeout(() => {
-            if (cartFeedback) cartFeedback.hidden = true;
-          }, 4000);
-        }
+        window.dispatchEvent(
+          new CustomEvent("fap-cart-toast", {
+            detail: {
+              title: artwork.title,
+              imageUrl: artwork.imageUrl,
+            },
+          }),
+        );
       });
     }
 

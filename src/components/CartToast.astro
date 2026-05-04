@@ -1,0 +1,158 @@
+---
+/**
+ * Bottom-right slide-in toast that confirms an item was added to cart.
+ * Listens for the `fap-cart-toast` window event with the artwork
+ * thumbnail + title in detail; auto-dismisses after 4s.
+ */
+---
+<div class="cart-toast" data-cart-toast aria-live="polite" hidden>
+  <img class="cart-toast__thumb" data-cart-toast-img src="" alt="" />
+  <div class="cart-toast__body">
+    <span class="cart-toast__head">Added to cart</span>
+    <span class="cart-toast__title" data-cart-toast-title></span>
+  </div>
+  <a class="cart-toast__cta" href="/cart">View cart →</a>
+  <button class="cart-toast__close" type="button" data-cart-toast-close aria-label="Dismiss">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+  </button>
+</div>
+
+<style is:global>
+  .cart-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 50;
+    display: grid;
+    grid-template-columns: 56px 1fr auto auto;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px 12px 12px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.30);
+    max-width: min(420px, calc(100vw - 32px));
+    transform: translateY(20px);
+    opacity: 0;
+    transition: opacity 200ms ease-out, transform 200ms ease-out;
+    pointer-events: none;
+  }
+  .cart-toast.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cart-toast { transition: opacity 120ms; transform: none; }
+  }
+  .cart-toast__thumb {
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #f4efe7;
+  }
+  .cart-toast__body {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
+  }
+  .cart-toast__head {
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-petrol);
+    font-weight: 700;
+  }
+  .cart-toast__title {
+    font-family: var(--font-serif);
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--color-ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cart-toast__cta {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-petrol);
+    text-decoration: none;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(26, 53, 80, 0.06);
+    transition: background 120ms;
+    white-space: nowrap;
+  }
+  .cart-toast__cta:hover {
+    background: rgba(26, 53, 80, 0.12);
+    text-decoration: none;
+  }
+  .cart-toast__close {
+    background: none;
+    border: 0;
+    color: var(--color-muted);
+    cursor: pointer;
+    padding: 4px;
+    line-height: 0;
+    border-radius: 4px;
+  }
+  .cart-toast__close:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--color-ink);
+  }
+
+  @media (max-width: 540px) {
+    .cart-toast {
+      bottom: 12px;
+      right: 12px;
+      left: 12px;
+      max-width: none;
+    }
+  }
+</style>
+
+<script>
+  type ToastDetail = { title: string; imageUrl?: string };
+
+  const toast = document.querySelector<HTMLElement>("[data-cart-toast]");
+  const titleEl = document.querySelector<HTMLElement>("[data-cart-toast-title]");
+  const imgEl = document.querySelector<HTMLImageElement>("[data-cart-toast-img]");
+  const closeBtn = document.querySelector<HTMLButtonElement>("[data-cart-toast-close]");
+
+  let hideTimer: number | undefined;
+
+  function show(detail: ToastDetail) {
+    if (!toast || !titleEl || !imgEl) return;
+    titleEl.textContent = detail.title;
+    if (detail.imageUrl) {
+      imgEl.src = detail.imageUrl;
+      imgEl.hidden = false;
+    } else {
+      imgEl.removeAttribute("src");
+      imgEl.hidden = true;
+    }
+    toast.hidden = false;
+    // Force layout flush so the transition runs.
+    requestAnimationFrame(() => toast.classList.add("is-visible"));
+    if (hideTimer) window.clearTimeout(hideTimer);
+    hideTimer = window.setTimeout(hide, 4000);
+  }
+
+  function hide() {
+    if (!toast) return;
+    toast.classList.remove("is-visible");
+    window.setTimeout(() => {
+      if (toast && !toast.classList.contains("is-visible")) toast.hidden = true;
+    }, 220);
+  }
+
+  closeBtn?.addEventListener("click", hide);
+  window.addEventListener("fap-cart-toast", (e: Event) => {
+    const detail = (e as CustomEvent).detail as ToastDetail | undefined;
+    if (detail?.title) show(detail);
+  });
+</script>

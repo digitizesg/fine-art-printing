@@ -2,15 +2,34 @@
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Eyebrow from "../components/Eyebrow.astro";
+import { listPapers } from "../lib/papers";
+import { listCanvases } from "../lib/canvases";
+import { listFloatFrames } from "../lib/float-frames";
 
 const description =
   "Your cart at Fine Art Printing — review prints and checkout via Stripe.";
+
+// Catalog snippets the client uses to render slug → human-readable
+// labels in cart line summaries. Build-time fetch keeps the client
+// script simple and avoids a network call when the cart loads.
+const [papers, canvases, floatFrames] = await Promise.all([
+  listPapers(),
+  listCanvases(),
+  listFloatFrames(),
+]);
+const catalogJson = JSON.stringify({
+  papers: papers.map((p) => ({ slug: p.slug, name: p.name, shortName: p.shortName, brand: p.brand })),
+  canvases: canvases.map((c) => ({ slug: c.slug, name: c.name, shortName: c.shortName, brand: c.brand })),
+  floatFrames: floatFrames.map((f) => ({ slug: f.slug, label: f.label })),
+});
 ---
 <BaseLayout title="Cart · Fine Art Printing" description={description}>
   <section class="bg-white">
     <div class="mx-auto max-w-[920px] px-6 pt-10 pb-16 md:pt-14 md:pb-20">
       <Eyebrow>Your cart</Eyebrow>
       <h1 class="mt-3 font-serif text-[clamp(1.85rem,3.5vw,2.4rem)] font-medium leading-[1.1] text-ink">Cart</h1>
+
+      <script type="application/json" data-cart-catalog set:html={catalogJson} />
 
       <div class="cart" data-cart>
         <p class="cart__empty" data-cart-empty>
@@ -261,25 +280,56 @@ const description =
   const DELIVERY_LOCAL_SGD = 30;
   const fmtSGD = (n: number) => `S$${n.toLocaleString("en-SG")}`;
 
+  type CatalogPaper = { slug: string; name: string; shortName: string; brand: string };
+  type CatalogCanvas = CatalogPaper;
+  type CatalogFloat = { slug: string; label: string };
+  type Catalog = {
+    papers: CatalogPaper[];
+    canvases: CatalogCanvas[];
+    floatFrames: CatalogFloat[];
+  };
+
+  const catalogEl = document.querySelector<HTMLScriptElement>("[data-cart-catalog]");
+  const CATALOG: Catalog = catalogEl
+    ? (JSON.parse(catalogEl.textContent ?? "{}") as Catalog)
+    : { papers: [], canvases: [], floatFrames: [] };
+
+  function paperName(slug?: string): string {
+    if (!slug) return "";
+    const p = CATALOG.papers.find((x) => x.slug === slug);
+    return p ? `${p.brand} ${p.shortName}` : slug.replace(/-/g, " ");
+  }
+  function canvasName(slug?: string): string {
+    if (!slug) return "";
+    const c = CATALOG.canvases.find((x) => x.slug === slug);
+    return c ? `${c.brand} ${c.shortName}` : slug.replace(/-/g, " ");
+  }
+  function floatLabel(slug?: string | null): string {
+    if (!slug) return "";
+    const f = CATALOG.floatFrames.find((x) => x.slug === slug);
+    return f ? f.label : slug.replace(/-/g, " ");
+  }
+
   function describeLine(line: CartLine): string {
     const parts: string[] = [];
-    parts.push(line.substrate === "paper" ? "Paper" : "Canvas");
     parts.push(`${line.widthCm} × ${line.heightCm} cm`);
     if (line.substrate === "paper") {
+      parts.push(paperName(line.paperSlug));
       if (line.borderCm && line.borderCm > 0) parts.push(`${line.borderCm}cm border`);
-      if (line.paperSlug) parts.push(line.paperSlug.replace(/-/g, " "));
     } else {
-      if (line.canvasSlug) parts.push(line.canvasSlug.replace(/-/g, " "));
+      parts.push(canvasName(line.canvasSlug));
       if (line.finishing === "1in") parts.push('1" stretching');
       else if (line.finishing === "1.5in") parts.push('1.5" stretching');
-      else if (line.finishing === "float") parts.push(`Float frame (${(line.floatFrameSlug ?? "").replace(/-/g, " ")})`);
+      else if (line.finishing === "float") parts.push(`Float frame (${floatLabel(line.floatFrameSlug)})`);
       else if (line.finishing === "none") {
-        if (line.futureMargin) parts.push('Rolled, +1.5" margin');
+        if (line.futureMargin) parts.push('Rolled + 1.5" stretching margin');
         else parts.push("Rolled, no stretching");
       }
-      if (line.wrapType) parts.push(`Wrap: ${line.wrapType}`);
+      if (line.wrapType && line.finishing === "none" && line.futureMargin) {
+        parts.push(`Wrap: ${line.wrapType}`);
+      }
     }
-    return parts.join(" · ");
+    return parts.filter(Boolean).join(" · ");
   }
 
   function render() {

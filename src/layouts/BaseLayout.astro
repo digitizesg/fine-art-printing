@@ -4,6 +4,7 @@ import NavBar from "../components/NavBar.astro";
 import Footer from "../components/Footer.astro";
 import SEO from "../components/SEO.astro";
 import FloatingWhatsApp from "../components/FloatingWhatsApp.astro";
+import CartToast from "../components/CartToast.astro";
 
 interface Props {
   title: string;
@@ -43,5 +44,6 @@ const { title, description, image, type, jsonLd } = Astro.props;
     </main>
     <Footer />
     <FloatingWhatsApp />
+    <CartToast />
   </body>
 </html>
