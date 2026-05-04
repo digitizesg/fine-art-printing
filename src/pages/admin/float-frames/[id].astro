@@ -4,6 +4,7 @@ import AdminLayout from "../../../layouts/AdminLayout.astro";
 import FloatFrameForm from "../../../components/admin/FloatFrameForm.astro";
 import { createSupabaseServerClient } from "../../../lib/supabase-server";
 import { floatFrameImageUrl, type FloatFrame } from "../../../lib/float-frames";
+import { repackDisplayOrder } from "../../../lib/display-order";
 import { extname } from "node:path";
 import { randomUUID } from "node:crypto";
 
@@ -83,6 +84,7 @@ if (Astro.request.method === "POST" && id) {
       if (oldImagePath) {
         await supabase.storage.from("float-frames").remove([oldImagePath]);
       }
+      await repackDisplayOrder(supabase, "float_frames", id);
       message = "Saved.";
     }
   }

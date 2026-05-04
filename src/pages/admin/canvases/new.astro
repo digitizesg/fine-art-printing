@@ -3,6 +3,7 @@ export const prerender = false;
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import CanvasForm from "../../../components/admin/CanvasForm.astro";
 import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import { repackDisplayOrder } from "../../../lib/display-order";
 import { extname } from "node:path";
 import { randomUUID } from "node:crypto";
 
@@ -114,6 +115,7 @@ if (Astro.request.method === "POST") {
       if (uploaded.length) await supabase.storage.from("canvases").remove(uploaded);
       error = insErr.message;
     } else {
+      await repackDisplayOrder(supabase, "canvases", data.id);
       return Astro.redirect(`/admin/canvases/${data.id}?created=1`);
     }
   }

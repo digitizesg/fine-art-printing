@@ -4,6 +4,7 @@ import AdminLayout from "../../../layouts/AdminLayout.astro";
 import PaperForm from "../../../components/admin/PaperForm.astro";
 import { createSupabaseServerClient } from "../../../lib/supabase-server";
 import { paperImageUrl, type Paper, type PaperUseCase } from "../../../lib/papers";
+import { repackDisplayOrder } from "../../../lib/display-order";
 import { extname } from "node:path";
 import { randomUUID } from "node:crypto";
 
@@ -135,6 +136,7 @@ if (Astro.request.method === "POST" && id) {
       error = updErr.message;
     } else {
       if (removed.length) await supabase.storage.from("papers").remove(removed);
+      await repackDisplayOrder(supabase, "papers", id);
       message = "Saved.";
     }
   }
