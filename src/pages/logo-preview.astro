@@ -4,29 +4,44 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 
 const variants = [
   {
+    id: "d1",
+    name: 'D1 · Wordmark + rule + caps subtitle',
+    blurb: 'Text only, no symbol. Lora serif "Fine Art Printing" with a hairline gold rule beneath, then tracked-out caps "PRINT · STRETCH · FRAME". Reads as a serious studio mark.',
+  },
+  {
+    id: "d2",
+    name: "D2 · Wordmark + caps subtitle (no rule)",
+    blurb: "Same as D1 but without the gold rule. Tighter, more modern; the subtitle does all the structural work.",
+  },
+  {
+    id: "d3",
+    name: "D3 · Wordmark + italic tagline",
+    blurb: 'Subtitle in Lora italic, lowercase, slightly larger and tinted toward warm gold. Reads as a tagline rather than a tag — softer, more "atelier".',
+  },
+  {
     id: "c1",
-    name: "C1 · Clean wordmark",
-    blurb: "The original C with the subtitle removed and proportions tightened. Most restrained — leans into the wordmark.",
+    name: "C1 · Clean wordmark with frame mark",
+    blurb: "Frame-mark version for comparison. Nested-square mark + plain wordmark.",
   },
   {
     id: "c2",
-    name: "C2 · Asymmetric mat",
-    blurb: "Inner mat offset slightly toward the bottom-right, the way real picture-framing mats sit (bottom edge wider than top). Adds personality without being literal.",
+    name: "C2 · Asymmetric mat with frame mark",
+    blurb: "Frame-mark with an offset inner mat. Slightly more characterful than C1.",
   },
   {
     id: "c3",
-    name: "C3 · Stacked / centred",
-    blurb: "Mark above, wordmark below, centred. Square aspect ratio works for Instagram avatars, business cards, watermarks.",
+    name: "C3 · Stacked frame mark + wordmark",
+    blurb: "Mark above, wordmark below, centred — for square placements.",
   },
   {
     id: "c4",
-    name: "C4 · Solid frame",
-    blurb: "Outer petrol square is solid (filled) instead of outlined, with a hollow gold mat inside. Reads heavier and holds up better at small sizes.",
+    name: "C4 · Solid filled frame mark",
+    blurb: "Solid petrol outer frame, hollow gold mat. Heavier, reads better small.",
   },
   {
     id: "c5",
-    name: "C5 · Mono petrol (no gold)",
-    blurb: "Drop the gold accent entirely; both squares in petrol with the inner one at lower opacity for hierarchy. Most minimalist; best for embossing, mono contexts.",
+    name: "C5 · Mono petrol frame mark",
+    blurb: "Drop the gold accent. Both squares petrol; minimalist mono.",
   },
 ];
 ---
