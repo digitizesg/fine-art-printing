@@ -22,8 +22,9 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 ---
 <header class="relative border-b border-border-soft bg-white">
   <div class="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-6 py-5">
-    <a href="/" class="font-serif text-[20px] font-medium tracking-tight text-ink">
-      Fine Art Printing
+    <a href="/" class="brand" aria-label="Fine Art Printing — print, stretch, frame">
+      <span class="brand__name">Fine Art Printing</span>
+      <span class="brand__sub">PRINT · STRETCH · FRAME</span>
     </a>
 
     <!-- Desktop nav -->
@@ -193,6 +194,33 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
   .services-menu__link:hover {
     background: rgba(0, 0, 0, 0.04);
   }
+  .brand {
+    display: inline-grid;
+    gap: 1px;
+    text-decoration: none;
+    line-height: 1;
+  }
+  .brand__name {
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--color-ink);
+    letter-spacing: -0.01em;
+    line-height: 1.05;
+  }
+  .brand__sub {
+    font-family: var(--font-sans);
+    font-size: 9px;
+    font-weight: 600;
+    color: rgba(26, 53, 80, 0.62);
+    letter-spacing: 0.22em;
+    margin-top: 4px;
+  }
+  @media (max-width: 480px) {
+    .brand__name { font-size: 17px; }
+    .brand__sub { font-size: 8.5px; letter-spacing: 0.18em; }
+  }
+
   .nav-cart__count {
     display: inline-flex;
     align-items: center;
