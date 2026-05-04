@@ -1,0 +1,153 @@
+---
+import type { FloatFrame } from "../../lib/float-frames";
+
+interface Props {
+  mode: "new" | "edit";
+  frame?: FloatFrame;
+  error?: string;
+  message?: string;
+}
+const { mode, frame, error, message } = Astro.props;
+
+const action = mode === "new"
+  ? "/admin/float-frames/new"
+  : `/admin/float-frames/${frame?.id}`;
+---
+<form class="admin-form float-frame-form" method="POST" enctype="multipart/form-data" action={action}>
+  {error && <p class="admin-note admin-note--err">{error}</p>}
+  {message && <p class="admin-note admin-note--ok">{message}</p>}
+
+  <section class="float-frame-form__panel">
+    <h3 class="float-frame-form__panel-title">Profile</h3>
+
+    <div class="admin-form__row">
+      <label>
+        <span>Label</span>
+        <input
+          type="text"
+          name="label"
+          required
+          maxlength="80"
+          value={frame?.label ?? ""}
+          placeholder="Smooth White"
+        />
+      </label>
+      <label>
+        <span>Slug <em style="font-weight:400;color:#888;">(blank = auto)</em></span>
+        <input
+          type="text"
+          name="slug"
+          maxlength="80"
+          pattern="[a-z0-9-]+"
+          value={frame?.slug ?? ""}
+          placeholder="smooth-white"
+        />
+      </label>
+    </div>
+
+    <div class="admin-form__row">
+      <label>
+        <span>Cost per foot (SGD wholesale)</span>
+        <input
+          type="number"
+          name="cost_per_foot"
+          min="0"
+          step="0.001"
+          required
+          value={frame?.costPerFoot ?? "0.770"}
+        />
+      </label>
+      <label>
+        <span>Display order</span>
+        <input
+          type="number"
+          name="display_order"
+          min="0"
+          step="1"
+          value={frame?.displayOrder ?? 100}
+        />
+      </label>
+    </div>
+
+    <label class="admin-form__check">
+      <input type="checkbox" name="published" value="1" checked={mode === "new" ? true : frame?.published} />
+      <span>Published (visible on public calculators)</span>
+    </label>
+  </section>
+
+  <section class="float-frame-form__panel">
+    <h3 class="float-frame-form__panel-title">Swatch photo</h3>
+
+    {frame?.imageUrl && (
+      <div class="float-frame-form__preview">
+        <img src={frame.imageUrl} alt={frame.label} />
+        <p style="font-family:monospace;font-size:11.5px;color:#888;margin:6px 0 0;">{frame.imagePath}</p>
+      </div>
+    )}
+
+    <label>
+      <span>{frame?.imageUrl ? "Replace photo (optional)" : "Photo (JPG or PNG, optional)"}</span>
+      <input type="file" name="image" accept="image/jpeg,image/png" />
+    </label>
+    <p style="font-size:12px;color:#888;margin:6px 0 0;">
+      Used as the picker thumbnail on public calculators. If left blank, a "Photo coming soon" placeholder is shown until you upload one.
+    </p>
+  </section>
+
+  <div class="admin-form__actions">
+    <button type="submit" class="admin-btn">
+      {mode === "new" ? "Create profile" : "Save changes"}
+    </button>
+    <a href="/admin/float-frames" class="admin-btn admin-btn--ghost">Cancel</a>
+    {mode === "edit" && frame && (
+      <button
+        type="submit"
+        formaction={`/admin/float-frames/${frame.id}/delete`}
+        class="admin-btn admin-btn--danger"
+        data-confirm="Delete this float frame profile? This cannot be undone."
+        style="margin-left:auto;"
+      >
+        Delete
+      </button>
+    )}
+  </div>
+</form>
+
+<style is:global>
+  .float-frame-form {
+    display: grid;
+    gap: 18px;
+    max-width: 720px;
+  }
+  .float-frame-form__panel {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 22px;
+    display: grid;
+    gap: 14px;
+  }
+  .float-frame-form__panel-title {
+    margin: 0;
+    font-family: "Lora", Georgia, serif;
+    font-weight: 500;
+    font-size: 16px;
+  }
+  .float-frame-form__preview img {
+    max-width: 240px;
+    border-radius: 8px;
+    display: block;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-confirm]").forEach((btn) => {
+    btn.addEventListener("click", (ev) => {
+      const msg = btn.getAttribute("data-confirm");
+      if (msg && !window.confirm(msg)) {
+        ev.preventDefault();
+      }
+    });
+  });
+</script>

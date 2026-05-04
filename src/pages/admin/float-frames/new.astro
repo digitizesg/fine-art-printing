@@ -1,0 +1,100 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import FloatFrameForm from "../../../components/admin/FloatFrameForm.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import { extname } from "node:path";
+import { randomUUID } from "node:crypto";
+
+const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
+const MAX_BYTES = 10 * 1024 * 1024;
+
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+let error: string | undefined;
+
+if (Astro.request.method === "POST") {
+  const supabase = createSupabaseServerClient(Astro);
+  const form = await Astro.request.formData();
+
+  const label = String(form.get("label") ?? "").trim();
+  let slug = String(form.get("slug") ?? "").trim().toLowerCase();
+  const costPerFoot = parseFloat(String(form.get("cost_per_foot") ?? ""));
+  const displayOrder = parseInt(String(form.get("display_order") ?? "100"), 10);
+  const published = form.get("published") === "1";
+  const file = form.get("image");
+
+  if (!label) {
+    error = "Label is required.";
+  } else {
+    if (!slug) slug = slugify(label);
+    if (!/^[a-z0-9-]+$/.test(slug)) {
+      error = "Slug must be letters, numbers, and hyphens only.";
+    } else if (!Number.isFinite(costPerFoot) || costPerFoot < 0) {
+      error = "Cost per foot must be a non-negative number.";
+    } else if (file instanceof File && file.size > 0) {
+      if (!ALLOWED_TYPES.has(file.type)) {
+        error = "Image must be JPG or PNG.";
+      } else if (file.size > MAX_BYTES) {
+        error = "Image is over the 10 MB limit.";
+      }
+    }
+  }
+
+  if (!error) {
+    let imagePath: string | null = null;
+    if (file instanceof File && file.size > 0) {
+      const ext = file.type === "image/png" ? ".png" : extname(file.name) || ".jpg";
+      imagePath = `${randomUUID()}${ext}`;
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const { error: upErr } = await supabase.storage
+        .from("float-frames")
+        .upload(imagePath, buffer, { contentType: file.type, upsert: false });
+      if (upErr) {
+        error = `Upload failed: ${upErr.message}`;
+        imagePath = null;
+      }
+    }
+
+    if (!error) {
+      const row = {
+        slug,
+        label,
+        cost_per_foot: costPerFoot,
+        image_path: imagePath,
+        published,
+        display_order: Number.isFinite(displayOrder) ? displayOrder : 100,
+      };
+      const { data, error: insErr } = await supabase
+        .from("float_frames")
+        .insert(row)
+        .select("id")
+        .single();
+      if (insErr) {
+        if (imagePath) {
+          await supabase.storage.from("float-frames").remove([imagePath]);
+        }
+        error = insErr.message;
+      } else {
+        return Astro.redirect(`/admin/float-frames/${data.id}?created=1`);
+      }
+    }
+  }
+}
+---
+<AdminLayout title="New float frame">
+  <div class="admin-page-head">
+    <div>
+      <h1>New float frame</h1>
+      <p>Add a new moulding profile to the picker.</p>
+    </div>
+    <a href="/admin/float-frames" class="admin-btn admin-btn--ghost">← Back to list</a>
+  </div>
+  <FloatFrameForm mode="new" error={error} />
+</AdminLayout>

@@ -1,0 +1,125 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import FloatFrameForm from "../../../components/admin/FloatFrameForm.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import { floatFrameImageUrl, type FloatFrame } from "../../../lib/float-frames";
+import { extname } from "node:path";
+import { randomUUID } from "node:crypto";
+
+const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
+const MAX_BYTES = 10 * 1024 * 1024;
+
+const id = Astro.params.id;
+const supabase = createSupabaseServerClient(Astro);
+
+let error: string | undefined;
+let message: string | undefined;
+
+if (Astro.request.method === "POST" && id) {
+  const form = await Astro.request.formData();
+
+  const label = String(form.get("label") ?? "").trim();
+  let slug = String(form.get("slug") ?? "").trim().toLowerCase();
+  const costPerFoot = parseFloat(String(form.get("cost_per_foot") ?? ""));
+  const displayOrder = parseInt(String(form.get("display_order") ?? "100"), 10);
+  const published = form.get("published") === "1";
+  const file = form.get("image");
+
+  if (!label) {
+    error = "Label is required.";
+  } else if (!slug || !/^[a-z0-9-]+$/.test(slug)) {
+    error = "Slug must be letters, numbers, and hyphens only.";
+  } else if (!Number.isFinite(costPerFoot) || costPerFoot < 0) {
+    error = "Cost per foot must be a non-negative number.";
+  } else if (file instanceof File && file.size > 0) {
+    if (!ALLOWED_TYPES.has(file.type)) {
+      error = "Image must be JPG or PNG.";
+    } else if (file.size > MAX_BYTES) {
+      error = "Image is over the 10 MB limit.";
+    }
+  }
+
+  const update: Record<string, unknown> = {
+    label,
+    slug,
+    cost_per_foot: costPerFoot,
+    published,
+    display_order: Number.isFinite(displayOrder) ? displayOrder : 100,
+  };
+
+  let oldImagePath: string | null = null;
+  if (!error && file instanceof File && file.size > 0) {
+    const ext = file.type === "image/png" ? ".png" : extname(file.name) || ".jpg";
+    const newPath = `${randomUUID()}${ext}`;
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const { error: upErr } = await supabase.storage
+      .from("float-frames")
+      .upload(newPath, buffer, { contentType: file.type, upsert: false });
+    if (upErr) {
+      error = `Upload failed: ${upErr.message}`;
+    } else {
+      update.image_path = newPath;
+      const { data: existing } = await supabase
+        .from("float_frames")
+        .select("image_path")
+        .eq("id", id)
+        .single();
+      oldImagePath = existing?.image_path ?? null;
+    }
+  }
+
+  if (!error) {
+    const { error: updErr } = await supabase
+      .from("float_frames")
+      .update(update)
+      .eq("id", id);
+    if (updErr) {
+      if (update.image_path) {
+        await supabase.storage.from("float-frames").remove([update.image_path as string]);
+      }
+      error = updErr.message;
+    } else {
+      if (oldImagePath) {
+        await supabase.storage.from("float-frames").remove([oldImagePath]);
+      }
+      message = "Saved.";
+    }
+  }
+}
+
+const { data: row, error: loadErr } = await supabase
+  .from("float_frames")
+  .select("*")
+  .eq("id", id)
+  .single();
+
+if (loadErr || !row) {
+  return Astro.redirect("/admin/float-frames?error=not_found");
+}
+
+const frame: FloatFrame = {
+  id: row.id,
+  slug: row.slug,
+  label: row.label,
+  costPerFoot: typeof row.cost_per_foot === "string" ? parseFloat(row.cost_per_foot) : row.cost_per_foot,
+  imagePath: row.image_path,
+  imageUrl: floatFrameImageUrl(row.image_path),
+  published: row.published,
+  displayOrder: row.display_order,
+};
+
+if (Astro.url.searchParams.get("created") === "1" && !message) {
+  message = "Created.";
+}
+---
+<AdminLayout title={`Edit ${frame.label}`}>
+  <div class="admin-page-head">
+    <div>
+      <h1>{frame.label}</h1>
+      <p style="font-family:monospace;font-size:11.5px;color:#888;">{frame.slug}</p>
+    </div>
+    <a href="/admin/float-frames" class="admin-btn admin-btn--ghost">← Back to list</a>
+  </div>
+  <FloatFrameForm mode="edit" frame={frame} error={error} message={message} />
+</AdminLayout>

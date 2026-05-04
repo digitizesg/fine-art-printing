@@ -1,0 +1,55 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import { floatFrameImageUrl } from "../../../lib/float-frames";
+
+const supabase = createSupabaseServerClient(Astro);
+
+const { data: rows, error } = await supabase
+  .from("float_frames")
+  .select("*")
+  .order("display_order", { ascending: true })
+  .order("created_at", { ascending: true });
+---
+<AdminLayout title="Float frames">
+  <div class="admin-page-head">
+    <div>
+      <h1>Float frames</h1>
+      <p>{rows?.length ?? 0} profiles · these populate the float-frame picker on public calculators.</p>
+    </div>
+    <a href="/admin/float-frames/new" class="admin-btn">+ New profile</a>
+  </div>
+
+  {error && <p class="admin-note admin-note--err">{error.message}</p>}
+  {rows && rows.length === 0 && (
+    <p class="admin-note">No float frames yet. Click <strong>New profile</strong> to add one.</p>
+  )}
+
+  <div class="admin-grid">
+    {rows?.map((row) => {
+      const imageUrl = floatFrameImageUrl(row.image_path);
+      return (
+        <a class="admin-example" href={`/admin/float-frames/${row.id}`}>
+          {imageUrl ? (
+            <img class="admin-example__photo" src={imageUrl} alt={row.label} loading="lazy" />
+          ) : (
+            <div class="admin-example__photo" style="aspect-ratio:3/2;background:repeating-linear-gradient(135deg,#f4efe7,#f4efe7 6px,#ece6db 6px,#ece6db 12px);display:flex;align-items:center;justify-content:center;color:#888;font-size:12px;">
+              No photo yet
+            </div>
+          )}
+          <div class="admin-example__meta">
+            <span class="admin-example__service">
+              {row.published ? "Published" : "Draft"}
+            </span>
+            <span class="admin-example__caption">{row.label}</span>
+            <span class="admin-example__row" style="font-family:monospace;font-size:11.5px;">{row.slug}</span>
+            <span class="admin-example__row">
+              ${Number(row.cost_per_foot).toFixed(3)}/ft wholesale
+            </span>
+          </div>
+        </a>
+      );
+    })}
+  </div>
+</AdminLayout>
