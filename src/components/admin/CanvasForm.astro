@@ -135,17 +135,25 @@ const finishes: { value: Canvas["finish"]; label: string }[] = [
     <h3 class="canvas-form__panel-title">Photos</h3>
 
     {canvas && canvas.imageUrls.length > 0 && (
-      <div class="canvas-form__photos">
+      <div class="canvas-form__photos" data-photo-grid>
         {canvas.imageUrls.map((url, i) => (
-          <label class="canvas-form__photo">
-            <img src={url} alt={`${canvas.shortName} ${i + 1}`} loading="lazy" />
-            <span>
-              <input type="checkbox" name="kept_images" value={canvas.images[i]} checked />
-              <em>Keep</em>
-            </span>
-          </label>
+          <div class="canvas-form__photo" data-photo>
+            <input type="checkbox" name="kept_images" value={canvas.images[i]} checked hidden data-photo-keep />
+            <div class="canvas-form__photo-img-wrap">
+              <img src={url} alt={`${canvas.shortName} ${i + 1}`} loading="lazy" />
+              <span class="canvas-form__photo-badge" data-photo-primary-badge>Primary</span>
+              <button type="button" class="canvas-form__photo-x" data-photo-remove aria-label="Remove photo">
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                  <path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <button type="button" class="canvas-form__photo-set-primary" data-photo-set-primary>
+              ★ Set as primary
+            </button>
+            <button type="button" class="canvas-form__photo-restore" data-photo-restore hidden>↻ Restore</button>
+          </div>
         ))}
-        <p style="font-size:12px;color:#888;grid-column:1/-1;margin:4px 0 0;">Untick to remove a photo on save. Reordering isn't supported here yet — re-upload in the order you want.</p>
       </div>
     )}
 
@@ -200,12 +208,15 @@ const finishes: { value: Canvas["finish"]; label: string }[] = [
   .canvas-form__photos {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
+    gap: 12px;
   }
   .canvas-form__photo {
     display: grid;
     gap: 6px;
     cursor: default;
+  }
+  .canvas-form__photo-img-wrap {
+    position: relative;
   }
   .canvas-form__photo img {
     width: 100%;
@@ -214,13 +225,65 @@ const finishes: { value: Canvas["finish"]; label: string }[] = [
     border-radius: 8px;
     border: 1px solid rgba(0, 0, 0, 0.06);
     background: #f4efe7;
+    display: block;
+    transition: opacity 150ms;
   }
-  .canvas-form__photo span {
+  .canvas-form__photo.is-removed img { opacity: 0.35; filter: grayscale(0.4); }
+  .canvas-form__photo.is-removed .canvas-form__photo-set-primary,
+  .canvas-form__photo.is-removed .canvas-form__photo-x,
+  .canvas-form__photo.is-removed .canvas-form__photo-badge {
+    display: none;
+  }
+  .canvas-form__photo-badge {
+    position: absolute;
+    top: 6px;
+    left: 6px;
+    background: var(--admin-petrol, #1a3550);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border-radius: 999px;
+    display: none;
+  }
+  .canvas-form__photo.is-primary .canvas-form__photo-badge { display: inline-flex; }
+  .canvas-form__photo.is-primary .canvas-form__photo-set-primary { display: none; }
+  .canvas-form__photo-x {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    border: 0;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    font-size: 12.5px;
-    color: var(--admin-muted, #555);
+    justify-content: center;
+    cursor: pointer;
+    transition: background 120ms;
+  }
+  .canvas-form__photo-x:hover { background: rgba(0, 0, 0, 0.78); }
+  .canvas-form__photo-set-primary,
+  .canvas-form__photo-restore {
+    background: none;
+    border: 1px solid rgba(0, 0, 0, 0.10);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--admin-ink, #1a1a1a);
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: background 120ms, border-color 120ms;
+  }
+  .canvas-form__photo-set-primary:hover,
+  .canvas-form__photo-restore:hover {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.20);
   }
 </style>
 
@@ -233,4 +296,44 @@ const finishes: { value: Canvas["finish"]; label: string }[] = [
       }
     });
   });
+
+  // Photo grid: same promote/remove/restore UX as PaperForm.
+  const grid = document.querySelector<HTMLElement>("[data-photo-grid]");
+  if (grid) {
+    function sync() {
+      const tiles = grid!.querySelectorAll<HTMLElement>("[data-photo]");
+      let primaryAssigned = false;
+      tiles.forEach((tile) => {
+        const removed = tile.classList.contains("is-removed");
+        const isPrimary = !removed && !primaryAssigned;
+        tile.classList.toggle("is-primary", isPrimary);
+        if (isPrimary) primaryAssigned = true;
+      });
+    }
+    grid.addEventListener("click", (ev) => {
+      const target = ev.target as HTMLElement;
+      const tile = target.closest<HTMLElement>("[data-photo]");
+      if (!tile) return;
+
+      if (target.closest("[data-photo-set-primary]")) {
+        grid.prepend(tile);
+        sync();
+      } else if (target.closest("[data-photo-remove]")) {
+        const keep = tile.querySelector<HTMLInputElement>("[data-photo-keep]");
+        if (keep) keep.checked = false;
+        tile.classList.add("is-removed");
+        const restore = tile.querySelector<HTMLElement>("[data-photo-restore]");
+        if (restore) restore.hidden = false;
+        sync();
+      } else if (target.closest("[data-photo-restore]")) {
+        const keep = tile.querySelector<HTMLInputElement>("[data-photo-keep]");
+        if (keep) keep.checked = true;
+        tile.classList.remove("is-removed");
+        const restore = tile.querySelector<HTMLElement>("[data-photo-restore]");
+        if (restore) restore.hidden = true;
+        sync();
+      }
+    });
+    sync();
+  }
 </script>
