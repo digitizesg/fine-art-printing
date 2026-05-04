@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80" viewBox="0 0 320 80" aria-label="Fine Art Printing">
+  <!-- C2: Asymmetric mat — inner mat offset slightly toward the bottom-right,
+       like a real matted picture frame where the bottom mat is wider than the top.
+       Gives the mark more personality without being literal. -->
+  <g>
+    <rect x="6" y="14" width="52" height="52" rx="2" fill="none" stroke="#1A3550" stroke-width="2.5" />
+    <rect x="14" y="22" width="32" height="32" rx="1" fill="none" stroke="#D9B36C" stroke-width="1.6" />
+  </g>
+  <text x="78" y="48" font-family="'Lora', Georgia, serif" font-size="24" font-weight="500" fill="#1A3550" letter-spacing="-0.3">Fine Art Printing</text>
+</svg>
