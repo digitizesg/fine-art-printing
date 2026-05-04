@@ -13,6 +13,11 @@ export interface AvailableSize {
   label?: string;
 }
 
+export interface GalleryImage {
+  path: string;
+  url: string;
+}
+
 export interface Artwork {
   id: string;
   slug: string;
@@ -21,6 +26,7 @@ export interface Artwork {
   description: string | null;
   heroImagePath: string;
   heroImageUrl: string;
+  galleryImages: GalleryImage[];
   availableSizes: AvailableSize[];
   allowPaper: boolean;
   allowCanvas: boolean;
@@ -36,6 +42,7 @@ interface DbRow {
   artist_name: string | null;
   description: string | null;
   hero_image_path: string;
+  gallery_images: string[];
   available_sizes: AvailableSize[];
   allow_paper: boolean;
   allow_canvas: boolean;
@@ -52,6 +59,7 @@ export function artworkImageUrl(imagePath: string): string {
 }
 
 function rowToArtwork(row: DbRow): Artwork {
+  const galleryPaths = Array.isArray(row.gallery_images) ? row.gallery_images : [];
   return {
     id: row.id,
     slug: row.slug,
@@ -60,6 +68,10 @@ function rowToArtwork(row: DbRow): Artwork {
     description: row.description,
     heroImagePath: row.hero_image_path,
     heroImageUrl: artworkImageUrl(row.hero_image_path),
+    galleryImages: galleryPaths.map((path) => ({
+      path,
+      url: artworkImageUrl(path),
+    })),
     availableSizes: Array.isArray(row.available_sizes) ? row.available_sizes : [],
     allowPaper: row.allow_paper,
     allowCanvas: row.allow_canvas,

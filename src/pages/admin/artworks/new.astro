@@ -68,29 +68,64 @@ if (Astro.request.method === "POST") {
     if (upErr) {
       error = `Upload failed: ${upErr.message}`;
     } else {
-      const sizes = parseSizes(String(form.get("available_sizes") ?? "[]"));
-      const row = {
-        slug,
-        title,
-        artist_name: (form.get("artist_name") as string)?.trim() || null,
-        description: (form.get("description") as string)?.trim() || null,
-        hero_image_path: imagePath,
-        available_sizes: sizes,
-        allow_paper: form.get("allow_paper") === "1",
-        allow_canvas: form.get("allow_canvas") === "1",
-        published: form.get("published") === "1",
-        featured: form.get("featured") === "1",
-      };
-      const { data, error: insErr } = await supabase
-        .from("artworks")
-        .insert(row)
-        .select("id")
-        .single();
-      if (insErr) {
-        await supabase.storage.from("artworks").remove([imagePath]);
-        error = insErr.message;
+      // Gallery uploads (optional, multiple).
+      const galleryFiles = form.getAll("gallery_files").filter(
+        (f): f is File => f instanceof File && f.size > 0,
+      );
+      const uploadedGallery: string[] = [];
+      let galleryError: string | undefined;
+      for (const gf of galleryFiles) {
+        if (!ALLOWED_TYPES.has(gf.type)) {
+          galleryError = "Gallery images must be JPG or PNG.";
+          break;
+        }
+        if (gf.size > MAX_BYTES) {
+          galleryError = "One of the gallery images is over 25 MB.";
+          break;
+        }
+        const gext = gf.type === "image/png" ? ".png" : extname(gf.name) || ".jpg";
+        const gpath = `${randomUUID()}${gext}`;
+        const gbuf = Buffer.from(await gf.arrayBuffer());
+        const { error: gErr } = await supabase.storage
+          .from("artworks")
+          .upload(gpath, gbuf, { contentType: gf.type, upsert: false });
+        if (gErr) {
+          galleryError = `Gallery upload failed: ${gErr.message}`;
+          break;
+        }
+        uploadedGallery.push(gpath);
+      }
+
+      if (galleryError) {
+        // Clean up anything we managed to upload before failing.
+        await supabase.storage.from("artworks").remove([imagePath, ...uploadedGallery]);
+        error = galleryError;
       } else {
-        return Astro.redirect(`/admin/artworks/${data.id}?created=1`);
+        const sizes = parseSizes(String(form.get("available_sizes") ?? "[]"));
+        const row = {
+          slug,
+          title,
+          artist_name: (form.get("artist_name") as string)?.trim() || null,
+          description: (form.get("description") as string)?.trim() || null,
+          hero_image_path: imagePath,
+          gallery_images: uploadedGallery,
+          available_sizes: sizes,
+          allow_paper: form.get("allow_paper") === "1",
+          allow_canvas: form.get("allow_canvas") === "1",
+          published: form.get("published") === "1",
+          featured: form.get("featured") === "1",
+        };
+        const { data, error: insErr } = await supabase
+          .from("artworks")
+          .insert(row)
+          .select("id")
+          .single();
+        if (insErr) {
+          await supabase.storage.from("artworks").remove([imagePath, ...uploadedGallery]);
+          error = insErr.message;
+        } else {
+          return Astro.redirect(`/admin/artworks/${data.id}?created=1`);
+        }
       }
     }
   }

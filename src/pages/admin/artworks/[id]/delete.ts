@@ -11,7 +11,7 @@ export const POST: APIRoute = async (ctx) => {
 
   const { data: row } = await supabase
     .from("artworks")
-    .select("hero_image_path")
+    .select("hero_image_path, gallery_images")
     .eq("id", id)
     .single();
 
@@ -23,8 +23,13 @@ export const POST: APIRoute = async (ctx) => {
     return ctx.redirect(`/admin/artworks/${id}?error=${encodeURIComponent(delErr.message)}`);
   }
 
-  if (row?.hero_image_path) {
-    await supabase.storage.from("artworks").remove([row.hero_image_path]);
+  const toRemove: string[] = [];
+  if (row?.hero_image_path) toRemove.push(row.hero_image_path);
+  if (Array.isArray(row?.gallery_images)) {
+    toRemove.push(...(row!.gallery_images as string[]));
+  }
+  if (toRemove.length) {
+    await supabase.storage.from("artworks").remove(toRemove);
   }
 
   return ctx.redirect("/admin/artworks?deleted=1");

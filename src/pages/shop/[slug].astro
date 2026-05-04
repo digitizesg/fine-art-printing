@@ -3,6 +3,7 @@ export const prerender = true;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Eyebrow from "../../components/Eyebrow.astro";
 import DarkCTA from "../../components/DarkCTA.astro";
+import FrameLightbox from "../../components/FrameLightbox.astro";
 import { listArtworks, getArtworkBySlug } from "../../lib/artworks";
 import { PAPERS } from "../../data/pricing/paper";
 import { CANVASES, FLOAT_FRAME_COLOURS } from "../../data/pricing/canvas";
@@ -81,14 +82,35 @@ const pricingData = {
       </p>
 
       <div class="mt-6 grid gap-12 md:grid-cols-2 md:gap-16">
-        <!-- Image -->
-        <figure class="md:sticky md:top-6 self-start">
-          <img
-            src={artwork.heroImageUrl}
-            alt={artwork.title}
-            class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)]"
-          />
-        </figure>
+        <!-- Image + gallery -->
+        <div class="md:sticky md:top-6 self-start">
+          <figure>
+            <img
+              src={artwork.heroImageUrl}
+              alt={artwork.title}
+              data-frame-zoom
+              data-frame-image={artwork.heroImageUrl}
+              data-frame-name={artwork.title}
+              class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)] cursor-zoom-in"
+            />
+          </figure>
+          {artwork.galleryImages.length > 0 && (
+            <div class="mt-4 grid grid-cols-4 gap-2">
+              {artwork.galleryImages.map((img, i) => (
+                <button
+                  type="button"
+                  class="aspect-square overflow-hidden rounded-md bg-[#f4efe7] border border-border-soft cursor-zoom-in transition-shadow hover:shadow-md focus:outline focus:outline-2 focus:outline-petrol focus:outline-offset-2"
+                  data-frame-zoom
+                  data-frame-image={img.url}
+                  data-frame-name={`${artwork.title} — view ${i + 2}`}
+                  aria-label={`Open larger view ${i + 2}`}
+                >
+                  <img src={img.url} alt="" loading="lazy" class="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         <!-- Detail + configurator -->
         <div>
@@ -211,6 +233,7 @@ const pricingData = {
   </section>
 
   <DarkCTA />
+  <FrameLightbox />
 
   <script type="application/json" data-artwork-pricing set:html={JSON.stringify(pricingData)}></script>
 </BaseLayout>

@@ -9,6 +9,7 @@ interface Props {
     description: string | null;
     hero_image_path: string;
     hero_image_url: string;
+    gallery_images: { path: string; url: string }[];
     available_sizes: { width_cm: number; height_cm: number; label?: string }[];
     allow_paper: boolean;
     allow_canvas: boolean;
@@ -23,6 +24,9 @@ const { mode, artwork, error, message } = Astro.props;
 
 const action = mode === "new" ? "/admin/artworks/new" : `/admin/artworks/${artwork?.id}`;
 const sizesJson = JSON.stringify(artwork?.available_sizes ?? []);
+const galleryJson = JSON.stringify(
+  (artwork?.gallery_images ?? []).map((g) => g.path),
+);
 ---
 <form class="artwork-form" method="POST" enctype="multipart/form-data" action={action}>
   <!-- Image card -->
@@ -46,6 +50,29 @@ const sizesJson = JSON.stringify(artwork?.available_sizes ?? []);
         </p>
       </div>
     </div>
+  </section>
+
+  <!-- Gallery card -->
+  <section class="artwork-form__panel">
+    <h2 class="artwork-form__panel-title">Gallery images (optional)</h2>
+    <p class="artwork-form__hint" style="margin-top:-4px;">
+      Additional photos shown alongside the hero on the artwork page. Customers can click any to open a lightbox.
+    </p>
+    <div class="artwork-gallery" data-artwork-gallery>
+      <div class="artwork-gallery__list" data-artwork-gallery-list>
+        {(artwork?.gallery_images ?? []).map((g) => (
+          <div class="artwork-gallery__tile" data-gallery-path={g.path}>
+            <img src={g.url} alt="" loading="lazy" />
+            <button type="button" class="artwork-gallery__remove" data-gallery-remove aria-label="Remove">×</button>
+          </div>
+        ))}
+      </div>
+      <input type="hidden" name="kept_gallery" data-artwork-gallery-json value={galleryJson} />
+    </div>
+    <label class="artwork-form__field">
+      <span>Add more (multi-select supported)</span>
+      <input type="file" name="gallery_files" accept="image/jpeg,image/png" multiple />
+    </label>
   </section>
 
   <!-- Detail card -->
@@ -310,6 +337,55 @@ const sizesJson = JSON.stringify(artwork?.available_sizes ?? []);
     background: rgba(0, 0, 0, 0.03);
   }
 
+  .artwork-gallery__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .artwork-gallery__tile {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f4efe7;
+    border: 1px solid var(--admin-border);
+  }
+  .artwork-gallery__tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .artwork-gallery__tile.is-removed {
+    opacity: 0.35;
+    filter: grayscale(0.7);
+  }
+  .artwork-gallery__remove {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    border: 0;
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .artwork-gallery__remove:hover {
+    background: rgba(0, 0, 0, 0.85);
+  }
+  .artwork-gallery__tile.is-removed .artwork-gallery__remove::before {
+    content: "↺ ";
+    font-size: 12px;
+  }
+
   .artwork-form__checks {
     display: grid;
     grid-template-columns: 1fr;
@@ -419,6 +495,29 @@ const sizesJson = JSON.stringify(artwork?.available_sizes ?? []);
     });
 
     render();
+    syncHidden();
+  })();
+
+  // Gallery: clicking the × on a tile toggles a "remove" mark; the hidden
+  // kept_gallery field is the JSON list of paths the server should retain.
+  (function () {
+    const list = document.querySelector("[data-artwork-gallery-list]");
+    const hidden = document.querySelector("[data-artwork-gallery-json]");
+    if (!list || !hidden) return;
+    function syncHidden() {
+      const kept = Array.from(list.querySelectorAll("[data-gallery-path]"))
+        .filter((el) => !el.classList.contains("is-removed"))
+        .map((el) => el.getAttribute("data-gallery-path"));
+      hidden.value = JSON.stringify(kept);
+    }
+    list.addEventListener("click", (e) => {
+      const btn = e.target instanceof Element ? e.target.closest("[data-gallery-remove]") : null;
+      if (!btn) return;
+      const tile = btn.closest("[data-gallery-path]");
+      if (!tile) return;
+      tile.classList.toggle("is-removed");
+      syncHidden();
+    });
     syncHidden();
   })();
 

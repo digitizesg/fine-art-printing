@@ -46,17 +46,20 @@ if (Astro.request.method === "POST") {
     featured: form.get("featured") === "1",
   };
 
-  // Optional image replacement.
+  const allowed = new Set(["image/jpeg", "image/png"]);
+  const MAX = 25 * 1024 * 1024;
+  const { randomUUID } = await import("node:crypto");
+  const { extname } = await import("node:path");
+
+  // Optional hero image replacement.
   const file = form.get("image");
+  let oldHero: string | null = null;
   if (!error && file instanceof File && file.size > 0) {
-    const allowed = new Set(["image/jpeg", "image/png"]);
     if (!allowed.has(file.type)) {
       error = "Replacement image must be JPG or PNG.";
-    } else if (file.size > 25 * 1024 * 1024) {
+    } else if (file.size > MAX) {
       error = "Replacement image is over the 25 MB limit.";
     } else {
-      const { randomUUID } = await import("node:crypto");
-      const { extname } = await import("node:path");
       const ext = file.type === "image/png" ? ".png" : extname(file.name) || ".jpg";
       const newPath = `${randomUUID()}${ext}`;
       const buffer = Buffer.from(await file.arrayBuffer());
@@ -64,17 +67,88 @@ if (Astro.request.method === "POST") {
         .from("artworks")
         .upload(newPath, buffer, { contentType: file.type, upsert: false });
       if (upErr) error = `Image upload failed: ${upErr.message}`;
-      else update.hero_image_path = newPath;
+      else {
+        update.hero_image_path = newPath;
+        // Record old path for deletion after a successful row update.
+        const { data: existing } = await supabase
+          .from("artworks")
+          .select("hero_image_path")
+          .eq("id", id)
+          .single();
+        oldHero = existing?.hero_image_path ?? null;
+      }
+    }
+  }
+
+  // Gallery: which existing paths to keep + any new uploads to add.
+  let kept: string[] = [];
+  try {
+    const raw = JSON.parse(String(form.get("kept_gallery") ?? "[]"));
+    if (Array.isArray(raw)) kept = raw.filter((s) => typeof s === "string");
+  } catch {
+    kept = [];
+  }
+  const galleryFiles = form.getAll("gallery_files").filter(
+    (f): f is File => f instanceof File && f.size > 0,
+  );
+  const uploadedGallery: string[] = [];
+  if (!error) {
+    for (const gf of galleryFiles) {
+      if (!allowed.has(gf.type)) { error = "Gallery images must be JPG or PNG."; break; }
+      if (gf.size > MAX) { error = "A gallery image is over 25 MB."; break; }
+      const gext = gf.type === "image/png" ? ".png" : extname(gf.name) || ".jpg";
+      const gpath = `${randomUUID()}${gext}`;
+      const gbuf = Buffer.from(await gf.arrayBuffer());
+      const { error: gErr } = await supabase.storage
+        .from("artworks")
+        .upload(gpath, gbuf, { contentType: gf.type, upsert: false });
+      if (gErr) { error = `Gallery upload failed: ${gErr.message}`; break; }
+      uploadedGallery.push(gpath);
+    }
+  }
+  if (error) {
+    // Clean up partial uploads if anything went wrong above.
+    if (uploadedGallery.length) {
+      await supabase.storage.from("artworks").remove(uploadedGallery);
     }
   }
 
   if (!error) {
+    update.gallery_images = [...kept, ...uploadedGallery];
+
+    // Look up the previous gallery so we can delete the storage objects the
+    // admin removed.
+    const { data: existing } = await supabase
+      .from("artworks")
+      .select("gallery_images")
+      .eq("id", id)
+      .single();
+    const prevGallery: string[] = Array.isArray(existing?.gallery_images)
+      ? (existing!.gallery_images as string[])
+      : [];
+    const removed = prevGallery.filter((p) => !kept.includes(p));
+
     const { error: updErr } = await supabase
       .from("artworks")
       .update(update)
       .eq("id", id);
-    if (updErr) error = updErr.message;
-    else message = "Saved.";
+    if (updErr) {
+      // Roll back any newly uploaded gallery files since the update failed.
+      if (uploadedGallery.length) {
+        await supabase.storage.from("artworks").remove(uploadedGallery);
+      }
+      if (oldHero && update.hero_image_path) {
+        await supabase.storage.from("artworks").remove([update.hero_image_path as string]);
+      }
+      error = updErr.message;
+    } else {
+      const toDelete = [...removed];
+      if (oldHero) toDelete.push(oldHero);
+      if (toDelete.length) {
+        await supabase.storage.from("artworks").remove(toDelete);
+      }
+      message = "Saved.";
+    }
   }
 }
 
@@ -88,10 +162,14 @@ if (loadErr || !row) {
   return Astro.redirect("/admin/artworks?error=not_found");
 }
 
+const galleryPaths: string[] = Array.isArray(row.gallery_images)
+  ? (row.gallery_images as string[])
+  : [];
 const artwork = {
   ...row,
   hero_image_url: artworkImageUrl(row.hero_image_path),
   available_sizes: Array.isArray(row.available_sizes) ? row.available_sizes : [],
+  gallery_images: galleryPaths.map((path) => ({ path, url: artworkImageUrl(path) })),
 };
 
 if (Astro.url.searchParams.get("created") === "1" && !message) {
