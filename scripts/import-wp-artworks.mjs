@@ -120,10 +120,15 @@ async function importOne(item) {
   if (!featured?.source_url) {
     return { slug, status: "no-image" };
   }
-  const sourceUrl = featured.source_url;
+  // WP sometimes returns relative paths like "/wp-content/uploads/...". Make absolute.
+  const sourceUrl = featured.source_url.startsWith("http")
+    ? featured.source_url
+    : `https://fineartprinting.com.sg${featured.source_url}`;
   const width = featured.media_details?.width;
   const height = featured.media_details?.height;
-  const ext = extname(new URL(sourceUrl).pathname).toLowerCase() || ".jpg";
+  // Get extension from the path part of the URL, ignoring querystrings.
+  const pathOnly = sourceUrl.split("?")[0];
+  const ext = extname(pathOnly).toLowerCase() || ".jpg";
 
   // Download + upload.
   const { buffer, contentType } = await downloadImage(sourceUrl);
