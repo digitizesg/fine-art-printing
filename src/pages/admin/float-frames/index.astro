@@ -1,10 +1,12 @@
 ---
 export const prerender = false;
 import AdminLayout from "../../../layouts/AdminLayout.astro";
+import ViewToggle from "../../../components/admin/ViewToggle.astro";
 import { createSupabaseServerClient } from "../../../lib/supabase-server";
 import { floatFrameImageUrl } from "../../../lib/float-frames";
 
 const supabase = createSupabaseServerClient(Astro);
+const view = (Astro.url.searchParams.get("view") === "list" ? "list" : "grid") as "grid" | "list";
 
 const { data: rows, error } = await supabase
   .from("float_frames")
@@ -18,6 +20,7 @@ const { data: rows, error } = await supabase
       <h1>Float frames</h1>
       <p>{rows?.length ?? 0} profiles · these populate the float-frame picker on public calculators.</p>
     </div>
+    <ViewToggle url={Astro.url} view={view} />
     <a href="/admin/float-frames/new" class="admin-btn">+ New profile</a>
   </div>
 
@@ -26,30 +29,64 @@ const { data: rows, error } = await supabase
     <p class="admin-note">No float frames yet. Click <strong>New profile</strong> to add one.</p>
   )}
 
-  <div class="admin-grid">
-    {rows?.map((row) => {
-      const imageUrl = floatFrameImageUrl(row.image_path);
-      return (
-        <a class="admin-example" href={`/admin/float-frames/${row.id}`}>
-          {imageUrl ? (
-            <img class="admin-example__photo" src={imageUrl} alt={row.label} loading="lazy" />
-          ) : (
-            <div class="admin-example__photo" style="aspect-ratio:3/2;background:repeating-linear-gradient(135deg,#f4efe7,#f4efe7 6px,#ece6db 6px,#ece6db 12px);display:flex;align-items:center;justify-content:center;color:#888;font-size:12px;">
-              No photo yet
+  {view === "grid" && (
+    <div class="admin-grid">
+      {rows?.map((row) => {
+        const imageUrl = floatFrameImageUrl(row.image_path);
+        return (
+          <a class="admin-example" href={`/admin/float-frames/${row.id}`}>
+            {imageUrl ? (
+              <img class="admin-example__photo" src={imageUrl} alt={row.label} loading="lazy" />
+            ) : (
+              <div class="admin-example__photo" style="aspect-ratio:3/2;background:repeating-linear-gradient(135deg,#f4efe7,#f4efe7 6px,#ece6db 6px,#ece6db 12px);display:flex;align-items:center;justify-content:center;color:#888;font-size:12px;">
+                No photo yet
+              </div>
+            )}
+            <div class="admin-example__meta">
+              <span class="admin-example__service">
+                {row.published ? "Published" : "Draft"}
+              </span>
+              <span class="admin-example__caption">{row.label}</span>
+              <span class="admin-example__row" style="font-family:monospace;font-size:11.5px;">{row.slug}</span>
+              <span class="admin-example__row">${Number(row.cost_per_foot).toFixed(3)}/ft wholesale</span>
             </div>
-          )}
-          <div class="admin-example__meta">
-            <span class="admin-example__service">
-              {row.published ? "Published" : "Draft"}
+          </a>
+        );
+      })}
+    </div>
+  )}
+
+  {view === "list" && rows && rows.length > 0 && (
+    <div class="admin-list">
+      <div class="admin-list__row admin-list__row--head" style="grid-template-columns:60px 2fr 2fr 1fr 1fr 1fr;">
+        <span></span>
+        <span>Label</span>
+        <span>Slug</span>
+        <span>$ / ft</span>
+        <span>Order</span>
+        <span>Status</span>
+      </div>
+      {rows.map((row) => {
+        const imageUrl = floatFrameImageUrl(row.image_path);
+        return (
+          <a class="admin-list__row" href={`/admin/float-frames/${row.id}`} style="grid-template-columns:60px 2fr 2fr 1fr 1fr 1fr;">
+            {imageUrl ? (
+              <img class="admin-list__thumb" src={imageUrl} alt="" loading="lazy" />
+            ) : (
+              <span class="admin-list__thumb admin-list__thumb--placeholder"></span>
+            )}
+            <span class="admin-list__cell"><strong>{row.label}</strong></span>
+            <span class="admin-list__cell admin-list__cell--mono">{row.slug}</span>
+            <span class="admin-list__cell">${Number(row.cost_per_foot).toFixed(3)}</span>
+            <span class="admin-list__cell admin-list__cell--muted">{row.display_order}</span>
+            <span class="admin-list__cell">
+              <span class:list={["admin-list__pill", row.published ? "admin-list__pill--published" : "admin-list__pill--draft"]}>
+                {row.published ? "Published" : "Draft"}
+              </span>
             </span>
-            <span class="admin-example__caption">{row.label}</span>
-            <span class="admin-example__row" style="font-family:monospace;font-size:11.5px;">{row.slug}</span>
-            <span class="admin-example__row">
-              ${Number(row.cost_per_foot).toFixed(3)}/ft wholesale
-            </span>
-          </div>
-        </a>
-      );
-    })}
-  </div>
+          </a>
+        );
+      })}
+    </div>
+  )}
 </AdminLayout>

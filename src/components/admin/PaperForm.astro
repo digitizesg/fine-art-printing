@@ -107,11 +107,11 @@ const useCases: { value: PaperUseCase; label: string }[] = [
     <div class="admin-form__row">
       <label>
         <span>Max print width (cm)</span>
-        <input type="number" name="max_print_width_cm" required min="1" step="0.1" value={paper?.maxPrintWidthCm ?? ""} />
+        <input type="number" name="max_print_width_cm" required min="1" step="0.01" value={paper?.maxPrintWidthCm ?? ""} />
       </label>
       <label>
         <span>Max print length (cm)</span>
-        <input type="number" name="max_print_length_cm" required min="1" step="0.1" value={paper?.maxPrintLengthCm ?? ""} />
+        <input type="number" name="max_print_length_cm" required min="1" step="0.01" value={paper?.maxPrintLengthCm ?? ""} />
       </label>
     </div>
     <div class="admin-form__row">

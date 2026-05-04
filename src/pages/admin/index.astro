@@ -1,6 +1,7 @@
 ---
 export const prerender = false;
 import AdminLayout from "../../layouts/AdminLayout.astro";
+import ViewToggle from "../../components/admin/ViewToggle.astro";
 import { createSupabaseServerClient } from "../../lib/supabase-server";
 import {
   detailLabelFor,
@@ -16,6 +17,7 @@ import { frameExampleUrl } from "../../lib/supabase";
 
 const supabase = createSupabaseServerClient(Astro);
 const url = Astro.url;
+const view = (url.searchParams.get("view") === "list" ? "list" : "grid") as "grid" | "list";
 const filterService = url.searchParams.get("service") as Service | "" | null;
 const filterFeatured = url.searchParams.get("featured") === "1";
 
@@ -77,6 +79,7 @@ function buildLink(params: Record<string, string | null>) {
       <h1>Frame examples</h1>
       <p>{rows?.length ?? 0} examples shown · drag-and-drop ordering coming later</p>
     </div>
+    <ViewToggle url={url} view={view} />
     <a href="/admin/examples/new" class="admin-btn">+ New example</a>
   </div>
 
@@ -127,23 +130,51 @@ function buildLink(params: Record<string, string | null>) {
     <p class="admin-note">No examples match the current filter.</p>
   )}
 
-  <div class="admin-grid">
-    {rows?.map((row) => {
-      const detail = detailFor(row);
-      return (
-        <a class="admin-example" href={`/admin/examples/${row.id}`}>
-          <img class="admin-example__photo" src={frameExampleUrl(row.image_path)} alt={row.caption ?? ""} loading="lazy" />
-          <div class="admin-example__meta">
-            <span class="admin-example__service">{SERVICE_LABELS[row.service as Service]}</span>
-            {row.caption && <span class="admin-example__caption">{row.caption}</span>}
-            {!row.caption && detail && <span class="admin-example__caption">{detail}</span>}
-            <span class="admin-example__row">
-              {SUBJECT_LABELS[row.subject as Subject]}
-              {row.featured && <span class="admin-example__featured" style="margin-left:8px">Featured</span>}
+  {view === "grid" && (
+    <div class="admin-grid">
+      {rows?.map((row) => {
+        const detail = detailFor(row);
+        return (
+          <a class="admin-example" href={`/admin/examples/${row.id}`}>
+            <img class="admin-example__photo" src={frameExampleUrl(row.image_path)} alt={row.caption ?? ""} loading="lazy" />
+            <div class="admin-example__meta">
+              <span class="admin-example__service">{SERVICE_LABELS[row.service as Service]}</span>
+              {row.caption && <span class="admin-example__caption">{row.caption}</span>}
+              {!row.caption && detail && <span class="admin-example__caption">{detail}</span>}
+              <span class="admin-example__row">
+                {SUBJECT_LABELS[row.subject as Subject]}
+                {row.featured && <span class="admin-example__featured" style="margin-left:8px">Featured</span>}
+              </span>
+            </div>
+          </a>
+        );
+      })}
+    </div>
+  )}
+
+  {view === "list" && rows && rows.length > 0 && (
+    <div class="admin-list">
+      <div class="admin-list__row admin-list__row--head" style="grid-template-columns:60px 1.4fr 1.2fr 2fr 80px;">
+        <span></span>
+        <span>Service</span>
+        <span>Subject</span>
+        <span>Caption / detail</span>
+        <span></span>
+      </div>
+      {rows.map((row) => {
+        const detail = detailFor(row);
+        return (
+          <a class="admin-list__row" href={`/admin/examples/${row.id}`} style="grid-template-columns:60px 1.4fr 1.2fr 2fr 80px;">
+            <img class="admin-list__thumb" src={frameExampleUrl(row.image_path)} alt="" loading="lazy" />
+            <span class="admin-list__cell">{SERVICE_LABELS[row.service as Service]}</span>
+            <span class="admin-list__cell admin-list__cell--muted">{SUBJECT_LABELS[row.subject as Subject]}</span>
+            <span class="admin-list__cell"><strong>{row.caption ?? detail ?? "—"}</strong></span>
+            <span class="admin-list__cell">
+              {row.featured && <span class="admin-list__pill admin-list__pill--featured">★</span>}
             </span>
-          </div>
-        </a>
-      );
-    })}
-  </div>
+          </a>
+        );
+      })}
+    </div>
+  )}
 </AdminLayout>

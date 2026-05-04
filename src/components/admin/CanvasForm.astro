@@ -92,11 +92,11 @@ const finishes: { value: Canvas["finish"]; label: string }[] = [
     <div class="admin-form__row">
       <label>
         <span>Max print width (cm)</span>
-        <input type="number" name="max_print_width_cm" required min="1" step="0.1" value={canvas?.maxPrintWidthCm ?? ""} />
+        <input type="number" name="max_print_width_cm" required min="1" step="0.01" value={canvas?.maxPrintWidthCm ?? ""} />
       </label>
       <label>
         <span>Max print length (cm)</span>
-        <input type="number" name="max_print_length_cm" required min="1" step="0.1" value={canvas?.maxPrintLengthCm ?? ""} />
+        <input type="number" name="max_print_length_cm" required min="1" step="0.01" value={canvas?.maxPrintLengthCm ?? ""} />
       </label>
     </div>
 
@@ -221,11 +221,6 @@ const finishes: { value: Canvas["finish"]; label: string }[] = [
     gap: 6px;
     font-size: 12.5px;
     color: var(--admin-muted, #555);
-  }
-  .admin-form__check-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 18px;
   }
 </style>
 
