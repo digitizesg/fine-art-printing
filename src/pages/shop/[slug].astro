@@ -222,6 +222,49 @@ const pricingData = {
               </div>
             </fieldset>
 
+            <fieldset class="artwork-config__group" data-substrate="canvas" data-only-when-rolled>
+              <legend>Add extra margin for future stretching?</legend>
+              <div class="artwork-config__chips" role="radiogroup" aria-label="Future stretching margin">
+                <label class="artwork-config__chip">
+                  <input type="radio" name="future_margin" value="no" checked />
+                  <span>No, ship rolled as-is</span>
+                </label>
+                <label class="artwork-config__chip">
+                  <input type="radio" name="future_margin" value="yes" />
+                  <span>Yes, add 1.5" all around</span>
+                </label>
+              </div>
+              <p class="artwork-config__hint">
+                Adds 1.5" of extra canvas around your image so a framer can stretch it later. Adjusts the printed canvas size and the price.
+              </p>
+            </fieldset>
+
+            <fieldset class="artwork-config__group" data-substrate="canvas" data-only-when-margin>
+              <legend>Wrap style</legend>
+              <div class="artwork-config__chips" role="radiogroup" aria-label="Wrap style">
+                <label class="artwork-config__chip">
+                  <input type="radio" name="wrap_type" value="mirror" checked />
+                  <span>Mirror</span>
+                </label>
+                <label class="artwork-config__chip">
+                  <input type="radio" name="wrap_type" value="gallery" />
+                  <span>Gallery</span>
+                </label>
+                <label class="artwork-config__chip">
+                  <input type="radio" name="wrap_type" value="colour" />
+                  <span>Solid colour</span>
+                </label>
+              </div>
+              <details class="artwork-config__help">
+                <summary>What's the difference?</summary>
+                <div class="artwork-config__help-body">
+                  <p><strong>Mirror</strong> — the edges of the image are mirrored onto the wrap, so the design continues smoothly around the sides.</p>
+                  <p><strong>Gallery</strong> — the image itself wraps around the sides, so part of the picture is visible on the side faces.</p>
+                  <p><strong>Solid colour</strong> — the wrap is filled with a flat colour you choose (typically black or white). We'll confirm the colour with you before printing.</p>
+                </div>
+              </details>
+            </fieldset>
+
             <fieldset class="artwork-config__group" data-substrate="canvas" data-only-when-stretched>
               <legend>Float frame (optional)</legend>
               <select name="float_frame" class="artwork-config__select">
@@ -364,6 +407,66 @@ const pricingData = {
     font-size: 13px;
     color: var(--color-subtle);
   }
+  .artwork-config__help {
+    margin-top: 4px;
+  }
+  .artwork-config__help summary {
+    list-style: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-petrol);
+    background: #fff;
+    user-select: none;
+  }
+  .artwork-config__help summary::-webkit-details-marker {
+    display: none;
+  }
+  .artwork-config__help summary::before {
+    content: "?";
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--color-petrol);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .artwork-config__help summary:hover {
+    background: rgba(26, 53, 80, 0.04);
+  }
+  .artwork-config__help[open] summary::before {
+    content: "✕";
+    font-size: 10px;
+  }
+  .artwork-config__help-body {
+    margin-top: 10px;
+    padding: 14px 16px;
+    background: #FAF7F1;
+    border-radius: 10px;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+  }
+  .artwork-config__help-body p {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--color-subtle);
+  }
+  .artwork-config__help-body p:last-child {
+    margin-bottom: 0;
+  }
+  .artwork-config__help-body strong {
+    color: var(--color-ink);
+  }
   .artwork-config__price {
     border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
     padding-top: 18px;
@@ -474,11 +577,16 @@ const pricingData = {
     function syncSubstrate() {
       const substrate = getRadio("substrate") ?? "paper";
       const stretching = getRadio("stretching") ?? "none";
+      const futureMargin = getRadio("future_margin") ?? "no";
       groups.forEach((g) => {
         const onlySubstrate = g.dataset.substrate;
         const stretchedOnly = g.hasAttribute("data-only-when-stretched");
+        const rolledOnly = g.hasAttribute("data-only-when-rolled");
+        const marginOnly = g.hasAttribute("data-only-when-margin");
         let visible = onlySubstrate ? onlySubstrate === substrate : true;
         if (visible && stretchedOnly) visible = stretching !== "none";
+        if (visible && rolledOnly) visible = stretching === "none";
+        if (visible && marginOnly) visible = stretching === "none" && futureMargin === "yes";
         g.style.display = visible ? "" : "none";
       });
     }
@@ -513,13 +621,18 @@ const pricingData = {
      * stretching, and float framing. Server-side checkout will recompute
      * authoritative totals; this is just an in-page estimate.
      */
-    function canvasPrice(canvasId: string, w: number, h: number, stretching: string, floatFrame: string): number | null {
+    function canvasPrice(canvasId: string, w: number, h: number, stretching: string, floatFrame: string, futureMargin: boolean): number | null {
       const canvas = pricing.canvas.canvases.find((c) => c.id === canvasId);
       if (!canvas) return null;
-      const minSide = Math.min(w, h);
-      const maxSide = Math.max(w, h);
+      // 1.5" = 3.81cm — added on each axis (so total +7.62cm width and height)
+      // when the rolled customer asks for future-stretching margin.
+      const margin = stretching === "none" && futureMargin ? 3.81 : 0;
+      const effW = w + margin * 2;
+      const effH = h + margin * 2;
+      const minSide = Math.min(effW, effH);
+      const maxSide = Math.max(effW, effH);
       if (minSide > canvas.maxPrintWidthCm || maxSide > canvas.maxPrintLengthCm) return null;
-      const sqm = (w * h) / 10000;
+      const sqm = (effW * effH) / 10000;
       let total = canvas.sellPricePerSqm * sqm;
       // Ink + varnish + studio labour (rough flat additions per sqm).
       total += 18 * sqm + 30;
@@ -550,7 +663,8 @@ const pricingData = {
         const canvasId = getValue("canvas_id");
         const stretching = getRadio("stretching") ?? "none";
         const floatFrame = getValue("float_frame");
-        total = canvasPrice(canvasId, w, h, stretching, floatFrame);
+        const futureMargin = (getRadio("future_margin") ?? "no") === "yes";
+        total = canvasPrice(canvasId, w, h, stretching, floatFrame, futureMargin);
       }
       if (total === null) {
         priceEl.textContent = "—";
@@ -566,7 +680,15 @@ const pricingData = {
           ? `Includes ${border} cm border — paper printed at ${w + border * 2} × ${h + border * 2} cm.`
           : "";
       } else {
-        noteEl.textContent = "";
+        const stretching = getRadio("stretching") ?? "none";
+        const futureMargin = (getRadio("future_margin") ?? "no") === "yes";
+        if (stretching === "none" && futureMargin) {
+          const effW = (w + 3.81 * 2).toFixed(1);
+          const effH = (h + 3.81 * 2).toFixed(1);
+          noteEl.textContent = `Includes 1.5" stretching margin — canvas printed at ${effW} × ${effH} cm.`;
+        } else {
+          noteEl.textContent = "";
+        }
       }
     }
 
