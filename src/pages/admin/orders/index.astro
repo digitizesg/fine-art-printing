@@ -1,0 +1,139 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+
+type StatusFilter = "all" | "pending" | "paid" | "cancelled" | "failed";
+
+const supabase = createSupabaseServerClient(Astro);
+const url = Astro.url;
+const filterStatus = (url.searchParams.get("status") ?? "all") as StatusFilter;
+
+let query = supabase
+  .from("orders")
+  .select(
+    "id, reference, status, customer_email, customer_name, delivery_method, total_sgd, line_items, created_at, paid_at",
+  )
+  .order("created_at", { ascending: false })
+  .limit(200);
+if (filterStatus !== "all") {
+  query = query.eq("status", filterStatus);
+}
+const { data: rows, error } = await query;
+
+const counts: Record<StatusFilter, number> = {
+  all: 0, pending: 0, paid: 0, cancelled: 0, failed: 0,
+};
+{
+  const { data: countRows } = await supabase
+    .from("orders")
+    .select("status");
+  for (const r of countRows ?? []) {
+    counts.all++;
+    const s = r.status as StatusFilter;
+    if (s in counts) counts[s]++;
+  }
+}
+
+function buildLink(params: Record<string, string | null>) {
+  const u = new URL(url);
+  for (const [k, v] of Object.entries(params)) {
+    if (v === null) u.searchParams.delete(k);
+    else u.searchParams.set(k, v);
+  }
+  return u.pathname + (u.search ? u.search : "");
+}
+
+function fmtSGD(n: number | string | null) {
+  const v = typeof n === "string" ? parseFloat(n) : n ?? 0;
+  return `S$${v.toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+function fmtDate(s: string | null) {
+  if (!s) return "—";
+  const d = new Date(s);
+  return d.toLocaleString("en-SG", {
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit", hour12: false,
+  });
+}
+function lineCount(items: any): number {
+  return Array.isArray(items) ? items.reduce((s, l) => s + (l?.quantity ?? 1), 0) : 0;
+}
+
+const filters: { key: StatusFilter; label: string }[] = [
+  { key: "all", label: "All" },
+  { key: "paid", label: "Paid" },
+  { key: "pending", label: "Pending" },
+  { key: "cancelled", label: "Cancelled" },
+  { key: "failed", label: "Failed" },
+];
+---
+<AdminLayout title="Orders">
+  <div class="admin-page-head">
+    <div>
+      <h1>Orders</h1>
+      <p>{rows?.length ?? 0} order{rows?.length === 1 ? "" : "s"} shown · most recent first.</p>
+    </div>
+  </div>
+
+  <div class="admin-filters">
+    {filters.map((f) => (
+      <a
+        class:list={["admin-filter", filterStatus === f.key && "is-active"]}
+        href={buildLink({ status: f.key === "all" ? null : f.key })}
+      >
+        {f.label}
+        <span style="opacity:0.55;margin-left:6px;font-variant-numeric:tabular-nums;">{counts[f.key]}</span>
+      </a>
+    ))}
+  </div>
+
+  {error && <p class="admin-note admin-note--err">{error.message}</p>}
+  {rows && rows.length === 0 && (
+    <p class="admin-note">No orders match this filter yet.</p>
+  )}
+
+  {rows && rows.length > 0 && (
+    <div class="admin-list">
+      <div class="admin-list__row admin-list__row--head" style="grid-template-columns:140px 1.4fr 2fr 70px 1fr 1fr 1fr;">
+        <span>Reference</span>
+        <span>Date</span>
+        <span>Customer</span>
+        <span>Items</span>
+        <span>Total</span>
+        <span>Delivery</span>
+        <span>Status</span>
+      </div>
+      {rows.map((row) => {
+        const date = row.paid_at ?? row.created_at;
+        return (
+          <a class="admin-list__row" href={`/admin/orders/${row.id}`} style="grid-template-columns:140px 1.4fr 2fr 70px 1fr 1fr 1fr;">
+            <span class="admin-list__cell admin-list__cell--mono"><strong style="font-family:inherit;">{row.reference}</strong></span>
+            <span class="admin-list__cell admin-list__cell--muted">{fmtDate(date)}</span>
+            <span class="admin-list__cell">
+              <strong>{row.customer_name ?? "—"}</strong>
+              {row.customer_email && (
+                <span style="display:block;font-size:11.5px;color:#888;">{row.customer_email}</span>
+              )}
+            </span>
+            <span class="admin-list__cell">{lineCount(row.line_items)}</span>
+            <span class="admin-list__cell">{fmtSGD(row.total_sgd)}</span>
+            <span class="admin-list__cell admin-list__cell--muted">
+              {row.delivery_method === "local" ? "Local SG" : "Self-collect"}
+            </span>
+            <span class="admin-list__cell">
+              <span class:list={[
+                "admin-list__pill",
+                row.status === "paid" && "admin-list__pill--published",
+                row.status === "pending" && "admin-list__pill--draft",
+                (row.status === "failed" || row.status === "cancelled") && "admin-list__pill--featured",
+              ]}>
+                {row.status}
+              </span>
+            </span>
+          </a>
+        );
+      })}
+    </div>
+  )}
+</AdminLayout>

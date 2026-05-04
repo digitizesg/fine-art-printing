@@ -1,0 +1,353 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+
+type ShippingAddr = {
+  line1?: string | null;
+  line2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  postal_code?: string | null;
+  country?: string | null;
+} | null;
+
+type LineItem = {
+  artworkTitle: string;
+  artworkArtist?: string | null;
+  artworkImageUrl?: string;
+  artworkSlug?: string;
+  description: string;
+  quantity: number;
+  unitPriceSGD: number;
+  substrate?: "paper" | "canvas";
+  widthCm?: number;
+  heightCm?: number;
+  config?: Record<string, unknown>;
+};
+
+const id = Astro.params.id;
+const supabase = createSupabaseServerClient(Astro);
+
+let saveMessage: string | undefined;
+let saveError: string | undefined;
+
+if (Astro.request.method === "POST" && id) {
+  const form = await Astro.request.formData();
+  const action = String(form.get("action") ?? "");
+
+  if (action === "update_note") {
+    const note = String(form.get("internal_note") ?? "").trim() || null;
+    const { error } = await supabase
+      .from("orders")
+      .update({ internal_note: note })
+      .eq("id", id);
+    if (error) saveError = error.message;
+    else saveMessage = "Note saved.";
+  } else if (action === "update_status") {
+    const next = String(form.get("status") ?? "");
+    const allowed = new Set(["pending", "paid", "cancelled", "failed"]);
+    if (!allowed.has(next)) {
+      saveError = "Invalid status.";
+    } else {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: next })
+        .eq("id", id);
+      if (error) saveError = error.message;
+      else saveMessage = `Status set to ${next}.`;
+    }
+  }
+}
+
+const { data: row, error: loadErr } = await supabase
+  .from("orders")
+  .select("*")
+  .eq("id", id)
+  .single();
+
+if (loadErr || !row) {
+  return Astro.redirect("/admin/orders?error=not_found");
+}
+
+const lineItems: LineItem[] = Array.isArray(row.line_items) ? row.line_items : [];
+const shipping = row.shipping_address as ShippingAddr;
+
+function fmtSGD(n: number | string | null) {
+  const v = typeof n === "string" ? parseFloat(n) : n ?? 0;
+  return `S$${v.toLocaleString("en-SG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+function fmtDate(s: string | null) {
+  if (!s) return "—";
+  const d = new Date(s);
+  return d.toLocaleString("en-SG", {
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit", hour12: false,
+  });
+}
+function fmtAddress(a: ShippingAddr): string {
+  if (!a) return "—";
+  return [a.line1, a.line2, a.city, a.postal_code, a.country].filter(Boolean).join(", ");
+}
+
+const stripeDashUrl = row.stripe_payment_intent_id
+  ? `https://dashboard.stripe.com/test/payments/${row.stripe_payment_intent_id}`
+  : `https://dashboard.stripe.com/test/checkout/sessions/${row.stripe_session_id}`;
+---
+<AdminLayout title={`Order ${row.reference}`}>
+  <div class="admin-page-head">
+    <div>
+      <h1>{row.reference}</h1>
+      <p>
+        Placed {fmtDate(row.created_at)}
+        {row.paid_at && <> · Paid {fmtDate(row.paid_at)}</>}
+      </p>
+    </div>
+    <a href="/admin/orders" class="admin-btn admin-btn--ghost">← Back to orders</a>
+  </div>
+
+  {saveMessage && <p class="admin-note admin-note--ok">{saveMessage}</p>}
+  {saveError && <p class="admin-note admin-note--err">{saveError}</p>}
+
+  <div class="order-detail">
+    <section class="order-panel">
+      <h3 class="order-panel__title">Status</h3>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+        <span class:list={[
+          "admin-list__pill",
+          row.status === "paid" && "admin-list__pill--published",
+          row.status === "pending" && "admin-list__pill--draft",
+          (row.status === "failed" || row.status === "cancelled") && "admin-list__pill--featured",
+        ]} style="font-size:12px;padding:4px 12px;">
+          {row.status}
+        </span>
+        <form method="POST" style="display:flex;gap:8px;align-items:center;">
+          <input type="hidden" name="action" value="update_status" />
+          <select name="status" style="padding:6px 10px;border:1px solid rgba(0,0,0,0.15);border-radius:6px;font-size:13px;">
+            <option value="paid" selected={row.status === "paid"}>paid</option>
+            <option value="pending" selected={row.status === "pending"}>pending</option>
+            <option value="cancelled" selected={row.status === "cancelled"}>cancelled</option>
+            <option value="failed" selected={row.status === "failed"}>failed</option>
+          </select>
+          <button type="submit" class="admin-btn" style="padding:6px 14px;font-size:13px;">Update</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="order-panel">
+      <h3 class="order-panel__title">Customer</h3>
+      <dl class="order-dl">
+        <dt>Name</dt><dd>{row.customer_name ?? "—"}</dd>
+        <dt>Email</dt><dd>{row.customer_email ? <a href={`mailto:${row.customer_email}`}>{row.customer_email}</a> : "—"}</dd>
+        {row.customer_phone && <><dt>Phone</dt><dd>{row.customer_phone}</dd></>}
+      </dl>
+    </section>
+
+    <section class="order-panel">
+      <h3 class="order-panel__title">Delivery</h3>
+      <dl class="order-dl">
+        <dt>Method</dt>
+        <dd>{row.delivery_method === "local" ? "Local Singapore delivery (S$30)" : "Self-collection from studio"}</dd>
+        {row.delivery_method === "local" && (
+          <Fragment>
+            <dt>Address</dt><dd>{fmtAddress(shipping)}</dd>
+          </Fragment>
+        )}
+      </dl>
+    </section>
+
+    <section class="order-panel">
+      <h3 class="order-panel__title">Items</h3>
+      <ul class="order-lines">
+        {lineItems.map((li) => (
+          <li class="order-line">
+            {li.artworkImageUrl ? (
+              <img src={li.artworkImageUrl} alt={li.artworkTitle} loading="lazy" />
+            ) : (
+              <div class="order-line__placeholder"></div>
+            )}
+            <div class="order-line__meta">
+              <span class="order-line__title">{li.artworkTitle}</span>
+              {li.artworkArtist && <span class="order-line__artist">{li.artworkArtist}</span>}
+              <span class="order-line__config">{li.description}</span>
+              {li.artworkSlug && (
+                <a class="order-line__link" href={`/shop/${li.artworkSlug}`} target="_blank" rel="noopener">View on shop →</a>
+              )}
+            </div>
+            <div class="order-line__side">
+              <span class="order-line__qty">× {li.quantity}</span>
+              <span class="order-line__price">{fmtSGD(li.unitPriceSGD * li.quantity)}</span>
+            </div>
+          </li>
+        ))}
+      </ul>
+      <dl class="order-totals">
+        <div><dt>Subtotal</dt><dd>{fmtSGD(row.subtotal_sgd)}</dd></div>
+        <div><dt>Delivery</dt><dd>{Number(row.delivery_sgd) === 0 ? "Free" : fmtSGD(row.delivery_sgd)}</dd></div>
+        <div class="order-totals__grand"><dt>Total</dt><dd>{fmtSGD(row.total_sgd)}</dd></div>
+      </dl>
+    </section>
+
+    <section class="order-panel">
+      <h3 class="order-panel__title">Internal note</h3>
+      <form method="POST">
+        <input type="hidden" name="action" value="update_note" />
+        <textarea
+          name="internal_note"
+          rows="4"
+          placeholder="Production status, customer correspondence, anything else you want to remember about this order…"
+          style="width:100%;padding:10px 12px;border:1px solid rgba(0,0,0,0.15);border-radius:8px;font:inherit;font-size:13.5px;resize:vertical;"
+        >{row.internal_note ?? ""}</textarea>
+        <button type="submit" class="admin-btn" style="margin-top:10px;">Save note</button>
+      </form>
+    </section>
+
+    <section class="order-panel">
+      <h3 class="order-panel__title">Stripe</h3>
+      <dl class="order-dl">
+        <dt>Session ID</dt>
+        <dd style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;word-break:break-all;">{row.stripe_session_id}</dd>
+        {row.stripe_payment_intent_id && (
+          <Fragment>
+            <dt>Payment Intent</dt>
+            <dd style="font-family:ui-monospace,Menlo,monospace;font-size:11.5px;word-break:break-all;">{row.stripe_payment_intent_id}</dd>
+          </Fragment>
+        )}
+      </dl>
+      <a href={stripeDashUrl} target="_blank" rel="noopener" class="admin-btn admin-btn--ghost" style="margin-top:8px;">
+        Open in Stripe Dashboard ↗
+      </a>
+    </section>
+  </div>
+</AdminLayout>
+
+<style is:global>
+  .order-detail {
+    display: grid;
+    gap: 18px;
+    max-width: 920px;
+    margin-top: 14px;
+  }
+  .order-panel {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 20px 22px;
+  }
+  .order-panel__title {
+    margin: 0 0 12px;
+    font-family: "Lora", Georgia, serif;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--admin-ink);
+  }
+  .order-dl {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 6px 14px;
+    margin: 0;
+  }
+  .order-dl dt {
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--admin-muted);
+    align-self: center;
+  }
+  .order-dl dd {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--admin-ink);
+  }
+  .order-dl a {
+    color: var(--admin-petrol);
+  }
+  .order-lines {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .order-line {
+    display: grid;
+    grid-template-columns: 64px 1fr auto;
+    gap: 14px;
+    padding: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 10px;
+    background: #faf7f1;
+  }
+  .order-line img,
+  .order-line__placeholder {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #f4efe7;
+  }
+  .order-line__meta {
+    display: grid;
+    align-content: start;
+    gap: 2px;
+    min-width: 0;
+  }
+  .order-line__title {
+    font-family: "Lora", Georgia, serif;
+    font-weight: 500;
+    font-size: 14.5px;
+  }
+  .order-line__artist {
+    font-size: 12px;
+    color: var(--admin-muted);
+  }
+  .order-line__config {
+    margin-top: 4px;
+    font-size: 12.5px;
+    color: var(--admin-subtle);
+  }
+  .order-line__link {
+    margin-top: 6px;
+    font-size: 11.5px;
+    color: var(--admin-petrol);
+    width: max-content;
+  }
+  .order-line__side {
+    text-align: right;
+    display: grid;
+    align-content: space-between;
+    gap: 4px;
+  }
+  .order-line__qty {
+    font-size: 12px;
+    color: var(--admin-muted);
+  }
+  .order-line__price {
+    font-family: "Lora", Georgia, serif;
+    font-weight: 500;
+    font-size: 15px;
+  }
+  .order-totals {
+    margin: 16px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    display: grid;
+    gap: 4px;
+  }
+  .order-totals > div {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13.5px;
+    color: var(--admin-subtle);
+  }
+  .order-totals dt, .order-totals dd { margin: 0; }
+  .order-totals__grand {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    padding-top: 10px;
+    margin-top: 6px;
+    font-family: "Lora", Georgia, serif;
+    font-size: 16px !important;
+    font-weight: 500;
+    color: var(--admin-ink) !important;
+  }
+</style>
