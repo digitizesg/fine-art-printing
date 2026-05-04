@@ -157,6 +157,25 @@ const pricingData = {
               </select>
             </fieldset>
 
+            <fieldset class="artwork-config__group" data-substrate="paper">
+              <legend>White border</legend>
+              <div class="artwork-config__border">
+                <input
+                  type="number"
+                  name="border_cm"
+                  min="0"
+                  max="10"
+                  step="0.5"
+                  value="0"
+                  class="artwork-config__border-input"
+                />
+                <span class="artwork-config__border-suffix">cm on all sides</span>
+              </div>
+              <p class="artwork-config__hint">
+                Optional white margin around the image. The image size stays the same; the paper printed gets larger by twice the border on each axis, and the price reflects that.
+              </p>
+            </fieldset>
+
             <fieldset class="artwork-config__group" data-substrate="canvas">
               <legend>Canvas</legend>
               <select name="canvas_id" class="artwork-config__select">
@@ -319,6 +338,32 @@ const pricingData = {
     font-size: 12.5px;
     color: var(--color-subtle);
   }
+  .artwork-config__border {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .artwork-config__border-input {
+    padding: 10px 12px;
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.15));
+    border-radius: 8px;
+    font-size: 15px;
+    background: #fff;
+    color: var(--color-ink);
+    width: 110px;
+    font-variant-numeric: tabular-nums;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .artwork-config__border-input:focus {
+    outline: 2px solid var(--color-petrol);
+    outline-offset: 0;
+    border-color: var(--color-petrol);
+  }
+  .artwork-config__border-suffix {
+    font-size: 13px;
+    color: var(--color-subtle);
+  }
   .artwork-config__price {
     border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
     padding-top: 18px;
@@ -438,14 +483,16 @@ const pricingData = {
       });
     }
 
-    function paperPrice(paperId: string, w: number, h: number): number | null {
+    function paperPrice(paperId: string, w: number, h: number, border: number): number | null {
       const paper = pricing.paper.papers.find((p) => p.id === paperId);
       if (!paper) return null;
-      const minSide = Math.min(w, h);
-      const maxSide = Math.max(w, h);
+      const effW = w + border * 2;
+      const effH = h + border * 2;
+      const minSide = Math.min(effW, effH);
+      const maxSide = Math.max(effW, effH);
       if (minSide > paper.maxPrintWidthCm || maxSide > paper.maxPrintLengthCm) return null;
       const cfg = pricing.paper.PRICING;
-      const sqm = (w * h) / 10000;
+      const sqm = (effW * effH) / 10000;
       const paperLine = paper.sellPricePerSqm * sqm;
       const inkLine = cfg.inkSellPerSqm * sqm;
       const labor = cfg.baseLaborSellPerJob;
@@ -497,7 +544,8 @@ const pricingData = {
       let total: number | null = null;
       if (substrate === "paper") {
         const paperId = getValue("paper_id");
-        total = paperPrice(paperId, w, h);
+        const border = Math.max(0, parseFloat(getValue("border_cm") || "0") || 0);
+        total = paperPrice(paperId, w, h, border);
       } else {
         const canvasId = getValue("canvas_id");
         const stretching = getRadio("stretching") ?? "none";
@@ -506,11 +554,20 @@ const pricingData = {
       }
       if (total === null) {
         priceEl.textContent = "—";
-        noteEl.textContent = "This size is too large for the selected substrate.";
+        noteEl.textContent = substrate === "paper"
+          ? "This size and border combo is too large for the selected paper."
+          : "This size is too large for the selected substrate.";
         return;
       }
       priceEl.textContent = `S$${total.toLocaleString("en-SG")}`;
-      noteEl.textContent = "";
+      if (substrate === "paper") {
+        const border = Math.max(0, parseFloat(getValue("border_cm") || "0") || 0);
+        noteEl.textContent = border > 0
+          ? `Includes ${border} cm border — paper printed at ${w + border * 2} × ${h + border * 2} cm.`
+          : "";
+      } else {
+        noteEl.textContent = "";
+      }
     }
 
     root.addEventListener("change", update);
