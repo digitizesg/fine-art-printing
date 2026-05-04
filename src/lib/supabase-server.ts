@@ -5,6 +5,7 @@
  * subsequent requests see the same logged-in user.
  */
 import { createServerClient } from "@supabase/ssr";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { APIContext, AstroCookies } from "astro";
 
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
@@ -63,4 +64,17 @@ export async function getSession(
     data: { user },
   } = await supabase.auth.getUser();
   return { supabase, user };
+}
+
+/**
+ * Service-role Supabase client for backend-only flows (Stripe webhook,
+ * checkout endpoint). Bypasses RLS — never expose to the browser.
+ * Returns null if the service role key isn't configured.
+ */
+export function createSupabaseAdminClient(): SupabaseClient | null {
+  const serviceKey = import.meta.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!SUPABASE_URL || !serviceKey) return null;
+  return createClient(SUPABASE_URL, serviceKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
 }
