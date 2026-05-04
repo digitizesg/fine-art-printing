@@ -34,10 +34,11 @@ const lookup = canvases.reduce<Record<string, { brand: string; shortName: string
           <path d="M14 30v6a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4v-6M24 8v22m0-22l-7 7m7-7l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <p class="canvas-recommender__drop-title">
-          Drop your image here, or
-          <span class="canvas-recommender__drop-link">click to browse</span>.
+          Drop a reference image to get canvas suggestions
         </p>
-        <p class="canvas-recommender__hint">JPG or PNG, up to 100 MB</p>
+        <p class="canvas-recommender__hint">
+          or <span class="canvas-recommender__drop-link">click to browse</span> · JPG / PNG up to 100 MB · we won't print it, this is just for recommendations
+        </p>
       </div>
     </label>
     <p class="canvas-recommender__error" data-cr-error hidden></p>

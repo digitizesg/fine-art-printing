@@ -36,10 +36,11 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
           <path d="M14 30v6a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4v-6M24 8v22m0-22l-7 7m7-7l7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <p class="paper-recommender__drop-title">
-          Drop your image here, or
-          <span class="paper-recommender__drop-link">click to browse</span>.
+          Drop a reference image to get paper suggestions
         </p>
-        <p class="paper-recommender__hint">JPG or PNG, up to 100 MB</p>
+        <p class="paper-recommender__hint">
+          or <span class="paper-recommender__drop-link">click to browse</span> · JPG / PNG up to 100 MB · we won't print it, this is just for recommendations
+        </p>
       </div>
     </label>
     <p class="paper-recommender__error" data-pr-error hidden></p>
