@@ -21,7 +21,7 @@ interface Props {
 }
 const { mode, artwork, error, message } = Astro.props;
 
-const action = mode === "new" ? "/admin/artworks" : `/admin/artworks/${artwork?.id}`;
+const action = mode === "new" ? "/admin/artworks/new" : `/admin/artworks/${artwork?.id}`;
 const sizesJson = JSON.stringify(artwork?.available_sizes ?? []);
 ---
 <form class="admin-form admin-form--wide" method="POST" enctype="multipart/form-data" action={action}>
