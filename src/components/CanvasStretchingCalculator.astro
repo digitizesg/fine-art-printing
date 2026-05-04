@@ -144,8 +144,6 @@ const floatFramesJson = JSON.stringify(
     </div>
   </fieldset>
 
-  <p class="canvas-quote__bring" data-bring-canvas hidden></p>
-
   <script type="application/json" data-float-frames set:html={floatFramesJson} />
 
   <div class="canvas-quote__output" data-stretching-output></div>
@@ -170,15 +168,6 @@ const floatFramesJson = JSON.stringify(
     margin: -8px 0 14px;
     max-width: 60ch;
     line-height: 1.5;
-  }
-  .canvas-quote__bring {
-    font-size: 13.5px;
-    color: var(--color-petrol);
-    background: rgba(26, 53, 80, 0.06);
-    border-radius: 8px;
-    padding: 10px 14px;
-    line-height: 1.45;
-    margin: 0;
   }
   /* Show the float-frame colour picker only when "Float frame" is selected. */
   .canvas-quote:has(input[name="finishing"][value="float"]:checked) .canvas-quote__frame-colour {
@@ -272,22 +261,12 @@ const floatFramesJson = JSON.stringify(
     const actions = form.querySelector<HTMLElement>(
       "[data-stretching-actions]",
     )!;
-    const bring = form.querySelector<HTMLElement>("[data-bring-canvas]")!;
 
     if (!result.ok) {
       output.innerHTML = `<div class="quote-error"><strong>Hold up.</strong> ${escapeHtml(result.message)}</div>`;
       actions.hidden = true;
-      bring.hidden = true;
       return;
     }
-
-    // Show "you'll need to bring a canvas of X × Y cm" hint.
-    const reqW = result.requiredCanvasWidthCm;
-    const reqH = result.requiredCanvasHeightCm;
-    const reqUnitW = state.units === "in" ? (reqW / 2.54).toFixed(1) : reqW.toFixed(1);
-    const reqUnitH = state.units === "in" ? (reqH / 2.54).toFixed(1) : reqH.toFixed(1);
-    bring.textContent = `Bring a canvas of at least ${reqUnitW} × ${reqUnitH} ${state.units} so we have enough wrap allowance.`;
-    bring.hidden = false;
 
     // Group lines: stretching (incl. wire & hooks), float frame (if any), delivery.
     const stretchingLine = result.lines.find((l) =>
