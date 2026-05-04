@@ -246,22 +246,25 @@ export const LABOUR_MARKUP = 2;
 export interface FloatFrameColour {
   id: string;
   label: string;
-  /** Filename in /public/photos/float-frames/ for the picker thumbnail. */
-  image: string;
+  /** Wholesale moulding cost in SGD per foot. Drives the per-frame material line. */
+  costPerFoot: number;
+  /** Filename in /public/photos/float-frames/ for the picker thumbnail. Optional for new profiles where we don't have a photo yet. */
+  image?: string;
 }
 
 export const FLOAT_FRAME_COLOURS: readonly FloatFrameColour[] = [
-  { id: "smooth-white", label: "Smooth White", image: "3740-W-Smooth-White.jpg" },
-  { id: "smooth-black", label: "Smooth Black", image: "3740-B-Smooth-Black.jpg" },
-  { id: "champagne", label: "Champagne", image: "3740-S-Champagne.jpg" },
-  { id: "glossy-light-brown-pine", label: "Glossy Light Brown Pine", image: "S3536-Glossy-Light-Brown-Pine.jpg" },
-  { id: "natural-brown-oak", label: "Natural Brown Oak", image: "3535-19-Natural-Brown-Oak.jpg" },
-  { id: "natural-dark-brown-oak", label: "Natural Dark Brown Oak", image: "3535-15-Natural-Dark-Brown-Oak.jpg" },
-  { id: "natural-black-oak", label: "Natural Black Oak", image: "3535-11-Natural-Black-Oak.jpg" },
+  { id: "smooth-white", label: "Smooth White", costPerFoot: 0.77, image: "3740-W-Smooth-White.jpg" },
+  { id: "smooth-black", label: "Smooth Black", costPerFoot: 0.77, image: "3740-B-Smooth-Black.jpg" },
+  { id: "champagne", label: "Champagne", costPerFoot: 0.77, image: "3740-S-Champagne.jpg" },
+  { id: "glossy-light-brown-pine", label: "Glossy Light Brown Pine", costPerFoot: 0.77, image: "S3536-Glossy-Light-Brown-Pine.jpg" },
+  { id: "natural-brown-oak", label: "Natural Brown Oak", costPerFoot: 0.77, image: "3535-19-Natural-Brown-Oak.jpg" },
+  { id: "natural-dark-brown-oak", label: "Natural Dark Brown Oak", costPerFoot: 0.77, image: "3535-15-Natural-Dark-Brown-Oak.jpg" },
+  { id: "natural-black-oak", label: "Natural Black Oak", costPerFoot: 0.77, image: "3535-11-Natural-Black-Oak.jpg" },
+  // $3.10/m wholesale = $0.945/ft. No swatch photo yet — picker shows a placeholder.
+  { id: "gold", label: "Gold", costPerFoot: 0.945 },
 ] as const;
 
 export const FLOAT_FRAME_ADD_CM = 1.2;
-export const FLOAT_FRAME_COST_PER_FOOT = 0.77;
 export const FLOAT_FRAME_WASTAGE = 1.2;
 export const FLOAT_FRAME_MARKUP = 10;
 
@@ -509,7 +512,7 @@ export function quoteCanvasPrint(input: CanvasQuoteInput): CanvasQuoteResult {
 
   // Float frame cost — added ON TOP of the stretching above.
   if (frameForCalc) {
-    const materialCost = perimeterFt * FLOAT_FRAME_COST_PER_FOOT;
+    const materialCost = perimeterFt * frameForCalc.costPerFoot;
     const labour = lookupLabour(perimeterFt);
 
     const frameSell = round2(
@@ -662,7 +665,7 @@ export function quoteCanvasStretching(
   });
 
   if (frameColour) {
-    const frameMaterialCost = perimeterFt * FLOAT_FRAME_COST_PER_FOOT;
+    const frameMaterialCost = perimeterFt * frameColour.costPerFoot;
     const frameLabour = lookupLabour(perimeterFt);
     const frameSell = round2(
       round2(frameMaterialCost) * FLOAT_FRAME_WASTAGE * FLOAT_FRAME_MARKUP +

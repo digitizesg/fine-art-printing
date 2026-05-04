@@ -153,27 +153,33 @@ const featured = CANVASES.filter((c) => c.featured);
             checked={i === 0}
             class="sr-only"
           />
-          <img
-            class="frame-colour__swatch"
-            src={`/photos/float-frames/${colour.image}`}
-            alt=""
-            loading="lazy"
-            aria-hidden="true"
-          />
+          {colour.image ? (
+            <img
+              class="frame-colour__swatch"
+              src={`/photos/float-frames/${colour.image}`}
+              alt=""
+              loading="lazy"
+              aria-hidden="true"
+            />
+          ) : (
+            <span class="frame-colour__swatch frame-colour__swatch--placeholder" aria-hidden="true">Photo coming soon</span>
+          )}
           <span class="frame-colour__name">{colour.label}</span>
-          <button
-            type="button"
-            class="frame-colour__zoom"
-            data-frame-zoom
-            data-frame-image={`/photos/float-frames/${colour.image}`}
-            data-frame-name={colour.label}
-            aria-label={`View ${colour.label} larger`}
-          >
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.6"/>
-              <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            </svg>
-          </button>
+          {colour.image && (
+            <button
+              type="button"
+              class="frame-colour__zoom"
+              data-frame-zoom
+              data-frame-image={`/photos/float-frames/${colour.image}`}
+              data-frame-name={colour.label}
+              aria-label={`View ${colour.label} larger`}
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.6"/>
+                <path d="M11 11l3 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+              </svg>
+            </button>
+          )}
         </label>
       ))}
     </div>

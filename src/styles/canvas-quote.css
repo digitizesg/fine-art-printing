@@ -233,6 +233,17 @@
   display: block;
   background: #f4efe7;
 }
+.frame-colour__swatch--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  color: var(--color-subtle);
+  text-align: center;
+  background: repeating-linear-gradient(135deg, #f4efe7, #f4efe7 6px, #ece6db 6px, #ece6db 12px);
+  letter-spacing: 0.02em;
+}
 .frame-colour__name {
   font-family: var(--font-sans);
   font-size: 12.5px;
