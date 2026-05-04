@@ -28,19 +28,29 @@ let query = supabase
 if (filterService) query = query.eq("service", filterService);
 if (filterFeatured) query = query.eq("featured", true);
 
-const { data: rows, error } = await query;
-const floatFrames = await listFloatFrames({ onlyPublished: false });
-const canvases = await listCanvases({ onlyPublished: false });
-const papers = await listPapers({ onlyPublished: false });
-
-// Pending-changes counter — bumped by a trigger on frame_examples for any
-// insert/update/delete. Reset to 0 on publish.
-const { data: stateRow } = await supabase
-  .from("publish_state")
-  .select("pending_count")
-  .eq("id", 1)
-  .single();
-const pendingCount = stateRow?.pending_count ?? 0;
+// Run all five reads in parallel — sum-of-latencies → max-of-latencies.
+// Pending-changes counter is bumped by triggers on frame_examples /
+// artworks / etc. and reset to 0 on publish.
+const [
+  examplesRes,
+  floatFrames,
+  canvases,
+  papers,
+  stateRes,
+] = await Promise.all([
+  query,
+  listFloatFrames({ onlyPublished: false }),
+  listCanvases({ onlyPublished: false }),
+  listPapers({ onlyPublished: false }),
+  supabase
+    .from("publish_state")
+    .select("pending_count")
+    .eq("id", 1)
+    .single(),
+]);
+const rows = examplesRes.data;
+const error = examplesRes.error;
+const pendingCount = stateRes.data?.pending_count ?? 0;
 
 const publishStatus = url.searchParams.get("publish");
 
