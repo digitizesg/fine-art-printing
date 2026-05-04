@@ -386,8 +386,9 @@ const jsonLd = {
     border-color: rgba(0, 0, 0, 0.22);
   }
   .artwork-config__chip:has(input:checked) {
-    border-color: var(--color-petrol);
-    background: rgba(26, 53, 80, 0.04);
+    border-color: var(--color-selected);
+    background: var(--color-selected-bg);
+    box-shadow: inset 0 0 0 1px var(--color-selected);
   }
   .artwork-config__chip input {
     position: absolute;

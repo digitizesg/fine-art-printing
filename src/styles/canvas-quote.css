@@ -87,7 +87,7 @@
   color: var(--color-muted);
 }
 .canvas-quote__units label:has(input:checked) span {
-  background: #1a3550;
+  background: var(--color-selected);
   color: #fff;
 }
 
@@ -119,8 +119,9 @@
   background: rgba(0, 0, 0, 0.015);
 }
 .finishing-card:has(input:checked) {
-  border-color: #1a3550;
-  background: rgba(26, 53, 80, 0.04);
+  border-color: var(--color-selected);
+  background: var(--color-selected-bg);
+  box-shadow: inset 0 0 0 1px var(--color-selected);
 }
 .finishing-card input {
   position: absolute;
@@ -132,7 +133,7 @@
   display: inline-flex;
 }
 .finishing-card:has(input:checked) .finishing-card__icon {
-  color: var(--color-petrol);
+  color: var(--color-selected);
 }
 .finishing-card__body {
   display: grid;
@@ -220,8 +221,9 @@
   border-color: rgba(0, 0, 0, 0.18);
 }
 .frame-colour:has(input:checked) {
-  border-color: #1a3550;
-  background: rgba(26, 53, 80, 0.04);
+  border-color: var(--color-selected);
+  background: var(--color-selected-bg);
+  box-shadow: inset 0 0 0 1px var(--color-selected);
 }
 .frame-colour__swatch {
   width: 100%;
@@ -279,8 +281,9 @@
   border-color: rgba(0, 0, 0, 0.18);
 }
 .delivery-card:has(input:checked) {
-  border-color: #1a3550;
-  background: rgba(26, 53, 80, 0.04);
+  border-color: var(--color-selected);
+  background: var(--color-selected-bg);
+  box-shadow: inset 0 0 0 1px var(--color-selected);
 }
 .delivery-card input {
   position: absolute;

@@ -314,9 +314,9 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     pointer-events: none;
   }
   .contact-form__pref-opt:has(input:checked) {
-    border-color: var(--color-petrol);
-    background: rgba(26, 53, 80, 0.05);
-    box-shadow: inset 0 0 0 1px var(--color-petrol);
+    border-color: var(--color-selected);
+    background: var(--color-selected-bg-strong);
+    box-shadow: inset 0 0 0 1px var(--color-selected);
   }
   .contact-form__pref-opt:has(input:focus-visible) {
     outline: 2px solid var(--color-petrol);
