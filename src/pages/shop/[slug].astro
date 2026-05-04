@@ -1,0 +1,487 @@
+---
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Eyebrow from "../../components/Eyebrow.astro";
+import DarkCTA from "../../components/DarkCTA.astro";
+import { listArtworks, getArtworkBySlug } from "../../lib/artworks";
+import { PAPERS } from "../../data/pricing/paper";
+import { CANVASES, FLOAT_FRAME_COLOURS } from "../../data/pricing/canvas";
+
+export async function getStaticPaths() {
+  const artworks = await listArtworks({ onlyPublished: true });
+  return artworks.map((art) => ({
+    params: { slug: art.slug },
+    props: { artwork: art },
+  }));
+}
+
+const { artwork } = Astro.props;
+
+const featuredPapers = PAPERS.filter((p) => p.featured);
+const featuredCanvases = CANVASES.filter((c) => c.featured);
+
+const description =
+  artwork.description ?? `${artwork.title}${artwork.artistName ? ` by ${artwork.artistName}` : ""} — printed to order on archival paper or canvas at Fine Art Printing.`;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: artwork.title,
+  image: artwork.heroImageUrl,
+  description,
+  brand: { "@type": "Brand", name: "Fine Art Printing" },
+};
+
+// Pricing reference for the client-side configurator script.
+const pricingData = {
+  paper: {
+    PRICING: {
+      inkSellPerSqm: 11.25,
+      baseLaborSellPerJob: 20.0,
+      surchargeT1SellPerSqm: 28.0,
+      surchargeT1TriggerSqm: 0.3,
+      surchargeT2SellPerSqm: 40.0,
+      surchargeT2TriggerSqm: 1.0,
+      minJobSell: 30.0,
+    },
+    papers: featuredPapers.map((p) => ({
+      id: p.id,
+      brand: p.brand,
+      shortName: p.shortName,
+      sellPricePerSqm: p.sellPricePerSqm,
+      maxPrintWidthCm: p.maxPrintWidthCm,
+      maxPrintLengthCm: p.maxPrintLengthCm,
+    })),
+  },
+  canvas: {
+    canvases: featuredCanvases.map((c) => ({
+      id: c.id,
+      brand: c.brand,
+      shortName: c.shortName,
+      sellPricePerSqm: c.sellPricePerSqm,
+      maxPrintWidthCm: c.maxPrintWidthCm,
+      maxPrintLengthCm: c.maxPrintLengthCm,
+    })),
+    floatFrames: FLOAT_FRAME_COLOURS.map((f) => ({ id: f.id, label: f.label })),
+  },
+};
+---
+<BaseLayout
+  title={`${artwork.title} · Fine Art Printing`}
+  description={description}
+  jsonLd={jsonLd}
+  type="article"
+>
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-10 pb-16 md:pt-14 md:pb-20">
+      <p class="text-[13px] text-muted">
+        <a href="/shop" class="hover:text-ink hover:underline underline-offset-2">Shop</a>
+        <span class="px-1.5 text-subtle" aria-hidden="true">›</span>
+        <span class="text-ink">{artwork.title}</span>
+      </p>
+
+      <div class="mt-6 grid gap-12 md:grid-cols-2 md:gap-16">
+        <!-- Image -->
+        <figure class="md:sticky md:top-6 self-start">
+          <img
+            src={artwork.heroImageUrl}
+            alt={artwork.title}
+            class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)]"
+          />
+        </figure>
+
+        <!-- Detail + configurator -->
+        <div>
+          <Eyebrow>Original artwork</Eyebrow>
+          <h1 class="mt-3 font-serif text-[clamp(1.85rem,3.5vw,2.4rem)] font-medium leading-[1.1] text-ink">
+            {artwork.title}
+          </h1>
+          {artwork.artistName && (
+            <p class="mt-2 text-[14px] text-muted">by {artwork.artistName}</p>
+          )}
+
+          {artwork.description && (
+            <p class="mt-6 text-[15.5px] leading-relaxed text-subtle">
+              {artwork.description}
+            </p>
+          )}
+
+          <!-- Configurator -->
+          <div class="artwork-config" data-artwork-config data-artwork-id={artwork.id}>
+            <fieldset class="artwork-config__group">
+              <legend>Substrate</legend>
+              <div class="artwork-config__chips" role="radiogroup" aria-label="Substrate">
+                {artwork.allowPaper && (
+                  <label class="artwork-config__chip">
+                    <input type="radio" name="substrate" value="paper" checked />
+                    <span>Paper</span>
+                  </label>
+                )}
+                {artwork.allowCanvas && (
+                  <label class="artwork-config__chip">
+                    <input type="radio" name="substrate" value="canvas" checked={!artwork.allowPaper} />
+                    <span>Canvas</span>
+                  </label>
+                )}
+              </div>
+            </fieldset>
+
+            <fieldset class="artwork-config__group" data-substrate="paper">
+              <legend>Paper</legend>
+              <select name="paper_id" class="artwork-config__select">
+                {pricingData.paper.papers.map((p) => (
+                  <option value={p.id}>{p.brand} {p.shortName}</option>
+                ))}
+              </select>
+            </fieldset>
+
+            <fieldset class="artwork-config__group" data-substrate="canvas">
+              <legend>Canvas</legend>
+              <select name="canvas_id" class="artwork-config__select">
+                {pricingData.canvas.canvases.map((c) => (
+                  <option value={c.id}>{c.brand} {c.shortName}</option>
+                ))}
+              </select>
+            </fieldset>
+
+            <fieldset class="artwork-config__group">
+              <legend>Size</legend>
+              {artwork.availableSizes.length === 0 ? (
+                <p class="artwork-config__hint">No sizes configured for this artwork yet — message us for a custom size.</p>
+              ) : (
+                <div class="artwork-config__chips" role="radiogroup" aria-label="Size">
+                  {artwork.availableSizes.map((size, i) => (
+                    <label class="artwork-config__chip">
+                      <input type="radio" name="size" value={`${size.width_cm}x${size.height_cm}`} checked={i === 0} />
+                      <span>
+                        {size.label && <strong>{size.label}</strong>}
+                        {size.width_cm} × {size.height_cm} cm
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </fieldset>
+
+            <fieldset class="artwork-config__group" data-substrate="canvas">
+              <legend>Stretching</legend>
+              <div class="artwork-config__chips" role="radiogroup" aria-label="Stretching">
+                <label class="artwork-config__chip">
+                  <input type="radio" name="stretching" value="none" checked />
+                  <span>Rolled (no stretching)</span>
+                </label>
+                <label class="artwork-config__chip">
+                  <input type="radio" name="stretching" value="1in" />
+                  <span>1" stretched</span>
+                </label>
+                <label class="artwork-config__chip">
+                  <input type="radio" name="stretching" value="1.5in" />
+                  <span>1.5" stretched</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="artwork-config__group" data-substrate="canvas" data-only-when-stretched>
+              <legend>Float frame (optional)</legend>
+              <select name="float_frame" class="artwork-config__select">
+                <option value="">No float frame</option>
+                {pricingData.canvas.floatFrames.map((f) => (
+                  <option value={f.id}>{f.label}</option>
+                ))}
+              </select>
+            </fieldset>
+
+            <div class="artwork-config__price" data-artwork-price>
+              <span class="artwork-config__price-label">Estimated price</span>
+              <span class="artwork-config__price-amount" data-artwork-price-amount>—</span>
+              <p class="artwork-config__hint" data-artwork-price-note></p>
+            </div>
+
+            <button type="button" class="artwork-config__cta" data-artwork-add-to-cart disabled>
+              Add to cart (coming soon)
+            </button>
+
+            <p class="artwork-config__small">
+              Pricing excludes delivery. Self-collection from our studio is free; local Singapore delivery is S$30. The cart and payment flow ship in the next phase.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <DarkCTA />
+
+  <script type="application/json" data-artwork-pricing set:html={JSON.stringify(pricingData)}></script>
+</BaseLayout>
+
+<style is:global>
+  .artwork-config {
+    margin-top: 32px;
+    display: grid;
+    gap: 22px;
+  }
+  .artwork-config__group {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .artwork-config__group legend {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--color-ink);
+    margin: 0 0 4px;
+  }
+  .artwork-config__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .artwork-config__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.10));
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 13.5px;
+    color: var(--color-ink);
+    transition: border-color 150ms ease-out, background 150ms ease-out;
+    background: #fff;
+  }
+  .artwork-config__chip:hover {
+    border-color: rgba(0, 0, 0, 0.22);
+  }
+  .artwork-config__chip:has(input:checked) {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.04);
+  }
+  .artwork-config__chip input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .artwork-config__chip strong {
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .artwork-config__select {
+    padding: 11px 14px;
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.15));
+    border-radius: 8px;
+    font-size: 15px;
+    background: #fff;
+    color: var(--color-ink);
+    width: 100%;
+    max-width: 380px;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .artwork-config__hint {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--color-subtle);
+  }
+  .artwork-config__price {
+    border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    padding-top: 18px;
+    display: grid;
+    gap: 4px;
+  }
+  .artwork-config__price-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+  }
+  .artwork-config__price-amount {
+    font-family: var(--font-serif);
+    font-size: clamp(28px, 4vw, 36px);
+    font-weight: 500;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+  .artwork-config__cta {
+    appearance: none;
+    border: 0;
+    background: var(--color-petrol);
+    color: #fff;
+    border-radius: 999px;
+    padding: 14px 22px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background 150ms ease-out;
+  }
+  .artwork-config__cta:hover:not(:disabled) {
+    background: #142a40;
+  }
+  .artwork-config__cta:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .artwork-config__small {
+    margin: 8px 0 0;
+    font-size: 12px;
+    color: var(--color-subtle);
+    line-height: 1.5;
+  }
+</style>
+
+<script>
+  /**
+   * Artwork configurator — mirrors the existing public calculators (paper +
+   * canvas) but locked to the artwork's preset sizes and substrates.
+   */
+  type PaperRef = {
+    id: string;
+    brand: string;
+    shortName: string;
+    sellPricePerSqm: number;
+    maxPrintWidthCm: number;
+    maxPrintLengthCm: number;
+  };
+  type CanvasRef = PaperRef;
+  type FloatRef = { id: string; label: string };
+  type Pricing = {
+    paper: {
+      PRICING: {
+        inkSellPerSqm: number;
+        baseLaborSellPerJob: number;
+        surchargeT1SellPerSqm: number;
+        surchargeT1TriggerSqm: number;
+        surchargeT2SellPerSqm: number;
+        surchargeT2TriggerSqm: number;
+        minJobSell: number;
+      };
+      papers: PaperRef[];
+    };
+    canvas: {
+      canvases: CanvasRef[];
+      floatFrames: FloatRef[];
+    };
+  };
+
+  const pricingEl = document.querySelector<HTMLElement>("[data-artwork-pricing]");
+  const root = document.querySelector<HTMLElement>("[data-artwork-config]");
+  if (!root || !pricingEl) {
+    /* nothing to do */
+  } else {
+    const pricing: Pricing = JSON.parse(pricingEl.textContent ?? "{}");
+    initConfigurator(root, pricing);
+  }
+
+  function initConfigurator(root: HTMLElement, pricing: Pricing) {
+    const priceEl = root.querySelector<HTMLElement>("[data-artwork-price-amount]")!;
+    const noteEl = root.querySelector<HTMLElement>("[data-artwork-price-note]")!;
+    const groups = root.querySelectorAll<HTMLElement>("[data-substrate]");
+
+    function getRadio(name: string): string | null {
+      const el = root.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`);
+      return el ? el.value : null;
+    }
+    function getValue(name: string): string {
+      const el = root.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]`);
+      if (!el) return "";
+      if ((el as HTMLInputElement).type === "radio") return getRadio(name) ?? "";
+      return (el as HTMLSelectElement).value;
+    }
+
+    function syncSubstrate() {
+      const substrate = getRadio("substrate") ?? "paper";
+      const stretching = getRadio("stretching") ?? "none";
+      groups.forEach((g) => {
+        const onlySubstrate = g.dataset.substrate;
+        const stretchedOnly = g.hasAttribute("data-only-when-stretched");
+        let visible = onlySubstrate ? onlySubstrate === substrate : true;
+        if (visible && stretchedOnly) visible = stretching !== "none";
+        g.style.display = visible ? "" : "none";
+      });
+    }
+
+    function paperPrice(paperId: string, w: number, h: number): number | null {
+      const paper = pricing.paper.papers.find((p) => p.id === paperId);
+      if (!paper) return null;
+      const minSide = Math.min(w, h);
+      const maxSide = Math.max(w, h);
+      if (minSide > paper.maxPrintWidthCm || maxSide > paper.maxPrintLengthCm) return null;
+      const cfg = pricing.paper.PRICING;
+      const sqm = (w * h) / 10000;
+      const paperLine = paper.sellPricePerSqm * sqm;
+      const inkLine = cfg.inkSellPerSqm * sqm;
+      const labor = cfg.baseLaborSellPerJob;
+      const tier1 = Math.min(Math.max(0, sqm - cfg.surchargeT1TriggerSqm), cfg.surchargeT2TriggerSqm - cfg.surchargeT1TriggerSqm);
+      const tier2 = Math.max(0, sqm - cfg.surchargeT2TriggerSqm);
+      const t1Line = cfg.surchargeT1SellPerSqm * tier1;
+      const t2Line = cfg.surchargeT2SellPerSqm * tier2;
+      const subtotal = paperLine + inkLine + labor + t1Line + t2Line;
+      const total = Math.max(subtotal, cfg.minJobSell);
+      return Math.ceil(total);
+    }
+
+    /**
+     * Canvas pricing — light approximation that mirrors the structure of the
+     * existing canvas pricing engine. The full per-bracket labour table and
+     * exact wastage factors live in src/data/pricing/canvas.ts; this client
+     * version uses the canvas sell price + a flat allowance for ink, varnish,
+     * stretching, and float framing. Server-side checkout will recompute
+     * authoritative totals; this is just an in-page estimate.
+     */
+    function canvasPrice(canvasId: string, w: number, h: number, stretching: string, floatFrame: string): number | null {
+      const canvas = pricing.canvas.canvases.find((c) => c.id === canvasId);
+      if (!canvas) return null;
+      const minSide = Math.min(w, h);
+      const maxSide = Math.max(w, h);
+      if (minSide > canvas.maxPrintWidthCm || maxSide > canvas.maxPrintLengthCm) return null;
+      const sqm = (w * h) / 10000;
+      let total = canvas.sellPricePerSqm * sqm;
+      // Ink + varnish + studio labour (rough flat additions per sqm).
+      total += 18 * sqm + 30;
+      if (stretching === "1in") total += 60 + Math.max(0, sqm - 0.5) * 35;
+      if (stretching === "1.5in") total += 80 + Math.max(0, sqm - 0.5) * 45;
+      if (floatFrame) total += 90 + Math.max(0, sqm - 0.5) * 55;
+      return Math.max(80, Math.ceil(total));
+    }
+
+    function update() {
+      syncSubstrate();
+      const substrate = getRadio("substrate") ?? "paper";
+      const sizeStr = getRadio("size");
+      if (!sizeStr) {
+        priceEl.textContent = "—";
+        noteEl.textContent = "Pick a size to see the price.";
+        return;
+      }
+      const [wStr, hStr] = sizeStr.split("x");
+      const w = parseFloat(wStr ?? "");
+      const h = parseFloat(hStr ?? "");
+      let total: number | null = null;
+      if (substrate === "paper") {
+        const paperId = getValue("paper_id");
+        total = paperPrice(paperId, w, h);
+      } else {
+        const canvasId = getValue("canvas_id");
+        const stretching = getRadio("stretching") ?? "none";
+        const floatFrame = getValue("float_frame");
+        total = canvasPrice(canvasId, w, h, stretching, floatFrame);
+      }
+      if (total === null) {
+        priceEl.textContent = "—";
+        noteEl.textContent = "This size is too large for the selected substrate.";
+        return;
+      }
+      priceEl.textContent = `S$${total.toLocaleString("en-SG")}`;
+      noteEl.textContent = "";
+    }
+
+    root.addEventListener("change", update);
+    root.addEventListener("input", update);
+    update();
+  }
+</script>

@@ -1,0 +1,83 @@
+---
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Eyebrow from "../../components/Eyebrow.astro";
+import { listArtworks } from "../../lib/artworks";
+
+const artworks = await listArtworks({ onlyPublished: true });
+
+const description =
+  "A curated selection of original artworks available as archival prints on paper or canvas. Choose your size and finish, we print and finish in our Singapore studio.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: "Shop · Fine Art Printing",
+  url: "https://fineartprinting.com.sg/shop",
+};
+---
+<BaseLayout
+  title="Shop · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-10 md:pt-20 md:pb-14">
+      <div class="max-w-[820px]">
+        <Eyebrow>Shop</Eyebrow>
+        <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
+          Original artworks,<br />printed in our studio.
+        </h1>
+        <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+          Each piece is printed to order on archival fine-art paper or canvas
+          in your chosen size, then finished in our Singapore studio. Pick a
+          piece, configure it the way you want, ship or pick up.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Grid -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-12 md:py-16">
+      {artworks.length === 0 && (
+        <p class="text-center text-subtle py-8">
+          The shop is being curated. New pieces coming soon.
+        </p>
+      )}
+
+      <ul class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {artworks.map((art) => (
+          <li>
+            <a
+              href={`/shop/${art.slug}`}
+              class="group block rounded-card border border-border-soft bg-white overflow-hidden transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
+            >
+              <div class="aspect-[4/5] w-full bg-[#f4efe7] overflow-hidden">
+                <img
+                  src={art.heroImageUrl}
+                  alt={art.title}
+                  loading="lazy"
+                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                />
+              </div>
+              <div class="p-5">
+                <h2 class="font-serif text-[18px] font-medium text-ink leading-snug">
+                  {art.title}
+                </h2>
+                {art.artistName && (
+                  <p class="mt-1 text-[12.5px] text-muted">{art.artistName}</p>
+                )}
+                <span class="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-petrol">
+                  Configure & price
+                  <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
+                </span>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

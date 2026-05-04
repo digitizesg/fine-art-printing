@@ -1,0 +1,71 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import { artworkImageUrl } from "../../../lib/artworks";
+
+const supabase = createSupabaseServerClient(Astro);
+const url = Astro.url;
+const filterPublished = url.searchParams.get("published") === "1";
+const filterFeatured = url.searchParams.get("featured") === "1";
+
+let query = supabase
+  .from("artworks")
+  .select("*")
+  .order("display_order", { ascending: true })
+  .order("created_at", { ascending: false });
+if (filterPublished) query = query.eq("published", true);
+if (filterFeatured) query = query.eq("featured", true);
+
+const { data: rows, error } = await query;
+
+function buildLink(params: Record<string, string | null>) {
+  const u = new URL(url);
+  for (const [k, v] of Object.entries(params)) {
+    if (v === null) u.searchParams.delete(k);
+    else u.searchParams.set(k, v);
+  }
+  return u.pathname + (u.search ? u.search : "");
+}
+---
+<AdminLayout title="Artworks">
+  <div class="admin-page-head">
+    <div>
+      <h1>Artworks</h1>
+      <p>{rows?.length ?? 0} artworks · these power the /shop catalog.</p>
+    </div>
+    <a href="/admin/artworks/new" class="admin-btn">+ New artwork</a>
+  </div>
+
+  <div class="admin-filters">
+    <a class:list={["admin-filter", !filterPublished && !filterFeatured && "is-active"]} href={buildLink({ published: null, featured: null })}>All</a>
+    <a class:list={["admin-filter", filterPublished && "is-active"]} href={buildLink({ published: filterPublished ? null : "1" })}>Published</a>
+    <a class:list={["admin-filter", filterFeatured && "is-active"]} href={buildLink({ featured: filterFeatured ? null : "1" })}>★ Featured</a>
+  </div>
+
+  {error && <p class="admin-note admin-note--err">{error.message}</p>}
+  {rows && rows.length === 0 && (
+    <p class="admin-note">No artworks yet. Click <strong>New artwork</strong> to add one.</p>
+  )}
+
+  <div class="admin-grid">
+    {rows?.map((row) => (
+      <a class="admin-example" href={`/admin/artworks/${row.id}`}>
+        <img class="admin-example__photo" src={artworkImageUrl(row.hero_image_path)} alt={row.title} loading="lazy" />
+        <div class="admin-example__meta">
+          <span class="admin-example__service">
+            {row.published ? "Published" : "Draft"}
+            {row.featured && <span class="admin-example__featured" style="margin-left:8px">Featured</span>}
+          </span>
+          <span class="admin-example__caption">{row.title}</span>
+          {row.artist_name && <span class="admin-example__row">{row.artist_name}</span>}
+          <span class="admin-example__row">
+            {(row.available_sizes ?? []).length} size{(row.available_sizes ?? []).length === 1 ? "" : "s"}
+            {row.allow_paper && " · paper"}
+            {row.allow_canvas && " · canvas"}
+          </span>
+        </div>
+      </a>
+    ))}
+  </div>
+</AdminLayout>

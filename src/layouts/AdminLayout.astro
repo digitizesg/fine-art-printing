@@ -17,6 +17,10 @@ const user = Astro.locals.user;
     <header class="admin-topbar">
       <div class="admin-topbar__inner">
         <a href="/admin" class="admin-topbar__brand">Fine Art Printing · admin</a>
+        <nav class="admin-topbar__nav">
+          <a href="/admin">Examples</a>
+          <a href="/admin/artworks">Artworks</a>
+        </nav>
         <div class="admin-topbar__user">
           <span>{user?.email}</span>
           <form method="POST" action="/admin/auth/signout">

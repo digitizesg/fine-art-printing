@@ -1,0 +1,110 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import ArtworkForm from "../../../components/admin/ArtworkForm.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import { artworkImageUrl } from "../../../lib/artworks";
+
+const id = Astro.params.id;
+const supabase = createSupabaseServerClient(Astro);
+
+let error: string | undefined;
+let message: string | undefined;
+
+function parseSizes(raw: string) {
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+      .map((s: any) => ({
+        width_cm: Number(s.width_cm),
+        height_cm: Number(s.height_cm),
+        label: typeof s.label === "string" && s.label.trim() ? s.label.trim() : undefined,
+      }))
+      .filter((s) => Number.isFinite(s.width_cm) && s.width_cm > 0 && Number.isFinite(s.height_cm) && s.height_cm > 0);
+  } catch {
+    return [];
+  }
+}
+
+if (Astro.request.method === "POST") {
+  const form = await Astro.request.formData();
+  const title = String(form.get("title") ?? "").trim();
+  let slug = String(form.get("slug") ?? "").trim().toLowerCase();
+  if (!title) error = "Title is required.";
+  else if (!slug || !/^[a-z0-9-]+$/.test(slug)) error = "Slug must be letters, numbers, and hyphens only.";
+
+  const update: Record<string, unknown> = {
+    title,
+    slug,
+    artist_name: (form.get("artist_name") as string)?.trim() || null,
+    description: (form.get("description") as string)?.trim() || null,
+    available_sizes: parseSizes(String(form.get("available_sizes") ?? "[]")),
+    allow_paper: form.get("allow_paper") === "1",
+    allow_canvas: form.get("allow_canvas") === "1",
+    published: form.get("published") === "1",
+    featured: form.get("featured") === "1",
+  };
+
+  // Optional image replacement.
+  const file = form.get("image");
+  if (!error && file instanceof File && file.size > 0) {
+    const allowed = new Set(["image/jpeg", "image/png"]);
+    if (!allowed.has(file.type)) {
+      error = "Replacement image must be JPG or PNG.";
+    } else if (file.size > 25 * 1024 * 1024) {
+      error = "Replacement image is over the 25 MB limit.";
+    } else {
+      const { randomUUID } = await import("node:crypto");
+      const { extname } = await import("node:path");
+      const ext = file.type === "image/png" ? ".png" : extname(file.name) || ".jpg";
+      const newPath = `${randomUUID()}${ext}`;
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const { error: upErr } = await supabase.storage
+        .from("artworks")
+        .upload(newPath, buffer, { contentType: file.type, upsert: false });
+      if (upErr) error = `Image upload failed: ${upErr.message}`;
+      else update.hero_image_path = newPath;
+    }
+  }
+
+  if (!error) {
+    const { error: updErr } = await supabase
+      .from("artworks")
+      .update(update)
+      .eq("id", id);
+    if (updErr) error = updErr.message;
+    else message = "Saved.";
+  }
+}
+
+const { data: row, error: loadErr } = await supabase
+  .from("artworks")
+  .select("*")
+  .eq("id", id)
+  .single();
+
+if (loadErr || !row) {
+  return Astro.redirect("/admin/artworks?error=not_found");
+}
+
+const artwork = {
+  ...row,
+  hero_image_url: artworkImageUrl(row.hero_image_path),
+  available_sizes: Array.isArray(row.available_sizes) ? row.available_sizes : [],
+};
+
+if (Astro.url.searchParams.get("created") === "1" && !message) {
+  message = "Created.";
+}
+---
+<AdminLayout title="Edit artwork">
+  <div class="admin-page-head">
+    <div>
+      <h1>{artwork.title}</h1>
+      <p style="font-family:monospace;font-size:11.5px;color:#888;">/shop/{artwork.slug}</p>
+    </div>
+    <a href="/admin/artworks" class="admin-btn admin-btn--ghost">← Back to list</a>
+  </div>
+  <ArtworkForm mode="edit" artwork={artwork} error={error} message={message} />
+</AdminLayout>

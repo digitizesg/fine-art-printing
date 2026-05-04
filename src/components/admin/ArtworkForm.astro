@@ -1,0 +1,231 @@
+---
+interface Props {
+  mode: "new" | "edit";
+  artwork?: {
+    id: string;
+    slug: string;
+    title: string;
+    artist_name: string | null;
+    description: string | null;
+    hero_image_path: string;
+    hero_image_url: string;
+    available_sizes: { width_cm: number; height_cm: number; label?: string }[];
+    allow_paper: boolean;
+    allow_canvas: boolean;
+    published: boolean;
+    featured: boolean;
+    display_order: number;
+  };
+  error?: string;
+  message?: string;
+}
+const { mode, artwork, error, message } = Astro.props;
+
+const action = mode === "new" ? "/admin/artworks" : `/admin/artworks/${artwork?.id}`;
+const sizesJson = JSON.stringify(artwork?.available_sizes ?? []);
+---
+<form class="admin-form admin-form--wide" method="POST" enctype="multipart/form-data" action={action}>
+  <div class="admin-form__photo">
+    {artwork?.hero_image_url ? (
+      <img src={artwork.hero_image_url} alt={artwork.title} />
+    ) : (
+      <div style="aspect-ratio:3/2;background:#f4efe7;border:1px dashed rgba(0,0,0,0.18);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#888;font-size:13px;">
+        No image yet
+      </div>
+    )}
+    <label>
+      <span>{mode === "new" ? "Hero image (JPG or PNG)" : "Replace image (optional)"}</span>
+      <input type="file" name="image" accept="image/jpeg,image/png" required={mode === "new"} />
+    </label>
+  </div>
+
+  <label>
+    <span>Title</span>
+    <input type="text" name="title" value={artwork?.title ?? ""} required maxlength="160" />
+  </label>
+
+  <div class="admin-form__row">
+    <label>
+      <span>Slug (URL — letters, numbers, hyphens)</span>
+      <input type="text" name="slug" value={artwork?.slug ?? ""} required pattern="[a-z0-9-]+" placeholder="auto-generated from title if blank" />
+    </label>
+    <label>
+      <span>Artist name</span>
+      <input type="text" name="artist_name" value={artwork?.artist_name ?? ""} maxlength="120" />
+    </label>
+  </div>
+
+  <label>
+    <span>Description</span>
+    <textarea name="description" maxlength="1200" rows="4">{artwork?.description ?? ""}</textarea>
+  </label>
+
+  <div>
+    <label>
+      <span>Available sizes</span>
+    </label>
+    <div class="artwork-sizes" data-artwork-sizes>
+      <div class="artwork-sizes__list" data-artwork-sizes-list></div>
+      <button type="button" class="admin-btn admin-btn--ghost" data-artwork-add-size style="margin-top:10px;">
+        + Add size
+      </button>
+      <input type="hidden" name="available_sizes" data-artwork-sizes-json value={sizesJson} />
+      <p style="margin:8px 0 0;font-size:12.5px;color:var(--admin-subtle);">
+        Sizes are in centimetres. Add the dimensions you want to offer for this artwork.
+      </p>
+    </div>
+  </div>
+
+  <div class="admin-form__row">
+    <label class="admin-form__check">
+      <input type="checkbox" name="allow_paper" value="1" checked={artwork?.allow_paper ?? true} />
+      <span>Available on paper</span>
+    </label>
+    <label class="admin-form__check">
+      <input type="checkbox" name="allow_canvas" value="1" checked={artwork?.allow_canvas ?? false} />
+      <span>Available on canvas</span>
+    </label>
+  </div>
+
+  <div class="admin-form__row">
+    <label class="admin-form__check">
+      <input type="checkbox" name="published" value="1" checked={artwork?.published ?? false} />
+      <span>Published (visible in /shop)</span>
+    </label>
+    <label class="admin-form__check">
+      <input type="checkbox" name="featured" value="1" checked={artwork?.featured ?? false} />
+      <span>Featured</span>
+    </label>
+  </div>
+
+  {error && <p class="admin-note admin-note--err">{error}</p>}
+  {message && <p class="admin-note admin-note--ok">{message}</p>}
+
+  <div class="admin-form__actions">
+    <button type="submit" class="admin-btn">{mode === "new" ? "Create" : "Save changes"}</button>
+    <a href="/admin/artworks" class="admin-btn admin-btn--ghost">Cancel</a>
+    <span class="spacer"></span>
+    {mode === "edit" && (
+      <button type="submit" formaction={`/admin/artworks/${artwork?.id}/delete`} class="admin-btn admin-btn--danger" data-confirm="Delete this artwork permanently?">
+        Delete
+      </button>
+    )}
+  </div>
+</form>
+
+<style is:global>
+  .artwork-sizes__list {
+    display: grid;
+    gap: 8px;
+  }
+  .artwork-size-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.5fr auto;
+    gap: 8px;
+    align-items: end;
+  }
+  @media (max-width: 540px) {
+    .artwork-size-row { grid-template-columns: 1fr 1fr; }
+    .artwork-size-row .artwork-size-row__label { grid-column: span 2; }
+    .artwork-size-row .artwork-size-row__remove { grid-column: span 2; }
+  }
+  .artwork-size-row__remove {
+    appearance: none;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: #fff;
+    color: var(--admin-danger);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .artwork-size-row__remove:hover {
+    background: rgba(177, 39, 31, 0.05);
+  }
+</style>
+
+<script is:inline define:vars={{ initialSizesJson: sizesJson }}>
+  (function () {
+    const list = document.querySelector("[data-artwork-sizes-list]");
+    const addBtn = document.querySelector("[data-artwork-add-size]");
+    const hidden = document.querySelector("[data-artwork-sizes-json]");
+    if (!list || !addBtn || !hidden) return;
+
+    let sizes = [];
+    try {
+      sizes = JSON.parse(initialSizesJson || "[]");
+    } catch {
+      sizes = [];
+    }
+    if (!Array.isArray(sizes)) sizes = [];
+
+    function render() {
+      list.innerHTML = "";
+      sizes.forEach((size, idx) => {
+        const row = document.createElement("div");
+        row.className = "artwork-size-row";
+        row.innerHTML = `
+          <label>
+            <span>Width (cm)</span>
+            <input type="number" min="1" step="0.1" required value="${size.width_cm ?? ""}" data-size-w />
+          </label>
+          <label>
+            <span>Height (cm)</span>
+            <input type="number" min="1" step="0.1" required value="${size.height_cm ?? ""}" data-size-h />
+          </label>
+          <label class="artwork-size-row__label">
+            <span>Label (optional)</span>
+            <input type="text" maxlength="40" value="${(size.label ?? "").replace(/"/g, "&quot;")}" data-size-label placeholder="e.g. Medium" />
+          </label>
+          <button type="button" class="artwork-size-row__remove" data-size-remove>Remove</button>
+        `;
+        const w = row.querySelector("[data-size-w]");
+        const h = row.querySelector("[data-size-h]");
+        const lbl = row.querySelector("[data-size-label]");
+        const rm = row.querySelector("[data-size-remove]");
+        const onChange = () => {
+          sizes[idx] = {
+            width_cm: parseFloat(w.value || "0"),
+            height_cm: parseFloat(h.value || "0"),
+            label: lbl.value.trim() || undefined,
+          };
+          syncHidden();
+        };
+        w.addEventListener("input", onChange);
+        h.addEventListener("input", onChange);
+        lbl.addEventListener("input", onChange);
+        rm.addEventListener("click", () => {
+          sizes.splice(idx, 1);
+          render();
+          syncHidden();
+        });
+        list.appendChild(row);
+      });
+      if (sizes.length === 0) {
+        const empty = document.createElement("p");
+        empty.style.cssText = "margin:0;padding:14px;border:1px dashed rgba(0,0,0,0.15);border-radius:8px;color:#888;font-size:13px;";
+        empty.textContent = "No sizes yet. Click + Add size below.";
+        list.appendChild(empty);
+      }
+    }
+
+    function syncHidden() {
+      hidden.value = JSON.stringify(sizes.filter((s) => s.width_cm > 0 && s.height_cm > 0));
+    }
+
+    addBtn.addEventListener("click", () => {
+      sizes.push({ width_cm: 0, height_cm: 0 });
+      render();
+      syncHidden();
+    });
+
+    render();
+    syncHidden();
+  })();
+
+  document.querySelectorAll("button[data-confirm]").forEach((b) => {
+    b.addEventListener("click", (e) => {
+      if (!confirm(b.dataset.confirm ?? "Are you sure?")) e.preventDefault();
+    });
+  });
+</script>
