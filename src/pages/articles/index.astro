@@ -1,0 +1,80 @@
+---
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Eyebrow from "../../components/Eyebrow.astro";
+import { getCollection } from "astro:content";
+
+const description =
+  "Articles on fine art printing, paper and canvas selection, framing, colour management, and the craft of producing archival prints in Singapore.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  name: "Fine Art Printing — Articles",
+  url: "https://fineartprinting.com.sg/articles",
+};
+
+const articles = (await getCollection("articles"))
+  .sort(
+    (a, b) =>
+      (b.data.date as Date).getTime() - (a.data.date as Date).getTime(),
+  );
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString("en-SG", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+---
+<BaseLayout
+  title="Articles · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-10 md:pt-20 md:pb-14">
+      <div class="max-w-[820px]">
+        <Eyebrow>Articles</Eyebrow>
+        <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
+          Notes from the studio.
+        </h1>
+        <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+          Background on the papers and canvases we stock, framing and finishing
+          options, file preparation, and the print craft we obsess over.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Article list -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-12 md:py-16">
+      <ul class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+        {articles.map((article) => (
+          <li>
+            <a
+              href={`/articles/${article.id.replace(/\.md$/, "")}`}
+              class="group block rounded-card border border-border-soft bg-white p-6 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
+            >
+              <p class="text-[12px] text-muted">{fmtDate(article.data.date as Date)}</p>
+              <h2 class="mt-2 font-serif text-[19px] font-medium leading-snug text-ink">
+                {article.data.title}
+              </h2>
+              {article.data.excerpt && (
+                <p class="mt-3 text-[13.5px] leading-relaxed text-subtle">
+                  {article.data.excerpt}
+                </p>
+              )}
+              <span class="mt-5 inline-flex items-center gap-1.5 text-[13px] font-semibold text-petrol">
+                Read article
+                <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
+              </span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</BaseLayout>

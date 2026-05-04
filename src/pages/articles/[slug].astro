@@ -1,0 +1,128 @@
+---
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Eyebrow from "../../components/Eyebrow.astro";
+import DarkCTA from "../../components/DarkCTA.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const articles = await getCollection("articles");
+  return articles.map((article) => ({
+    params: { slug: article.id.replace(/\.md$/, "") },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article);
+
+const fmtDate = (d: Date) =>
+  d.toLocaleDateString("en-SG", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+const description =
+  article.data.excerpt ?? `${article.data.title} — Fine Art Printing.`;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Article",
+  headline: article.data.title,
+  datePublished: (article.data.date as Date).toISOString(),
+  url: `https://fineartprinting.com.sg/articles/${article.id.replace(/\.md$/, "")}`,
+};
+---
+<BaseLayout
+  title={`${article.data.title} · Fine Art Printing`}
+  description={description}
+  jsonLd={jsonLd}
+  type="article"
+>
+  <article class="bg-white">
+    <div class="mx-auto max-w-[760px] px-6 pt-12 pb-6 md:pt-16">
+      <p class="text-[13px] text-muted">
+        <a href="/articles" class="hover:text-ink hover:underline underline-offset-2">Articles</a>
+        <span class="px-1.5 text-subtle" aria-hidden="true">›</span>
+        <span class="text-ink">{fmtDate(article.data.date as Date)}</span>
+      </p>
+      <Eyebrow class="mt-5">Article</Eyebrow>
+      <h1 class="mt-3 font-serif text-[clamp(2rem,4.5vw,2.7rem)] font-medium leading-[1.1] text-ink">
+        {article.data.title}
+      </h1>
+    </div>
+
+    <div class="mx-auto max-w-[760px] px-6 pb-16 md:pb-20">
+      <div class="article-body">
+        <Content />
+      </div>
+    </div>
+  </article>
+
+  <DarkCTA />
+</BaseLayout>
+
+<style is:global>
+  .article-body {
+    font-size: 16.5px;
+    line-height: 1.65;
+    color: rgba(26, 26, 26, 0.88);
+  }
+  .article-body > * + * {
+    margin-top: 1.1em;
+  }
+  .article-body h2 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: clamp(1.4rem, 2.5vw, 1.7rem);
+    line-height: 1.25;
+    color: var(--color-ink);
+    margin-top: 2em;
+    margin-bottom: 0.4em;
+  }
+  .article-body h3 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    color: var(--color-ink);
+    margin-top: 1.6em;
+    margin-bottom: 0.3em;
+  }
+  .article-body a {
+    color: var(--color-petrol);
+    text-decoration: underline;
+    text-decoration-color: rgba(26, 53, 80, 0.30);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 150ms ease-out;
+  }
+  .article-body a:hover {
+    text-decoration-color: var(--color-petrol);
+  }
+  .article-body ul,
+  .article-body ol {
+    padding-left: 22px;
+  }
+  .article-body li + li {
+    margin-top: 0.4em;
+  }
+  .article-body img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border-radius: 10px;
+    margin: 1.6em auto;
+  }
+  .article-body strong {
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .article-body blockquote {
+    border-left: 3px solid var(--color-gold);
+    padding: 0.2em 0 0.2em 16px;
+    color: var(--color-subtle);
+    font-style: italic;
+    margin-left: 0;
+  }
+</style>
