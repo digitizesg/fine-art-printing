@@ -10,6 +10,7 @@ import {
   type Subject,
 } from "../../lib/frame-examples";
 import { listFloatFrames } from "../../lib/float-frames";
+import { listCanvases } from "../../lib/canvases";
 import { frameExampleUrl } from "../../lib/supabase";
 
 const supabase = createSupabaseServerClient(Astro);
@@ -26,6 +27,7 @@ if (filterFeatured) query = query.eq("featured", true);
 
 const { data: rows, error } = await query;
 const floatFrames = await listFloatFrames({ onlyPublished: false });
+const canvases = await listCanvases({ onlyPublished: false });
 
 // Pending-changes counter — bumped by a trigger on frame_examples for any
 // insert/update/delete. Reset to 0 on publish.
@@ -55,7 +57,7 @@ function detailFor(row: any): string {
     canvasId: row.canvas_id,
     paperId: row.paper_id ?? null,
     displayOrder: row.display_order,
-  }, floatFrames);
+  }, floatFrames, canvases);
 }
 
 function buildLink(params: Record<string, string | null>) {

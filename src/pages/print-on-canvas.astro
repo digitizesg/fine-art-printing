@@ -10,9 +10,11 @@ import FeaturedExamples from "../components/FeaturedExamples.astro";
 import ReviewSection from "../components/ReviewSection.astro";
 import Stars from "../components/Stars.astro";
 import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
-import { CANVASES } from "../data/pricing/canvas";
+import { listCanvases } from "../lib/canvases";
 import { business } from "../data/business";
 import reviewsData from "../data/reviews.json";
+
+const canvases = await listCanvases();
 
 const { rating, userRatingsTotal } = reviewsData;
 const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'd like a quote for printing on canvas.")}`;
@@ -32,7 +34,7 @@ const jsonLd = {
   areaServed: { "@type": "Country", name: "Singapore" },
 };
 
-const featuredCanvases = CANVASES.filter((c) => c.featured);
+const featuredCanvases = canvases.filter((c) => c.featured);
 
 const finishLabel = (f: string) => {
   if (f === "high-gloss") return "High gloss";
@@ -196,13 +198,13 @@ Don't worry if you can't hit these exactly. Send what you have and we'll check i
               type="button"
               role="tab"
               aria-selected={i === 0 ? "true" : "false"}
-              aria-controls={`canvas-panel-${c.id}`}
-              data-tab-target={c.id}
+              aria-controls={`canvas-panel-${c.slug}`}
+              data-tab-target={c.slug}
               class:list={["paper-pick", i === 0 && "is-active"]}
             >
-              {c.images[0] ? (
+              {c.imageUrls[0] ? (
                 <img
-                  src={`/photos/${c.images[0]}`}
+                  src={c.imageUrls[0]}
                   alt=""
                   loading="lazy"
                   class="paper-pick__thumb"
@@ -218,15 +220,15 @@ Don't worry if you can't hit these exactly. Send what you have and we'll check i
         <div class="paper-showcase__panels">
           {featuredCanvases.map((canvas, i) => (
             <article
-              id={`canvas-panel-${canvas.id}`}
+              id={`canvas-panel-${canvas.slug}`}
               role="tabpanel"
-              data-paper={canvas.id}
+              data-paper={canvas.slug}
               class:list={["paper-showcase__panel", i === 0 && "is-active"]}
             >
               <div class="paper-showcase__media">
-                {canvas.images[0] ? (
+                {canvas.imageUrls[0] ? (
                   <img
-                    src={`/photos/${canvas.images[0]}`}
+                    src={canvas.imageUrls[0]}
                     alt={`Sample print on ${canvas.name}`}
                     loading="lazy"
                     class="paper-showcase__image"
@@ -269,8 +271,8 @@ Don't worry if you can't hit these exactly. Send what you have and we'll check i
 
                 <a
                   class="paper-showcase__cta"
-                  href={`#calculator?canvas=${canvas.id}`}
-                  data-quote-with={canvas.id}
+                  href={`#calculator?canvas=${canvas.slug}`}
+                  data-quote-with={canvas.slug}
                 >
                   Get a price for {canvas.shortName}
                   <span aria-hidden="true">→</span>

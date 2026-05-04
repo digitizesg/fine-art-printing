@@ -6,11 +6,12 @@ import {
   type Subject,
 } from "../../lib/frame-examples";
 import { PICTURE_FRAME_GROUPS } from "../../data/picture-frames";
-import { CANVASES } from "../../data/pricing/canvas";
 import { PAPERS } from "../../data/pricing/paper";
 import { listFloatFrames } from "../../lib/float-frames";
+import { listCanvases } from "../../lib/canvases";
 
 const floatFrames = await listFloatFrames({ onlyPublished: false });
+const canvases = await listCanvases({ onlyPublished: false });
 
 interface Props {
   mode: "new" | "edit";
@@ -104,8 +105,8 @@ const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.
       <span>Canvas substrate</span>
       <select name="canvas_id">
         <option value="" selected={!example?.canvas_id}>—</option>
-        {CANVASES.map((c) => (
-          <option value={c.id} selected={example?.canvas_id === c.id}>{c.brand} {c.shortName}</option>
+        {canvases.map((c) => (
+          <option value={c.slug} selected={example?.canvas_id === c.slug}>{c.brand} {c.shortName}</option>
         ))}
       </select>
     </label>

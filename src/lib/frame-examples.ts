@@ -7,9 +7,9 @@
  */
 import { supabasePublic, frameExampleUrl } from "./supabase";
 import { PICTURE_FRAMES } from "../data/picture-frames";
-import { CANVASES } from "../data/pricing/canvas";
 import { PAPERS } from "../data/pricing/paper";
 import type { FloatFrame } from "./float-frames";
+import type { Canvas } from "./canvases";
 
 export type Service =
   | "custom-framing"
@@ -114,9 +114,12 @@ export async function listExamples(): Promise<FrameExample[]> {
 export function detailLabelFor(
   ex: FrameExample,
   floatFrames: Pick<FloatFrame, "slug" | "label">[] = [],
+  canvases: Pick<Canvas, "slug" | "shortName">[] = [],
 ): string {
   const lookupFloat = (id: string) =>
     floatFrames.find((f) => f.slug === id)?.label;
+  const lookupCanvas = (id: string) =>
+    canvases.find((c) => c.slug === id)?.shortName;
   if (ex.service === "custom-framing") {
     const paper = ex.paperId
       ? PAPERS.find((p) => p.id === ex.paperId)?.shortName
@@ -131,9 +134,7 @@ export function detailLabelFor(
     if (label) return label;
   }
   if (ex.service === "canvas-printing") {
-    const canvas = ex.canvasId
-      ? CANVASES.find((c) => c.id === ex.canvasId)?.shortName
-      : undefined;
+    const canvas = ex.canvasId ? lookupCanvas(ex.canvasId) : undefined;
     const float = ex.floatFrameId ? lookupFloat(ex.floatFrameId) : undefined;
     return [canvas, float].filter(Boolean).join(" · ");
   }

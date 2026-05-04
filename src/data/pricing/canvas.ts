@@ -33,9 +33,9 @@ const CM_TO_INCH = 0.393701;
 const INCH_PER_FOOT = 12;
 
 /* ----------------------------------------------------------------------------
- * Canvas substrates
- * Sell prices use the 44" roll rate for each (or 60" where 44" doesn't exist).
- * Same simplification as paper: customer sees one rate per canvas.
+ * Canvas substrates — the canonical list of canvases now lives in Supabase
+ * (see src/lib/canvases.ts). The engine just needs the fields below;
+ * lib's Canvas type structurally satisfies this interface.
  * -------------------------------------------------------------------------- */
 
 export type CanvasFinish =
@@ -45,164 +45,12 @@ export type CanvasFinish =
 
 export interface CanvasSubstrate {
   id: string;
-  brand: string;
   name: string;
-  shortName: string;
-  gsm: number;
-  finish: CanvasFinish;
-  /** Texture descriptor for the comparison table. */
-  texture: string;
-  /** Tone descriptor, e.g. "Bright white". */
-  tone: string;
-  /** One-liner for the picker card. */
-  blurb: string;
-  /** Two-line description for the showcase / picker card body. */
-  description: string;
-  /** Multi-paragraph marketing copy for the showcase panel. */
-  longDescription: string;
-  featured: boolean;
-  /** Customer-facing sell price per SQM, pre-GST, SGD. */
   sellPricePerSqm: number;
   maxPrintWidthCm: number;
   maxPrintLengthCm: number;
-  /** Filenames in /public/photos/canvases/ — empty until Ben supplies. */
-  images: string[];
 }
 
-export const CANVASES: CanvasSubstrate[] = [
-  {
-    id: "hahnemuhle-daguerre-canvas",
-    brand: "Hahnemühle",
-    name: "Hahnemühle Daguerre Canvas",
-    shortName: "Daguerre Canvas",
-    gsm: 400,
-    finish: "matt",
-    texture: "Fine, uniform",
-    tone: "Bright white",
-    blurb: "Fine, even-textured matt canvas.",
-    description:
-      "Poly-cotton blend with a fine, uniform texture and a bright-white matt coating. The cleanest, most consistent canvas surface we offer.",
-    longDescription:
-      "A poly-cotton inkjet canvas with a fine, uniform texture and a bright-white matt coating. Vivid colours, crisp detail, and high-contrast black-and-white prints. Acid- and lignin-free for longevity, and its high weight combined with excellent stretchability makes it ideal for stretching on canvas frames.",
-    featured: true,
-    sellPricePerSqm: 103.13,
-    maxPrintWidthCm: 152.4,
-    maxPrintLengthCm: 1200,
-    images: [
-      "hahnemuhle-daguerre-canvas-1.jpg",
-      "hahnemuhle-daguerre-canvas-2.jpg",
-      "hahnemuhle-daguerre-canvas-3.jpg",
-      "hahnemuhle-daguerre-canvas-4.jpg",
-    ],
-  },
-  {
-    id: "hahnemuhle-artist-canvas",
-    brand: "Hahnemühle",
-    name: "Hahnemühle Artist Canvas",
-    shortName: "Artist Canvas",
-    gsm: 340,
-    finish: "matt",
-    texture: "Coarse",
-    tone: "Natural white",
-    blurb: "Coarse, traditional canvas weave.",
-    description:
-      "Matte-coated polyester-cotton blend with a natural-white tone and a coarse, traditional canvas texture. The most painterly canvas in the range.",
-    longDescription:
-      "A matte-coated polyester-cotton blend with a natural-white colour, no optical brighteners, and a coarse texture. The premium matt coating produces sharp images with vivid colour, deep blacks, and high contrast. Acid-free, lignin-free, age-resistant. A particularly good choice for artwork reproductions and works that benefit from a visible weave reading underneath the image.",
-    featured: true,
-    sellPricePerSqm: 150.77,
-    maxPrintWidthCm: 152.4,
-    maxPrintLengthCm: 1200,
-    images: [
-      "hahnemuhle-canvas-artist-1.jpg",
-      "hahnemuhle-canvas-artist-2.jpg",
-      "hahnemuhle-canvas-artist-3.jpg",
-      "hahnemuhle-canvas-artist-4.jpg",
-    ],
-  },
-  {
-    id: "hahnemuhle-metallic-canvas",
-    brand: "Hahnemühle",
-    name: "Hahnemühle Metallic Canvas",
-    shortName: "Metallic Canvas",
-    gsm: 350,
-    finish: "high-gloss",
-    texture: "Fine, uniform",
-    tone: "Off-white",
-    blurb: "Silvery shimmer, high-gloss surface.",
-    description:
-      "Heavyweight canvas with a silvery-shimmering high-gloss finish that produces striking, dimensional prints.",
-    longDescription:
-      "A heavyweight canvas with a silvery-shimmering, high-gloss finish that produces exceptional results. Works particularly well with images featuring metallic elements, reflections, ice and glass, architecture, landscape, night and city-light scenes, and many black-and-white photographs. Acid- and lignin-free, meeting the most exacting standards for ageing resistance.",
-    featured: true,
-    sellPricePerSqm: 162.18,
-    maxPrintWidthCm: 152.4,
-    maxPrintLengthCm: 1200,
-    images: [
-      "hahnemuhle-canvas-metallic.jpg",
-      "hahnemuhle-canvas-metallic-1.jpg",
-      "hahnemuhle-canvas-metallic-2.jpg",
-      "hahnemuhle-canvas-metallic-3.jpg",
-      "hahnemuhle-canvas-metallic-4.jpg",
-      "hahnemuhle-canvas-metallic-5.jpg",
-      "hahnemuhle-canvas-metallic-6.jpg",
-      "hahnemuhle-canvas-metallic-7.jpg",
-    ],
-  },
-  {
-    id: "hahnemuhle-photo-canvas",
-    brand: "Hahnemühle",
-    name: "Hahnemühle Photo Canvas",
-    shortName: "Photo Canvas",
-    gsm: 320,
-    finish: "matt",
-    texture: "Fine, uniform",
-    tone: "Bright white",
-    blurb: "Polyester-cotton, finer than Artist Canvas.",
-    description:
-      "Polyester-cotton blend with a bright-white tone and a finer surface than Artist Canvas. A good middle ground for canvas character without heavy texture.",
-    longDescription:
-      "A 320gsm canvas made from a polyester-cotton blend, with a bright-white tone and a matt coating optimised for photographic prints. Hahnemühle positions Photo Canvas a step below the Artist, Daguerre, and Metallic range, but we've found it produces excellent results at a more affordable price point. A frequent choice for portraits, product work, and editorial photography on canvas.",
-    featured: true,
-    sellPricePerSqm: 74.09,
-    maxPrintWidthCm: 152.4,
-    maxPrintLengthCm: 2000,
-    images: [
-      "hahnemuhle-photo-canvas-1.jpg",
-      "hahnemuhle-photo-canvas-2.jpg",
-      "hahnemuhle-photo-canvas-3.jpg",
-      "hahnemuhle-photo-canvas-4.jpg",
-    ],
-  },
-  // NOTE: Hahnemühle Art Canvas Smooth was in V10 spreadsheet but is not
-  // currently stocked. Re-add here with featured: true if/when it returns.
-  {
-    id: "datajet-polycotton-canvas",
-    brand: "Datajet",
-    name: "Datajet Polycotton Canvas",
-    shortName: "Polycotton Canvas",
-    gsm: 420,
-    finish: "matt",
-    texture: "Smooth",
-    tone: "Bright white",
-    blurb: "Heaviest canvas, accessible price point.",
-    description:
-      "Matte-coated polyester-cotton blend with a bright-white tone. The heaviest weight in our lineup at the most accessible price.",
-    longDescription:
-      "Our only non-Hahnemühle canvas. A matte-coated polyester-cotton blend with a bright-white tone, producing strong-quality prints at a slightly lower price point. We find its print output and consistency on par with Hahnemühle Daguerre. Don't let the price fool you, it's still a high-quality canvas, and it's popular with our corporate and high-volume customers.",
-    featured: true,
-    sellPricePerSqm: 53.69,
-    maxPrintWidthCm: 152.4,
-    maxPrintLengthCm: 2000,
-    images: [
-      "datajet-polycotton-canvas-2.jpg",
-      "datajet-polycotton-canvas.jpg",
-      "datajet-polycotton-canvas-3.jpg",
-      "datajet-polycotton-canvas-4.jpg",
-      "datajet-polycotton-canvas-5.jpg",
-    ],
-  },
-];
 
 /* ----------------------------------------------------------------------------
  * Stretching options
@@ -312,7 +160,8 @@ export type StretchingChoice = "none" | "1in" | "1.5in";
 export type DeliveryChoice = "self" | "local";
 
 export interface CanvasQuoteInput {
-  canvasId: string;
+  /** Pre-resolved canvas profile. Caller looks up the slug → object once. */
+  canvas: CanvasSubstrate;
   /** Image dimensions in cm (width and height of the visible image area). */
   widthCm: number;
   heightCm: number;
@@ -355,7 +204,7 @@ export type CanvasQuoteResult =
     }
   | {
       ok: false;
-      reason: "unknown-canvas" | "invalid-dimensions" | "oversize";
+      reason: "invalid-dimensions" | "oversize";
       message: string;
       canvas?: CanvasSubstrate;
     };
@@ -364,14 +213,7 @@ const roundUpCents = (n: number) => Math.ceil(n * 100) / 100;
 const round2 = (n: number) => Math.round(n * 100) / 100;
 
 export function quoteCanvasPrint(input: CanvasQuoteInput): CanvasQuoteResult {
-  const canvas = CANVASES.find((c) => c.id === input.canvasId);
-  if (!canvas) {
-    return {
-      ok: false,
-      reason: "unknown-canvas",
-      message: `Canvas not found: ${input.canvasId}`,
-    };
-  }
+  const canvas = input.canvas;
 
   if (
     !Number.isFinite(input.widthCm) ||

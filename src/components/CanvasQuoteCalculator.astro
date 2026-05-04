@@ -1,14 +1,22 @@
 ---
-import {
-  CANVASES,
-  formatSGD,
-} from "../data/pricing/canvas";
+import { formatSGD } from "../data/pricing/canvas";
 import { listFloatFrames } from "../lib/float-frames";
+import { listCanvases } from "../lib/canvases";
 import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
 import FrameLightbox from "./FrameLightbox.astro";
 import "../styles/canvas-quote.css";
 
-const featured = CANVASES.filter((c) => c.featured);
+const canvases = await listCanvases();
+const featured = canvases.filter((c) => c.featured);
+const canvasesJson = JSON.stringify(
+  featured.map((c) => ({
+    id: c.slug,
+    name: c.name,
+    sellPricePerSqm: c.sellPricePerSqm,
+    maxPrintWidthCm: c.maxPrintWidthCm,
+    maxPrintLengthCm: c.maxPrintLengthCm,
+  })),
+);
 const floatFrames = await listFloatFrames();
 const floatFramesJson = JSON.stringify(
   floatFrames.map((f) => ({ id: f.slug, label: f.label, costPerFoot: f.costPerFoot })),
@@ -48,13 +56,13 @@ const floatFramesJson = JSON.stringify(
           <input
             type="radio"
             name="canvasId"
-            value={c.id}
+            value={c.slug}
             checked={i === 0}
             class="sr-only"
           />
-          {c.images[0] ? (
+          {c.imageUrls[0] ? (
             <img
-              src={`/photos/${c.images[0]}`}
+              src={c.imageUrls[0]}
               alt=""
               loading="lazy"
               class="canvas-card__photo"
@@ -205,6 +213,7 @@ const floatFramesJson = JSON.stringify(
     </div>
   </fieldset>
 
+  <script type="application/json" data-canvases set:html={canvasesJson} />
   <script type="application/json" data-float-frames set:html={floatFramesJson} />
 
   <div class="canvas-quote__output" data-canvas-quote-output></div>
@@ -339,7 +348,7 @@ const floatFramesJson = JSON.stringify(
     quoteCanvasPrint,
     formatSGDWhole,
     formatSGDCeil,
-    CANVASES,
+    type CanvasSubstrate,
     type FloatFrameColour,
   } from "../data/pricing/canvas";
   import { business } from "../data/business";
@@ -347,6 +356,11 @@ const floatFramesJson = JSON.stringify(
   const framesEl = document.querySelector<HTMLScriptElement>("[data-float-frames]");
   const FLOAT_FRAMES: FloatFrameColour[] = framesEl
     ? (JSON.parse(framesEl.textContent ?? "[]") as FloatFrameColour[])
+    : [];
+
+  const canvasesEl = document.querySelector<HTMLScriptElement>("[data-canvases]");
+  const CANVASES: CanvasSubstrate[] = canvasesEl
+    ? (JSON.parse(canvasesEl.textContent ?? "[]") as CanvasSubstrate[])
     : [];
 
   type FormState = {
@@ -362,7 +376,7 @@ const floatFramesJson = JSON.stringify(
   function readForm(form: HTMLFormElement): FormState {
     const data = new FormData(form);
     return {
-      canvasId: String(data.get("canvasId") ?? CANVASES[0]!.id),
+      canvasId: String(data.get("canvasId") ?? CANVASES[0]?.id ?? ""),
       width: parseFloat(String(data.get("width") ?? "0")),
       height: parseFloat(String(data.get("height") ?? "0")),
       units: (data.get("units") as "cm" | "in") ?? "cm",
@@ -410,9 +424,16 @@ const floatFramesJson = JSON.stringify(
     const state = readForm(form);
     const widthCm = toCm(state.width, state.units);
     const heightCm = toCm(state.height, state.units);
+    const canvas = CANVASES.find((c) => c.id === state.canvasId);
+
+    if (!canvas) {
+      const output = form.querySelector<HTMLElement>("[data-canvas-quote-output]")!;
+      output.innerHTML = "";
+      return;
+    }
 
     const result = quoteCanvasPrint({
-      canvasId: state.canvasId,
+      canvas,
       widthCm,
       heightCm,
       stretching:

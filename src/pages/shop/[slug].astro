@@ -6,9 +6,9 @@ import DarkCTA from "../../components/DarkCTA.astro";
 import FrameLightbox from "../../components/FrameLightbox.astro";
 import { listArtworks, getArtworkBySlug } from "../../lib/artworks";
 import { listFloatFrames } from "../../lib/float-frames";
+import { listCanvases } from "../../lib/canvases";
 import "../../styles/canvas-quote.css";
 import { PAPERS } from "../../data/pricing/paper";
-import { CANVASES } from "../../data/pricing/canvas";
 
 export async function getStaticPaths() {
   const artworks = await listArtworks({ onlyPublished: true });
@@ -20,14 +20,24 @@ export async function getStaticPaths() {
 
 const { artwork } = Astro.props;
 const floatFrames = await listFloatFrames();
+const canvases = await listCanvases();
 
 const featuredPapers = PAPERS.filter((p) => p.featured);
-const featuredCanvases = CANVASES.filter((c) => c.featured);
+const featuredCanvases = canvases.filter((c) => c.featured);
 
-// Engine-shape projection serialised into the page so the configurator
-// can resolve a selected slug to its costPerFoot at quote time.
+// Engine-shape projections serialised into the page so the configurator
+// can resolve selected slugs at quote time.
 const floatFramesJson = JSON.stringify(
   floatFrames.map((f) => ({ id: f.slug, label: f.label, costPerFoot: f.costPerFoot })),
+);
+const canvasesJson = JSON.stringify(
+  featuredCanvases.map((c) => ({
+    id: c.slug,
+    name: c.name,
+    sellPricePerSqm: c.sellPricePerSqm,
+    maxPrintWidthCm: c.maxPrintWidthCm,
+    maxPrintLengthCm: c.maxPrintLengthCm,
+  })),
 );
 
 const description =
@@ -156,7 +166,7 @@ const jsonLd = {
               <legend>Canvas</legend>
               <select name="canvas_id" class="artwork-config__select">
                 {featuredCanvases.map((c) => (
-                  <option value={c.id}>{c.brand} {c.shortName}</option>
+                  <option value={c.slug}>{c.brand} {c.shortName}</option>
                 ))}
               </select>
             </fieldset>
@@ -309,6 +319,7 @@ const jsonLd = {
   </section>
 
   <script type="application/json" data-float-frames set:html={floatFramesJson} />
+  <script type="application/json" data-canvases set:html={canvasesJson} />
 
   <DarkCTA />
   <FrameLightbox />
@@ -531,16 +542,29 @@ const jsonLd = {
 
 <script>
   import { quotePaperPrint } from "../../data/pricing/paper";
-  import { quoteCanvasPrint, type FloatFrameColour, type StretchingChoice } from "../../data/pricing/canvas";
+  import {
+    quoteCanvasPrint,
+    type CanvasSubstrate,
+    type FloatFrameColour,
+    type StretchingChoice,
+  } from "../../data/pricing/canvas";
 
   const root = document.querySelector<HTMLElement>("[data-artwork-config]");
   const framesEl = document.querySelector<HTMLScriptElement>("[data-float-frames]");
   const floatFrames: FloatFrameColour[] = framesEl
     ? (JSON.parse(framesEl.textContent ?? "[]") as FloatFrameColour[])
     : [];
-  if (root) initConfigurator(root, floatFrames);
+  const canvasesEl = document.querySelector<HTMLScriptElement>("[data-canvases]");
+  const canvases: CanvasSubstrate[] = canvasesEl
+    ? (JSON.parse(canvasesEl.textContent ?? "[]") as CanvasSubstrate[])
+    : [];
+  if (root) initConfigurator(root, floatFrames, canvases);
 
-  function initConfigurator(root: HTMLElement, floatFrames: FloatFrameColour[]) {
+  function initConfigurator(
+    root: HTMLElement,
+    floatFrames: FloatFrameColour[],
+    canvases: CanvasSubstrate[],
+  ) {
     const priceEl = root.querySelector<HTMLElement>("[data-artwork-price-amount]")!;
     const noteEl = root.querySelector<HTMLElement>("[data-artwork-price-note]")!;
     const groups = root.querySelectorAll<HTMLElement>("[data-substrate]");
@@ -611,8 +635,15 @@ const jsonLd = {
           : "";
       } else {
         const canvasId = getValue("canvas_id");
+        const canvas = canvases.find((c) => c.id === canvasId) ?? null;
         const finishing = getRadio("finishing") ?? "none";
         const futureMargin = (getRadio("future_margin") ?? "no") === "yes";
+
+        if (!canvas) {
+          priceEl.textContent = "—";
+          noteEl.textContent = "";
+          return;
+        }
 
         let stretching: StretchingChoice = "none";
         let floatFrame: FloatFrameColour | null = null;
@@ -630,7 +661,7 @@ const jsonLd = {
         const marginCm = finishing === "none" && futureMargin ? 3.81 : 0;
 
         const result = quoteCanvasPrint({
-          canvasId,
+          canvas,
           widthCm: w + marginCm * 2,
           heightCm: h + marginCm * 2,
           stretching,

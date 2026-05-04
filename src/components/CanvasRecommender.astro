@@ -1,12 +1,13 @@
 ---
-import { CANVASES } from "../data/pricing/canvas";
+import { listCanvases } from "../lib/canvases";
 
-const lookup = CANVASES.reduce<Record<string, { brand: string; shortName: string; image: string }>>(
+const canvases = await listCanvases();
+const lookup = canvases.reduce<Record<string, { brand: string; shortName: string; image: string }>>(
   (acc, c) => {
-    acc[c.id] = {
+    acc[c.slug] = {
       brand: c.brand,
       shortName: c.shortName,
-      image: c.images[0] ? `/photos/${c.images[0]}` : "",
+      image: c.imageUrls[0] ?? "",
     };
     return acc;
   },

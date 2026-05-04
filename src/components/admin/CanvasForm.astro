@@ -1,0 +1,241 @@
+---
+import type { Canvas } from "../../lib/canvases";
+
+interface Props {
+  mode: "new" | "edit";
+  canvas?: Canvas;
+  error?: string;
+  message?: string;
+}
+const { mode, canvas, error, message } = Astro.props;
+
+const action = mode === "new"
+  ? "/admin/canvases/new"
+  : `/admin/canvases/${canvas?.id}`;
+
+const finishes: { value: Canvas["finish"]; label: string }[] = [
+  { value: "matt", label: "Matt" },
+  { value: "smooth-matt", label: "Smooth matt" },
+  { value: "high-gloss", label: "High gloss" },
+];
+---
+<form class="admin-form canvas-form" method="POST" enctype="multipart/form-data" action={action}>
+  {error && <p class="admin-note admin-note--err">{error}</p>}
+  {message && <p class="admin-note admin-note--ok">{message}</p>}
+
+  <section class="canvas-form__panel">
+    <h3 class="canvas-form__panel-title">Identity</h3>
+
+    <div class="admin-form__row">
+      <label>
+        <span>Brand</span>
+        <input type="text" name="brand" required maxlength="60" value={canvas?.brand ?? ""} placeholder="Hahnemühle" />
+      </label>
+      <label>
+        <span>Slug <em style="font-weight:400;color:#888;">(blank = auto)</em></span>
+        <input type="text" name="slug" maxlength="80" pattern="[a-z0-9-]+" value={canvas?.slug ?? ""} placeholder="hahnemuhle-daguerre-canvas" />
+      </label>
+    </div>
+
+    <div class="admin-form__row">
+      <label>
+        <span>Full name</span>
+        <input type="text" name="name" required maxlength="120" value={canvas?.name ?? ""} placeholder="Hahnemühle Daguerre Canvas" />
+      </label>
+      <label>
+        <span>Short name</span>
+        <input type="text" name="short_name" required maxlength="60" value={canvas?.shortName ?? ""} placeholder="Daguerre Canvas" />
+      </label>
+    </div>
+  </section>
+
+  <section class="canvas-form__panel">
+    <h3 class="canvas-form__panel-title">Specs</h3>
+
+    <div class="admin-form__row">
+      <label>
+        <span>GSM</span>
+        <input type="number" name="gsm" required min="1" max="2000" step="1" value={canvas?.gsm ?? ""} />
+      </label>
+      <label>
+        <span>Finish</span>
+        <select name="finish" required>
+          {finishes.map((f) => (
+            <option value={f.value} selected={canvas?.finish === f.value}>{f.label}</option>
+          ))}
+        </select>
+      </label>
+    </div>
+
+    <div class="admin-form__row">
+      <label>
+        <span>Texture</span>
+        <input type="text" name="texture" required maxlength="60" value={canvas?.texture ?? ""} placeholder="Fine, uniform" />
+      </label>
+      <label>
+        <span>Tone</span>
+        <input type="text" name="tone" required maxlength="60" value={canvas?.tone ?? ""} placeholder="Bright white" />
+      </label>
+    </div>
+
+    <div class="admin-form__row">
+      <label>
+        <span>Sell price per sqm (SGD, pre-GST)</span>
+        <input type="number" name="sell_price_per_sqm" required min="0" step="0.01" value={canvas?.sellPricePerSqm ?? ""} />
+      </label>
+      <label>
+        <span>Display order</span>
+        <input type="number" name="display_order" min="0" step="1" value={canvas?.displayOrder ?? 100} />
+      </label>
+    </div>
+
+    <div class="admin-form__row">
+      <label>
+        <span>Max print width (cm)</span>
+        <input type="number" name="max_print_width_cm" required min="1" step="0.1" value={canvas?.maxPrintWidthCm ?? ""} />
+      </label>
+      <label>
+        <span>Max print length (cm)</span>
+        <input type="number" name="max_print_length_cm" required min="1" step="0.1" value={canvas?.maxPrintLengthCm ?? ""} />
+      </label>
+    </div>
+
+    <div class="admin-form__check-row">
+      <label class="admin-form__check">
+        <input type="checkbox" name="published" value="1" checked={mode === "new" ? true : canvas?.published} />
+        <span>Published</span>
+      </label>
+      <label class="admin-form__check">
+        <input type="checkbox" name="featured" value="1" checked={canvas?.featured ?? false} />
+        <span>Featured (shown in calculator picker)</span>
+      </label>
+    </div>
+  </section>
+
+  <section class="canvas-form__panel">
+    <h3 class="canvas-form__panel-title">Copy</h3>
+
+    <label>
+      <span>Blurb (one line, picker card)</span>
+      <input type="text" name="blurb" required maxlength="120" value={canvas?.blurb ?? ""} placeholder="Fine, even-textured matt canvas." />
+    </label>
+
+    <label>
+      <span>Description (1–2 sentences)</span>
+      <textarea name="description" required maxlength="500" rows="3" placeholder="Two-line description for the showcase / picker card body.">{canvas?.description ?? ""}</textarea>
+    </label>
+
+    <label>
+      <span>Long description (multi-paragraph showcase copy)</span>
+      <textarea name="long_description" required maxlength="3000" rows="8" placeholder="Multi-paragraph marketing copy for the showcase panel.">{canvas?.longDescription ?? ""}</textarea>
+    </label>
+  </section>
+
+  <section class="canvas-form__panel">
+    <h3 class="canvas-form__panel-title">Photos</h3>
+
+    {canvas && canvas.imageUrls.length > 0 && (
+      <div class="canvas-form__photos">
+        {canvas.imageUrls.map((url, i) => (
+          <label class="canvas-form__photo">
+            <img src={url} alt={`${canvas.shortName} ${i + 1}`} loading="lazy" />
+            <span>
+              <input type="checkbox" name="kept_images" value={canvas.images[i]} checked />
+              <em>Keep</em>
+            </span>
+          </label>
+        ))}
+        <p style="font-size:12px;color:#888;grid-column:1/-1;margin:4px 0 0;">Untick to remove a photo on save. Reordering isn't supported here yet — re-upload in the order you want.</p>
+      </div>
+    )}
+
+    <label>
+      <span>Add photos (JPG or PNG, multiple)</span>
+      <input type="file" name="image_files" accept="image/jpeg,image/png" multiple />
+    </label>
+    <p style="font-size:12px;color:#888;margin:6px 0 0;">
+      First photo is the picker thumbnail. Additional photos appear in the showcase carousel on /print-on-canvas.
+    </p>
+  </section>
+
+  <div class="admin-form__actions">
+    <button type="submit" class="admin-btn">
+      {mode === "new" ? "Create canvas" : "Save changes"}
+    </button>
+    <a href="/admin/canvases" class="admin-btn admin-btn--ghost">Cancel</a>
+    {mode === "edit" && canvas && (
+      <button
+        type="submit"
+        formaction={`/admin/canvases/${canvas.id}/delete`}
+        class="admin-btn admin-btn--danger"
+        data-confirm="Delete this canvas? This cannot be undone."
+        style="margin-left:auto;"
+      >
+        Delete
+      </button>
+    )}
+  </div>
+</form>
+
+<style is:global>
+  .canvas-form {
+    display: grid;
+    gap: 18px;
+    max-width: 920px;
+  }
+  .canvas-form__panel {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 22px;
+    display: grid;
+    gap: 14px;
+  }
+  .canvas-form__panel-title {
+    margin: 0;
+    font-family: "Lora", Georgia, serif;
+    font-weight: 500;
+    font-size: 16px;
+  }
+  .canvas-form__photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+  }
+  .canvas-form__photo {
+    display: grid;
+    gap: 6px;
+    cursor: default;
+  }
+  .canvas-form__photo img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    background: #f4efe7;
+  }
+  .canvas-form__photo span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    color: var(--admin-muted, #555);
+  }
+  .admin-form__check-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-confirm]").forEach((btn) => {
+    btn.addEventListener("click", (ev) => {
+      const msg = btn.getAttribute("data-confirm");
+      if (msg && !window.confirm(msg)) {
+        ev.preventDefault();
+      }
+    });
+  });
+</script>

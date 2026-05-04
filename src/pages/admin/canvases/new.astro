@@ -1,0 +1,131 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import CanvasForm from "../../../components/admin/CanvasForm.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import { extname } from "node:path";
+import { randomUUID } from "node:crypto";
+
+const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
+const MAX_BYTES = 25 * 1024 * 1024;
+
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+let error: string | undefined;
+
+if (Astro.request.method === "POST") {
+  const supabase = createSupabaseServerClient(Astro);
+  const form = await Astro.request.formData();
+
+  const brand = String(form.get("brand") ?? "").trim();
+  const name = String(form.get("name") ?? "").trim();
+  const shortName = String(form.get("short_name") ?? "").trim();
+  let slug = String(form.get("slug") ?? "").trim().toLowerCase();
+  const gsm = parseInt(String(form.get("gsm") ?? ""), 10);
+  const finish = String(form.get("finish") ?? "").trim();
+  const texture = String(form.get("texture") ?? "").trim();
+  const tone = String(form.get("tone") ?? "").trim();
+  const blurb = String(form.get("blurb") ?? "").trim();
+  const description = String(form.get("description") ?? "").trim();
+  const longDescription = String(form.get("long_description") ?? "").trim();
+  const sellPricePerSqm = parseFloat(String(form.get("sell_price_per_sqm") ?? ""));
+  const maxPrintWidthCm = parseFloat(String(form.get("max_print_width_cm") ?? ""));
+  const maxPrintLengthCm = parseFloat(String(form.get("max_print_length_cm") ?? ""));
+  const displayOrder = parseInt(String(form.get("display_order") ?? "100"), 10);
+  const published = form.get("published") === "1";
+  const featured = form.get("featured") === "1";
+
+  if (!brand || !name || !shortName) {
+    error = "Brand, full name, and short name are required.";
+  } else if (!slug && !(slug = slugify(name))) {
+    error = "Could not derive a slug from the name. Provide one explicitly.";
+  } else if (!/^[a-z0-9-]+$/.test(slug)) {
+    error = "Slug must be letters, numbers, and hyphens only.";
+  } else if (!Number.isFinite(gsm) || gsm <= 0) {
+    error = "GSM must be a positive number.";
+  } else if (!["matt", "smooth-matt", "high-gloss"].includes(finish)) {
+    error = "Finish must be matt, smooth-matt, or high-gloss.";
+  } else if (!texture || !tone || !blurb || !description || !longDescription) {
+    error = "Texture, tone, blurb, description, and long description are all required.";
+  } else if (!Number.isFinite(sellPricePerSqm) || sellPricePerSqm < 0) {
+    error = "Sell price must be a non-negative number.";
+  } else if (!Number.isFinite(maxPrintWidthCm) || maxPrintWidthCm <= 0) {
+    error = "Max print width must be positive.";
+  } else if (!Number.isFinite(maxPrintLengthCm) || maxPrintLengthCm <= 0) {
+    error = "Max print length must be positive.";
+  }
+
+  const imageFiles = form.getAll("image_files").filter(
+    (f): f is File => f instanceof File && f.size > 0,
+  );
+  const uploaded: string[] = [];
+  if (!error) {
+    for (const f of imageFiles) {
+      if (!ALLOWED_TYPES.has(f.type)) { error = "Photos must be JPG or PNG."; break; }
+      if (f.size > MAX_BYTES) { error = "A photo is over the 25 MB limit."; break; }
+      const ext = f.type === "image/png" ? ".png" : extname(f.name) || ".jpg";
+      const path = `${randomUUID()}${ext}`;
+      const buffer = Buffer.from(await f.arrayBuffer());
+      const { error: upErr } = await supabase.storage
+        .from("canvases")
+        .upload(path, buffer, { contentType: f.type, upsert: false });
+      if (upErr) { error = `Upload failed: ${upErr.message}`; break; }
+      uploaded.push(path);
+    }
+  }
+
+  if (error && uploaded.length) {
+    await supabase.storage.from("canvases").remove(uploaded);
+  }
+
+  if (!error) {
+    const row = {
+      slug,
+      brand,
+      name,
+      short_name: shortName,
+      gsm,
+      finish,
+      texture,
+      tone,
+      blurb,
+      description,
+      long_description: longDescription,
+      sell_price_per_sqm: sellPricePerSqm,
+      max_print_width_cm: maxPrintWidthCm,
+      max_print_length_cm: maxPrintLengthCm,
+      images: uploaded,
+      featured,
+      published,
+      display_order: Number.isFinite(displayOrder) ? displayOrder : 100,
+    };
+    const { data, error: insErr } = await supabase
+      .from("canvases")
+      .insert(row)
+      .select("id")
+      .single();
+    if (insErr) {
+      if (uploaded.length) await supabase.storage.from("canvases").remove(uploaded);
+      error = insErr.message;
+    } else {
+      return Astro.redirect(`/admin/canvases/${data.id}?created=1`);
+    }
+  }
+}
+---
+<AdminLayout title="New canvas">
+  <div class="admin-page-head">
+    <div>
+      <h1>New canvas</h1>
+      <p>Add a new substrate to the catalog.</p>
+    </div>
+    <a href="/admin/canvases" class="admin-btn admin-btn--ghost">← Back to list</a>
+  </div>
+  <CanvasForm mode="new" error={error} />
+</AdminLayout>
