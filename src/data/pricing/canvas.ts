@@ -247,7 +247,9 @@ export const STRETCHING_BAR_MARKUP = 8;
 export const LABOUR_MARKUP = 2;
 
 /* ----------------------------------------------------------------------------
- * Float frame options — all 7 colours cost the same.
+ * Float frame options. The list of colours/profiles now lives in Supabase
+ * (see src/lib/float-frames.ts); this file only keeps the input shape the
+ * pricing engines expect, plus the global wastage/markup constants.
  * -------------------------------------------------------------------------- */
 
 export interface FloatFrameColour {
@@ -255,21 +257,7 @@ export interface FloatFrameColour {
   label: string;
   /** Wholesale moulding cost in SGD per foot. Drives the per-frame material line. */
   costPerFoot: number;
-  /** Filename in /public/photos/float-frames/ for the picker thumbnail. Optional for new profiles where we don't have a photo yet. */
-  image?: string;
 }
-
-export const FLOAT_FRAME_COLOURS: readonly FloatFrameColour[] = [
-  { id: "smooth-white", label: "Smooth White", costPerFoot: 0.77, image: "3740-W-Smooth-White.jpg" },
-  { id: "smooth-black", label: "Smooth Black", costPerFoot: 0.77, image: "3740-B-Smooth-Black.jpg" },
-  { id: "champagne", label: "Champagne", costPerFoot: 0.77, image: "3740-S-Champagne.jpg" },
-  { id: "glossy-light-brown-pine", label: "Glossy Light Brown Pine", costPerFoot: 0.77, image: "S3536-Glossy-Light-Brown-Pine.jpg" },
-  { id: "natural-brown-oak", label: "Natural Brown Oak", costPerFoot: 0.77, image: "3535-19-Natural-Brown-Oak.jpg" },
-  { id: "natural-dark-brown-oak", label: "Natural Dark Brown Oak", costPerFoot: 0.77, image: "3535-15-Natural-Dark-Brown-Oak.jpg" },
-  { id: "natural-black-oak", label: "Natural Black Oak", costPerFoot: 0.77, image: "3535-11-Natural-Black-Oak.jpg" },
-  // $3.10/m wholesale = $0.945/ft. No swatch photo yet — picker shows a placeholder.
-  { id: "gold", label: "Gold", costPerFoot: 0.945 },
-] as const;
 
 export const FLOAT_FRAME_ADD_CM = 1.2;
 export const FLOAT_FRAME_WASTAGE = 1.2;
@@ -330,8 +318,8 @@ export interface CanvasQuoteInput {
   heightCm: number;
   /** "none" = unstretched roll. Mutually exclusive with float frame. */
   stretching: StretchingChoice;
-  /** If a colour id is supplied, the canvas is float-framed (overrides stretching). */
-  floatFrameColourId: string | null;
+  /** Pre-resolved float-frame profile. When set, the canvas is float-framed (overrides stretching). */
+  floatFrame: FloatFrameColour | null;
   delivery: DeliveryChoice;
 }
 
@@ -367,7 +355,7 @@ export type CanvasQuoteResult =
     }
   | {
       ok: false;
-      reason: "unknown-canvas" | "invalid-dimensions" | "oversize" | "invalid-frame-colour";
+      reason: "unknown-canvas" | "invalid-dimensions" | "oversize";
       message: string;
       canvas?: CanvasSubstrate;
     };
@@ -408,26 +396,15 @@ export function quoteCanvasPrint(input: CanvasQuoteInput): CanvasQuoteResult {
   let frameForCalc: FloatFrameColour | null = null;
   let addCm = 0;
 
-  if (input.floatFrameColourId) {
-    const colour = FLOAT_FRAME_COLOURS.find(
-      (c) => c.id === input.floatFrameColourId,
-    );
-    if (!colour) {
-      return {
-        ok: false,
-        reason: "invalid-frame-colour",
-        message: `Float frame colour not recognised: ${input.floatFrameColourId}`,
-        canvas,
-      };
-    }
+  if (input.floatFrame) {
     // Float frame is built on top of 1" stretching.
     const oneInch = STRETCHING_OPTIONS.find((o) => o.id === "1in")!;
     stretchingForCalc = oneInch;
-    frameForCalc = colour;
+    frameForCalc = input.floatFrame;
     addCm = oneInch.addCm; // canvas wrap follows the stretcher bars
     finishingChoice = {
       kind: "float-frame",
-      colour,
+      colour: input.floatFrame,
       stretchingOption: oneInch,
     };
   } else if (input.stretching === "1in" || input.stretching === "1.5in") {
@@ -583,8 +560,8 @@ export interface CanvasStretchingInput {
   frameHeightCm: number;
   /** "1in" or "1.5in"; "none" isn't allowed (the whole job IS stretching). */
   depth: "1in" | "1.5in";
-  /** If a colour id is supplied, mount inside a float frame of that colour. */
-  floatFrameColourId: string | null;
+  /** Pre-resolved float-frame profile. When set, mount inside this float frame. */
+  floatFrame: FloatFrameColour | null;
   delivery: DeliveryChoice;
 }
 
@@ -611,7 +588,7 @@ export type CanvasStretchingResult =
     }
   | {
       ok: false;
-      reason: "invalid-dimensions" | "invalid-frame-colour";
+      reason: "invalid-dimensions";
       message: string;
     };
 
@@ -632,21 +609,7 @@ export function quoteCanvasStretching(
   }
 
   const stretchingOpt = STRETCHING_OPTIONS.find((o) => o.id === input.depth)!;
-  let frameColour: FloatFrameColour | null = null;
-
-  if (input.floatFrameColourId) {
-    const colour = FLOAT_FRAME_COLOURS.find(
-      (c) => c.id === input.floatFrameColourId,
-    );
-    if (!colour) {
-      return {
-        ok: false,
-        reason: "invalid-frame-colour",
-        message: `Float frame colour not recognised: ${input.floatFrameColourId}`,
-      };
-    }
-    frameColour = colour;
-  }
+  const frameColour: FloatFrameColour | null = input.floatFrame;
 
   // Bars surround the visible front (frame), not the canvas itself.
   const heightInch = input.frameHeightCm * CM_TO_INCH;

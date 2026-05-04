@@ -13,9 +13,11 @@ import {
   type Service,
   type Subject,
 } from "../lib/frame-examples";
+import { listFloatFrames } from "../lib/float-frames";
 import { PAPERS } from "../data/pricing/paper";
 
 const examples = await listExamples();
+const floatFrames = await listFloatFrames();
 // Only show paper chips for papers that actually appear on at least one example.
 const paperIdsInUse = new Set(
   examples.map((e) => e.paperId).filter(Boolean) as string[],
@@ -100,7 +102,7 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
 
       <div class="gallery-grid mt-10" data-gallery-grid>
         {examples.map((ex) => {
-          const detailLabel = detailLabelFor(ex);
+          const detailLabel = detailLabelFor(ex, floatFrames);
           const lightboxName = detailLabel
             ? `${SERVICE_LABELS[ex.service]} · ${detailLabel}`
             : SERVICE_LABELS[ex.service];

@@ -1,8 +1,13 @@
 ---
-import { FLOAT_FRAME_COLOURS } from "../data/pricing/canvas";
+import { listFloatFrames } from "../lib/float-frames";
 import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
 import FrameLightbox from "./FrameLightbox.astro";
 import "../styles/canvas-quote.css";
+
+const floatFrames = await listFloatFrames();
+const floatFramesJson = JSON.stringify(
+  floatFrames.map((f) => ({ id: f.slug, label: f.label, costPerFoot: f.costPerFoot })),
+);
 ---
 <form class="canvas-quote" data-stretching-form novalidate>
   <fieldset class="canvas-quote__group">
@@ -100,19 +105,19 @@ import "../styles/canvas-quote.css";
   <fieldset class="canvas-quote__group canvas-quote__frame-colour" data-stretching-frame-colour>
     <legend class="canvas-quote__legend">Float frame colour</legend>
     <div class="frame-colour-grid">
-      {FLOAT_FRAME_COLOURS.map((colour, i) => (
+      {floatFrames.map((colour, i) => (
         <label class="frame-colour">
           <input
             type="radio"
             name="floatFrameColour"
-            value={colour.id}
+            value={colour.slug}
             checked={i === 0}
             class="sr-only"
           />
-          {colour.image ? (
+          {colour.imageUrl ? (
             <img
               class="frame-colour__swatch"
-              src={`/photos/float-frames/${colour.image}`}
+              src={colour.imageUrl}
               alt=""
               loading="lazy"
               aria-hidden="true"
@@ -121,12 +126,12 @@ import "../styles/canvas-quote.css";
             <span class="frame-colour__swatch frame-colour__swatch--placeholder" aria-hidden="true">Photo coming soon</span>
           )}
           <span class="frame-colour__name">{colour.label}</span>
-          {colour.image && (
+          {colour.imageUrl && (
             <button
               type="button"
               class="frame-colour__zoom"
               data-frame-zoom
-              data-frame-image={`/photos/float-frames/${colour.image}`}
+              data-frame-image={colour.imageUrl}
               data-frame-name={colour.label}
               aria-label={`View ${colour.label} larger`}
             >
@@ -158,6 +163,8 @@ import "../styles/canvas-quote.css";
   </fieldset>
 
   <p class="canvas-quote__bring" data-bring-canvas hidden></p>
+
+  <script type="application/json" data-float-frames set:html={floatFramesJson} />
 
   <div class="canvas-quote__output" data-stretching-output></div>
 
@@ -202,9 +209,14 @@ import "../styles/canvas-quote.css";
     quoteCanvasStretching,
     formatSGDWhole,
     formatSGDCeil,
-    FLOAT_FRAME_COLOURS,
+    type FloatFrameColour,
   } from "../data/pricing/canvas";
   import { business } from "../data/business";
+
+  const framesEl = document.querySelector<HTMLScriptElement>("[data-float-frames]");
+  const FLOAT_FRAMES: FloatFrameColour[] = framesEl
+    ? (JSON.parse(framesEl.textContent ?? "[]") as FloatFrameColour[])
+    : [];
 
   type FormState = {
     width: number;
@@ -225,7 +237,7 @@ import "../styles/canvas-quote.css";
       depth: (data.get("depth") as "1in" | "1.5in") ?? "1in",
       addFrame: (data.get("addFrame") as "yes" | "no") ?? "no",
       floatFrameColourId: String(
-        data.get("floatFrameColour") ?? FLOAT_FRAME_COLOURS[0]!.id,
+        data.get("floatFrameColour") ?? FLOAT_FRAMES[0]?.id ?? "",
       ),
       delivery: (data.get("delivery") as "self" | "local") ?? "self",
     };
@@ -239,7 +251,7 @@ import "../styles/canvas-quote.css";
       state.depth === "1in" ? 'Standard 1" stretching' : 'Deep 1.5" stretching';
     const frameLabel =
       state.addFrame === "yes"
-        ? `+ Float frame (${FLOAT_FRAME_COLOURS.find((c) => c.id === state.floatFrameColourId)?.label ?? state.floatFrameColourId})`
+        ? `+ Float frame (${FLOAT_FRAMES.find((c) => c.id === state.floatFrameColourId)?.label ?? state.floatFrameColourId})`
         : "No float frame";
     return [
       "Hi Fine Art Printing, I'd like a quote for canvas stretching.",
@@ -269,8 +281,10 @@ import "../styles/canvas-quote.css";
       frameWidthCm: widthCm,
       frameHeightCm: heightCm,
       depth: state.depth,
-      floatFrameColourId:
-        state.addFrame === "yes" ? state.floatFrameColourId : null,
+      floatFrame:
+        state.addFrame === "yes"
+          ? FLOAT_FRAMES.find((c) => c.id === state.floatFrameColourId) ?? null
+          : null,
       delivery: state.delivery,
     });
 

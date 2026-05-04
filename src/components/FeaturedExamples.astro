@@ -5,6 +5,7 @@ import {
   SERVICE_LABELS,
   type Service,
 } from "../lib/frame-examples";
+import { listFloatFrames } from "../lib/float-frames";
 
 interface Props {
   service: Service;
@@ -24,6 +25,7 @@ const {
 } = Astro.props;
 
 const examples = await featuredFor(service, limit);
+const floatFrames = await listFloatFrames();
 ---
 {examples.length > 0 && (
   <section class="featured-examples border-t border-border-soft bg-white">
@@ -40,7 +42,7 @@ const examples = await featuredFor(service, limit);
 
       <ul class="featured-examples__grid">
         {examples.map((ex) => {
-          const detail = detailLabelFor(ex);
+          const detail = detailLabelFor(ex, floatFrames);
           const lightboxName = detail
             ? `${SERVICE_LABELS[ex.service]} · ${detail}`
             : SERVICE_LABELS[ex.service];

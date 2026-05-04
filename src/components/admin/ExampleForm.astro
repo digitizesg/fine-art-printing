@@ -6,8 +6,11 @@ import {
   type Subject,
 } from "../../lib/frame-examples";
 import { PICTURE_FRAME_GROUPS } from "../../data/picture-frames";
-import { CANVASES, FLOAT_FRAME_COLOURS } from "../../data/pricing/canvas";
+import { CANVASES } from "../../data/pricing/canvas";
 import { PAPERS } from "../../data/pricing/paper";
+import { listFloatFrames } from "../../lib/float-frames";
+
+const floatFrames = await listFloatFrames({ onlyPublished: false });
 
 interface Props {
   mode: "new" | "edit";
@@ -113,8 +116,8 @@ const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.
       <span>Float frame</span>
       <select name="float_frame_id">
         <option value="" selected={!example?.float_frame_id}>—</option>
-        {FLOAT_FRAME_COLOURS.map((f) => (
-          <option value={f.id} selected={example?.float_frame_id === f.id}>{f.label}</option>
+        {floatFrames.map((f) => (
+          <option value={f.slug} selected={example?.float_frame_id === f.slug}>{f.label}</option>
         ))}
       </select>
     </label>

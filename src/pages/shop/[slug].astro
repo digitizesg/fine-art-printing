@@ -5,9 +5,10 @@ import Eyebrow from "../../components/Eyebrow.astro";
 import DarkCTA from "../../components/DarkCTA.astro";
 import FrameLightbox from "../../components/FrameLightbox.astro";
 import { listArtworks, getArtworkBySlug } from "../../lib/artworks";
+import { listFloatFrames } from "../../lib/float-frames";
 import "../../styles/canvas-quote.css";
 import { PAPERS } from "../../data/pricing/paper";
-import { CANVASES, FLOAT_FRAME_COLOURS } from "../../data/pricing/canvas";
+import { CANVASES } from "../../data/pricing/canvas";
 
 export async function getStaticPaths() {
   const artworks = await listArtworks({ onlyPublished: true });
@@ -18,9 +19,16 @@ export async function getStaticPaths() {
 }
 
 const { artwork } = Astro.props;
+const floatFrames = await listFloatFrames();
 
 const featuredPapers = PAPERS.filter((p) => p.featured);
 const featuredCanvases = CANVASES.filter((c) => c.featured);
+
+// Engine-shape projection serialised into the page so the configurator
+// can resolve a selected slug to its costPerFoot at quote time.
+const floatFramesJson = JSON.stringify(
+  floatFrames.map((f) => ({ id: f.slug, label: f.label, costPerFoot: f.costPerFoot })),
+);
 
 const description =
   artwork.description ?? `${artwork.title}${artwork.artistName ? ` by ${artwork.artistName}` : ""} — printed to order on archival paper or canvas at Fine Art Printing.`;
@@ -232,8 +240,8 @@ const jsonLd = {
             <fieldset class="artwork-config__group" data-substrate="canvas" data-only-when-float>
               <legend>Float frame colour</legend>
               <select name="float_frame" class="artwork-config__select">
-                {FLOAT_FRAME_COLOURS.map((f, i) => (
-                  <option value={f.id} selected={i === 0}>{f.label}</option>
+                {floatFrames.map((f, i) => (
+                  <option value={f.slug} selected={i === 0}>{f.label}</option>
                 ))}
               </select>
             </fieldset>
@@ -299,6 +307,8 @@ const jsonLd = {
       </div>
     </div>
   </section>
+
+  <script type="application/json" data-float-frames set:html={floatFramesJson} />
 
   <DarkCTA />
   <FrameLightbox />
@@ -521,12 +531,16 @@ const jsonLd = {
 
 <script>
   import { quotePaperPrint } from "../../data/pricing/paper";
-  import { quoteCanvasPrint, type StretchingChoice } from "../../data/pricing/canvas";
+  import { quoteCanvasPrint, type FloatFrameColour, type StretchingChoice } from "../../data/pricing/canvas";
 
   const root = document.querySelector<HTMLElement>("[data-artwork-config]");
-  if (root) initConfigurator(root);
+  const framesEl = document.querySelector<HTMLScriptElement>("[data-float-frames]");
+  const floatFrames: FloatFrameColour[] = framesEl
+    ? (JSON.parse(framesEl.textContent ?? "[]") as FloatFrameColour[])
+    : [];
+  if (root) initConfigurator(root, floatFrames);
 
-  function initConfigurator(root: HTMLElement) {
+  function initConfigurator(root: HTMLElement, floatFrames: FloatFrameColour[]) {
     const priceEl = root.querySelector<HTMLElement>("[data-artwork-price-amount]")!;
     const noteEl = root.querySelector<HTMLElement>("[data-artwork-price-note]")!;
     const groups = root.querySelectorAll<HTMLElement>("[data-substrate]");
@@ -601,12 +615,13 @@ const jsonLd = {
         const futureMargin = (getRadio("future_margin") ?? "no") === "yes";
 
         let stretching: StretchingChoice = "none";
-        let floatFrameColourId: string | null = null;
+        let floatFrame: FloatFrameColour | null = null;
         if (finishing === "1in") stretching = "1in";
         else if (finishing === "1.5in") stretching = "1.5in";
         else if (finishing === "float") {
           stretching = "1in";
-          floatFrameColourId = getValue("float_frame") || null;
+          const slug = getValue("float_frame");
+          floatFrame = floatFrames.find((f) => f.id === slug) ?? null;
         }
 
         // 1.5" = 3.81cm. Only relevant when finishing is "none" and the
@@ -619,7 +634,7 @@ const jsonLd = {
           widthCm: w + marginCm * 2,
           heightCm: h + marginCm * 2,
           stretching,
-          floatFrameColourId,
+          floatFrame,
           delivery: "self",
         });
         if (!result.ok) {
