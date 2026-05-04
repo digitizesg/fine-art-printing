@@ -40,10 +40,10 @@ const floatFramesJson = JSON.stringify(
   </fieldset>
 
   <fieldset class="canvas-quote__group">
-    <legend class="canvas-quote__legend">Stretcher depth</legend>
+    <legend class="canvas-quote__legend">Finishing</legend>
     <div class="finishing-grid">
       <label class="finishing-card">
-        <input type="radio" name="depth" value="1in" checked />
+        <input type="radio" name="finishing" value="1in" checked />
         <span class="finishing-card__icon" aria-hidden="true">
           <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
             <rect x="3" y="4" width="34" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
@@ -52,11 +52,11 @@ const floatFramesJson = JSON.stringify(
         </span>
         <span class="finishing-card__body">
           <span class="finishing-card__title">Standard 1"</span>
-          <span class="finishing-card__desc">Classic profile, sits close to the wall.</span>
+          <span class="finishing-card__desc">Solid wood, gallery-wrapped.</span>
         </span>
       </label>
       <label class="finishing-card">
-        <input type="radio" name="depth" value="1.5in" />
+        <input type="radio" name="finishing" value="1.5in" />
         <span class="finishing-card__icon" aria-hidden="true">
           <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
             <rect x="3" y="3" width="34" height="13" rx="1" stroke="currentColor" stroke-width="1.5"/>
@@ -65,32 +65,11 @@ const floatFramesJson = JSON.stringify(
         </span>
         <span class="finishing-card__body">
           <span class="finishing-card__title">Deep 1.5"</span>
-          <span class="finishing-card__desc">More substantial side profile.</span>
-        </span>
-      </label>
-    </div>
-  </fieldset>
-
-  <fieldset class="canvas-quote__group canvas-quote__float-question" data-stretching-float-question>
-    <legend class="canvas-quote__legend">Float frame?</legend>
-    <p class="canvas-quote__hint" data-stretching-float-note hidden>
-      Float frames are only available on the 1" stretcher.
-    </p>
-    <div class="finishing-grid">
-      <label class="finishing-card">
-        <input type="radio" name="addFrame" value="no" checked />
-        <span class="finishing-card__icon" aria-hidden="true">
-          <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
-            <rect x="3" y="4" width="34" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
-          </svg>
-        </span>
-        <span class="finishing-card__body">
-          <span class="finishing-card__title">No frame</span>
-          <span class="finishing-card__desc">Just stretched, ready to hang.</span>
+          <span class="finishing-card__desc">Deeper bars, more substantial profile.</span>
         </span>
       </label>
       <label class="finishing-card">
-        <input type="radio" name="addFrame" value="yes" />
+        <input type="radio" name="finishing" value="float" />
         <span class="finishing-card__icon" aria-hidden="true">
           <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
             <rect x="1.5" y="3" width="37" height="22" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
@@ -98,8 +77,8 @@ const floatFramesJson = JSON.stringify(
           </svg>
         </span>
         <span class="finishing-card__body">
-          <span class="finishing-card__title">Add float frame</span>
-          <span class="finishing-card__desc">Mount inside a wooden surround.</span>
+          <span class="finishing-card__title">Float frame</span>
+          <span class="finishing-card__desc">Stretched on 1" bars, then mounted in a wooden frame.</span>
         </span>
       </label>
     </div>
@@ -201,17 +180,9 @@ const floatFramesJson = JSON.stringify(
     line-height: 1.45;
     margin: 0;
   }
-  /* Show the float-frame colour picker only when "Add float frame" is selected. */
-  .canvas-quote:has(input[name="addFrame"][value="yes"]:checked) .canvas-quote__frame-colour {
+  /* Show the float-frame colour picker only when "Float frame" is selected. */
+  .canvas-quote:has(input[name="finishing"][value="float"]:checked) .canvas-quote__frame-colour {
     display: block;
-  }
-  /* Hide the float-frame question entirely when the customer picks the
-     1.5" stretcher — float frames only fit the 1" profile. */
-  .canvas-quote:has(input[name="depth"][value="1.5in"]:checked) .canvas-quote__float-question .finishing-grid {
-    display: none;
-  }
-  .canvas-quote:has(input[name="depth"][value="1.5in"]:checked) [data-stretching-float-note] {
-    display: block !important;
   }
 </style>
 
@@ -233,8 +204,7 @@ const floatFramesJson = JSON.stringify(
     width: number;
     height: number;
     units: "cm" | "in";
-    depth: "1in" | "1.5in";
-    addFrame: "yes" | "no";
+    finishing: "1in" | "1.5in" | "float";
     floatFrameColourId: string;
     delivery: "self" | "local";
   };
@@ -245,8 +215,7 @@ const floatFramesJson = JSON.stringify(
       width: parseFloat(String(data.get("width") ?? "0")),
       height: parseFloat(String(data.get("height") ?? "0")),
       units: (data.get("units") as "cm" | "in") ?? "cm",
-      depth: (data.get("depth") as "1in" | "1.5in") ?? "1in",
-      addFrame: (data.get("addFrame") as "yes" | "no") ?? "no",
+      finishing: (data.get("finishing") as FormState["finishing"]) ?? "1in",
       floatFrameColourId: String(
         data.get("floatFrameColour") ?? FLOAT_FRAMES[0]?.id ?? "",
       ),
@@ -258,18 +227,17 @@ const floatFramesJson = JSON.stringify(
     units === "in" ? v * 2.54 : v;
 
   function buildMessage(state: FormState, totalText: string): string {
-    const depthLabel =
-      state.depth === "1in" ? 'Standard 1" stretching' : 'Deep 1.5" stretching';
-    const frameLabel =
-      state.addFrame === "yes"
-        ? `+ Float frame (${FLOAT_FRAMES.find((c) => c.id === state.floatFrameColourId)?.label ?? state.floatFrameColourId})`
-        : "No float frame";
+    const finishingLabel =
+      state.finishing === "1in"
+        ? 'Standard 1" stretching'
+        : state.finishing === "1.5in"
+          ? 'Deep 1.5" stretching'
+          : `Float frame (${FLOAT_FRAMES.find((c) => c.id === state.floatFrameColourId)?.label ?? state.floatFrameColourId})`;
     return [
       "Hi Fine Art Printing, I'd like a quote for canvas stretching.",
       "",
       `Finished size: ${state.width} × ${state.height} ${state.units}`,
-      `Depth: ${depthLabel}`,
-      `Frame: ${frameLabel}`,
+      `Finishing: ${finishingLabel}`,
       `Delivery: ${state.delivery === "self" ? "Self collection" : "Local delivery"}`,
       `Estimated total: ${totalText}`,
     ].join("\n");
@@ -291,9 +259,10 @@ const floatFramesJson = JSON.stringify(
     const result = quoteCanvasStretching({
       frameWidthCm: widthCm,
       frameHeightCm: heightCm,
-      depth: state.depth,
+      // Float frame is mounted on a 1" stretcher under the hood.
+      depth: state.finishing === "1.5in" ? "1.5in" : "1in",
       floatFrame:
-        state.addFrame === "yes"
+        state.finishing === "float"
           ? FLOAT_FRAMES.find((c) => c.id === state.floatFrameColourId) ?? null
           : null,
       delivery: state.delivery,
@@ -391,22 +360,6 @@ const floatFramesJson = JSON.stringify(
     document
       .querySelectorAll<HTMLFormElement>("[data-stretching-form]")
       .forEach((form) => {
-        // If the customer picks the 1.5" stretcher, force the float-frame
-        // toggle back to "no" — they aren't compatible.
-        form.addEventListener("change", (ev) => {
-          const t = ev.target as HTMLInputElement;
-          if (t?.name !== "depth") return;
-          if (t.value === "1.5in") {
-            const noFrame = form.querySelector<HTMLInputElement>(
-              'input[name="addFrame"][value="no"]',
-            );
-            if (noFrame && !noFrame.checked) {
-              noFrame.checked = true;
-              noFrame.dispatchEvent(new Event("change", { bubbles: true }));
-            }
-          }
-        });
-
         const update = () => render(form);
         form.addEventListener("input", update);
         form.addEventListener("change", update);
