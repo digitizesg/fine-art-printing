@@ -100,54 +100,123 @@ async function downloadImage(url) {
   return { buffer, contentType };
 }
 
+function absoluteUrl(u) {
+  return u.startsWith("http") ? u : `https://fineartprinting.com.sg${u}`;
+}
+
+async function uploadFromUrl(sourceUrl) {
+  const url = absoluteUrl(sourceUrl);
+  const pathOnly = url.split("?")[0];
+  const ext = extname(pathOnly).toLowerCase() || ".jpg";
+  const { buffer, contentType } = await downloadImage(url);
+  const path = `${crypto.randomUUID()}${ext}`;
+  const { error } = await sb.storage
+    .from("artworks")
+    .upload(path, buffer, { contentType, upsert: false });
+  if (error) throw new Error(`Upload failed: ${error.message}`);
+  return path;
+}
+
+/**
+ * Fetch every attachment attached to a WP post, sorted with the featured
+ * image first (so callers can split off the hero from the rest).
+ */
+async function fetchAllAttachments(postId, featuredMediaId) {
+  const url = `${WP_BASE}/media?parent=${postId}&per_page=20&_fields=id,source_url,media_details,mime_type`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Media fetch ${url} returned ${res.status}`);
+  const all = await res.json();
+  const list = Array.isArray(all) ? all : [];
+  return list.sort((a, b) => {
+    if (a.id === featuredMediaId) return -1;
+    if (b.id === featuredMediaId) return 1;
+    return a.id - b.id;
+  });
+}
+
 async function importOne(item) {
   const slug = item.slug;
   const titleHtml = item.title?.rendered ?? "";
   const title = htmlToText(titleHtml) ?? slug;
   const description = htmlToText(item.content?.rendered);
 
-  // Skip if already imported.
-  const { data: existing } = await sb
-    .from("artworks")
-    .select("id")
-    .eq("slug", slug)
-    .maybeSingle();
-  if (existing) {
-    return { slug, status: "skipped" };
-  }
-
   const featured = item._embedded?.["wp:featuredmedia"]?.[0];
   if (!featured?.source_url) {
     return { slug, status: "no-image" };
   }
-  // WP sometimes returns relative paths like "/wp-content/uploads/...". Make absolute.
-  const sourceUrl = featured.source_url.startsWith("http")
-    ? featured.source_url
-    : `https://fineartprinting.com.sg${featured.source_url}`;
-  const width = featured.media_details?.width;
-  const height = featured.media_details?.height;
-  // Get extension from the path part of the URL, ignoring querystrings.
-  const pathOnly = sourceUrl.split("?")[0];
-  const ext = extname(pathOnly).toLowerCase() || ".jpg";
+  const featuredId = featured.id;
 
-  // Download + upload.
-  const { buffer, contentType } = await downloadImage(sourceUrl);
-  const heroPath = `${crypto.randomUUID()}${ext}`;
-  const { error: upErr } = await sb.storage
+  // Decide upfront: insert a brand-new row, or just fill in a missing
+  // gallery on an existing row.
+  const { data: existing } = await sb
     .from("artworks")
-    .upload(heroPath, buffer, { contentType, upsert: false });
-  if (upErr) {
-    return { slug, status: "upload-failed", error: upErr.message };
+    .select("id, gallery_images")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  const allAttachments = await fetchAllAttachments(item.id, featuredId);
+
+  if (existing) {
+    // Only update if the gallery is empty — don't clobber any uploads
+    // Ben might have made by hand in the admin.
+    const currentGallery = Array.isArray(existing.gallery_images)
+      ? existing.gallery_images
+      : [];
+    if (currentGallery.length > 0) {
+      return { slug, status: "skipped (gallery already populated)" };
+    }
+    const others = allAttachments.filter((m) => m.id !== featuredId);
+    if (others.length === 0) {
+      return { slug, status: "skipped (no extra images)" };
+    }
+    const galleryPaths = [];
+    for (const m of others) {
+      try {
+        const path = await uploadFromUrl(m.source_url);
+        galleryPaths.push(path);
+      } catch (e) {
+        console.warn(`     ! skipping ${m.source_url}: ${e.message}`);
+      }
+    }
+    if (galleryPaths.length === 0) {
+      return { slug, status: "no-gallery-uploaded" };
+    }
+    const { error } = await sb
+      .from("artworks")
+      .update({ gallery_images: galleryPaths })
+      .eq("id", existing.id);
+    if (error) {
+      // Best-effort cleanup so a retry is clean.
+      await sb.storage.from("artworks").remove(galleryPaths);
+      return { slug, status: "gallery-update-failed", error: error.message };
+    }
+    return { slug, status: `gallery added (${galleryPaths.length})` };
   }
 
-  // Insert row.
+  // Fresh import path.
+  const heroAttachment = allAttachments.find((m) => m.id === featuredId) ?? featured;
+  const heroPath = await uploadFromUrl(heroAttachment.source_url);
+
+  const others = allAttachments.filter((m) => m.id !== featuredId);
+  const galleryPaths = [];
+  for (const m of others) {
+    try {
+      const path = await uploadFromUrl(m.source_url);
+      galleryPaths.push(path);
+    } catch (e) {
+      console.warn(`     ! skipping ${m.source_url}: ${e.message}`);
+    }
+  }
+
+  const width = featured.media_details?.width;
+  const height = featured.media_details?.height;
   const row = {
     slug,
     title,
     artist_name: inferArtist(title, description),
     description,
     hero_image_path: heroPath,
-    gallery_images: [],
+    gallery_images: galleryPaths,
     available_sizes: pickSizes(width, height),
     allow_paper: true,
     allow_canvas: false,
@@ -156,11 +225,10 @@ async function importOne(item) {
   };
   const { error: insErr } = await sb.from("artworks").insert(row);
   if (insErr) {
-    // Roll back the storage upload so re-running is clean.
-    await sb.storage.from("artworks").remove([heroPath]);
+    await sb.storage.from("artworks").remove([heroPath, ...galleryPaths]);
     return { slug, status: "insert-failed", error: insErr.message };
   }
-  return { slug, status: "imported" };
+  return { slug, status: `imported (hero + ${galleryPaths.length} gallery)` };
 }
 
 async function fetchAllArtworks() {
