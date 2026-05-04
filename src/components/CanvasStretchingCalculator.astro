@@ -71,8 +71,11 @@ const floatFramesJson = JSON.stringify(
     </div>
   </fieldset>
 
-  <fieldset class="canvas-quote__group">
+  <fieldset class="canvas-quote__group canvas-quote__float-question" data-stretching-float-question>
     <legend class="canvas-quote__legend">Float frame?</legend>
+    <p class="canvas-quote__hint" data-stretching-float-note hidden>
+      Float frames are only available on the 1" stretcher.
+    </p>
     <div class="finishing-grid">
       <label class="finishing-card">
         <input type="radio" name="addFrame" value="no" checked />
@@ -201,6 +204,14 @@ const floatFramesJson = JSON.stringify(
   /* Show the float-frame colour picker only when "Add float frame" is selected. */
   .canvas-quote:has(input[name="addFrame"][value="yes"]:checked) .canvas-quote__frame-colour {
     display: block;
+  }
+  /* Hide the float-frame question entirely when the customer picks the
+     1.5" stretcher — float frames only fit the 1" profile. */
+  .canvas-quote:has(input[name="depth"][value="1.5in"]:checked) .canvas-quote__float-question .finishing-grid {
+    display: none;
+  }
+  .canvas-quote:has(input[name="depth"][value="1.5in"]:checked) [data-stretching-float-note] {
+    display: block !important;
   }
 </style>
 
@@ -380,6 +391,22 @@ const floatFramesJson = JSON.stringify(
     document
       .querySelectorAll<HTMLFormElement>("[data-stretching-form]")
       .forEach((form) => {
+        // If the customer picks the 1.5" stretcher, force the float-frame
+        // toggle back to "no" — they aren't compatible.
+        form.addEventListener("change", (ev) => {
+          const t = ev.target as HTMLInputElement;
+          if (t?.name !== "depth") return;
+          if (t.value === "1.5in") {
+            const noFrame = form.querySelector<HTMLInputElement>(
+              'input[name="addFrame"][value="no"]',
+            );
+            if (noFrame && !noFrame.checked) {
+              noFrame.checked = true;
+              noFrame.dispatchEvent(new Event("change", { bubbles: true }));
+            }
+          }
+        });
+
         const update = () => render(form);
         form.addEventListener("input", update);
         form.addEventListener("change", update);
