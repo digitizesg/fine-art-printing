@@ -1,0 +1,399 @@
+---
+export const prerender = true;
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+
+const description =
+  "Your cart at Fine Art Printing — review prints and checkout via Stripe.";
+---
+<BaseLayout title="Cart · Fine Art Printing" description={description}>
+  <section class="bg-white">
+    <div class="mx-auto max-w-[920px] px-6 pt-10 pb-16 md:pt-14 md:pb-20">
+      <Eyebrow>Your cart</Eyebrow>
+      <h1 class="mt-3 font-serif text-[clamp(1.85rem,3.5vw,2.4rem)] font-medium leading-[1.1] text-ink">Cart</h1>
+
+      <div class="cart" data-cart>
+        <p class="cart__empty" data-cart-empty>
+          Your cart is empty. <a href="/shop" class="cart__link">Browse the shop →</a>
+        </p>
+        <ul class="cart__lines" data-cart-lines hidden></ul>
+
+        <div class="cart__panel" data-cart-panel hidden>
+          <fieldset class="cart__delivery">
+            <legend>Delivery</legend>
+            <label class="cart__delivery-opt">
+              <input type="radio" name="delivery" value="self" checked />
+              <span>
+                <strong>Self collection</strong>
+                <em>From our studio in Singapore. Free.</em>
+              </span>
+            </label>
+            <label class="cart__delivery-opt">
+              <input type="radio" name="delivery" value="local" />
+              <span>
+                <strong>Local Singapore delivery</strong>
+                <em>S$30, anywhere in Singapore.</em>
+              </span>
+            </label>
+          </fieldset>
+
+          <dl class="cart__totals">
+            <div>
+              <dt>Subtotal</dt>
+              <dd data-cart-subtotal>—</dd>
+            </div>
+            <div>
+              <dt>Delivery</dt>
+              <dd data-cart-delivery>—</dd>
+            </div>
+            <div class="cart__totals-grand">
+              <dt>Total</dt>
+              <dd data-cart-grand>—</dd>
+            </div>
+          </dl>
+
+          <button type="button" class="cart__checkout" data-cart-checkout>
+            Proceed to checkout
+          </button>
+          <p class="cart__small">
+            You'll be taken to Stripe to enter your payment details. Prices are in SGD.
+          </p>
+          <p class="cart__error" data-cart-error hidden></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  .cart { margin-top: 28px; }
+  .cart__empty {
+    padding: 28px 0;
+    color: var(--color-subtle);
+    font-size: 15px;
+  }
+  .cart__link {
+    color: var(--color-petrol);
+    font-weight: 600;
+    text-decoration: underline;
+  }
+  .cart__lines {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 14px;
+  }
+  .cart__line {
+    display: grid;
+    grid-template-columns: 96px 1fr auto;
+    gap: 16px;
+    padding: 14px;
+    border: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+    border-radius: 12px;
+    background: #fff;
+  }
+  .cart__line img {
+    width: 96px;
+    height: 96px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: #f4efe7;
+  }
+  .cart__line-meta {
+    display: grid;
+    gap: 4px;
+    align-content: start;
+    min-width: 0;
+  }
+  .cart__line-title {
+    font-family: var(--font-serif);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+  .cart__line-artist {
+    font-size: 13px;
+    color: var(--color-muted);
+  }
+  .cart__line-config {
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--color-subtle);
+    line-height: 1.5;
+  }
+  .cart__line-side {
+    display: grid;
+    align-content: space-between;
+    text-align: right;
+    gap: 8px;
+  }
+  .cart__line-price {
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+  .cart__line-qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+  }
+  .cart__line-qty input {
+    width: 56px;
+    padding: 4px 6px;
+    border: 1px solid var(--color-border, rgba(0,0,0,0.15));
+    border-radius: 6px;
+    font: inherit;
+    text-align: center;
+  }
+  .cart__line-remove {
+    background: none;
+    border: 0;
+    color: var(--color-muted);
+    font-size: 12px;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+  }
+  .cart__line-remove:hover { color: var(--color-ink); }
+
+  .cart__panel {
+    margin-top: 28px;
+    padding: 22px;
+    border: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+    border-radius: 12px;
+    background: #FAF7F1;
+  }
+  .cart__delivery {
+    border: 0;
+    margin: 0 0 18px;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .cart__delivery legend {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 16px;
+    margin: 0 0 6px;
+  }
+  .cart__delivery-opt {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--color-border-soft, rgba(0,0,0,0.10));
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+  }
+  .cart__delivery-opt:has(input:checked) {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.04);
+  }
+  .cart__delivery-opt span { display: grid; gap: 2px; }
+  .cart__delivery-opt strong { font-weight: 600; font-size: 14px; }
+  .cart__delivery-opt em {
+    font-style: normal;
+    font-size: 12.5px;
+    color: var(--color-subtle);
+  }
+  .cart__totals {
+    display: grid;
+    gap: 6px;
+    margin: 18px 0;
+  }
+  .cart__totals > div {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    color: var(--color-subtle);
+  }
+  .cart__totals-grand {
+    border-top: 1px solid var(--color-border-soft, rgba(0,0,0,0.10));
+    padding-top: 10px;
+    margin-top: 6px;
+    font-family: var(--font-serif);
+    font-size: 18px !important;
+    color: var(--color-ink) !important;
+    font-weight: 500;
+  }
+  .cart__checkout {
+    width: 100%;
+    appearance: none;
+    border: 0;
+    background: var(--color-petrol);
+    color: #fff;
+    border-radius: 999px;
+    padding: 14px 22px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 150ms ease-out;
+  }
+  .cart__checkout:hover { background: #142a40; }
+  .cart__checkout:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .cart__small {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: var(--color-subtle);
+    text-align: center;
+  }
+  .cart__error {
+    margin: 10px 0 0;
+    padding: 10px 14px;
+    background: rgba(190, 30, 30, 0.06);
+    border: 1px solid rgba(190, 30, 30, 0.18);
+    border-radius: 8px;
+    font-size: 13px;
+    color: #8a1414;
+  }
+</style>
+
+<script>
+  import { cart, type CartLine } from "../lib/cart";
+
+  const DELIVERY_LOCAL_SGD = 30;
+  const fmtSGD = (n: number) => `S$${n.toLocaleString("en-SG")}`;
+
+  function describeLine(line: CartLine): string {
+    const parts: string[] = [];
+    parts.push(line.substrate === "paper" ? "Paper" : "Canvas");
+    parts.push(`${line.widthCm} × ${line.heightCm} cm`);
+    if (line.substrate === "paper") {
+      if (line.borderCm && line.borderCm > 0) parts.push(`${line.borderCm}cm border`);
+      if (line.paperSlug) parts.push(line.paperSlug.replace(/-/g, " "));
+    } else {
+      if (line.canvasSlug) parts.push(line.canvasSlug.replace(/-/g, " "));
+      if (line.finishing === "1in") parts.push('1" stretching');
+      else if (line.finishing === "1.5in") parts.push('1.5" stretching');
+      else if (line.finishing === "float") parts.push(`Float frame (${(line.floatFrameSlug ?? "").replace(/-/g, " ")})`);
+      else if (line.finishing === "none") {
+        if (line.futureMargin) parts.push('Rolled, +1.5" margin');
+        else parts.push("Rolled, no stretching");
+      }
+      if (line.wrapType) parts.push(`Wrap: ${line.wrapType}`);
+    }
+    return parts.join(" · ");
+  }
+
+  function render() {
+    const linesEl = document.querySelector<HTMLElement>("[data-cart-lines]");
+    const emptyEl = document.querySelector<HTMLElement>("[data-cart-empty]");
+    const panelEl = document.querySelector<HTMLElement>("[data-cart-panel]");
+    if (!linesEl || !emptyEl || !panelEl) return;
+
+    const lines = cart.list();
+    if (lines.length === 0) {
+      emptyEl.hidden = false;
+      linesEl.hidden = true;
+      panelEl.hidden = true;
+      return;
+    }
+    emptyEl.hidden = true;
+    linesEl.hidden = false;
+    panelEl.hidden = false;
+
+    linesEl.innerHTML = lines.map((line) => `
+      <li class="cart__line" data-line-id="${line.id}">
+        <img src="${line.artworkImageUrl}" alt="${line.artworkTitle}" loading="lazy" />
+        <div class="cart__line-meta">
+          <span class="cart__line-title">${escapeHtml(line.artworkTitle)}</span>
+          ${line.artworkArtist ? `<span class="cart__line-artist">${escapeHtml(line.artworkArtist)}</span>` : ""}
+          <span class="cart__line-config">${escapeHtml(describeLine(line))}</span>
+        </div>
+        <div class="cart__line-side">
+          <span class="cart__line-price">${fmtSGD(line.unitPriceSGD * line.quantity)}</span>
+          <label class="cart__line-qty">
+            <span>Qty</span>
+            <input type="number" min="1" max="20" step="1" value="${line.quantity}" data-qty />
+          </label>
+          <button type="button" class="cart__line-remove" data-remove>Remove</button>
+        </div>
+      </li>
+    `).join("");
+
+    const subtotal = cart.subtotal();
+    const deliveryRadio = document.querySelector<HTMLInputElement>("input[name=\"delivery\"]:checked");
+    const deliveryAmt = deliveryRadio?.value === "local" ? DELIVERY_LOCAL_SGD : 0;
+    const grand = subtotal + deliveryAmt;
+
+    document.querySelector<HTMLElement>("[data-cart-subtotal]")!.textContent = fmtSGD(subtotal);
+    document.querySelector<HTMLElement>("[data-cart-delivery]")!.textContent = deliveryAmt === 0 ? "Free" : fmtSGD(deliveryAmt);
+    document.querySelector<HTMLElement>("[data-cart-grand]")!.textContent = fmtSGD(grand);
+  }
+
+  function escapeHtml(s: string) {
+    return s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  document.addEventListener("click", (ev) => {
+    const target = ev.target as HTMLElement;
+    if (target.matches("[data-remove]")) {
+      const li = target.closest<HTMLElement>("[data-line-id]");
+      const id = li?.dataset.lineId;
+      if (id) cart.remove(id);
+    }
+  });
+  document.addEventListener("input", (ev) => {
+    const target = ev.target as HTMLInputElement;
+    if (target.matches("[data-qty]")) {
+      const li = target.closest<HTMLElement>("[data-line-id]");
+      const id = li?.dataset.lineId;
+      const qty = Math.max(1, Math.min(20, parseInt(target.value, 10) || 1));
+      if (id) cart.update(id, { quantity: qty });
+    }
+  });
+  document.addEventListener("change", (ev) => {
+    const target = ev.target as HTMLInputElement;
+    if (target.matches("input[name=\"delivery\"]")) render();
+  });
+
+  cart.onChange(render);
+
+  document.querySelector<HTMLButtonElement>("[data-cart-checkout]")?.addEventListener("click", async (ev) => {
+    const btn = ev.currentTarget as HTMLButtonElement;
+    const errEl = document.querySelector<HTMLElement>("[data-cart-error]");
+    if (!errEl) return;
+    errEl.hidden = true;
+    btn.disabled = true;
+    btn.textContent = "Redirecting…";
+
+    const lines = cart.list();
+    const deliveryRadio = document.querySelector<HTMLInputElement>("input[name=\"delivery\"]:checked");
+    const delivery = (deliveryRadio?.value === "local" ? "local" : "self") as "local" | "self";
+
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ lines, delivery }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.url) {
+        errEl.textContent = data?.error ?? `Checkout failed (${res.status}). Please try again.`;
+        errEl.hidden = false;
+        btn.disabled = false;
+        btn.textContent = "Proceed to checkout";
+        return;
+      }
+      window.location.href = data.url;
+    } catch (e) {
+      errEl.textContent = "Network error. Please try again.";
+      errEl.hidden = false;
+      btn.disabled = false;
+      btn.textContent = "Proceed to checkout";
+    }
+  });
+
+  render();
+</script>

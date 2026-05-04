@@ -49,6 +49,13 @@ const papersJson = JSON.stringify(
     maxPrintLengthCm: p.maxPrintLengthCm,
   })),
 );
+const artworkJson = JSON.stringify({
+  id: artwork.id,
+  slug: artwork.slug,
+  title: artwork.title,
+  artist: artwork.artistName,
+  imageUrl: artwork.heroImageUrl,
+});
 
 const description =
   artwork.description ?? `${artwork.title}${artwork.artistName ? ` by ${artwork.artistName}` : ""} — printed to order on archival paper or canvas at Fine Art Printing.`;
@@ -316,11 +323,12 @@ const jsonLd = {
             </div>
 
             <button type="button" class="artwork-config__cta" data-artwork-add-to-cart disabled>
-              Add to cart (coming soon)
+              Add to cart
             </button>
+            <p class="artwork-config__cta-feedback" data-artwork-cart-feedback hidden></p>
 
             <p class="artwork-config__small">
-              Pricing excludes delivery. Self-collection from our studio is free; local Singapore delivery is S$30. The cart and payment flow ship in the next phase.
+              Self-collection from our studio is free. Local Singapore delivery is S$30, picked at checkout.
             </p>
           </div>
         </div>
@@ -331,6 +339,7 @@ const jsonLd = {
   <script type="application/json" data-float-frames set:html={floatFramesJson} />
   <script type="application/json" data-canvases set:html={canvasesJson} />
   <script type="application/json" data-papers set:html={papersJson} />
+  <script type="application/json" data-artwork set:html={artworkJson} />
 
   <DarkCTA />
   <FrameLightbox />
@@ -543,6 +552,16 @@ const jsonLd = {
     opacity: 0.55;
     cursor: not-allowed;
   }
+  .artwork-config__cta-feedback {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: var(--color-petrol);
+  }
+  .artwork-config__cta-feedback a {
+    color: var(--color-petrol);
+    text-decoration: underline;
+    font-weight: 600;
+  }
   .artwork-config__small {
     margin: 8px 0 0;
     font-size: 12px;
@@ -559,6 +578,15 @@ const jsonLd = {
     type FloatFrameColour,
     type StretchingChoice,
   } from "../../data/pricing/canvas";
+  import { cart, type CartLine } from "../../lib/cart";
+
+  type ArtworkRef = {
+    id: string;
+    slug: string;
+    title: string;
+    artist: string | null;
+    imageUrl: string;
+  };
 
   const root = document.querySelector<HTMLElement>("[data-artwork-config]");
   const framesEl = document.querySelector<HTMLScriptElement>("[data-float-frames]");
@@ -573,17 +601,28 @@ const jsonLd = {
   const papers: PaperFamily[] = papersEl
     ? (JSON.parse(papersEl.textContent ?? "[]") as PaperFamily[])
     : [];
-  if (root) initConfigurator(root, floatFrames, canvases, papers);
+  const artworkEl = document.querySelector<HTMLScriptElement>("[data-artwork]");
+  const artwork: ArtworkRef | null = artworkEl
+    ? (JSON.parse(artworkEl.textContent ?? "null") as ArtworkRef | null)
+    : null;
+  if (root && artwork) initConfigurator(root, floatFrames, canvases, papers, artwork);
 
   function initConfigurator(
     root: HTMLElement,
     floatFrames: FloatFrameColour[],
     canvases: CanvasSubstrate[],
     papers: PaperFamily[],
+    artwork: ArtworkRef,
   ) {
     const priceEl = root.querySelector<HTMLElement>("[data-artwork-price-amount]")!;
     const noteEl = root.querySelector<HTMLElement>("[data-artwork-price-note]")!;
     const groups = root.querySelectorAll<HTMLElement>("[data-substrate]");
+    const cartBtn = root.querySelector<HTMLButtonElement>("[data-artwork-add-to-cart]");
+    const cartFeedback = root.querySelector<HTMLElement>("[data-artwork-cart-feedback]");
+
+    /** Latest valid line built by update(). null when the configuration
+     *  is incomplete or oversize, in which case add-to-cart is disabled. */
+    let pendingLine: Omit<CartLine, "id"> | null = null;
 
     function getRadio(name: string): string | null {
       const el = root.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`);
@@ -613,6 +652,11 @@ const jsonLd = {
       });
     }
 
+    function setCartEnabled(line: Omit<CartLine, "id"> | null) {
+      pendingLine = line;
+      if (cartBtn) cartBtn.disabled = line === null;
+    }
+
     function update() {
       syncSubstrate();
       const substrate = getRadio("substrate") ?? "paper";
@@ -620,6 +664,7 @@ const jsonLd = {
       if (!sizeStr) {
         priceEl.textContent = "—";
         noteEl.textContent = "Pick a size to see the price.";
+        setCartEnabled(null);
         return;
       }
       const [wStr, hStr] = sizeStr.split("x");
@@ -628,6 +673,7 @@ const jsonLd = {
       if (!Number.isFinite(w) || !Number.isFinite(h)) {
         priceEl.textContent = "—";
         noteEl.textContent = "";
+        setCartEnabled(null);
         return;
       }
 
@@ -637,6 +683,7 @@ const jsonLd = {
         if (!paper) {
           priceEl.textContent = "—";
           noteEl.textContent = "";
+          setCartEnabled(null);
           return;
         }
         const border = Math.max(0, parseFloat(getValue("border_cm") || "0") || 0);
@@ -649,32 +696,50 @@ const jsonLd = {
         if (!result.ok) {
           priceEl.textContent = "—";
           noteEl.textContent = result.message;
+          setCartEnabled(null);
           return;
         }
         priceEl.textContent = `S$${result.grandTotal.toLocaleString("en-SG")}`;
         noteEl.textContent = border > 0
           ? `Includes ${border} cm border — paper printed at ${w + border * 2} × ${h + border * 2} cm.`
           : "";
+        setCartEnabled({
+          artworkId: artwork.id,
+          artworkSlug: artwork.slug,
+          artworkTitle: artwork.title,
+          artworkArtist: artwork.artist,
+          artworkImageUrl: artwork.imageUrl,
+          substrate: "paper",
+          widthCm: w,
+          heightCm: h,
+          quantity: 1,
+          unitPriceSGD: result.grandTotal,
+          paperSlug: paperId,
+          borderCm: border,
+        });
       } else {
         const canvasId = getValue("canvas_id");
         const canvas = canvases.find((c) => c.id === canvasId) ?? null;
-        const finishing = getRadio("finishing") ?? "none";
+        const finishing = (getRadio("finishing") ?? "none") as "none" | "1in" | "1.5in" | "float";
         const futureMargin = (getRadio("future_margin") ?? "no") === "yes";
+        const wrapType = (getRadio("wrap_type") ?? "mirror") as "mirror" | "gallery" | "colour";
 
         if (!canvas) {
           priceEl.textContent = "—";
           noteEl.textContent = "";
+          setCartEnabled(null);
           return;
         }
 
         let stretching: StretchingChoice = "none";
         let floatFrame: FloatFrameColour | null = null;
+        let floatFrameSlug: string | null = null;
         if (finishing === "1in") stretching = "1in";
         else if (finishing === "1.5in") stretching = "1.5in";
         else if (finishing === "float") {
           stretching = "1in";
-          const slug = getValue("float_frame");
-          floatFrame = floatFrames.find((f) => f.id === slug) ?? null;
+          floatFrameSlug = getValue("float_frame") || null;
+          floatFrame = floatFrameSlug ? floatFrames.find((f) => f.id === floatFrameSlug) ?? null : null;
         }
 
         // 1.5" = 3.81cm. Only relevant when finishing is "none" and the
@@ -693,6 +758,7 @@ const jsonLd = {
         if (!result.ok) {
           priceEl.textContent = "—";
           noteEl.textContent = result.message;
+          setCartEnabled(null);
           return;
         }
         priceEl.textContent = `S$${result.grandTotal.toLocaleString("en-SG")}`;
@@ -703,7 +769,38 @@ const jsonLd = {
         } else {
           noteEl.textContent = "";
         }
+        setCartEnabled({
+          artworkId: artwork.id,
+          artworkSlug: artwork.slug,
+          artworkTitle: artwork.title,
+          artworkArtist: artwork.artist,
+          artworkImageUrl: artwork.imageUrl,
+          substrate: "canvas",
+          widthCm: w,
+          heightCm: h,
+          quantity: 1,
+          unitPriceSGD: result.grandTotal,
+          canvasSlug: canvasId,
+          finishing,
+          floatFrameSlug,
+          futureMargin,
+          wrapType: finishing === "none" && futureMargin ? wrapType : undefined,
+        });
       }
+    }
+
+    if (cartBtn) {
+      cartBtn.addEventListener("click", () => {
+        if (!pendingLine) return;
+        cart.add(pendingLine);
+        if (cartFeedback) {
+          cartFeedback.hidden = false;
+          cartFeedback.innerHTML = `Added · <a href="/cart">View cart</a>`;
+          setTimeout(() => {
+            if (cartFeedback) cartFeedback.hidden = true;
+          }, 4000);
+        }
+      });
     }
 
     root.addEventListener("change", update);

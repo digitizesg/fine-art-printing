@@ -50,6 +50,19 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
         </a>
       ))}
       <a
+        href="/cart"
+        aria-label="View cart"
+        class="nav-cart relative inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-[13.5px] text-ink hover:bg-black/[0.04] transition-colors"
+        data-nav-cart
+      >
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M3 4h2l1.5 9.5a1.5 1.5 0 0 0 1.48 1.25h7.04a1.5 1.5 0 0 0 1.48-1.25L18 7H6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="9" cy="17" r="1.1" fill="currentColor"/>
+          <circle cx="15" cy="17" r="1.1" fill="currentColor"/>
+        </svg>
+        <span class="nav-cart__count" data-nav-cart-count hidden>0</span>
+      </a>
+      <a
         href={waHref}
         target="_blank"
         rel="noopener"
@@ -180,10 +193,37 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
   .services-menu__link:hover {
     background: rgba(0, 0, 0, 0.04);
   }
+  .nav-cart__count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: var(--color-petrol);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+  }
 </style>
 
 <script>
+  import { cart } from "../lib/cart";
+
   function init() {
+    // Cart count badge — show only when cart is non-empty.
+    const countEl = document.querySelector<HTMLElement>("[data-nav-cart-count]");
+    if (countEl) {
+      const sync = (n: number) => {
+        countEl.textContent = String(n);
+        countEl.hidden = n === 0;
+      };
+      sync(cart.count());
+      cart.onChange(sync);
+    }
+
     // Services dropdown — close on outside click or Escape.
     const menus = document.querySelectorAll<HTMLDetailsElement>(".services-menu");
     menus.forEach((menu) => {

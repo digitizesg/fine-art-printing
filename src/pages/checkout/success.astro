@@ -1,0 +1,35 @@
+---
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Eyebrow from "../../components/Eyebrow.astro";
+
+const description = "Thanks for your order at Fine Art Printing.";
+---
+<BaseLayout title="Order confirmed · Fine Art Printing" description={description}>
+  <section class="bg-white">
+    <div class="mx-auto max-w-[720px] px-6 pt-14 pb-20 md:pt-20 md:pb-28 text-center">
+      <Eyebrow>Order confirmed</Eyebrow>
+      <h1 class="mt-3 font-serif text-[clamp(1.85rem,3.5vw,2.4rem)] font-medium leading-[1.1] text-ink">
+        Thank you.
+      </h1>
+      <p class="mt-6 text-[15.5px] leading-relaxed text-subtle">
+        Your payment was successful and your order is in our queue. You'll
+        get a confirmation email shortly with your order details and ETA.
+        If you don't see it within a few minutes, check your spam folder
+        or message us on WhatsApp.
+      </p>
+      <div class="mt-10 flex flex-wrap justify-center gap-3">
+        <a href="/shop" class="inline-flex items-center justify-center rounded-full bg-petrol px-6 py-3 text-[14px] font-semibold text-white">Browse more artwork</a>
+        <a href="/" class="inline-flex items-center justify-center rounded-full border border-border-soft px-6 py-3 text-[14px] font-semibold text-ink">Back to home</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // Clear the cart on the success page so it's empty next time the user
+  // visits /cart. We assume the order is finalised at this point because
+  // Stripe only redirects here on a completed payment.
+  import { cart } from "../../lib/cart";
+  cart.clear();
+</script>
