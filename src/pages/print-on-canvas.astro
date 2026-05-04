@@ -170,29 +170,6 @@ Don't worry if you can't hit these exactly. Send what you have and we'll check i
     </div>
   </section>
 
-  <!-- Canvas recommender: standalone "help me decide" tool -->
-  <section id="recommender" class="border-t border-border-soft bg-[#FAF7F1] scroll-mt-6">
-    <div class="mx-auto max-w-[1180px] px-6 py-20">
-      <div class="max-w-[640px]">
-        <Eyebrow>Help me decide</Eyebrow>
-        <DisplayHeading level={2} class="mt-3">
-          Not sure which canvas is right? Try the recommender.
-        </DisplayHeading>
-        <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
-          Drop in a reference image and we'll suggest a couple of canvases
-          we'd reach for first, based on its colour and contrast. The
-          results aren't a hard rule, just a starting point — most images
-          print well on more than one canvas, so browse the full range
-          below if none of these feel right.
-        </p>
-      </div>
-
-      <div class="mt-10">
-        <CanvasRecommender />
-      </div>
-    </div>
-  </section>
-
   <!-- Canvas showcase -->
   <section class="border-t border-border-soft bg-white">
     <div class="mx-auto max-w-[1180px] px-6 py-20">
@@ -343,6 +320,28 @@ Don't worry if you can't hit these exactly. Send what you have and we'll check i
             ))}
           </tbody>
         </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Canvas recommender — "still not sure?" fallback after they've browsed -->
+  <section id="recommender" class="border-t border-border-soft bg-white scroll-mt-6">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="max-w-[640px]">
+        <Eyebrow>Still not sure?</Eyebrow>
+        <DisplayHeading level={2} class="mt-3">
+          Try the recommender.
+        </DisplayHeading>
+        <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
+          Drop in a reference image and we'll suggest a couple of canvases
+          we'd reach for first, based on its colour and contrast. It's a
+          starting point, not a hard rule — most images print well on
+          more than one canvas.
+        </p>
+      </div>
+
+      <div class="mt-10">
+        <CanvasRecommender />
       </div>
     </div>
   </section>
