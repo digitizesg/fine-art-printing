@@ -6,9 +6,11 @@
  * ceil to whole dollar).
  *
  * Stretching and float frames are computed from V10 of Ben's
- * "printing-stretching-float" spreadsheet, with the corrected stretcher
- * formula from the reference sheet (V10's Main!D41 had a missing
- * parenthesis that under-charged the first inner-bar component).
+ * "printing-stretching-float" spreadsheet. We use the structurally-
+ * correct inner-bar formula (both cross-bracing runs multiplied by the
+ * per-foot rate); V10 only multiplied one of the two terms by the rate.
+ * The bar markup is set above V10's value so customer-facing prices
+ * land a few % above the historic V10 prices despite the correct math.
  *
  * Wire/hooks (S$5) is automatically included when stretching or framing
  * is chosen. Customer doesn't see editing time, wastage coefficients,
@@ -236,7 +238,12 @@ export const STRETCHING_OPTIONS: readonly StretchingOption[] = [
 ] as const;
 
 export const STRETCHING_WASTAGE = 1.15;
-export const STRETCHING_BAR_MARKUP = 5; // sell = cost × markup × wastage
+// Bumped from 5 → 8 (2026-05-04). Our inner-bar formula is structurally
+// correct (both cross-bracing terms multiplied by the per-foot rate);
+// V10 only multiplied one term, which inflated material costs and held
+// historic prices a bit higher. Lifting the markup lands us a few %
+// above V10 across the size range with the correct math.
+export const STRETCHING_BAR_MARKUP = 8;
 export const LABOUR_MARKUP = 2;
 
 /* ----------------------------------------------------------------------------
@@ -489,8 +496,12 @@ export function quoteCanvasPrint(input: CanvasQuoteInput): CanvasQuoteResult {
     const opt = stretchingForCalc;
     const heightInch = input.heightCm * CM_TO_INCH;
     const widthInch = input.widthCm * CM_TO_INCH;
-    // CORRECTED stretcher formula (V10 cell D41 had a missing parenthesis):
-    //   outerLength × bars + (H/25 × W/12 + W/25 × H/12) × innerWoodBar
+    // Inner-bar feet = both cross-bracing runs (horizontal + vertical),
+    // each multiplied by the per-foot rate. V10's spreadsheet only
+    // multiplies one term by the rate and adds the other raw — a long-
+    // standing quirk that inflated material cost. We use the structurally
+    // correct version here; STRETCHING_BAR_MARKUP is bumped above V10's
+    // value to keep prices a few % above V10 with the correct math.
     const innerBarRuns =
       (heightInch / 25) * (widthInch / 12) + (widthInch / 25) * (heightInch / 12);
     const materialCost =
