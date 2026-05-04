@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80" viewBox="0 0 320 80" aria-label="Fine Art Printing">
+  <!-- Direction C: Frame-within-frame symbol + wordmark.
+       Two nested squares (an outer petrol frame and an inset gold mat) suggest
+       both "framing" and "fine print" without being literal. Geometric, modern,
+       Apple-clean. Works at any size for the favicon. -->
+  <g>
+    <rect x="6" y="16" width="48" height="48" rx="2" fill="none" stroke="#1A3550" stroke-width="2.5" />
+    <rect x="16" y="26" width="28" height="28" rx="1" fill="none" stroke="#D9B36C" stroke-width="1.6" />
+  </g>
+  <text x="74" y="44" font-family="'Lora', Georgia, serif" font-size="22" font-weight="500" fill="#1A3550" letter-spacing="-0.2">Fine Art Printing</text>
+  <text x="74" y="60" font-family="'Inter', system-ui, sans-serif" font-size="9" font-weight="600" fill="rgba(26, 53, 80, 0.55)" letter-spacing="2.5">PRINT · STRETCH · FRAME</text>
+</svg>
