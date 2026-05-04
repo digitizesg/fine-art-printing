@@ -34,39 +34,6 @@ const jsonLd = {
   brand: { "@type": "Brand", name: "Fine Art Printing" },
 };
 
-// Pricing reference for the client-side configurator script.
-const pricingData = {
-  paper: {
-    PRICING: {
-      inkSellPerSqm: 11.25,
-      baseLaborSellPerJob: 20.0,
-      surchargeT1SellPerSqm: 28.0,
-      surchargeT1TriggerSqm: 0.3,
-      surchargeT2SellPerSqm: 40.0,
-      surchargeT2TriggerSqm: 1.0,
-      minJobSell: 30.0,
-    },
-    papers: featuredPapers.map((p) => ({
-      id: p.id,
-      brand: p.brand,
-      shortName: p.shortName,
-      sellPricePerSqm: p.sellPricePerSqm,
-      maxPrintWidthCm: p.maxPrintWidthCm,
-      maxPrintLengthCm: p.maxPrintLengthCm,
-    })),
-  },
-  canvas: {
-    canvases: featuredCanvases.map((c) => ({
-      id: c.id,
-      brand: c.brand,
-      shortName: c.shortName,
-      sellPricePerSqm: c.sellPricePerSqm,
-      maxPrintWidthCm: c.maxPrintWidthCm,
-      maxPrintLengthCm: c.maxPrintLengthCm,
-    })),
-    floatFrames: FLOAT_FRAME_COLOURS.map((f) => ({ id: f.id, label: f.label })),
-  },
-};
 ---
 <BaseLayout
   title={`${artwork.title} · Fine Art Printing`}
@@ -152,7 +119,7 @@ const pricingData = {
             <fieldset class="artwork-config__group" data-substrate="paper">
               <legend>Paper</legend>
               <select name="paper_id" class="artwork-config__select">
-                {pricingData.paper.papers.map((p) => (
+                {featuredPapers.map((p) => (
                   <option value={p.id}>{p.brand} {p.shortName}</option>
                 ))}
               </select>
@@ -180,7 +147,7 @@ const pricingData = {
             <fieldset class="artwork-config__group" data-substrate="canvas">
               <legend>Canvas</legend>
               <select name="canvas_id" class="artwork-config__select">
-                {pricingData.canvas.canvases.map((c) => (
+                {featuredCanvases.map((c) => (
                   <option value={c.id}>{c.brand} {c.shortName}</option>
                 ))}
               </select>
@@ -265,7 +232,7 @@ const pricingData = {
             <fieldset class="artwork-config__group" data-substrate="canvas" data-only-when-float>
               <legend>Float frame colour</legend>
               <select name="float_frame" class="artwork-config__select">
-                {pricingData.canvas.floatFrames.map((f, i) => (
+                {FLOAT_FRAME_COLOURS.map((f, i) => (
                   <option value={f.id} selected={i === 0}>{f.label}</option>
                 ))}
               </select>
@@ -335,8 +302,6 @@ const pricingData = {
 
   <DarkCTA />
   <FrameLightbox />
-
-  <script type="application/json" data-artwork-pricing set:html={JSON.stringify(pricingData)}></script>
 </BaseLayout>
 
 <style is:global>
@@ -555,49 +520,13 @@ const pricingData = {
 </style>
 
 <script>
-  /**
-   * Artwork configurator — mirrors the existing public calculators (paper +
-   * canvas) but locked to the artwork's preset sizes and substrates.
-   */
-  type PaperRef = {
-    id: string;
-    brand: string;
-    shortName: string;
-    sellPricePerSqm: number;
-    maxPrintWidthCm: number;
-    maxPrintLengthCm: number;
-  };
-  type CanvasRef = PaperRef;
-  type FloatRef = { id: string; label: string };
-  type Pricing = {
-    paper: {
-      PRICING: {
-        inkSellPerSqm: number;
-        baseLaborSellPerJob: number;
-        surchargeT1SellPerSqm: number;
-        surchargeT1TriggerSqm: number;
-        surchargeT2SellPerSqm: number;
-        surchargeT2TriggerSqm: number;
-        minJobSell: number;
-      };
-      papers: PaperRef[];
-    };
-    canvas: {
-      canvases: CanvasRef[];
-      floatFrames: FloatRef[];
-    };
-  };
+  import { quotePaperPrint } from "../../data/pricing/paper";
+  import { quoteCanvasPrint, type StretchingChoice } from "../../data/pricing/canvas";
 
-  const pricingEl = document.querySelector<HTMLElement>("[data-artwork-pricing]");
   const root = document.querySelector<HTMLElement>("[data-artwork-config]");
-  if (!root || !pricingEl) {
-    /* nothing to do */
-  } else {
-    const pricing: Pricing = JSON.parse(pricingEl.textContent ?? "{}");
-    initConfigurator(root, pricing);
-  }
+  if (root) initConfigurator(root);
 
-  function initConfigurator(root: HTMLElement, pricing: Pricing) {
+  function initConfigurator(root: HTMLElement) {
     const priceEl = root.querySelector<HTMLElement>("[data-artwork-price-amount]")!;
     const noteEl = root.querySelector<HTMLElement>("[data-artwork-price-note]")!;
     const groups = root.querySelectorAll<HTMLElement>("[data-substrate]");
@@ -630,65 +559,6 @@ const pricingData = {
       });
     }
 
-    function paperPrice(paperId: string, w: number, h: number, border: number): number | null {
-      const paper = pricing.paper.papers.find((p) => p.id === paperId);
-      if (!paper) return null;
-      const effW = w + border * 2;
-      const effH = h + border * 2;
-      const minSide = Math.min(effW, effH);
-      const maxSide = Math.max(effW, effH);
-      if (minSide > paper.maxPrintWidthCm || maxSide > paper.maxPrintLengthCm) return null;
-      const cfg = pricing.paper.PRICING;
-      const sqm = (effW * effH) / 10000;
-      const paperLine = paper.sellPricePerSqm * sqm;
-      const inkLine = cfg.inkSellPerSqm * sqm;
-      const labor = cfg.baseLaborSellPerJob;
-      const tier1 = Math.min(Math.max(0, sqm - cfg.surchargeT1TriggerSqm), cfg.surchargeT2TriggerSqm - cfg.surchargeT1TriggerSqm);
-      const tier2 = Math.max(0, sqm - cfg.surchargeT2TriggerSqm);
-      const t1Line = cfg.surchargeT1SellPerSqm * tier1;
-      const t2Line = cfg.surchargeT2SellPerSqm * tier2;
-      const subtotal = paperLine + inkLine + labor + t1Line + t2Line;
-      const total = Math.max(subtotal, cfg.minJobSell);
-      return Math.ceil(total);
-    }
-
-    /**
-     * Canvas pricing — light approximation that mirrors the structure of the
-     * existing canvas pricing engine. The full per-bracket labour table and
-     * exact wastage factors live in src/data/pricing/canvas.ts; this client
-     * version uses the canvas sell price + a flat allowance for ink, varnish,
-     * stretching, and float framing. Server-side checkout will recompute
-     * authoritative totals; this is just an in-page estimate.
-     */
-    function canvasPrice(canvasId: string, w: number, h: number, finishing: string, _floatColour: string, futureMargin: boolean): number | null {
-      const canvas = pricing.canvas.canvases.find((c) => c.id === canvasId);
-      if (!canvas) return null;
-      // 1.5" = 3.81cm — added on each axis when a rolled customer asks for
-      // future-stretching margin. Doesn't apply when actually stretched.
-      const margin = finishing === "none" && futureMargin ? 3.81 : 0;
-      const effW = w + margin * 2;
-      const effH = h + margin * 2;
-      const minSide = Math.min(effW, effH);
-      const maxSide = Math.max(effW, effH);
-      if (minSide > canvas.maxPrintWidthCm || maxSide > canvas.maxPrintLengthCm) return null;
-      const sqm = (effW * effH) / 10000;
-      let total = canvas.sellPricePerSqm * sqm;
-      // Ink + varnish + studio labour (rough flat additions per sqm).
-      total += 18 * sqm + 30;
-      // Stretching cost. Float frame is a 1" stretched canvas mounted in a
-      // wooden frame, so it carries both the 1" stretching and frame costs.
-      if (finishing === "1in" || finishing === "float") {
-        total += 60 + Math.max(0, sqm - 0.5) * 35;
-      }
-      if (finishing === "1.5in") {
-        total += 80 + Math.max(0, sqm - 0.5) * 45;
-      }
-      if (finishing === "float") {
-        total += 90 + Math.max(0, sqm - 0.5) * 55;
-      }
-      return Math.max(80, Math.ceil(total));
-    }
-
     function update() {
       syncSubstrate();
       const substrate = getRadio("substrate") ?? "paper";
@@ -701,37 +571,66 @@ const pricingData = {
       const [wStr, hStr] = sizeStr.split("x");
       const w = parseFloat(wStr ?? "");
       const h = parseFloat(hStr ?? "");
-      let total: number | null = null;
+      if (!Number.isFinite(w) || !Number.isFinite(h)) {
+        priceEl.textContent = "—";
+        noteEl.textContent = "";
+        return;
+      }
+
       if (substrate === "paper") {
         const paperId = getValue("paper_id");
         const border = Math.max(0, parseFloat(getValue("border_cm") || "0") || 0);
-        total = paperPrice(paperId, w, h, border);
-      } else {
-        const canvasId = getValue("canvas_id");
-        const finishing = getRadio("finishing") ?? "none";
-        const floatColour = getValue("float_frame");
-        const futureMargin = (getRadio("future_margin") ?? "no") === "yes";
-        total = canvasPrice(canvasId, w, h, finishing, floatColour, futureMargin);
-      }
-      if (total === null) {
-        priceEl.textContent = "—";
-        noteEl.textContent = substrate === "paper"
-          ? "This size and border combo is too large for the selected paper."
-          : "This size is too large for the selected substrate.";
-        return;
-      }
-      priceEl.textContent = `S$${total.toLocaleString("en-SG")}`;
-      if (substrate === "paper") {
-        const border = Math.max(0, parseFloat(getValue("border_cm") || "0") || 0);
+        const result = quotePaperPrint({
+          paperId,
+          widthCm: w + border * 2,
+          heightCm: h + border * 2,
+          quantity: 1,
+        });
+        if (!result.ok) {
+          priceEl.textContent = "—";
+          noteEl.textContent = result.message;
+          return;
+        }
+        priceEl.textContent = `S$${result.grandTotal.toLocaleString("en-SG")}`;
         noteEl.textContent = border > 0
           ? `Includes ${border} cm border — paper printed at ${w + border * 2} × ${h + border * 2} cm.`
           : "";
       } else {
+        const canvasId = getValue("canvas_id");
         const finishing = getRadio("finishing") ?? "none";
         const futureMargin = (getRadio("future_margin") ?? "no") === "yes";
-        if (finishing === "none" && futureMargin) {
-          const effW = (w + 3.81 * 2).toFixed(1);
-          const effH = (h + 3.81 * 2).toFixed(1);
+
+        let stretching: StretchingChoice = "none";
+        let floatFrameColourId: string | null = null;
+        if (finishing === "1in") stretching = "1in";
+        else if (finishing === "1.5in") stretching = "1.5in";
+        else if (finishing === "float") {
+          stretching = "1in";
+          floatFrameColourId = getValue("float_frame") || null;
+        }
+
+        // 1.5" = 3.81cm. Only relevant when finishing is "none" and the
+        // customer asks for future-stretching margin. The engine doesn't
+        // know about this, so we add it to the input dimensions.
+        const marginCm = finishing === "none" && futureMargin ? 3.81 : 0;
+
+        const result = quoteCanvasPrint({
+          canvasId,
+          widthCm: w + marginCm * 2,
+          heightCm: h + marginCm * 2,
+          stretching,
+          floatFrameColourId,
+          delivery: "self",
+        });
+        if (!result.ok) {
+          priceEl.textContent = "—";
+          noteEl.textContent = result.message;
+          return;
+        }
+        priceEl.textContent = `S$${result.grandTotal.toLocaleString("en-SG")}`;
+        if (marginCm > 0) {
+          const effW = (w + marginCm * 2).toFixed(1);
+          const effH = (h + marginCm * 2).toFixed(1);
           noteEl.textContent = `Includes 1.5" stretching margin — canvas printed at ${effW} × ${effH} cm.`;
         } else {
           noteEl.textContent = "";
