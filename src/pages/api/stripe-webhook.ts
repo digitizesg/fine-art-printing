@@ -83,6 +83,8 @@ export const POST: APIRoute = async ({ request }) => {
     fullSession.customer_details?.address ??
     null;
   const deliveryMethod = (fullSession.metadata?.delivery as "self" | "local") ?? "self";
+  const kind: "shop" | "custom_payment" =
+    fullSession.metadata?.kind === "custom_payment" ? "custom_payment" : "shop";
 
   const paymentIntentId =
     typeof fullSession.payment_intent === "string"
@@ -146,6 +148,7 @@ export const POST: APIRoute = async ({ request }) => {
         stripe_session_id: fullSession.id,
         stripe_payment_intent_id: paymentIntentId,
         status: "paid",
+        kind,
         paid_at: new Date().toISOString(),
         customer_email: customerEmail,
         customer_name: customerName,

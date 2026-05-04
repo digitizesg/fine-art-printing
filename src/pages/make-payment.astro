@@ -1,0 +1,218 @@
+---
+export const prerender = true;
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+import { business } from "../data/business";
+
+const description =
+  "Pay an invoice or quote from Fine Art Printing securely via Stripe. For when WhatsApp, bank transfer, or in-studio payment isn't convenient.";
+---
+<BaseLayout
+  title="Make a payment · Fine Art Printing"
+  description={description}
+>
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-10 md:pt-20 md:pb-14">
+      <div class="max-w-[820px]">
+        <Eyebrow>Make a payment</Eyebrow>
+        <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
+          Pay an invoice.
+        </h1>
+        <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+          Use this page if we've quoted you over WhatsApp, email, or in the
+          studio and you'd like to settle it by card. Your card receipt is
+          handled by Stripe; we'll send you a confirmation email once the
+          payment lands.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pb-20 md:pb-24">
+      <div class="max-w-[620px]">
+        <form class="pay-form" data-pay-form novalidate>
+          <label class="pay-form__field">
+            <span>Amount (SGD)</span>
+            <div class="pay-form__amount">
+              <span class="pay-form__amount-currency">S$</span>
+              <input
+                type="number"
+                name="amount"
+                inputmode="decimal"
+                min="1"
+                max="50000"
+                step="0.01"
+                required
+                placeholder="0.00"
+              />
+            </div>
+            <p class="pay-form__hint">Enter the exact amount we've quoted you. SGD only.</p>
+          </label>
+
+          <label class="pay-form__field">
+            <span>Your name</span>
+            <input type="text" name="name" required maxlength="120" autocomplete="name" />
+          </label>
+
+          <label class="pay-form__field">
+            <span>Email</span>
+            <input type="email" name="email" required maxlength="254" autocomplete="email" />
+            <p class="pay-form__hint">Stripe will send your card receipt here.</p>
+          </label>
+
+          <label class="pay-form__field">
+            <span>Reference / what's this for? <em>(optional)</em></span>
+            <input type="text" name="reference" maxlength="200" placeholder="Invoice #, what we discussed, etc." />
+          </label>
+
+          <div class="pay-form__actions">
+            <button type="submit" class="pay-form__submit" data-pay-submit>
+              Continue to payment
+            </button>
+            <p class="pay-form__hint pay-form__hint--err" data-pay-hint hidden></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  .pay-form { display: grid; gap: 22px; }
+  .pay-form__field { display: grid; gap: 8px; }
+  .pay-form__field > span {
+    font-size: 15px;
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+  .pay-form__field > span em {
+    font-style: normal;
+    color: var(--color-muted);
+    font-weight: 400;
+  }
+  .pay-form input {
+    padding: 14px 16px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    font: inherit;
+    font-size: 16.5px;
+    background: #fff;
+    color: var(--color-ink);
+  }
+  .pay-form input:focus {
+    outline: 2px solid var(--color-petrol);
+    outline-offset: 0;
+    border-color: var(--color-petrol);
+  }
+  .pay-form__amount {
+    position: relative;
+    display: flex;
+  }
+  .pay-form__amount-currency {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16.5px;
+    color: var(--color-muted);
+    font-weight: 500;
+    pointer-events: none;
+  }
+  .pay-form__amount input {
+    flex: 1;
+    padding-left: 44px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 500;
+  }
+  .pay-form__hint {
+    margin: 0;
+    font-size: 13.5px;
+    color: var(--color-subtle);
+  }
+  .pay-form__hint--err { color: #8a1414; }
+  .pay-form__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin-top: 6px;
+  }
+  .pay-form__submit {
+    appearance: none;
+    border: 0;
+    background: var(--color-petrol);
+    color: #fff;
+    border-radius: 999px;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 150ms ease-out;
+  }
+  .pay-form__submit:hover { background: #142a40; }
+  .pay-form__submit:disabled { opacity: 0.55; cursor: not-allowed; }
+</style>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("[data-pay-form]");
+  const submitBtn = document.querySelector<HTMLButtonElement>("[data-pay-submit]");
+  const hint = document.querySelector<HTMLElement>("[data-pay-hint]");
+
+  function setHint(msg: string) {
+    if (!hint) return;
+    if (!msg) {
+      hint.hidden = true;
+      hint.textContent = "";
+    } else {
+      hint.hidden = false;
+      hint.textContent = msg;
+    }
+  }
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form || !submitBtn) return;
+    setHint("");
+
+    const fd = new FormData(form);
+    const amount = parseFloat(String(fd.get("amount") ?? ""));
+    const name = String(fd.get("name") ?? "").trim();
+    const email = String(fd.get("email") ?? "").trim();
+    const reference = String(fd.get("reference") ?? "").trim();
+
+    if (!Number.isFinite(amount) || amount < 1) {
+      return setHint("Please enter an amount of at least S$1.");
+    }
+    if (amount > 50000) {
+      return setHint("For amounts over S$50,000, please contact us directly.");
+    }
+    if (!name) return setHint("Please enter your name.");
+    if (!email || !/.+@.+\..+/.test(email)) {
+      return setHint("Please enter a valid email.");
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Redirecting…";
+
+    try {
+      const res = await fetch("/api/checkout-custom", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ amount, name, email, reference }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.url) {
+        setHint(data?.error ?? `Could not start checkout (${res.status}). Please try again or WhatsApp us.`);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Continue to payment";
+        return;
+      }
+      window.location.href = data.url;
+    } catch (err) {
+      setHint("Network error. Please try again.");
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Continue to payment";
+    }
+  });
+</script>

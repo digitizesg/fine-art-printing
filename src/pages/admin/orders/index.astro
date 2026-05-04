@@ -12,7 +12,7 @@ const filterStatus = (url.searchParams.get("status") ?? "all") as StatusFilter;
 let query = supabase
   .from("orders")
   .select(
-    "id, reference, status, customer_email, customer_name, delivery_method, total_sgd, line_items, created_at, paid_at",
+    "id, reference, status, kind, customer_email, customer_name, delivery_method, total_sgd, line_items, created_at, paid_at",
   )
   .order("created_at", { ascending: false })
   .limit(200);
@@ -119,7 +119,7 @@ const filters: { key: StatusFilter; label: string }[] = [
             <span class="admin-list__cell">{lineCount(row.line_items)}</span>
             <span class="admin-list__cell">{fmtSGD(row.total_sgd)}</span>
             <span class="admin-list__cell admin-list__cell--muted">
-              {row.delivery_method === "local" ? "Local SG" : "Self-collect"}
+              {row.kind === "custom_payment" ? "—" : row.delivery_method === "local" ? "Local SG" : "Self-collect"}
             </span>
             <span class="admin-list__cell">
               <span class:list={[
@@ -130,6 +130,9 @@ const filters: { key: StatusFilter; label: string }[] = [
               ]}>
                 {row.status}
               </span>
+              {row.kind === "custom_payment" && (
+                <span class="admin-list__pill admin-list__pill--featured" style="margin-left:4px;">Custom</span>
+              )}
             </span>
           </a>
         );
