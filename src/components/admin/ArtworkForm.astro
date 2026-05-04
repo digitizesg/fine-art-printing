@@ -35,15 +35,24 @@ const galleryJson = JSON.stringify(
     <div class="artwork-form__image-row">
       <div class="artwork-form__preview">
         {artwork?.hero_image_url ? (
-          <img src={artwork.hero_image_url} alt={artwork.title} />
+          <img src={artwork.hero_image_url} alt={artwork.title} data-hero-current-img />
         ) : (
-          <div class="artwork-form__preview-empty">No image yet</div>
+          <div class="artwork-form__preview-empty" data-hero-empty>No image yet</div>
         )}
       </div>
       <div class="artwork-form__upload">
-        <label>
-          <span>{mode === "new" ? "Upload (JPG or PNG, up to 25 MB)" : "Replace image (optional)"}</span>
-          <input type="file" name="image" accept="image/jpeg,image/png" required={mode === "new"} />
+        <label class="dropzone" data-dropzone data-dropzone-mode="single">
+          <input
+            type="file"
+            name="image"
+            accept="image/jpeg,image/png"
+            required={mode === "new"}
+            data-dropzone-input
+          />
+          <span class="dropzone__hint" data-dropzone-hint>
+            <strong>{mode === "new" ? "Drop or click to upload" : "Drop or click to replace"}</strong>
+            <small>JPG or PNG, up to 25 MB</small>
+          </span>
         </label>
         <p class="artwork-form__hint">
           This is the preview shown on /shop. The high-res print master lives separately on Dropbox — not uploaded here.
@@ -69,10 +78,20 @@ const galleryJson = JSON.stringify(
       </div>
       <input type="hidden" name="kept_gallery" data-artwork-gallery-json value={galleryJson} />
     </div>
-    <label class="artwork-form__field">
-      <span>Add more (multi-select supported)</span>
-      <input type="file" name="gallery_files" accept="image/jpeg,image/png" multiple />
+    <label class="dropzone" data-dropzone data-dropzone-mode="multi">
+      <input
+        type="file"
+        name="gallery_files"
+        accept="image/jpeg,image/png"
+        multiple
+        data-dropzone-input
+      />
+      <span class="dropzone__hint">
+        <strong>Drop images here, or click to browse</strong>
+        <small>You can drop multiple at once · JPG or PNG, up to 25 MB each</small>
+      </span>
     </label>
+    <div class="dropzone__staged" data-dropzone-staged></div>
   </section>
 
   <!-- Detail card -->
@@ -263,6 +282,107 @@ const galleryJson = JSON.stringify(
     font-size: 12.5px;
     color: var(--admin-subtle);
     line-height: 1.5;
+  }
+
+  /* Dropzone — used for both hero (single) and gallery (multi). */
+  .dropzone {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px 18px;
+    border: 2px dashed rgba(0, 0, 0, 0.18);
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 150ms ease-out, background 150ms ease-out;
+  }
+  .dropzone:hover,
+  .dropzone:focus-within {
+    border-color: var(--admin-petrol);
+    background: rgba(26, 53, 80, 0.02);
+  }
+  .dropzone.is-dragover {
+    border-color: var(--admin-petrol);
+    background: rgba(26, 53, 80, 0.06);
+  }
+  .dropzone input[type="file"] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+  .dropzone__hint {
+    display: grid;
+    gap: 4px;
+    pointer-events: none;
+  }
+  .dropzone__hint strong {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--admin-ink);
+  }
+  .dropzone__hint small {
+    font-size: 12px;
+    color: var(--admin-subtle);
+  }
+
+  .dropzone__staged {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .dropzone__staged:empty {
+    display: none;
+  }
+  .dropzone__staged-tile {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f4efe7;
+    border: 1px solid var(--admin-border);
+  }
+  .dropzone__staged-tile img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .dropzone__staged-tile button {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 24px;
+    height: 24px;
+    border-radius: 999px;
+    border: 0;
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .dropzone__staged-tile button:hover {
+    background: rgba(0, 0, 0, 0.85);
+  }
+  .dropzone__staged-tile small {
+    position: absolute;
+    inset: auto 0 0 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.65), transparent);
+    color: #fff;
+    padding: 14px 8px 6px;
+    font-size: 10.5px;
+    line-height: 1.2;
+    text-align: center;
+    word-break: break-all;
   }
 
   .artwork-sizes__list {
@@ -520,6 +640,103 @@ const galleryJson = JSON.stringify(
     });
     syncHidden();
   })();
+
+  // Dropzones — drag-and-drop + click-to-browse, with staged previews.
+  // For "multi" zones we accumulate files across drops via DataTransfer
+  // so the file input keeps the full set when the form is submitted.
+  document.querySelectorAll("[data-dropzone]").forEach((zone) => {
+    const input = zone.querySelector("[data-dropzone-input]");
+    const mode = zone.getAttribute("data-dropzone-mode") || "single";
+    const stagedEl = zone.parentElement?.querySelector("[data-dropzone-staged]");
+    const heroEmpty = document.querySelector("[data-hero-empty]");
+    const heroCurrentImg = document.querySelector("[data-hero-current-img]");
+
+    function renderStaged() {
+      if (!input) return;
+      const files = Array.from(input.files || []);
+      // For single-mode, show the staged file inline as the hero preview.
+      if (mode === "single") {
+        const previewWrap = zone.closest(".artwork-form__panel")?.querySelector(".artwork-form__preview");
+        if (!previewWrap) return;
+        // Remove any prior staged preview.
+        previewWrap.querySelectorAll("[data-hero-staged]").forEach((n) => n.remove());
+        if (files[0]) {
+          if (heroEmpty) heroEmpty.style.display = "none";
+          if (heroCurrentImg) heroCurrentImg.style.display = "none";
+          const img = document.createElement("img");
+          img.dataset.heroStaged = "true";
+          img.src = URL.createObjectURL(files[0]);
+          img.alt = files[0].name;
+          previewWrap.appendChild(img);
+        } else {
+          if (heroEmpty) heroEmpty.style.display = "";
+          if (heroCurrentImg) heroCurrentImg.style.display = "";
+        }
+        return;
+      }
+      // Multi-mode: show staged thumbs with × to remove.
+      if (!stagedEl) return;
+      stagedEl.innerHTML = "";
+      files.forEach((file, idx) => {
+        const tile = document.createElement("div");
+        tile.className = "dropzone__staged-tile";
+        const img = document.createElement("img");
+        img.src = URL.createObjectURL(file);
+        img.alt = file.name;
+        tile.appendChild(img);
+        const caption = document.createElement("small");
+        caption.textContent = file.name;
+        tile.appendChild(caption);
+        const rm = document.createElement("button");
+        rm.type = "button";
+        rm.textContent = "×";
+        rm.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const dt = new DataTransfer();
+          Array.from(input.files || []).forEach((f, i) => {
+            if (i !== idx) dt.items.add(f);
+          });
+          input.files = dt.files;
+          renderStaged();
+        });
+        tile.appendChild(rm);
+        stagedEl.appendChild(tile);
+      });
+    }
+
+    function addFiles(newFiles) {
+      if (!input || !newFiles.length) return;
+      const dt = new DataTransfer();
+      if (mode === "multi") {
+        Array.from(input.files || []).forEach((f) => dt.items.add(f));
+      }
+      const allowed = new Set(["image/jpeg", "image/png"]);
+      Array.from(newFiles).forEach((f) => {
+        if (allowed.has(f.type)) dt.items.add(f);
+      });
+      input.files = dt.files;
+      renderStaged();
+    }
+
+    input?.addEventListener("change", renderStaged);
+
+    ["dragenter", "dragover"].forEach((ev) =>
+      zone.addEventListener(ev, (e) => {
+        e.preventDefault();
+        zone.classList.add("is-dragover");
+      })
+    );
+    ["dragleave", "dragend"].forEach((ev) =>
+      zone.addEventListener(ev, () => zone.classList.remove("is-dragover"))
+    );
+    zone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      zone.classList.remove("is-dragover");
+      const files = e.dataTransfer?.files;
+      if (files && files.length) addFiles(files);
+    });
+  });
 
   document.querySelectorAll("button[data-confirm]").forEach((b) => {
     b.addEventListener("click", (e) => {
