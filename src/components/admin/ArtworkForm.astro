@@ -24,89 +24,97 @@ const { mode, artwork, error, message } = Astro.props;
 const action = mode === "new" ? "/admin/artworks/new" : `/admin/artworks/${artwork?.id}`;
 const sizesJson = JSON.stringify(artwork?.available_sizes ?? []);
 ---
-<form class="admin-form admin-form--wide" method="POST" enctype="multipart/form-data" action={action}>
-  <div class="admin-form__photo">
-    {artwork?.hero_image_url ? (
-      <img src={artwork.hero_image_url} alt={artwork.title} />
-    ) : (
-      <div style="aspect-ratio:3/2;background:#f4efe7;border:1px dashed rgba(0,0,0,0.18);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#888;font-size:13px;">
-        No image yet
+<form class="artwork-form" method="POST" enctype="multipart/form-data" action={action}>
+  <!-- Image card -->
+  <section class="artwork-form__panel">
+    <h2 class="artwork-form__panel-title">Hero image</h2>
+    <div class="artwork-form__image-row">
+      <div class="artwork-form__preview">
+        {artwork?.hero_image_url ? (
+          <img src={artwork.hero_image_url} alt={artwork.title} />
+        ) : (
+          <div class="artwork-form__preview-empty">No image yet</div>
+        )}
       </div>
-    )}
-    <label>
-      <span>{mode === "new" ? "Hero image (JPG or PNG)" : "Replace image (optional)"}</span>
-      <input type="file" name="image" accept="image/jpeg,image/png" required={mode === "new"} />
-    </label>
-  </div>
+      <div class="artwork-form__upload">
+        <label>
+          <span>{mode === "new" ? "Upload (JPG or PNG, up to 25 MB)" : "Replace image (optional)"}</span>
+          <input type="file" name="image" accept="image/jpeg,image/png" required={mode === "new"} />
+        </label>
+        <p class="artwork-form__hint">
+          This is the preview shown on /shop. The high-res print master lives separately on Dropbox — not uploaded here.
+        </p>
+      </div>
+    </div>
+  </section>
 
-  <label>
-    <span>Title</span>
-    <input type="text" name="title" value={artwork?.title ?? ""} required maxlength="160" />
-  </label>
-
-  <div class="admin-form__row">
-    <label>
-      <span>Slug (URL — letters, numbers, hyphens)</span>
-      <input type="text" name="slug" value={artwork?.slug ?? ""} required pattern="[a-z0-9-]+" placeholder="auto-generated from title if blank" />
+  <!-- Detail card -->
+  <section class="artwork-form__panel">
+    <h2 class="artwork-form__panel-title">Details</h2>
+    <label class="artwork-form__field">
+      <span>Title</span>
+      <input type="text" name="title" value={artwork?.title ?? ""} required maxlength="160" />
     </label>
-    <label>
-      <span>Artist name</span>
-      <input type="text" name="artist_name" value={artwork?.artist_name ?? ""} maxlength="120" />
+    <div class="artwork-form__row">
+      <label class="artwork-form__field">
+        <span>Slug (URL — letters, numbers, hyphens)</span>
+        <input type="text" name="slug" value={artwork?.slug ?? ""} pattern="[a-z0-9-]+" placeholder="auto-generated from title if blank" />
+      </label>
+      <label class="artwork-form__field">
+        <span>Artist name</span>
+        <input type="text" name="artist_name" value={artwork?.artist_name ?? ""} maxlength="120" />
+      </label>
+    </div>
+    <label class="artwork-form__field">
+      <span>Description</span>
+      <textarea name="description" maxlength="1200" rows="4">{artwork?.description ?? ""}</textarea>
     </label>
-  </div>
+  </section>
 
-  <label>
-    <span>Description</span>
-    <textarea name="description" maxlength="1200" rows="4">{artwork?.description ?? ""}</textarea>
-  </label>
-
-  <div>
-    <label>
-      <span>Available sizes</span>
-    </label>
+  <!-- Sizes card -->
+  <section class="artwork-form__panel">
+    <h2 class="artwork-form__panel-title">Available sizes</h2>
+    <p class="artwork-form__hint" style="margin-top:-4px;margin-bottom:10px;">
+      Sizes are in centimetres. Add the dimensions you want to offer for this artwork.
+    </p>
     <div class="artwork-sizes" data-artwork-sizes>
       <div class="artwork-sizes__list" data-artwork-sizes-list></div>
-      <button type="button" class="admin-btn admin-btn--ghost" data-artwork-add-size style="margin-top:10px;">
-        + Add size
-      </button>
+      <button type="button" class="artwork-form__add-size" data-artwork-add-size>+ Add size</button>
       <input type="hidden" name="available_sizes" data-artwork-sizes-json value={sizesJson} />
-      <p style="margin:8px 0 0;font-size:12.5px;color:var(--admin-subtle);">
-        Sizes are in centimetres. Add the dimensions you want to offer for this artwork.
-      </p>
     </div>
-  </div>
+  </section>
 
-  <div class="admin-form__row">
-    <label class="admin-form__check">
-      <input type="checkbox" name="allow_paper" value="1" checked={artwork?.allow_paper ?? true} />
-      <span>Available on paper</span>
-    </label>
-    <label class="admin-form__check">
-      <input type="checkbox" name="allow_canvas" value="1" checked={artwork?.allow_canvas ?? false} />
-      <span>Available on canvas</span>
-    </label>
-  </div>
-
-  <div class="admin-form__row">
-    <label class="admin-form__check">
-      <input type="checkbox" name="published" value="1" checked={artwork?.published ?? false} />
-      <span>Published (visible in /shop)</span>
-    </label>
-    <label class="admin-form__check">
-      <input type="checkbox" name="featured" value="1" checked={artwork?.featured ?? false} />
-      <span>Featured</span>
-    </label>
-  </div>
+  <!-- Substrate + visibility card -->
+  <section class="artwork-form__panel">
+    <h2 class="artwork-form__panel-title">Substrate &amp; visibility</h2>
+    <div class="artwork-form__checks">
+      <label class="artwork-form__check">
+        <input type="checkbox" name="allow_paper" value="1" checked={artwork?.allow_paper ?? true} />
+        <span>Available on paper</span>
+      </label>
+      <label class="artwork-form__check">
+        <input type="checkbox" name="allow_canvas" value="1" checked={artwork?.allow_canvas ?? false} />
+        <span>Available on canvas</span>
+      </label>
+      <label class="artwork-form__check">
+        <input type="checkbox" name="published" value="1" checked={artwork?.published ?? false} />
+        <span>Published (visible in /shop)</span>
+      </label>
+      <label class="artwork-form__check">
+        <input type="checkbox" name="featured" value="1" checked={artwork?.featured ?? false} />
+        <span>Featured</span>
+      </label>
+    </div>
+  </section>
 
   {error && <p class="admin-note admin-note--err">{error}</p>}
   {message && <p class="admin-note admin-note--ok">{message}</p>}
 
-  <div class="admin-form__actions">
+  <div class="artwork-form__actions">
     <button type="submit" class="admin-btn">{mode === "new" ? "Create" : "Save changes"}</button>
     <a href="/admin/artworks" class="admin-btn admin-btn--ghost">Cancel</a>
-    <span class="spacer"></span>
     {mode === "edit" && (
-      <button type="submit" formaction={`/admin/artworks/${artwork?.id}/delete`} class="admin-btn admin-btn--danger" data-confirm="Delete this artwork permanently?">
+      <button type="submit" formaction={`/admin/artworks/${artwork?.id}/delete`} class="admin-btn admin-btn--danger" data-confirm="Delete this artwork permanently?" style="margin-left:auto;">
         Delete
       </button>
     )}
@@ -114,15 +122,155 @@ const sizesJson = JSON.stringify(artwork?.available_sizes ?? []);
 </form>
 
 <style is:global>
+  .artwork-form {
+    display: grid;
+    gap: 18px;
+    max-width: 920px;
+  }
+  .artwork-form__panel {
+    background: var(--admin-panel);
+    border: 1px solid var(--admin-border);
+    border-radius: 12px;
+    padding: 22px;
+    display: grid;
+    gap: 14px;
+  }
+  .artwork-form__panel-title {
+    margin: 0;
+    font-family: "Lora", Georgia, serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--admin-ink);
+  }
+  .artwork-form__field {
+    display: grid;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--admin-muted);
+  }
+  .artwork-form__field input,
+  .artwork-form__field textarea {
+    font: inherit;
+    padding: 10px 12px;
+    border: 1px solid var(--admin-border-strong);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--admin-ink);
+    width: 100%;
+  }
+  .artwork-form__field input:focus,
+  .artwork-form__field textarea:focus {
+    outline: 2px solid var(--admin-petrol);
+    outline-offset: 0;
+    border-color: var(--admin-petrol);
+  }
+  .artwork-form__field textarea {
+    resize: vertical;
+    min-height: 90px;
+  }
+  .artwork-form__row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 600px) {
+    .artwork-form__row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .artwork-form__image-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  @media (min-width: 600px) {
+    .artwork-form__image-row {
+      grid-template-columns: 240px 1fr;
+      align-items: start;
+    }
+  }
+  .artwork-form__preview {
+    aspect-ratio: 4 / 5;
+    background: #f4efe7;
+    border: 1px solid var(--admin-border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .artwork-form__preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .artwork-form__preview-empty {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 13px;
+  }
+  .artwork-form__upload {
+    display: grid;
+    gap: 10px;
+    align-content: start;
+  }
+  .artwork-form__upload label {
+    display: grid;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--admin-muted);
+  }
+  .artwork-form__upload input[type="file"] {
+    font: inherit;
+    padding: 10px 12px;
+    border: 1px solid var(--admin-border-strong);
+    border-radius: 8px;
+    background: #fff;
+    width: 100%;
+  }
+  .artwork-form__hint {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--admin-subtle);
+    line-height: 1.5;
+  }
+
   .artwork-sizes__list {
     display: grid;
     gap: 8px;
+  }
+  .artwork-sizes__empty {
+    margin: 0;
+    padding: 14px;
+    border: 1px dashed rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    color: #888;
+    font-size: 13px;
   }
   .artwork-size-row {
     display: grid;
     grid-template-columns: 1fr 1fr 1.5fr auto;
     gap: 8px;
     align-items: end;
+  }
+  .artwork-size-row label {
+    display: grid;
+    gap: 4px;
+    font-size: 12px;
+    color: var(--admin-muted);
+    margin: 0;
+  }
+  .artwork-size-row input {
+    font: inherit;
+    padding: 9px 12px;
+    border: 1px solid var(--admin-border-strong);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--admin-ink);
+    width: 100%;
   }
   @media (max-width: 540px) {
     .artwork-size-row { grid-template-columns: 1fr 1fr; }
@@ -135,12 +283,62 @@ const sizesJson = JSON.stringify(artwork?.available_sizes ?? []);
     background: #fff;
     color: var(--admin-danger);
     border-radius: 8px;
-    padding: 8px 12px;
+    padding: 9px 12px;
     font-size: 13px;
     cursor: pointer;
+    height: 38px;
+    align-self: end;
   }
   .artwork-size-row__remove:hover {
     background: rgba(177, 39, 31, 0.05);
+  }
+  .artwork-form__add-size {
+    appearance: none;
+    border: 1px solid var(--admin-border-strong);
+    background: #fff;
+    color: var(--admin-ink);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 10px;
+    align-self: start;
+    justify-self: start;
+  }
+  .artwork-form__add-size:hover {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .artwork-form__checks {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  @media (min-width: 600px) {
+    .artwork-form__checks {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .artwork-form__check {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: var(--admin-ink);
+    margin: 0;
+  }
+  .artwork-form__check input {
+    width: auto;
+    margin: 0;
+    accent-color: var(--admin-petrol);
+  }
+
+  .artwork-form__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
   }
 </style>
 
@@ -161,6 +359,13 @@ const sizesJson = JSON.stringify(artwork?.available_sizes ?? []);
 
     function render() {
       list.innerHTML = "";
+      if (sizes.length === 0) {
+        const empty = document.createElement("p");
+        empty.className = "artwork-sizes__empty";
+        empty.textContent = "No sizes yet. Click + Add size below.";
+        list.appendChild(empty);
+        return;
+      }
       sizes.forEach((size, idx) => {
         const row = document.createElement("div");
         row.className = "artwork-size-row";
@@ -201,12 +406,6 @@ const sizesJson = JSON.stringify(artwork?.available_sizes ?? []);
         });
         list.appendChild(row);
       });
-      if (sizes.length === 0) {
-        const empty = document.createElement("p");
-        empty.style.cssText = "margin:0;padding:14px;border:1px dashed rgba(0,0,0,0.15);border-radius:8px;color:#888;font-size:13px;";
-        empty.textContent = "No sizes yet. Click + Add size below.";
-        list.appendChild(empty);
-      }
     }
 
     function syncHidden() {
