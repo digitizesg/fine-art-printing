@@ -262,14 +262,23 @@ Don't worry if you can't hit these exactly. Send what you have and we'll check i
                   </div>
                 </dl>
 
-                <a
-                  class="paper-showcase__cta"
-                  href={`#calculator?canvas=${canvas.slug}`}
-                  data-quote-with={canvas.slug}
-                >
-                  Get a price for {canvas.shortName}
-                  <span aria-hidden="true">→</span>
-                </a>
+                <div class="paper-showcase__ctas">
+                  <a
+                    class="paper-showcase__cta"
+                    href={`#calculator?canvas=${canvas.slug}`}
+                    data-quote-with={canvas.slug}
+                  >
+                    Get a price for {canvas.shortName}
+                    <span aria-hidden="true">→</span>
+                  </a>
+                  <a
+                    class="paper-showcase__cta paper-showcase__cta--secondary"
+                    href={`/canvases/${canvas.slug}`}
+                  >
+                    Read more about {canvas.shortName}
+                    <span aria-hidden="true">→</span>
+                  </a>
+                </div>
               </div>
             </article>
           ))}

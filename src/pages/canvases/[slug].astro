@@ -1,0 +1,223 @@
+---
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Eyebrow from "../../components/Eyebrow.astro";
+import DarkCTA from "../../components/DarkCTA.astro";
+import { listCanvases, type Canvas } from "../../lib/canvases";
+import { business } from "../../data/business";
+
+export async function getStaticPaths() {
+  const canvases = await listCanvases();
+  return canvases.map((c) => ({
+    params: { slug: c.slug },
+    props: { canvas: c },
+  }));
+}
+
+const { canvas } = Astro.props as { canvas: Canvas };
+
+const allCanvases = await listCanvases();
+const related = allCanvases
+  .filter((c) => c.slug !== canvas.slug)
+  .map((c) => ({ canvas: c, score: c.brand === canvas.brand ? 1 : 0 }))
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 3)
+  .map((x) => x.canvas);
+
+const finishLabel =
+  canvas.finish === "smooth-matt"
+    ? "Smooth matt"
+    : canvas.finish === "high-gloss"
+      ? "High gloss"
+      : canvas.finish.charAt(0).toUpperCase() + canvas.finish.slice(1);
+
+const description =
+  canvas.description ||
+  `${canvas.name} — ${canvas.gsm}gsm ${finishLabel.toLowerCase()} canvas. Print fine art on ${canvas.shortName} at Fine Art Printing Singapore.`;
+
+const heroImage = canvas.imageUrls[0];
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: canvas.name,
+  description,
+  brand: { "@type": "Brand", name: canvas.brand },
+  image: canvas.imageUrls.length > 0 ? canvas.imageUrls : undefined,
+  category: "Fine art canvas",
+  additionalProperty: [
+    { "@type": "PropertyValue", name: "Weight", value: `${canvas.gsm}gsm` },
+    { "@type": "PropertyValue", name: "Finish", value: finishLabel },
+    { "@type": "PropertyValue", name: "Tone", value: canvas.tone },
+    { "@type": "PropertyValue", name: "Texture", value: canvas.texture },
+    { "@type": "PropertyValue", name: "Maximum print width", value: `${canvas.maxPrintWidthCm} cm` },
+    { "@type": "PropertyValue", name: "Maximum print length", value: `${canvas.maxPrintLengthCm} cm` },
+  ],
+  offers: {
+    "@type": "Offer",
+    price: canvas.sellPricePerSqm.toFixed(2),
+    priceCurrency: "SGD",
+    priceSpecification: {
+      "@type": "UnitPriceSpecification",
+      price: canvas.sellPricePerSqm.toFixed(2),
+      priceCurrency: "SGD",
+      unitText: "per square metre",
+    },
+    availability: "https://schema.org/InStock",
+    seller: {
+      "@type": "LocalBusiness",
+      name: business.name,
+      url: `https://${business.domain}`,
+    },
+  },
+};
+---
+<BaseLayout
+  title={`${canvas.name} · Fine Art Printing Singapore`}
+  description={description}
+  image={heroImage}
+  jsonLd={jsonLd}
+  type="article"
+>
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-10 pb-8 md:pt-14 md:pb-10">
+      <p class="text-[13px] text-muted">
+        <a href="/print-on-canvas" class="hover:text-ink hover:underline underline-offset-2">Canvases</a>
+        <span class="px-1.5 text-subtle" aria-hidden="true">›</span>
+        <span class="text-ink">{canvas.shortName}</span>
+      </p>
+
+      <div class="mt-6 grid gap-10 md:grid-cols-2 md:gap-14 md:items-start">
+        <div class="md:sticky md:top-6 self-start">
+          {heroImage ? (
+            <img
+              src={heroImage}
+              alt={`Sample print on ${canvas.name}`}
+              class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)]"
+              loading="eager"
+            />
+          ) : (
+            <div class="w-full aspect-[4/3] rounded-card bg-[#f4efe7]"></div>
+          )}
+          {canvas.imageUrls.length > 1 && (
+            <div class="mt-4 grid grid-cols-4 gap-2">
+              {canvas.imageUrls.slice(1).map((url, i) => (
+                <a
+                  href={url}
+                  target="_blank"
+                  rel="noopener"
+                  class="aspect-square overflow-hidden rounded-md bg-[#f4efe7] border border-border-soft transition-shadow hover:shadow-md"
+                  aria-label={`Open sample image ${i + 2} in a new tab`}
+                >
+                  <img src={url} alt="" loading="lazy" class="w-full h-full object-cover" />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <Eyebrow>{canvas.brand}</Eyebrow>
+          <h1 class="mt-3 font-serif text-[clamp(2rem,4vw,2.6rem)] font-medium leading-[1.08] text-ink">
+            {canvas.shortName}
+          </h1>
+          <p class="mt-2 text-[14px] text-muted">{canvas.name}</p>
+
+          <p class="mt-6 text-[15.5px] leading-relaxed text-subtle">
+            {canvas.description}
+          </p>
+
+          <dl class="mt-8 grid grid-cols-2 gap-x-6 gap-y-4">
+            <div>
+              <dt class="text-[11px] uppercase tracking-wider text-muted">Weight</dt>
+              <dd class="mt-1 text-[15px] text-ink tabular-nums">{canvas.gsm}gsm</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] uppercase tracking-wider text-muted">Finish</dt>
+              <dd class="mt-1 text-[15px] text-ink">{finishLabel}</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] uppercase tracking-wider text-muted">Tone</dt>
+              <dd class="mt-1 text-[15px] text-ink">{canvas.tone}</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] uppercase tracking-wider text-muted">Texture</dt>
+              <dd class="mt-1 text-[15px] text-ink">{canvas.texture}</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] uppercase tracking-wider text-muted">Max width</dt>
+              <dd class="mt-1 text-[15px] text-ink tabular-nums">{canvas.maxPrintWidthCm.toFixed(0)} cm</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] uppercase tracking-wider text-muted">Max length</dt>
+              <dd class="mt-1 text-[15px] text-ink tabular-nums">{(canvas.maxPrintLengthCm / 100).toFixed(0)} m</dd>
+            </div>
+            <div>
+              <dt class="text-[11px] uppercase tracking-wider text-muted">From</dt>
+              <dd class="mt-1 text-[15px] text-ink tabular-nums">S${canvas.sellPricePerSqm.toFixed(0)} / sqm</dd>
+            </div>
+          </dl>
+
+          <div class="mt-10 flex flex-wrap gap-3">
+            <a
+              href="/print-on-canvas#calculator"
+              class="inline-flex items-center justify-center rounded-pill bg-petrol px-6 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
+            >
+              Get a price for {canvas.shortName} <span aria-hidden="true">→</span>
+            </a>
+            <a
+              href={`${business.whatsappLink}?text=${encodeURIComponent(`Hi Fine Art Printing, I'd like to ask about printing on ${canvas.name}.`)}`}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center justify-center gap-2 rounded-pill border border-[#1ebe5b] bg-[#25D366] px-5 py-3 text-[14px] font-semibold text-white"
+            >
+              WhatsApp us
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {canvas.longDescription && canvas.longDescription !== canvas.description && (
+    <section class="border-t border-border-soft bg-[#FAF7F1]">
+      <div class="mx-auto max-w-[820px] px-6 py-16 md:py-20">
+        <Eyebrow>About this canvas</Eyebrow>
+        <p class="mt-6 text-[16px] leading-relaxed text-subtle whitespace-pre-line">
+          {canvas.longDescription}
+        </p>
+      </div>
+    </section>
+  )}
+
+  {related.length > 0 && (
+    <section class="border-t border-border-soft bg-white">
+      <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+        <Eyebrow>You might also like</Eyebrow>
+        <h2 class="mt-3 font-serif text-[clamp(1.6rem,3vw,2rem)] font-medium leading-[1.1] text-ink">
+          Other canvases worth a look.
+        </h2>
+        <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {related.map((r) => (
+            <li>
+              <a href={`/canvases/${r.slug}`} class="group block rounded-card border border-border-soft bg-white overflow-hidden transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]">
+                {r.imageUrls[0] && (
+                  <div class="aspect-[4/3] w-full bg-[#f4efe7] overflow-hidden">
+                    <img src={r.imageUrls[0]} alt={r.name} loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
+                  </div>
+                )}
+                <div class="p-5">
+                  <p class="text-[12px] text-muted">{r.brand}</p>
+                  <h3 class="mt-1 font-serif text-[18px] font-medium text-ink">{r.shortName}</h3>
+                  <p class="mt-2 text-[13.5px] text-subtle">{r.blurb}</p>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  <DarkCTA />
+</BaseLayout>

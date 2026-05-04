@@ -1,4 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="8" fill="#1A3550"/>
-  <text x="32" y="47" font-family="'Lora', Georgia, serif" font-size="44" font-weight="500" fill="#FFFFFF" text-anchor="middle">F</text>
+  <rect width="64" height="64" rx="9" fill="#1A3550"/>
+  <!-- Bold serif "F" drawn as paths so it renders identically without
+       depending on the OS having Lora installed. Sized to fill the
+       tile so it reads at 16px. -->
+  <g fill="#FFFFFF">
+    <!-- Stem -->
+    <rect x="20" y="13" width="9" height="38"/>
+    <!-- Top arm -->
+    <rect x="20" y="13" width="28" height="8"/>
+    <!-- Top arm drop / serif -->
+    <rect x="42" y="13" width="6" height="11"/>
+    <!-- Middle arm -->
+    <rect x="20" y="29" width="20" height="7"/>
+    <!-- Middle arm drop / small serif -->
+    <rect x="36" y="29" width="4" height="9"/>
+    <!-- Top serif on stem -->
+    <rect x="16" y="13" width="13" height="3"/>
+    <!-- Bottom serif on stem -->
+    <rect x="14" y="48" width="17" height="3"/>
+  </g>
+  <!-- Tiny gold accent in the corner to hint at the brand's gold mark. -->
+  <rect x="46" y="46" width="6" height="6" rx="1" fill="#D9B36C"/>
 </svg>

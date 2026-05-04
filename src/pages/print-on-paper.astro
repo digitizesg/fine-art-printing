@@ -254,14 +254,23 @@ Default border around your print is 3mm, we can adjust to your preference. Don't
                   </div>
                 </dl>
 
-                <a
-                  class="paper-showcase__cta"
-                  href={`#calculator?paper=${paper.id}`}
-                  data-quote-with={paper.id}
-                >
-                  Get a price for {paper.shortName}
-                  <span aria-hidden="true">→</span>
-                </a>
+                <div class="paper-showcase__ctas">
+                  <a
+                    class="paper-showcase__cta"
+                    href={`#calculator?paper=${paper.id}`}
+                    data-quote-with={paper.id}
+                  >
+                    Get a price for {paper.shortName}
+                    <span aria-hidden="true">→</span>
+                  </a>
+                  <a
+                    class="paper-showcase__cta paper-showcase__cta--secondary"
+                    href={`/papers/${paper.slug}`}
+                  >
+                    Read more about {paper.shortName}
+                    <span aria-hidden="true">→</span>
+                  </a>
+                </div>
               </div>
             </article>
           ))}

@@ -310,11 +310,16 @@
   margin-top: 2px;
 }
 
+.paper-showcase__ctas {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 .paper-showcase__cta {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: 28px;
   padding: 12px 18px;
   border: 1px solid rgba(0, 0, 0, 0.18);
   border-radius: 999px;
@@ -329,6 +334,18 @@
   background: var(--color-petrol);
   border-color: var(--color-petrol);
   color: #fff;
+}
+.paper-showcase__cta--secondary {
+  border-color: transparent;
+  background: transparent;
+  color: var(--color-petrol);
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.paper-showcase__cta--secondary:hover {
+  background: rgba(26, 53, 80, 0.06);
+  border-color: rgba(26, 53, 80, 0.06);
+  color: var(--color-petrol);
 }
 
 /* Comparison table — extra rows hidden until expanded */
