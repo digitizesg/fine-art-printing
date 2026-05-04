@@ -3,6 +3,7 @@ export const prerender = true;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Eyebrow from "../../components/Eyebrow.astro";
 import DarkCTA from "../../components/DarkCTA.astro";
+import FrameLightbox from "../../components/FrameLightbox.astro";
 import { listPapers, getPaperBySlug, type Paper } from "../../lib/papers";
 import { business } from "../../data/business";
 
@@ -100,27 +101,39 @@ const jsonLd = {
         <!-- Image gallery -->
         <div class="md:sticky md:top-6 self-start">
           {heroImage ? (
-            <img
-              src={heroImage}
-              alt={`Sample print on ${paper.name}`}
-              class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)]"
-              loading="eager"
-            />
+            <button
+              type="button"
+              class="block w-full p-0 border-0 bg-transparent cursor-zoom-in"
+              data-frame-zoom
+              data-frame-image={heroImage}
+              data-frame-name={`${paper.name} — sample 1`}
+              data-frame-gallery={`paper-${paper.slug}`}
+              aria-label={`View ${paper.name} sample 1 larger`}
+            >
+              <img
+                src={heroImage}
+                alt={`Sample print on ${paper.name}`}
+                class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)]"
+                loading="eager"
+              />
+            </button>
           ) : (
             <div class="w-full aspect-[4/3] rounded-card bg-[#f4efe7]"></div>
           )}
           {paper.imageUrls.length > 1 && (
             <div class="mt-4 grid grid-cols-4 gap-2">
               {paper.imageUrls.slice(1).map((url, i) => (
-                <a
-                  href={url}
-                  target="_blank"
-                  rel="noopener"
-                  class="aspect-square overflow-hidden rounded-md bg-[#f4efe7] border border-border-soft transition-shadow hover:shadow-md"
-                  aria-label={`Open sample image ${i + 2} in a new tab`}
+                <button
+                  type="button"
+                  class="aspect-square overflow-hidden rounded-md bg-[#f4efe7] border border-border-soft transition-shadow hover:shadow-md cursor-zoom-in p-0"
+                  data-frame-zoom
+                  data-frame-image={url}
+                  data-frame-name={`${paper.name} — sample ${i + 2}`}
+                  data-frame-gallery={`paper-${paper.slug}`}
+                  aria-label={`View ${paper.name} sample ${i + 2} larger`}
                 >
                   <img src={url} alt="" loading="lazy" class="w-full h-full object-cover" />
-                </a>
+                </button>
               ))}
             </div>
           )}
@@ -251,4 +264,5 @@ const jsonLd = {
   )}
 
   <DarkCTA />
+  <FrameLightbox />
 </BaseLayout>
