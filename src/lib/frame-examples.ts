@@ -7,9 +7,9 @@
  */
 import { supabasePublic, frameExampleUrl } from "./supabase";
 import { PICTURE_FRAMES } from "../data/picture-frames";
-import { PAPERS } from "../data/pricing/paper";
 import type { FloatFrame } from "./float-frames";
 import type { Canvas } from "./canvases";
+import type { Paper } from "./papers";
 
 export type Service =
   | "custom-framing"
@@ -115,15 +115,16 @@ export function detailLabelFor(
   ex: FrameExample,
   floatFrames: Pick<FloatFrame, "slug" | "label">[] = [],
   canvases: Pick<Canvas, "slug" | "shortName">[] = [],
+  papers: Pick<Paper, "slug" | "shortName">[] = [],
 ): string {
   const lookupFloat = (id: string) =>
     floatFrames.find((f) => f.slug === id)?.label;
   const lookupCanvas = (id: string) =>
     canvases.find((c) => c.slug === id)?.shortName;
+  const lookupPaper = (id: string) =>
+    papers.find((p) => p.slug === id)?.shortName;
   if (ex.service === "custom-framing") {
-    const paper = ex.paperId
-      ? PAPERS.find((p) => p.id === ex.paperId)?.shortName
-      : undefined;
+    const paper = ex.paperId ? lookupPaper(ex.paperId) : undefined;
     const frame = ex.pictureFrameId
       ? PICTURE_FRAMES.find((p) => p.id === ex.pictureFrameId)?.label
       : undefined;

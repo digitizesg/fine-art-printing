@@ -15,16 +15,17 @@ import {
 } from "../lib/frame-examples";
 import { listFloatFrames } from "../lib/float-frames";
 import { listCanvases } from "../lib/canvases";
-import { PAPERS } from "../data/pricing/paper";
+import { listPapers } from "../lib/papers";
 
 const examples = await listExamples();
 const floatFrames = await listFloatFrames();
 const canvases = await listCanvases();
+const papers = await listPapers();
 // Only show paper chips for papers that actually appear on at least one example.
 const paperIdsInUse = new Set(
   examples.map((e) => e.paperId).filter(Boolean) as string[],
 );
-const papersInUse = PAPERS.filter((p) => paperIdsInUse.has(p.id));
+const papersInUse = papers.filter((p) => paperIdsInUse.has(p.slug));
 
 const description =
   "A growing gallery of finished work — custom framing, canvas printing, and canvas stretching. Filter by service or subject to find an example close to what you have in mind.";
@@ -88,7 +89,7 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
             <span class="gallery-filters__label">Paper</span>
             <button type="button" class="gallery-filter-chip is-active" data-filter="paper" data-value="all">All</button>
             {papersInUse.map((p) => (
-              <button type="button" class="gallery-filter-chip" data-filter="paper" data-value={p.id}>
+              <button type="button" class="gallery-filter-chip" data-filter="paper" data-value={p.slug}>
                 {p.shortName}
               </button>
             ))}
@@ -104,7 +105,7 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
 
       <div class="gallery-grid mt-10" data-gallery-grid>
         {examples.map((ex) => {
-          const detailLabel = detailLabelFor(ex, floatFrames, canvases);
+          const detailLabel = detailLabelFor(ex, floatFrames, canvases, papers);
           const lightboxName = detailLabel
             ? `${SERVICE_LABELS[ex.service]} · ${detailLabel}`
             : SERVICE_LABELS[ex.service];

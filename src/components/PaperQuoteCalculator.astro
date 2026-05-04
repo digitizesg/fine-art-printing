@@ -1,8 +1,19 @@
 ---
-import { PAPERS, formatSGD } from "../data/pricing/paper";
+import { formatSGD } from "../data/pricing/paper";
+import { listPapers } from "../lib/papers";
 import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
 
-const featured = PAPERS.filter((p) => p.featured);
+const papers = await listPapers();
+const featured = papers.filter((p) => p.featured);
+const papersJson = JSON.stringify(
+  featured.map((p) => ({
+    id: p.slug,
+    name: p.name,
+    sellPricePerSqm: p.sellPricePerSqm,
+    maxPrintWidthCm: p.maxPrintWidthCm,
+    maxPrintLengthCm: p.maxPrintLengthCm,
+  })),
+);
 ---
 <form
   class="paper-quote"
@@ -42,13 +53,13 @@ const featured = PAPERS.filter((p) => p.featured);
           <input
             type="radio"
             name="paperId"
-            value={p.id}
+            value={p.slug}
             checked={i === 0}
             class="paper-card__input sr-only"
           />
-          {p.images[0] ? (
+          {p.imageUrls[0] ? (
             <img
-              src={`/photos/${p.images[0]}`}
+              src={p.imageUrls[0]}
               alt=""
               loading="lazy"
               decoding="async"
@@ -93,6 +104,8 @@ const featured = PAPERS.filter((p) => p.featured);
       Send via contact form
     </a>
   </div>
+
+  <script type="application/json" data-papers set:html={papersJson} />
 </form>
 
 <style is:global>
@@ -450,8 +463,18 @@ const featured = PAPERS.filter((p) => p.featured);
 </style>
 
 <script>
-  import { quotePaperPrint, formatSGD, formatSGDWhole, PAPERS } from "../data/pricing/paper";
+  import {
+    quotePaperPrint,
+    formatSGD,
+    formatSGDWhole,
+    type PaperFamily,
+  } from "../data/pricing/paper";
   import { business } from "../data/business";
+
+  const papersEl = document.querySelector<HTMLScriptElement>("[data-papers]");
+  const PAPERS: PaperFamily[] = papersEl
+    ? (JSON.parse(papersEl.textContent ?? "[]") as PaperFamily[])
+    : [];
 
   type FormState = {
     paperId: string;
@@ -463,7 +486,7 @@ const featured = PAPERS.filter((p) => p.featured);
   function readForm(form: HTMLFormElement): FormState {
     const data = new FormData(form);
     return {
-      paperId: String(data.get("paperId") ?? PAPERS[0]!.id),
+      paperId: String(data.get("paperId") ?? PAPERS[0]?.id ?? ""),
       width: parseFloat(String(data.get("width") ?? "0")),
       height: parseFloat(String(data.get("height") ?? "0")),
       units: (data.get("units") as "cm" | "in") ?? "cm",
@@ -489,9 +512,16 @@ const featured = PAPERS.filter((p) => p.featured);
     const state = readForm(form);
     const widthCm = toCm(state.width, state.units);
     const heightCm = toCm(state.height, state.units);
+    const paper = PAPERS.find((p) => p.id === state.paperId);
+
+    if (!paper) {
+      const output = form.querySelector<HTMLElement>("[data-quote-output]")!;
+      output.innerHTML = "";
+      return;
+    }
 
     const result = quotePaperPrint({
-      paperId: state.paperId,
+      paper,
       widthCm,
       heightCm,
       quantity: 1,

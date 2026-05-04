@@ -1,0 +1,193 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import PaperForm from "../../../components/admin/PaperForm.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import { paperImageUrl, type Paper, type PaperUseCase } from "../../../lib/papers";
+import { extname } from "node:path";
+import { randomUUID } from "node:crypto";
+
+const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
+const MAX_BYTES = 25 * 1024 * 1024;
+const FINISHES = new Set(["matt", "gloss", "high-gloss", "pearl", "satin", "silk-gloss", "metallic"]);
+const DURABILITIES = new Set(["delicate", "good", "high"]);
+const USE_CASES = new Set<PaperUseCase>(["colour-photo", "bw-photo", "original-art", "illustration"]);
+
+const id = Astro.params.id;
+const supabase = createSupabaseServerClient(Astro);
+
+let error: string | undefined;
+let message: string | undefined;
+
+if (Astro.request.method === "POST" && id) {
+  const form = await Astro.request.formData();
+
+  const brand = String(form.get("brand") ?? "").trim();
+  const name = String(form.get("name") ?? "").trim();
+  const shortName = String(form.get("short_name") ?? "").trim();
+  const slug = String(form.get("slug") ?? "").trim().toLowerCase();
+  const gsm = parseInt(String(form.get("gsm") ?? ""), 10);
+  const finish = String(form.get("finish") ?? "").trim();
+  const tone = String(form.get("tone") ?? "").trim();
+  const texture = String(form.get("texture") ?? "").trim();
+  const durability = String(form.get("durability") ?? "").trim();
+  const blurb = String(form.get("blurb") ?? "").trim();
+  const description = String(form.get("description") ?? "").trim();
+  const longDescription = String(form.get("long_description") ?? "").trim();
+  const sellPricePerSqm = parseFloat(String(form.get("sell_price_per_sqm") ?? ""));
+  const maxPrintWidthCm = parseFloat(String(form.get("max_print_width_cm") ?? ""));
+  const maxPrintLengthCm = parseFloat(String(form.get("max_print_length_cm") ?? ""));
+  const displayOrder = parseInt(String(form.get("display_order") ?? "100"), 10);
+  const published = form.get("published") === "1";
+  const featured = form.get("featured") === "1";
+  const bestFor = form.getAll("best_for")
+    .map((v) => String(v) as PaperUseCase)
+    .filter((v) => USE_CASES.has(v));
+
+  if (!brand || !name || !shortName) {
+    error = "Brand, full name, and short name are required.";
+  } else if (!slug || !/^[a-z0-9-]+$/.test(slug)) {
+    error = "Slug must be letters, numbers, and hyphens only.";
+  } else if (!Number.isFinite(gsm) || gsm <= 0) {
+    error = "GSM must be a positive number.";
+  } else if (!FINISHES.has(finish)) {
+    error = "Invalid finish.";
+  } else if (!DURABILITIES.has(durability)) {
+    error = "Invalid durability.";
+  } else if (!tone || !texture || !blurb || !description || !longDescription) {
+    error = "Tone, texture, blurb, description, and long description are all required.";
+  } else if (!Number.isFinite(sellPricePerSqm) || sellPricePerSqm < 0) {
+    error = "Sell price must be a non-negative number.";
+  } else if (!Number.isFinite(maxPrintWidthCm) || maxPrintWidthCm <= 0) {
+    error = "Max print width must be positive.";
+  } else if (!Number.isFinite(maxPrintLengthCm) || maxPrintLengthCm <= 0) {
+    error = "Max print length must be positive.";
+  }
+
+  const kept: string[] = [];
+  for (const k of form.getAll("kept_images")) {
+    if (typeof k === "string") kept.push(k);
+  }
+
+  const imageFiles = form.getAll("image_files").filter(
+    (f): f is File => f instanceof File && f.size > 0,
+  );
+  const uploaded: string[] = [];
+  if (!error) {
+    for (const f of imageFiles) {
+      if (!ALLOWED_TYPES.has(f.type)) { error = "Photos must be JPG or PNG."; break; }
+      if (f.size > MAX_BYTES) { error = "A photo is over the 25 MB limit."; break; }
+      const ext = f.type === "image/png" ? ".png" : extname(f.name) || ".jpg";
+      const path = `${randomUUID()}${ext}`;
+      const buffer = Buffer.from(await f.arrayBuffer());
+      const { error: upErr } = await supabase.storage
+        .from("papers")
+        .upload(path, buffer, { contentType: f.type, upsert: false });
+      if (upErr) { error = `Upload failed: ${upErr.message}`; break; }
+      uploaded.push(path);
+    }
+  }
+
+  if (error && uploaded.length) {
+    await supabase.storage.from("papers").remove(uploaded);
+  }
+
+  if (!error) {
+    const { data: existing } = await supabase
+      .from("papers")
+      .select("images")
+      .eq("id", id)
+      .single();
+    const prevImages: string[] = Array.isArray(existing?.images)
+      ? (existing!.images as string[])
+      : [];
+    const removed = prevImages.filter((p) => !kept.includes(p));
+
+    const update = {
+      slug,
+      brand,
+      name,
+      short_name: shortName,
+      gsm,
+      finish,
+      tone,
+      texture,
+      durability,
+      blurb,
+      description,
+      long_description: longDescription,
+      best_for: bestFor,
+      sell_price_per_sqm: sellPricePerSqm,
+      max_print_width_cm: maxPrintWidthCm,
+      max_print_length_cm: maxPrintLengthCm,
+      images: [...kept, ...uploaded],
+      featured,
+      published,
+      display_order: Number.isFinite(displayOrder) ? displayOrder : 100,
+    };
+
+    const { error: updErr } = await supabase
+      .from("papers")
+      .update(update)
+      .eq("id", id);
+    if (updErr) {
+      if (uploaded.length) await supabase.storage.from("papers").remove(uploaded);
+      error = updErr.message;
+    } else {
+      if (removed.length) await supabase.storage.from("papers").remove(removed);
+      message = "Saved.";
+    }
+  }
+}
+
+const { data: row, error: loadErr } = await supabase
+  .from("papers")
+  .select("*")
+  .eq("id", id)
+  .single();
+
+if (loadErr || !row) {
+  return Astro.redirect("/admin/papers?error=not_found");
+}
+
+const num = (v: number | string) => (typeof v === "string" ? parseFloat(v) : v);
+const images: string[] = Array.isArray(row.images) ? row.images : [];
+const paper: Paper = {
+  id: row.id,
+  slug: row.slug,
+  brand: row.brand,
+  name: row.name,
+  shortName: row.short_name,
+  gsm: row.gsm,
+  finish: row.finish,
+  tone: row.tone,
+  texture: row.texture,
+  durability: row.durability,
+  blurb: row.blurb,
+  description: row.description,
+  longDescription: row.long_description,
+  bestFor: Array.isArray(row.best_for) ? row.best_for : [],
+  sellPricePerSqm: num(row.sell_price_per_sqm),
+  maxPrintWidthCm: num(row.max_print_width_cm),
+  maxPrintLengthCm: num(row.max_print_length_cm),
+  images,
+  imageUrls: images.map(paperImageUrl),
+  featured: row.featured,
+  published: row.published,
+  displayOrder: row.display_order,
+};
+
+if (Astro.url.searchParams.get("created") === "1" && !message) {
+  message = "Created.";
+}
+---
+<AdminLayout title={`Edit ${paper.shortName}`}>
+  <div class="admin-page-head">
+    <div>
+      <h1>{paper.brand} {paper.shortName}</h1>
+      <p style="font-family:monospace;font-size:11.5px;color:#888;">{paper.slug}</p>
+    </div>
+    <a href="/admin/papers" class="admin-btn admin-btn--ghost">← Back to list</a>
+  </div>
+  <PaperForm mode="edit" paper={paper} error={error} message={message} />
+</AdminLayout>

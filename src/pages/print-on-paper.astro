@@ -9,9 +9,11 @@ import PaperQuoteCalculator from "../components/PaperQuoteCalculator.astro";
 import ReviewSection from "../components/ReviewSection.astro";
 import Stars from "../components/Stars.astro";
 import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
-import { PAPERS } from "../data/pricing/paper";
+import { listPapers } from "../lib/papers";
 import { business } from "../data/business";
 import reviewsData from "../data/reviews.json";
+
+const papers = await listPapers();
 
 const { rating, userRatingsTotal } = reviewsData;
 const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'd like a quote for printing on paper.")}`;
@@ -31,7 +33,7 @@ const jsonLd = {
   areaServed: { "@type": "Country", name: "Singapore" },
 };
 
-const featuredPapers = PAPERS.filter((p) => p.featured);
+const featuredPapers = papers.filter((p) => p.featured);
 
 const finishLabel = (f: string) => f.replace("-", " ");
 const durabilityLabel = (d: string) => d.charAt(0).toUpperCase() + d.slice(1);
@@ -187,13 +189,13 @@ Default border around your print is 3mm, we can adjust to your preference. Don't
               type="button"
               role="tab"
               aria-selected={i === 0 ? "true" : "false"}
-              aria-controls={`panel-${p.id}`}
-              data-tab-target={p.id}
+              aria-controls={`panel-${p.slug}`}
+              data-tab-target={p.slug}
               class:list={["paper-pick", i === 0 && "is-active"]}
             >
-              {p.images[0] ? (
+              {p.imageUrls[0] ? (
                 <img
-                  src={`/photos/${p.images[0]}`}
+                  src={p.imageUrls[0]}
                   alt=""
                   loading="lazy"
                   class="paper-pick__thumb"
@@ -209,15 +211,15 @@ Default border around your print is 3mm, we can adjust to your preference. Don't
         <div class="paper-showcase__panels">
           {featuredPapers.map((paper, i) => (
             <article
-              id={`panel-${paper.id}`}
+              id={`panel-${paper.slug}`}
               role="tabpanel"
-              data-paper={paper.id}
+              data-paper={paper.slug}
               class:list={["paper-showcase__panel", i === 0 && "is-active"]}
             >
               <div class="paper-showcase__media">
-                {paper.images[0] ? (
+                {paper.imageUrls[0] ? (
                   <img
-                    src={`/photos/${paper.images[0]}`}
+                    src={paper.imageUrls[0]}
                     alt={`Sample print on ${paper.name}`}
                     loading="lazy"
                     class="paper-showcase__image"

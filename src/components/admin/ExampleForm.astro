@@ -6,12 +6,13 @@ import {
   type Subject,
 } from "../../lib/frame-examples";
 import { PICTURE_FRAME_GROUPS } from "../../data/picture-frames";
-import { PAPERS } from "../../data/pricing/paper";
 import { listFloatFrames } from "../../lib/float-frames";
 import { listCanvases } from "../../lib/canvases";
+import { listPapers } from "../../lib/papers";
 
 const floatFrames = await listFloatFrames({ onlyPublished: false });
 const canvases = await listCanvases({ onlyPublished: false });
+const papers = await listPapers({ onlyPublished: false });
 
 interface Props {
   mode: "new" | "edit";
@@ -93,8 +94,8 @@ const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.
       <span>Paper (if a paper print)</span>
       <select name="paper_id">
         <option value="" selected={!example?.paper_id}>—</option>
-        {PAPERS.map((p) => (
-          <option value={p.id} selected={example?.paper_id === p.id}>{p.brand} {p.shortName}</option>
+        {papers.map((p) => (
+          <option value={p.slug} selected={example?.paper_id === p.slug}>{p.brand} {p.shortName}</option>
         ))}
       </select>
     </label>

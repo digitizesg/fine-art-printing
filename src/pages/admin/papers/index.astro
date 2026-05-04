@@ -1,0 +1,56 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import { paperImageUrl } from "../../../lib/papers";
+
+const supabase = createSupabaseServerClient(Astro);
+
+const { data: rows, error } = await supabase
+  .from("papers")
+  .select("*")
+  .order("display_order", { ascending: true })
+  .order("created_at", { ascending: true });
+---
+<AdminLayout title="Papers">
+  <div class="admin-page-head">
+    <div>
+      <h1>Papers</h1>
+      <p>{rows?.length ?? 0} papers · these populate the paper picker on the public calculator and showcase pages.</p>
+    </div>
+    <a href="/admin/papers/new" class="admin-btn">+ New paper</a>
+  </div>
+
+  {error && <p class="admin-note admin-note--err">{error.message}</p>}
+  {rows && rows.length === 0 && (
+    <p class="admin-note">No papers yet. Click <strong>New paper</strong> to add one.</p>
+  )}
+
+  <div class="admin-grid">
+    {rows?.map((row) => {
+      const firstImage = Array.isArray(row.images) && row.images[0] ? row.images[0] : null;
+      return (
+        <a class="admin-example" href={`/admin/papers/${row.id}`}>
+          {firstImage ? (
+            <img class="admin-example__photo" src={paperImageUrl(firstImage)} alt={row.name} loading="lazy" />
+          ) : (
+            <div class="admin-example__photo" style="aspect-ratio:3/2;background:repeating-linear-gradient(135deg,#f4efe7,#f4efe7 6px,#ece6db 6px,#ece6db 12px);display:flex;align-items:center;justify-content:center;color:#888;font-size:12px;">
+              No photo yet
+            </div>
+          )}
+          <div class="admin-example__meta">
+            <span class="admin-example__service">
+              {row.published ? "Published" : "Draft"}
+              {row.featured && <span class="admin-example__featured" style="margin-left:8px">Featured</span>}
+            </span>
+            <span class="admin-example__caption">{row.brand} {row.short_name}</span>
+            <span class="admin-example__row" style="font-family:monospace;font-size:11.5px;">{row.slug}</span>
+            <span class="admin-example__row">
+              {row.gsm}gsm · {row.finish} · ${Number(row.sell_price_per_sqm).toFixed(2)}/sqm
+            </span>
+          </div>
+        </a>
+      );
+    })}
+  </div>
+</AdminLayout>

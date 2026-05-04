@@ -7,8 +7,8 @@ import FrameLightbox from "../../components/FrameLightbox.astro";
 import { listArtworks, getArtworkBySlug } from "../../lib/artworks";
 import { listFloatFrames } from "../../lib/float-frames";
 import { listCanvases } from "../../lib/canvases";
+import { listPapers } from "../../lib/papers";
 import "../../styles/canvas-quote.css";
-import { PAPERS } from "../../data/pricing/paper";
 
 export async function getStaticPaths() {
   const artworks = await listArtworks({ onlyPublished: true });
@@ -21,8 +21,9 @@ export async function getStaticPaths() {
 const { artwork } = Astro.props;
 const floatFrames = await listFloatFrames();
 const canvases = await listCanvases();
+const papers = await listPapers();
 
-const featuredPapers = PAPERS.filter((p) => p.featured);
+const featuredPapers = papers.filter((p) => p.featured);
 const featuredCanvases = canvases.filter((c) => c.featured);
 
 // Engine-shape projections serialised into the page so the configurator
@@ -37,6 +38,15 @@ const canvasesJson = JSON.stringify(
     sellPricePerSqm: c.sellPricePerSqm,
     maxPrintWidthCm: c.maxPrintWidthCm,
     maxPrintLengthCm: c.maxPrintLengthCm,
+  })),
+);
+const papersJson = JSON.stringify(
+  featuredPapers.map((p) => ({
+    id: p.slug,
+    name: p.name,
+    sellPricePerSqm: p.sellPricePerSqm,
+    maxPrintWidthCm: p.maxPrintWidthCm,
+    maxPrintLengthCm: p.maxPrintLengthCm,
   })),
 );
 
@@ -138,7 +148,7 @@ const jsonLd = {
               <legend>Paper</legend>
               <select name="paper_id" class="artwork-config__select">
                 {featuredPapers.map((p) => (
-                  <option value={p.id}>{p.brand} {p.shortName}</option>
+                  <option value={p.slug}>{p.brand} {p.shortName}</option>
                 ))}
               </select>
             </fieldset>
@@ -320,6 +330,7 @@ const jsonLd = {
 
   <script type="application/json" data-float-frames set:html={floatFramesJson} />
   <script type="application/json" data-canvases set:html={canvasesJson} />
+  <script type="application/json" data-papers set:html={papersJson} />
 
   <DarkCTA />
   <FrameLightbox />
@@ -541,7 +552,7 @@ const jsonLd = {
 </style>
 
 <script>
-  import { quotePaperPrint } from "../../data/pricing/paper";
+  import { quotePaperPrint, type PaperFamily } from "../../data/pricing/paper";
   import {
     quoteCanvasPrint,
     type CanvasSubstrate,
@@ -558,12 +569,17 @@ const jsonLd = {
   const canvases: CanvasSubstrate[] = canvasesEl
     ? (JSON.parse(canvasesEl.textContent ?? "[]") as CanvasSubstrate[])
     : [];
-  if (root) initConfigurator(root, floatFrames, canvases);
+  const papersEl = document.querySelector<HTMLScriptElement>("[data-papers]");
+  const papers: PaperFamily[] = papersEl
+    ? (JSON.parse(papersEl.textContent ?? "[]") as PaperFamily[])
+    : [];
+  if (root) initConfigurator(root, floatFrames, canvases, papers);
 
   function initConfigurator(
     root: HTMLElement,
     floatFrames: FloatFrameColour[],
     canvases: CanvasSubstrate[],
+    papers: PaperFamily[],
   ) {
     const priceEl = root.querySelector<HTMLElement>("[data-artwork-price-amount]")!;
     const noteEl = root.querySelector<HTMLElement>("[data-artwork-price-note]")!;
@@ -617,9 +633,15 @@ const jsonLd = {
 
       if (substrate === "paper") {
         const paperId = getValue("paper_id");
+        const paper = papers.find((p) => p.id === paperId);
+        if (!paper) {
+          priceEl.textContent = "—";
+          noteEl.textContent = "";
+          return;
+        }
         const border = Math.max(0, parseFloat(getValue("border_cm") || "0") || 0);
         const result = quotePaperPrint({
-          paperId,
+          paper,
           widthCm: w + border * 2,
           heightCm: h + border * 2,
           quantity: 1,

@@ -1,14 +1,15 @@
 ---
-import { PAPERS } from "../data/pricing/paper";
+import { listPapers } from "../lib/papers";
 
+const papers = await listPapers();
 // Inline the paper info we need into the markup so the script doesn't have
 // to re-import everything from the pricing data on the client.
-const paperLookup = PAPERS.reduce<Record<string, { brand: string; shortName: string; image: string }>>(
+const paperLookup = papers.reduce<Record<string, { brand: string; shortName: string; image: string }>>(
   (acc, p) => {
-    acc[p.id] = {
+    acc[p.slug] = {
       brand: p.brand,
       shortName: p.shortName,
-      image: p.images[0] ? `/photos/${p.images[0]}` : "",
+      image: p.imageUrls[0] ?? "",
     };
     return acc;
   },

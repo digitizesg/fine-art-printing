@@ -7,6 +7,7 @@ import {
 } from "../lib/frame-examples";
 import { listFloatFrames } from "../lib/float-frames";
 import { listCanvases } from "../lib/canvases";
+import { listPapers } from "../lib/papers";
 
 interface Props {
   service: Service;
@@ -28,6 +29,7 @@ const {
 const examples = await featuredFor(service, limit);
 const floatFrames = await listFloatFrames();
 const canvases = await listCanvases();
+const papers = await listPapers();
 ---
 {examples.length > 0 && (
   <section class="featured-examples border-t border-border-soft bg-white">
@@ -44,7 +46,7 @@ const canvases = await listCanvases();
 
       <ul class="featured-examples__grid">
         {examples.map((ex) => {
-          const detail = detailLabelFor(ex, floatFrames, canvases);
+          const detail = detailLabelFor(ex, floatFrames, canvases, papers);
           const lightboxName = detail
             ? `${SERVICE_LABELS[ex.service]} · ${detail}`
             : SERVICE_LABELS[ex.service];
