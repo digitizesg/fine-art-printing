@@ -5,6 +5,7 @@ import Eyebrow from "../../components/Eyebrow.astro";
 import DarkCTA from "../../components/DarkCTA.astro";
 import FrameLightbox from "../../components/FrameLightbox.astro";
 import { listArtworks, getArtworkBySlug } from "../../lib/artworks";
+import "../../styles/canvas-quote.css";
 import { PAPERS } from "../../data/pricing/paper";
 import { CANVASES, FLOAT_FRAME_COLOURS } from "../../data/pricing/canvas";
 
@@ -205,21 +206,69 @@ const pricingData = {
             </fieldset>
 
             <fieldset class="artwork-config__group" data-substrate="canvas">
-              <legend>Stretching</legend>
-              <div class="artwork-config__chips" role="radiogroup" aria-label="Stretching">
-                <label class="artwork-config__chip">
-                  <input type="radio" name="stretching" value="none" checked />
-                  <span>Rolled (no stretching)</span>
+              <legend>Finishing</legend>
+              <div class="finishing-grid" role="radiogroup" aria-label="Finishing">
+                <label class="finishing-card">
+                  <input type="radio" name="finishing" value="none" checked />
+                  <span class="finishing-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
+                      <rect x="2.5" y="6" width="35" height="16" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                  </span>
+                  <span class="finishing-card__body">
+                    <span class="finishing-card__title">No stretching</span>
+                    <span class="finishing-card__desc">Rolled, ready for your own framer.</span>
+                  </span>
                 </label>
-                <label class="artwork-config__chip">
-                  <input type="radio" name="stretching" value="1in" />
-                  <span>1" stretched</span>
+                <label class="finishing-card">
+                  <input type="radio" name="finishing" value="1in" />
+                  <span class="finishing-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
+                      <rect x="3" y="4" width="34" height="14" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                      <rect x="3" y="18" width="34" height="4" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                  </span>
+                  <span class="finishing-card__body">
+                    <span class="finishing-card__title">Standard 1"</span>
+                    <span class="finishing-card__desc">Solid wood, gallery-wrapped.</span>
+                  </span>
                 </label>
-                <label class="artwork-config__chip">
-                  <input type="radio" name="stretching" value="1.5in" />
-                  <span>1.5" stretched</span>
+                <label class="finishing-card">
+                  <input type="radio" name="finishing" value="1.5in" />
+                  <span class="finishing-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
+                      <rect x="3" y="3" width="34" height="13" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                      <rect x="3" y="16" width="34" height="7" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                  </span>
+                  <span class="finishing-card__body">
+                    <span class="finishing-card__title">Deep 1.5"</span>
+                    <span class="finishing-card__desc">Deeper bars, more substantial profile.</span>
+                  </span>
+                </label>
+                <label class="finishing-card">
+                  <input type="radio" name="finishing" value="float" />
+                  <span class="finishing-card__icon" aria-hidden="true">
+                    <svg viewBox="0 0 40 28" width="40" height="28" fill="none">
+                      <rect x="1.5" y="3" width="37" height="22" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+                      <rect x="6" y="6.5" width="28" height="15" stroke="currentColor" stroke-width="1.5"/>
+                    </svg>
+                  </span>
+                  <span class="finishing-card__body">
+                    <span class="finishing-card__title">Float frame</span>
+                    <span class="finishing-card__desc">Stretched on 1" bars, then mounted in a wooden frame.</span>
+                  </span>
                 </label>
               </div>
+            </fieldset>
+
+            <fieldset class="artwork-config__group" data-substrate="canvas" data-only-when-float>
+              <legend>Float frame colour</legend>
+              <select name="float_frame" class="artwork-config__select">
+                {pricingData.canvas.floatFrames.map((f, i) => (
+                  <option value={f.id} selected={i === 0}>{f.label}</option>
+                ))}
+              </select>
             </fieldset>
 
             <fieldset class="artwork-config__group" data-substrate="canvas" data-only-when-rolled>
@@ -263,16 +312,6 @@ const pricingData = {
                   <p><strong>Solid colour</strong> — the wrap is filled with a flat colour you choose (typically black or white). We'll confirm the colour with you before printing.</p>
                 </div>
               </details>
-            </fieldset>
-
-            <fieldset class="artwork-config__group" data-substrate="canvas" data-only-when-stretched>
-              <legend>Float frame (optional)</legend>
-              <select name="float_frame" class="artwork-config__select">
-                <option value="">No float frame</option>
-                {pricingData.canvas.floatFrames.map((f) => (
-                  <option value={f.id}>{f.label}</option>
-                ))}
-              </select>
             </fieldset>
 
             <div class="artwork-config__price" data-artwork-price>
@@ -576,17 +615,17 @@ const pricingData = {
 
     function syncSubstrate() {
       const substrate = getRadio("substrate") ?? "paper";
-      const stretching = getRadio("stretching") ?? "none";
+      const finishing = getRadio("finishing") ?? "none";
       const futureMargin = getRadio("future_margin") ?? "no";
       groups.forEach((g) => {
         const onlySubstrate = g.dataset.substrate;
-        const stretchedOnly = g.hasAttribute("data-only-when-stretched");
         const rolledOnly = g.hasAttribute("data-only-when-rolled");
         const marginOnly = g.hasAttribute("data-only-when-margin");
+        const floatOnly = g.hasAttribute("data-only-when-float");
         let visible = onlySubstrate ? onlySubstrate === substrate : true;
-        if (visible && stretchedOnly) visible = stretching !== "none";
-        if (visible && rolledOnly) visible = stretching === "none";
-        if (visible && marginOnly) visible = stretching === "none" && futureMargin === "yes";
+        if (visible && rolledOnly) visible = finishing === "none";
+        if (visible && marginOnly) visible = finishing === "none" && futureMargin === "yes";
+        if (visible && floatOnly) visible = finishing === "float";
         g.style.display = visible ? "" : "none";
       });
     }
@@ -621,12 +660,12 @@ const pricingData = {
      * stretching, and float framing. Server-side checkout will recompute
      * authoritative totals; this is just an in-page estimate.
      */
-    function canvasPrice(canvasId: string, w: number, h: number, stretching: string, floatFrame: string, futureMargin: boolean): number | null {
+    function canvasPrice(canvasId: string, w: number, h: number, finishing: string, _floatColour: string, futureMargin: boolean): number | null {
       const canvas = pricing.canvas.canvases.find((c) => c.id === canvasId);
       if (!canvas) return null;
-      // 1.5" = 3.81cm — added on each axis (so total +7.62cm width and height)
-      // when the rolled customer asks for future-stretching margin.
-      const margin = stretching === "none" && futureMargin ? 3.81 : 0;
+      // 1.5" = 3.81cm — added on each axis when a rolled customer asks for
+      // future-stretching margin. Doesn't apply when actually stretched.
+      const margin = finishing === "none" && futureMargin ? 3.81 : 0;
       const effW = w + margin * 2;
       const effH = h + margin * 2;
       const minSide = Math.min(effW, effH);
@@ -636,9 +675,17 @@ const pricingData = {
       let total = canvas.sellPricePerSqm * sqm;
       // Ink + varnish + studio labour (rough flat additions per sqm).
       total += 18 * sqm + 30;
-      if (stretching === "1in") total += 60 + Math.max(0, sqm - 0.5) * 35;
-      if (stretching === "1.5in") total += 80 + Math.max(0, sqm - 0.5) * 45;
-      if (floatFrame) total += 90 + Math.max(0, sqm - 0.5) * 55;
+      // Stretching cost. Float frame is a 1" stretched canvas mounted in a
+      // wooden frame, so it carries both the 1" stretching and frame costs.
+      if (finishing === "1in" || finishing === "float") {
+        total += 60 + Math.max(0, sqm - 0.5) * 35;
+      }
+      if (finishing === "1.5in") {
+        total += 80 + Math.max(0, sqm - 0.5) * 45;
+      }
+      if (finishing === "float") {
+        total += 90 + Math.max(0, sqm - 0.5) * 55;
+      }
       return Math.max(80, Math.ceil(total));
     }
 
@@ -661,10 +708,10 @@ const pricingData = {
         total = paperPrice(paperId, w, h, border);
       } else {
         const canvasId = getValue("canvas_id");
-        const stretching = getRadio("stretching") ?? "none";
-        const floatFrame = getValue("float_frame");
+        const finishing = getRadio("finishing") ?? "none";
+        const floatColour = getValue("float_frame");
         const futureMargin = (getRadio("future_margin") ?? "no") === "yes";
-        total = canvasPrice(canvasId, w, h, stretching, floatFrame, futureMargin);
+        total = canvasPrice(canvasId, w, h, finishing, floatColour, futureMargin);
       }
       if (total === null) {
         priceEl.textContent = "—";
@@ -680,9 +727,9 @@ const pricingData = {
           ? `Includes ${border} cm border — paper printed at ${w + border * 2} × ${h + border * 2} cm.`
           : "";
       } else {
-        const stretching = getRadio("stretching") ?? "none";
+        const finishing = getRadio("finishing") ?? "none";
         const futureMargin = (getRadio("future_margin") ?? "no") === "yes";
-        if (stretching === "none" && futureMargin) {
+        if (finishing === "none" && futureMargin) {
           const effW = (w + 3.81 * 2).toFixed(1);
           const effH = (h + 3.81 * 2).toFixed(1);
           noteEl.textContent = `Includes 1.5" stretching margin — canvas printed at ${effW} × ${effH} cm.`;
