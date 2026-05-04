@@ -25,9 +25,10 @@ export const POST: APIRoute = async ({ request }) => {
     return new Response("Webhook not configured", { status: 503 });
   }
 
-  // Stripe needs the *raw* body for signature verification. Astro hands
-  // us the request directly so request.text() returns the raw bytes.
-  const rawBody = await request.text();
+  // Stripe signs the *raw* request bytes. request.text() can subtly
+  // re-encode (e.g. normalise newlines) on some runtimes, so read as
+  // an ArrayBuffer and hand Stripe a Buffer to keep the bytes verbatim.
+  const rawBody = Buffer.from(await request.arrayBuffer());
   const signature = request.headers.get("stripe-signature");
   if (!signature) {
     return new Response("Missing signature", { status: 400 });
@@ -36,7 +37,11 @@ export const POST: APIRoute = async ({ request }) => {
   const stripe = new Stripe(stripeKey);
   let event: Stripe.Event;
   try {
-    event = stripe.webhooks.constructEvent(rawBody, signature, webhookSecret);
+    event = await stripe.webhooks.constructEventAsync(
+      rawBody,
+      signature,
+      webhookSecret,
+    );
   } catch (e: any) {
     console.error("[stripe-webhook] signature verification failed:", e?.message);
     return new Response(`Webhook signature error: ${e?.message ?? "unknown"}`, {
