@@ -1,6 +1,7 @@
 ---
 import Button from "./Button.astro";
 import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
+import { Image } from "astro:assets";
 import { business } from "../data/business";
 
 const services = [
@@ -50,7 +51,7 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     <!-- Desktop nav -->
     <nav class="hidden md:flex items-center gap-5 lg:gap-7">
       <details class="services-menu">
-        <summary class="services-menu__trigger text-[14px] text-muted hover:text-ink transition-colors">
+        <summary class="services-menu__trigger text-[15.5px] text-muted hover:text-ink transition-colors">
           Services
           <svg class="services-menu__chevron" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
             <path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -61,13 +62,11 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
             {services.map((s) => (
               <a href={s.href} class="services-menu__card">
                 <div class="services-menu__card-image">
-                  <img
-                    src={s.image.startsWith("http")
-                      ? `/_vercel/image?url=${encodeURIComponent(s.image)}&w=320&q=80`
-                      : s.image}
+                  <Image
+                    src={s.image}
                     alt=""
-                    width="160"
-                    height="120"
+                    width={320}
+                    height={240}
                     loading="lazy"
                     decoding="async"
                   />
@@ -82,7 +81,7 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       {navLinks.map((link) => (
         <a
           href={link.href}
-          class="text-[14px] text-muted hover:text-ink transition-colors"
+          class="text-[15.5px] text-muted hover:text-ink transition-colors"
         >
           {link.label}
         </a>
@@ -109,7 +108,7 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       >
         <WhatsAppIcon size={16} />
       </a>
-      <Button href="/contact" variant="secondary" class="!py-2 !px-4">
+      <Button href="/contact" variant="secondary" class="!py-2 !px-4 !text-[15.5px]">
         Get in touch <span aria-hidden="true">→</span>
       </Button>
     </nav>
@@ -278,7 +277,7 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
   }
   .brand__name {
     font-family: var(--font-serif);
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 500;
     color: var(--color-ink);
     letter-spacing: -0.01em;
@@ -286,15 +285,15 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
   }
   .brand__sub {
     font-family: var(--font-sans);
-    font-size: 9px;
+    font-size: 10.5px;
     font-weight: 600;
     color: rgba(26, 53, 80, 0.62);
     letter-spacing: 0.22em;
     margin-top: 4px;
   }
   @media (max-width: 480px) {
-    .brand__name { font-size: 17px; }
-    .brand__sub { font-size: 8.5px; letter-spacing: 0.18em; }
+    .brand__name { font-size: 18px; }
+    .brand__sub { font-size: 9px; letter-spacing: 0.18em; }
   }
 
   .nav-cart__count {
