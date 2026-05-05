@@ -95,7 +95,7 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
           ))}
         </div>
         {papersInUse.length > 0 && (
-          <div class="gallery-filters__row">
+          <div class="gallery-filters__row" data-only-services="custom-framing">
             <span class="gallery-filters__label">Paper</span>
             <button type="button" class="gallery-filter-chip is-active" data-filter="paper" data-value="all">All</button>
             {papersInUse.map((p) => (
@@ -106,7 +106,7 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
           </div>
         )}
         {frameStylesInUse.length > 0 && (
-          <div class="gallery-filters__row" data-frame-style-row>
+          <div class="gallery-filters__row" data-only-services="custom-framing">
             <span class="gallery-filters__label">Frame style</span>
             <button type="button" class="gallery-filter-chip is-active" data-filter="frame_style" data-value="all">All</button>
             {frameStylesInUse.map((s) => (
@@ -349,7 +349,12 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
       frame_style: "all",
     };
 
-    const frameStyleRow = filtersRoot.querySelector<HTMLElement>("[data-frame-style-row]");
+    // Filter rows that are only meaningful for some services, e.g.
+    // Paper / Frame style are nonsense once you've picked Canvas
+    // printing. They self-declare via data-only-services="…".
+    const conditionalRows = Array.from(
+      filtersRoot.querySelectorAll<HTMLElement>("[data-only-services]"),
+    );
 
     function matches(tile: HTMLElement): boolean {
       if (state.service !== "all" && tile.dataset.service !== state.service) return false;
@@ -368,25 +373,30 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
       );
     }
 
-    function syncFrameStyleVisibility() {
-      if (!frameStyleRow) return;
-      // Frame styles are only meaningful for custom-framing examples,
-      // so hide the row if the active service filter excludes it.
-      const allowed = state.service === "all" || state.service === "custom-framing";
-      frameStyleRow.style.display = allowed ? "" : "none";
-      if (!allowed && state.frame_style !== "all") {
-        // Clear a stale frame-style pick so the grid doesn't render empty.
-        state.frame_style = "all";
-        filtersRoot
-          .querySelectorAll<HTMLButtonElement>('[data-filter="frame_style"]')
-          .forEach((c) =>
-            c.classList.toggle("is-active", c.dataset.value === "all"),
-          );
-      }
+    function syncConditionalRows() {
+      conditionalRows.forEach((row) => {
+        const allowedServices = (row.dataset.onlyServices ?? "")
+          .split(/\s+/)
+          .filter(Boolean);
+        const visible =
+          state.service === "all" || allowedServices.includes(state.service);
+        row.style.display = visible ? "" : "none";
+        if (!visible) {
+          // Reset every filter inside the hidden row so the grid
+          // doesn't render empty for an irrelevant filter pick.
+          row.querySelectorAll<HTMLButtonElement>("[data-filter]").forEach((chip) => {
+            const filter = chip.dataset.filter as keyof typeof state;
+            if (state[filter] !== "all") {
+              state[filter] = "all";
+            }
+            chip.classList.toggle("is-active", chip.dataset.value === "all");
+          });
+        }
+      });
     }
 
     function apply() {
-      syncFrameStyleVisibility();
+      syncConditionalRows();
       let visible = 0;
       tiles.forEach((tile) => {
         const ok = matches(tile);
