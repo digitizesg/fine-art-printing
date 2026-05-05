@@ -613,6 +613,7 @@ const jsonLd = {
     type FloatFrameColour,
     type StretchingChoice,
   } from "../../data/pricing/canvas";
+  import { SHOP_ARTWORK_BASE_SGD } from "../../data/pricing/shop";
   import { cart, type CartLine } from "../../lib/cart";
 
   type ArtworkRef = {
@@ -733,7 +734,8 @@ const jsonLd = {
           setCartEnabled(null);
           return;
         }
-        priceEl.textContent = `S$${result.grandTotal.toLocaleString("en-SG")}`;
+        const unitPrice = result.grandTotal + SHOP_ARTWORK_BASE_SGD;
+        priceEl.textContent = `S$${unitPrice.toLocaleString("en-SG")}`;
         noteEl.textContent = border > 0
           ? `Includes ${border} cm border — paper printed at ${w + border * 2} × ${h + border * 2} cm.`
           : "";
@@ -747,7 +749,7 @@ const jsonLd = {
           widthCm: w,
           heightCm: h,
           quantity: 1,
-          unitPriceSGD: result.grandTotal,
+          unitPriceSGD: unitPrice,
           paperSlug: paperId,
           borderCm: border,
         });
@@ -795,7 +797,8 @@ const jsonLd = {
           setCartEnabled(null);
           return;
         }
-        priceEl.textContent = `S$${result.grandTotal.toLocaleString("en-SG")}`;
+        const unitPrice = result.grandTotal + SHOP_ARTWORK_BASE_SGD;
+        priceEl.textContent = `S$${unitPrice.toLocaleString("en-SG")}`;
         if (marginCm > 0) {
           const effW = (w + marginCm * 2).toFixed(1);
           const effH = (h + marginCm * 2).toFixed(1);
@@ -813,7 +816,7 @@ const jsonLd = {
           widthCm: w,
           heightCm: h,
           quantity: 1,
-          unitPriceSGD: result.grandTotal,
+          unitPriceSGD: unitPrice,
           canvasSlug: canvasId,
           finishing,
           floatFrameSlug,
