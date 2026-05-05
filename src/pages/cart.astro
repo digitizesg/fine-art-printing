@@ -39,9 +39,15 @@ const catalogJson = JSON.stringify({
       <script type="application/json" data-cart-catalog set:html={catalogJson} />
 
       <div class="cart" data-cart>
-        <p class="cart__empty" data-cart-empty>
-          Your cart is empty. <a href="/shop" class="cart__link">Browse the shop →</a>
-        </p>
+        <div class="cart__empty" data-cart-empty>
+          <svg class="cart__empty-icon" viewBox="0 0 64 64" aria-hidden="true">
+            <path d="M14 18h36l-3.6 26.5a4 4 0 0 1-4 3.5H21.6a4 4 0 0 1-4-3.5L14 18z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M22 18a10 10 0 0 1 20 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          <p class="cart__empty-title">Your cart is empty.</p>
+          <p class="cart__empty-sub">Pick a print, paper, or canvas from the shop and it'll show up here.</p>
+          <a href="/shop" class="cart__empty-cta">Browse the shop <span aria-hidden="true">→</span></a>
+        </div>
         <ul class="cart__lines" data-cart-lines hidden></ul>
 
         <div class="cart__panel" data-cart-panel hidden>
@@ -117,9 +123,52 @@ const catalogJson = JSON.stringify({
   }
   .cart { margin-top: 28px; }
   .cart__empty {
-    padding: 28px 0;
+    padding: 56px 24px;
+    margin-top: 28px;
+    border: 1px dashed var(--color-border-soft, rgba(0,0,0,0.12));
+    border-radius: 16px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
     color: var(--color-subtle);
-    font-size: 15px;
+  }
+  .cart__empty-icon {
+    width: 56px;
+    height: 56px;
+    color: var(--color-muted);
+    opacity: 0.65;
+    margin-bottom: 14px;
+  }
+  .cart__empty-title {
+    font-family: var(--font-serif);
+    font-size: 19px;
+    font-weight: 500;
+    color: var(--color-ink);
+    margin: 0;
+  }
+  .cart__empty-sub {
+    margin: 8px 0 18px;
+    font-size: 14px;
+    max-width: 380px;
+  }
+  .cart__empty-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: var(--color-petrol);
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: background 120ms;
+  }
+  .cart__empty-cta:hover {
+    background: #142a40;
+    text-decoration: none;
   }
   .cart__link {
     color: var(--color-petrol);
@@ -189,13 +238,29 @@ const catalogJson = JSON.stringify({
     gap: 6px;
     font-size: 13px;
   }
-  .cart__line-qty input {
-    width: 56px;
-    padding: 4px 6px;
-    border: 1px solid var(--color-border, rgba(0,0,0,0.15));
-    border-radius: 6px;
-    font: inherit;
+  .cart__qty-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border, rgba(0,0,0,0.18));
+    background: #fff;
+    font-size: 16px;
+    line-height: 1;
+    color: var(--color-ink);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .cart__qty-btn:hover {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.05);
+  }
+  .cart__qty-val {
+    min-width: 22px;
     text-align: center;
+    font-variant-numeric: tabular-nums;
   }
   .cart__line-remove {
     background: none;
@@ -382,7 +447,7 @@ const catalogJson = JSON.stringify({
 
     linesEl.innerHTML = lines.map((line) => `
       <li class="cart__line" data-line-id="${line.id}">
-        <img src="${line.artworkImageUrl}" alt="${line.artworkTitle}" loading="lazy" />
+        <img src="${optimisedImage(line.artworkImageUrl, 192)}" alt="${escapeHtml(line.artworkTitle)}" width="96" height="96" loading="lazy" decoding="async" />
         <div class="cart__line-meta">
           <span class="cart__line-title">${escapeHtml(line.artworkTitle)}</span>
           ${line.artworkArtist ? `<span class="cart__line-artist">${escapeHtml(line.artworkArtist)}</span>` : ""}
@@ -390,10 +455,11 @@ const catalogJson = JSON.stringify({
         </div>
         <div class="cart__line-side">
           <span class="cart__line-price">${fmtSGD(line.unitPriceSGD * line.quantity)}</span>
-          <label class="cart__line-qty">
-            <span>Qty</span>
-            <input type="number" min="1" max="20" step="1" value="${line.quantity}" data-qty />
-          </label>
+          <div class="cart__line-qty">
+            <button type="button" class="cart__qty-btn" data-qty-dec aria-label="Decrease quantity">−</button>
+            <span class="cart__qty-val" data-qty-val>${line.quantity}</span>
+            <button type="button" class="cart__qty-btn" data-qty-inc aria-label="Increase quantity">+</button>
+          </div>
           <button type="button" class="cart__line-remove" data-remove>Remove</button>
         </div>
       </li>
@@ -425,15 +491,28 @@ const catalogJson = JSON.stringify({
       if (id) cart.remove(id);
     }
   });
-  document.addEventListener("input", (ev) => {
-    const target = ev.target as HTMLInputElement;
-    if (target.matches("[data-qty]")) {
-      const li = target.closest<HTMLElement>("[data-line-id]");
-      const id = li?.dataset.lineId;
-      const qty = Math.max(1, Math.min(20, parseInt(target.value, 10) || 1));
-      if (id) cart.update(id, { quantity: qty });
-    }
+  document.addEventListener("click", (ev) => {
+    const target = ev.target as HTMLElement;
+    if (!target.matches("[data-qty-dec], [data-qty-inc]")) return;
+    const li = target.closest<HTMLElement>("[data-line-id]");
+    const id = li?.dataset.lineId;
+    if (!id) return;
+    const current = cart.list().find((l) => l.id === id);
+    if (!current) return;
+    const delta = target.matches("[data-qty-inc]") ? 1 : -1;
+    const next = Math.max(1, Math.min(20, current.quantity + delta));
+    cart.update(id, { quantity: next });
   });
+
+  function optimisedImage(src: string, w: number): string {
+    if (!src) return "";
+    // Route remote images through Vercel's image service so cart line
+    // thumbs aren't full-resolution Supabase originals.
+    if (src.startsWith("http")) {
+      return `/_vercel/image?url=${encodeURIComponent(src)}&w=${w}&q=80`;
+    }
+    return src;
+  }
   document.addEventListener("change", (ev) => {
     const target = ev.target as HTMLInputElement;
     if (target.matches("input[name=\"delivery\"]")) render();
