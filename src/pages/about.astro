@@ -59,44 +59,58 @@ const differentiators = [
   <!-- Hero -->
   <section class="bg-white">
     <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-12 md:pt-20 md:pb-16">
-      <div class="max-w-[820px]">
-        <Eyebrow>About us</Eyebrow>
-        <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
-          A printing and framing studio in Singapore.
-        </h1>
-        <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
-          We are a Singapore based fine art printing studio offering
-          high-quality printing, canvas stretching, custom framing, art
-          restoration, and professional installation services. We work with
-          individuals, businesses, and organisations to produce and present
-          everything from personal prints and office displays to large-scale
-          projects.
-        </p>
-        <p class="mt-4 max-w-[640px] text-[16px] leading-relaxed text-subtle">
-          Our focus is on delivering consistent, high-quality results across a
-          wide range of applications. Whether it's a single print for the home
-          or a full fit-out for a commercial space, we combine technical
-          expertise with a strong understanding of materials to ensure a
-          refined, long-lasting finish.
-        </p>
-        <p class="mt-4 max-w-[640px] text-[16px] leading-relaxed text-subtle">
-          We are proud to be the first and only studio in Singapore to receive
-          Gold Certification from Hahnemühle, reflecting our commitment to
-          excellence and adherence to internationally recognised standards in
-          fine art printing.
-        </p>
+      <div class="grid items-start gap-10 md:grid-cols-12 md:gap-14">
+        <div class="md:col-span-7">
+          <Eyebrow>About us</Eyebrow>
+          <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
+            A printing and framing studio in Singapore.
+          </h1>
+          <p class="mt-6 text-[16px] leading-relaxed text-subtle">
+            We are a Singapore based fine art printing studio offering
+            high-quality printing, canvas stretching, custom framing, art
+            restoration, and professional installation services. We work with
+            individuals, businesses, and organisations to produce and present
+            everything from personal prints and office displays to large-scale
+            projects.
+          </p>
+          <p class="mt-4 text-[16px] leading-relaxed text-subtle">
+            Our focus is on delivering consistent, high-quality results across a
+            wide range of applications. Whether it's a single print for the home
+            or a full fit-out for a commercial space, we combine technical
+            expertise with a strong understanding of materials to ensure a
+            refined, long-lasting finish.
+          </p>
+          <p class="mt-4 text-[16px] leading-relaxed text-subtle">
+            We are proud to be the first and only studio in Singapore to receive
+            Gold Certification from Hahnemühle, reflecting our commitment to
+            excellence and adherence to internationally recognised standards in
+            fine art printing.
+          </p>
 
-        <a
-          href={business.googleReviewsUrl}
-          target="_blank"
-          rel="noopener"
-          class="mt-6 inline-flex items-center gap-3 text-[14px] text-subtle hover:text-ink transition-colors"
-        >
-          <Stars rating={rating} size={18} ariaHidden />
-          <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
-          <span aria-hidden="true">·</span>
-          <span>{userRatingsTotal} Google reviews</span>
-        </a>
+          <a
+            href={business.googleReviewsUrl}
+            target="_blank"
+            rel="noopener"
+            class="mt-6 inline-flex items-center gap-3 text-[14px] text-subtle hover:text-ink transition-colors"
+          >
+            <Stars rating={rating} size={18} ariaHidden />
+            <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
+            <span aria-hidden="true">·</span>
+            <span>{userRatingsTotal} Google reviews</span>
+          </a>
+        </div>
+
+        <div class="md:col-span-5 md:sticky md:top-8">
+          <div class="aspect-[4/5] overflow-hidden rounded-2xl border border-border-soft bg-stone-100 shadow-sm">
+            <img
+              src="/photos/hahnemuhle-canvas-artist-1.jpg"
+              alt="Canvas print on Hahnemühle Artist Canvas, framed and on display"
+              class="h-full w-full object-cover"
+              loading="eager"
+              fetchpriority="high"
+            />
+          </div>
+        </div>
       </div>
     </div>
   </section>
