@@ -8,7 +8,7 @@ import CanvasQuoteCalculator from "../components/CanvasQuoteCalculator.astro";
 import CanvasRecommender from "../components/CanvasRecommender.astro";
 import FeaturedExamples from "../components/FeaturedExamples.astro";
 import ReviewSection from "../components/ReviewSection.astro";
-import Stars from "../components/Stars.astro";
+import GoogleReviewsBadge from "../components/GoogleReviewsBadge.astro";
 import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
 import { listCanvases } from "../lib/canvases";
 import { business } from "../data/business";
@@ -140,17 +140,7 @@ Don't worry if you can't hit these exactly. Send what you have and we'll check i
             </a>
           </div>
 
-          <a
-            href={business.googleReviewsUrl}
-            target="_blank"
-            rel="noopener"
-            class="mt-6 inline-flex items-center gap-3 text-[14px] text-subtle hover:text-ink transition-colors"
-          >
-            <Stars rating={rating} size={18} ariaHidden />
-            <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
-            <span aria-hidden="true">·</span>
-            <span>{userRatingsTotal} Google reviews</span>
-          </a>
+          <GoogleReviewsBadge class="mt-6" />
         </div>
 
         <div class="md:col-span-6">

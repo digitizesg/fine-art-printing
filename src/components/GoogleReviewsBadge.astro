@@ -1,0 +1,27 @@
+---
+import Stars from "./Stars.astro";
+import GoogleG from "./icons/GoogleG.astro";
+import { business } from "../data/business";
+import reviewsData from "../data/reviews.json";
+
+interface Props {
+  class?: string;
+}
+const { class: className = "" } = Astro.props;
+const { rating, userRatingsTotal } = reviewsData;
+---
+<a
+  href={business.googleReviewsUrl}
+  target="_blank"
+  rel="noopener"
+  class:list={[
+    "inline-flex items-center gap-3 text-[17px] text-subtle hover:text-ink transition-colors",
+    className,
+  ]}
+>
+  <Stars rating={rating} size={26} ariaHidden />
+  <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
+  <span aria-hidden="true">·</span>
+  <GoogleG size={18} />
+  <span>{userRatingsTotal} reviews</span>
+</a>

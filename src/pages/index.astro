@@ -3,7 +3,7 @@ export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
-import Stars from "../components/Stars.astro";
+import GoogleReviewsBadge from "../components/GoogleReviewsBadge.astro";
 import YouTubeEmbed from "../components/YouTubeEmbed.astro";
 import ReviewSection from "../components/ReviewSection.astro";
 import ServiceTile from "../components/ServiceTile.astro";
@@ -140,17 +140,7 @@ const localBusinessJsonLd = {
               ))}
             </div>
 
-            <a
-              href={business.googleReviewsUrl}
-              target="_blank"
-              rel="noopener"
-              class="mt-8 inline-flex items-center gap-3 text-[17px] text-subtle hover:text-ink transition-colors"
-            >
-              <Stars rating={rating} size={26} ariaHidden />
-              <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
-              <span aria-hidden="true">·</span>
-              <span>{userRatingsTotal} Google reviews</span>
-            </a>
+            <GoogleReviewsBadge class="mt-8" />
           </div>
         </div>
 
