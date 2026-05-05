@@ -432,6 +432,25 @@ const catalogJson = JSON.stringify({
     return f ? f.label : slug.replace(/-/g, " ");
   }
 
+  /**
+   * Cart lines come from localStorage so technically the user controls
+   * artworkImageUrl. We render it inside `<img src="...">` which would
+   * happily accept javascript: or data: URIs and an unsafe URL could
+   * be the start of a stored-XSS chain. Allow only http(s) URLs from
+   * Supabase (where our artwork images live).
+   */
+  function safeImageUrl(url: string | null | undefined): string {
+    if (!url) return "";
+    try {
+      const u = new URL(url);
+      if (u.protocol !== "https:" && u.protocol !== "http:") return "";
+      if (!u.hostname.endsWith(".supabase.co")) return "";
+      return u.toString();
+    } catch {
+      return "";
+    }
+  }
+
   function describeLine(line: CartLine): string {
     const parts: string[] = [];
     parts.push(`${line.widthCm} × ${line.heightCm} cm`);
@@ -473,7 +492,7 @@ const catalogJson = JSON.stringify({
 
     linesEl.innerHTML = lines.map((line) => `
       <li class="cart__line" data-line-id="${line.id}">
-        <img src="${line.artworkImageUrl}" alt="${escapeHtml(line.artworkTitle)}" width="96" height="96" loading="lazy" decoding="async" />
+        <img src="${escapeHtml(safeImageUrl(line.artworkImageUrl))}" alt="${escapeHtml(line.artworkTitle)}" width="96" height="96" loading="lazy" decoding="async" />
         <div class="cart__line-meta">
           <span class="cart__line-title">${escapeHtml(line.artworkTitle)}</span>
           ${line.artworkArtist ? `<span class="cart__line-artist">${escapeHtml(line.artworkArtist)}</span>` : ""}

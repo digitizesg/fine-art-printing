@@ -107,22 +107,27 @@ export const POST: APIRoute = async ({ request }) => {
   let totalSGD = Number(existing?.total_sgd ?? 0);
 
   if (existing) {
-    if (existing.status !== "paid") {
-      const { error: updErr } = await supabase
-        .from("orders")
-        .update({
-          status: "paid",
-          paid_at: new Date().toISOString(),
-          stripe_payment_intent_id: paymentIntentId,
-          customer_email: customerEmail,
-          customer_name: customerName,
-          customer_phone: customerPhone,
-          shipping_address: shippingAddress,
-        })
-        .eq("id", existing.id);
-      if (updErr) {
-        console.error("[stripe-webhook] order update failed:", updErr.message);
-      }
+    if (existing.status === "paid") {
+      // Stripe retries webhooks (timeouts, 5xx, etc). The DB row is
+      // already paid, which means we already sent the customer +
+      // studio confirmation emails on the first delivery. Bail before
+      // we trigger duplicate Resend sends.
+      return new Response("ok-already-paid", { status: 200 });
+    }
+    const { error: updErr } = await supabase
+      .from("orders")
+      .update({
+        status: "paid",
+        paid_at: new Date().toISOString(),
+        stripe_payment_intent_id: paymentIntentId,
+        customer_email: customerEmail,
+        customer_name: customerName,
+        customer_phone: customerPhone,
+        shipping_address: shippingAddress,
+      })
+      .eq("id", existing.id);
+    if (updErr) {
+      console.error("[stripe-webhook] order update failed:", updErr.message);
     }
   } else {
     // Pending row was never written (e.g. checkout endpoint had a

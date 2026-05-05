@@ -5,10 +5,11 @@
  */
 import type { APIRoute } from "astro";
 import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import { safeAdminNext } from "../../../lib/admin-redirect";
 
 export const GET: APIRoute = async (ctx) => {
   const code = ctx.url.searchParams.get("code");
-  const next = ctx.url.searchParams.get("next") ?? "/admin";
+  const next = safeAdminNext(ctx.url.searchParams.get("next"));
 
   if (!code) {
     return ctx.redirect("/admin/login?error=missing_code");

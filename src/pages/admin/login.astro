@@ -1,9 +1,10 @@
 ---
 export const prerender = false;
 import { createSupabaseServerClient } from "../../lib/supabase-server";
+import { safeAdminNext } from "../../lib/admin-redirect";
 
 const url = Astro.url;
-const next = url.searchParams.get("next") ?? "/admin";
+const next = safeAdminNext(url.searchParams.get("next"));
 
 let error = "";
 
