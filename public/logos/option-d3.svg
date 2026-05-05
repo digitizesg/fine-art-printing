@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="360" height="80" viewBox="0 0 360 80" aria-label="Fine Art Printing">
-  <!-- D3: Subtitle on its own line, slightly larger and gold-tinted —
-       feels more like a tagline than a regulatory subtitle. -->
-  <text x="0" y="38" font-family="'Lora', Georgia, serif" font-size="32" font-weight="500" fill="#1A3550" letter-spacing="-0.4">Fine Art Printing</text>
-  <text x="0" y="62" font-family="'Lora', Georgia, serif" font-size="13" font-weight="400" font-style="italic" fill="#9A6D2A" letter-spacing="0.2">print · stretch · frame</text>
-</svg>

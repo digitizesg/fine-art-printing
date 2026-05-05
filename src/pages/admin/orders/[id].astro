@@ -90,9 +90,16 @@ function fmtAddress(a: ShippingAddr): string {
   return [a.line1, a.line2, a.city, a.postal_code, a.country].filter(Boolean).join(", ");
 }
 
+// Switch the Stripe Dashboard link prefix based on which key is in
+// use — sk_test_ → /test/, sk_live_ → /. Means the link works without
+// editing the code when we flip to live keys.
+const stripeKey = import.meta.env.STRIPE_SECRET_KEY ?? "";
+const dashPrefix = stripeKey.startsWith("sk_live_")
+  ? "https://dashboard.stripe.com"
+  : "https://dashboard.stripe.com/test";
 const stripeDashUrl = row.stripe_payment_intent_id
-  ? `https://dashboard.stripe.com/test/payments/${row.stripe_payment_intent_id}`
-  : `https://dashboard.stripe.com/test/checkout/sessions/${row.stripe_session_id}`;
+  ? `${dashPrefix}/payments/${row.stripe_payment_intent_id}`
+  : `${dashPrefix}/checkout/sessions/${row.stripe_session_id}`;
 ---
 <AdminLayout title={`Order ${row.reference}`}>
   <div class="admin-page-head">

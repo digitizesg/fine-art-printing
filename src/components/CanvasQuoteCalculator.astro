@@ -538,8 +538,7 @@ const floatFramesJson = JSON.stringify(
     const contact = actions.querySelector<HTMLAnchorElement>("[data-canvas-quote-contact]")!;
     const message = buildMessage(state, formatSGDWhole(result.grandTotal));
     wa.href = `${business.whatsappLink}?text=${encodeURIComponent(message)}`;
-    const subject = `Canvas quote: ${result.canvas.shortName} ${state.width}×${state.height}${state.units}`;
-    contact.href = `mailto:${business.contactEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+    contact.href = `/contact?message=${encodeURIComponent(message)}`;
   }
 
   function init() {

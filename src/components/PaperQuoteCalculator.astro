@@ -553,9 +553,7 @@ const papersJson = JSON.stringify(
     const contact = actions.querySelector<HTMLAnchorElement>("[data-quote-contact]")!;
     const message = buildQuoteMessage(state, formatSGD(result.grandTotal));
     wa.href = `${import.meta.env.PUBLIC_WA_LINK ?? "https://wa.me/6588753330"}?text=${encodeURIComponent(message)}`;
-    // TODO: wire to /contact when that page exists. Until then, mailto fallback.
-    const subject = `Quote enquiry: ${result.paper.shortName} ${state.width}×${state.height}${state.units}`;
-    contact.href = `mailto:hello@fineartprinting.com.sg?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(message)}`;
+    contact.href = `/contact?message=${encodeURIComponent(message)}`;
   }
 
   function escapeHtml(s: string) {

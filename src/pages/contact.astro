@@ -465,6 +465,19 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
   const ALLOWED = new Set(["image/jpeg", "image/png", "image/heic", "application/pdf"]);
 
   const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
+
+  // Prefill the message textarea from a ?message= query param so the
+  // quote calculators can hand off "Send via contact form" with the
+  // generated quote text already typed in.
+  if (form) {
+    const params = new URLSearchParams(window.location.search);
+    const prefill = params.get("message");
+    if (prefill) {
+      const ta = form.querySelector<HTMLTextAreaElement>('textarea[name="message"]');
+      if (ta) ta.value = prefill;
+    }
+  }
+
   const fileInput = document.querySelector<HTMLInputElement>("[data-contact-files]");
   const dropzone = document.querySelector<HTMLLabelElement>("[data-contact-dropzone]");
   const fileList = document.querySelector<HTMLUListElement>("[data-contact-file-list]");

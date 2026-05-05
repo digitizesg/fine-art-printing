@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80" viewBox="0 0 320 80" aria-label="Fine Art Printing">
-  <!-- C1: Cleaner version of original C — drop the subtitle, tighten proportions. -->
-  <g>
-    <rect x="6" y="14" width="52" height="52" rx="2" fill="none" stroke="#1A3550" stroke-width="2.5" />
-    <rect x="17" y="25" width="30" height="30" rx="1" fill="none" stroke="#D9B36C" stroke-width="1.6" />
-  </g>
-  <text x="78" y="48" font-family="'Lora', Georgia, serif" font-size="24" font-weight="500" fill="#1A3550" letter-spacing="-0.3">Fine Art Printing</text>
-</svg>

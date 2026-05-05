@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="120" viewBox="0 0 320 120" aria-label="Fine Art Printing">
-  <!-- C3: Stacked / centred layout. Mark on top, wordmark below. Better for
-       square placements (Instagram avatars, business cards, watermarks). -->
-  <g transform="translate(132, 8)">
-    <rect x="0" y="0" width="56" height="56" rx="2" fill="none" stroke="#1A3550" stroke-width="2.5" />
-    <rect x="11" y="11" width="34" height="34" rx="1" fill="none" stroke="#D9B36C" stroke-width="1.6" />
-  </g>
-  <text x="160" y="92" font-family="'Lora', Georgia, serif" font-size="22" font-weight="500" fill="#1A3550" letter-spacing="-0.2" text-anchor="middle">Fine Art Printing</text>
-</svg>

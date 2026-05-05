@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80" viewBox="0 0 320 80" aria-label="Fine Art Printing">
-  <!-- D2: Text-only, no rule. Subtitle sits flush under the wordmark.
-       Cleanest possible take. -->
-  <text x="0" y="38" font-family="'Lora', Georgia, serif" font-size="30" font-weight="500" fill="#1A3550" letter-spacing="-0.3">Fine Art Printing</text>
-  <text x="0" y="58" font-family="'Inter', system-ui, sans-serif" font-size="9.5" font-weight="600" fill="rgba(26, 53, 80, 0.65)" letter-spacing="3">PRINT · STRETCH · FRAME</text>
-</svg>

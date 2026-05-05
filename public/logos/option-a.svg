@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="80" viewBox="0 0 320 80" aria-label="Fine Art Printing">
-  <!-- Direction A: Studio-mark wordmark.
-       Pure typography. Lora serif, thin gold rule beneath, tracked-out caps below.
-       Reads as gallery / atelier. Works at any width; for favicon, swap to "fa" mark only. -->
-  <text x="0" y="36" font-family="'Lora', Georgia, serif" font-size="30" font-weight="500" fill="#1A3550" letter-spacing="-0.3">Fine Art Printing</text>
-  <line x1="0" y1="48" x2="290" y2="48" stroke="#D9B36C" stroke-width="0.8" />
-  <text x="0" y="68" font-family="'Inter', system-ui, sans-serif" font-size="9.5" font-weight="600" fill="rgba(26, 53, 80, 0.65)" letter-spacing="3">STUDIO · SINGAPORE</text>
-</svg>
