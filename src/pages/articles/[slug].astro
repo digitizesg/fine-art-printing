@@ -3,6 +3,7 @@ export const prerender = true;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Eyebrow from "../../components/Eyebrow.astro";
 import DarkCTA from "../../components/DarkCTA.astro";
+import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
@@ -58,9 +59,11 @@ const jsonLd = {
     {article.data.hero && (
       <div class="mx-auto max-w-[960px] px-6 pb-4">
         <div class="aspect-[16/9] overflow-hidden rounded-card border border-border-soft bg-stone-100">
-          <img
+          <Image
             src={article.data.hero}
             alt=""
+            width={1440}
+            height={810}
             class="h-full w-full object-cover"
             loading="eager"
             fetchpriority="high"

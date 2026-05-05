@@ -9,8 +9,19 @@ export default defineConfig({
   // 'server' default + per-page prerender:true keeps marketing pages static
   // (great for SEO and CDN caching) while admin/* pages run server-side.
   output: 'server',
-  adapter: vercel(),
+  adapter: vercel({
+    imageService: true,
+  }),
   integrations: [sitemap()],
+  image: {
+    remotePatterns: [
+      // Supabase storage hosts article heroes, frame examples, paper /
+      // canvas detail photos. Whitelist any *.supabase.co subdomain so
+      // <Image src="https://...supabase.co/..."> goes through Vercel's
+      // image optimiser (AVIF / WebP, srcset, lazy-decode, edge cache).
+      { protocol: 'https', hostname: '*.supabase.co' },
+    ],
+  },
   vite: {
     plugins: [tailwindcss()],
   },
