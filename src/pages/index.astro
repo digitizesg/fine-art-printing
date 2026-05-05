@@ -196,20 +196,16 @@ const localBusinessJsonLd = {
 
   <section class="border-t border-border-soft bg-white">
     <div class="mx-auto max-w-[1180px] px-6 py-20">
-      <div class="mb-10 flex flex-col items-start gap-3">
-        <Eyebrow>Featured by Canon</Eyebrow>
+      <div class="mb-10 flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
         <DisplayHeading level={2}>Watch our Canon feature.</DisplayHeading>
-        <div class="mt-2 flex items-center gap-3 text-[14px] text-subtle">
-          <span>In partnership with</span>
-          <img
-            src="/logos/clients/canon.svg"
-            alt="Canon"
-            width="84"
-            height="20"
-            class="h-5 w-auto opacity-90"
-            loading="lazy"
-          />
-        </div>
+        <img
+          src="/logos/clients/canon.svg"
+          alt="Canon"
+          width="120"
+          height="28"
+          class="h-7 w-auto opacity-90"
+          loading="lazy"
+        />
       </div>
       <YouTubeEmbed
         videoId={business.youtubeVideoId}
