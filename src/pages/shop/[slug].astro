@@ -8,6 +8,10 @@ import { listArtworks, getArtworkBySlug } from "../../lib/artworks";
 import { listFloatFrames } from "../../lib/float-frames";
 import { listCanvases } from "../../lib/canvases";
 import { listPapers } from "../../lib/papers";
+import { quotePaperPrint } from "../../data/pricing/paper";
+import { quoteCanvasPrint } from "../../data/pricing/canvas";
+import { SHOP_ARTWORK_BASE_SGD } from "../../data/pricing/shop";
+import { business } from "../../data/business";
 import "../../styles/canvas-quote.css";
 
 export async function getStaticPaths() {
@@ -60,13 +64,96 @@ const artworkJson = JSON.stringify({
 const description =
   artwork.description ?? `${artwork.title}${artwork.artistName ? ` by ${artwork.artistName}` : ""} — printed to order on archival paper or canvas at Fine Art Printing.`;
 
+// Compute the cheapest configurable price so Google Merchant / rich
+// results have a real "from" number to surface. Use the smallest
+// available size + the lowest-per-sqm featured substrate the artwork
+// allows, plus the flat shop base fee.
+function lowestPriceForArtwork(): number | null {
+  const sizes = [...artwork.availableSizes].sort(
+    (a, b) => a.width_cm * a.height_cm - b.width_cm * b.height_cm,
+  );
+  const smallest = sizes[0];
+  if (!smallest) return null;
+
+  const candidates: number[] = [];
+
+  if (artwork.allowPaper) {
+    const cheapPaper = [...featuredPapers]
+      .sort((a, b) => a.sellPricePerSqm - b.sellPricePerSqm)[0];
+    if (cheapPaper) {
+      const r = quotePaperPrint({
+        paper: {
+          id: cheapPaper.slug,
+          name: cheapPaper.name,
+          sellPricePerSqm: cheapPaper.sellPricePerSqm,
+          maxPrintWidthCm: cheapPaper.maxPrintWidthCm,
+          maxPrintLengthCm: cheapPaper.maxPrintLengthCm,
+        },
+        widthCm: smallest.width_cm,
+        heightCm: smallest.height_cm,
+        quantity: 1,
+      });
+      if (r.ok) candidates.push(r.grandTotal);
+    }
+  }
+
+  if (artwork.allowCanvas) {
+    const cheapCanvas = [...featuredCanvases]
+      .sort((a, b) => a.sellPricePerSqm - b.sellPricePerSqm)[0];
+    if (cheapCanvas) {
+      const r = quoteCanvasPrint({
+        canvas: {
+          id: cheapCanvas.slug,
+          name: cheapCanvas.name,
+          sellPricePerSqm: cheapCanvas.sellPricePerSqm,
+          maxPrintWidthCm: cheapCanvas.maxPrintWidthCm,
+          maxPrintLengthCm: cheapCanvas.maxPrintLengthCm,
+        },
+        widthCm: smallest.width_cm,
+        heightCm: smallest.height_cm,
+        stretching: "none",
+        floatFrame: null,
+        delivery: "self",
+      });
+      if (r.ok) candidates.push(r.grandTotal);
+    }
+  }
+
+  if (candidates.length === 0) return null;
+  return Math.min(...candidates) + SHOP_ARTWORK_BASE_SGD;
+}
+
+const lowestPrice = lowestPriceForArtwork();
+const productUrl = `https://${business.domain}/shop/${artwork.slug}`;
+
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Product",
   name: artwork.title,
   image: artwork.heroImageUrl,
   description,
+  sku: artwork.slug,
+  productID: artwork.slug,
+  url: productUrl,
   brand: { "@type": "Brand", name: "Fine Art Printing" },
+  category: "Home & Garden > Decor > Artwork > Posters, Prints, & Visual Artwork",
+  ...(artwork.artistName
+    ? { creator: { "@type": "Person", name: artwork.artistName } }
+    : {}),
+  ...(lowestPrice != null
+    ? {
+        offers: {
+          "@type": "AggregateOffer",
+          priceCurrency: "SGD",
+          lowPrice: lowestPrice,
+          offerCount: artwork.availableSizes.length,
+          availability: "https://schema.org/InStock",
+          itemCondition: "https://schema.org/NewCondition",
+          url: productUrl,
+          seller: { "@type": "Organization", name: "Fine Art Printing" },
+        },
+      }
+    : {}),
 };
 
 ---
