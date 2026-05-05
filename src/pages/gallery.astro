@@ -78,48 +78,68 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
       <div class="gallery-filters" data-gallery-filters>
         <div class="gallery-filters__row">
           <span class="gallery-filters__label">Service</span>
-          <button type="button" class="gallery-filter-chip is-active" data-filter="service" data-value="all">All</button>
-          {services.map((s) => (
-            <button type="button" class="gallery-filter-chip" data-filter="service" data-value={s}>
-              {SERVICE_LABELS[s]}
-            </button>
-          ))}
+          <button type="button" class="gallery-filter-chip is-active" data-filter="service" data-value="all">
+            All <span class="gallery-filter-chip__count" data-chip-count>{examples.length}</span>
+          </button>
+          {services.map((s) => {
+            const c = examples.filter((e) => e.service === s).length;
+            return (
+              <button type="button" class="gallery-filter-chip" data-filter="service" data-value={s}>
+                {SERVICE_LABELS[s]} <span class="gallery-filter-chip__count" data-chip-count>{c}</span>
+              </button>
+            );
+          })}
         </div>
         <div class="gallery-filters__row">
           <span class="gallery-filters__label">Subject</span>
-          <button type="button" class="gallery-filter-chip is-active" data-filter="subject" data-value="all">All</button>
-          {subjects.map((s) => (
-            <button type="button" class="gallery-filter-chip" data-filter="subject" data-value={s}>
-              {SUBJECT_LABELS[s]}
-            </button>
-          ))}
+          <button type="button" class="gallery-filter-chip is-active" data-filter="subject" data-value="all">
+            All <span class="gallery-filter-chip__count" data-chip-count>{examples.length}</span>
+          </button>
+          {subjects.map((s) => {
+            const c = examples.filter((e) => e.subject === s).length;
+            return (
+              <button type="button" class="gallery-filter-chip" data-filter="subject" data-value={s}>
+                {SUBJECT_LABELS[s]} <span class="gallery-filter-chip__count" data-chip-count>{c}</span>
+              </button>
+            );
+          })}
         </div>
         {papersInUse.length > 0 && (
-          <div class="gallery-filters__row" data-only-services="custom-framing">
+          <div class="gallery-filters__row">
             <span class="gallery-filters__label">Paper</span>
-            <button type="button" class="gallery-filter-chip is-active" data-filter="paper" data-value="all">All</button>
-            {papersInUse.map((p) => (
-              <button type="button" class="gallery-filter-chip" data-filter="paper" data-value={p.slug}>
-                {p.shortName}
-              </button>
-            ))}
+            <button type="button" class="gallery-filter-chip is-active" data-filter="paper" data-value="all">
+              All <span class="gallery-filter-chip__count" data-chip-count>{examples.length}</span>
+            </button>
+            {papersInUse.map((p) => {
+              const c = examples.filter((e) => e.paperId === p.slug).length;
+              return (
+                <button type="button" class="gallery-filter-chip" data-filter="paper" data-value={p.slug}>
+                  {p.shortName} <span class="gallery-filter-chip__count" data-chip-count>{c}</span>
+                </button>
+              );
+            })}
           </div>
         )}
         {frameStylesInUse.length > 0 && (
-          <div class="gallery-filters__row" data-only-services="custom-framing">
+          <div class="gallery-filters__row">
             <span class="gallery-filters__label">Frame style</span>
-            <button type="button" class="gallery-filter-chip is-active" data-filter="frame_style" data-value="all">All</button>
-            {frameStylesInUse.map((s) => (
-              <button
-                type="button"
-                class="gallery-filter-chip"
-                data-filter="frame_style"
-                data-value={s}
-                title={FRAME_STYLE_DESCRIPTIONS[s]}
-              >
-                {FRAME_STYLE_LABELS[s]}
-              </button>
-            ))}
+            <button type="button" class="gallery-filter-chip is-active" data-filter="frame_style" data-value="all">
+              All <span class="gallery-filter-chip__count" data-chip-count>{examples.length}</span>
+            </button>
+            {frameStylesInUse.map((s) => {
+              const c = examples.filter((e) => e.frameStyle === s).length;
+              return (
+                <button
+                  type="button"
+                  class="gallery-filter-chip"
+                  data-filter="frame_style"
+                  data-value={s}
+                  title={FRAME_STYLE_DESCRIPTIONS[s]}
+                >
+                  {FRAME_STYLE_LABELS[s]} <span class="gallery-filter-chip__count" data-chip-count>{c}</span>
+                </button>
+              );
+            })}
           </div>
         )}
         <div class="gallery-filters__row gallery-filters__row--meta">
@@ -232,6 +252,25 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
     border-color: var(--color-petrol);
     color: #fff;
   }
+  .gallery-filter-chip.is-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+  .gallery-filter-chip__count {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--color-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .gallery-filter-chip.is-active .gallery-filter-chip__count {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .gallery-filters__row.is-empty {
+    display: none;
+  }
   .gallery-filters__count {
     font-size: 13px;
     color: var(--color-subtle);
@@ -342,67 +381,92 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
       grid.querySelectorAll<HTMLElement>(".gallery-tile"),
     );
 
-    const state = {
+    type FilterKey = "service" | "subject" | "paper" | "frame_style";
+    const state: Record<FilterKey, string> = {
       service: "all",
       subject: "all",
       paper: "all",
       frame_style: "all",
     };
+    const tileDatasetKey: Record<FilterKey, keyof DOMStringMap> = {
+      service: "service",
+      subject: "subject",
+      paper: "paper",
+      frame_style: "frameStyle",
+    };
 
-    // Filter rows that are only meaningful for some services, e.g.
-    // Paper / Frame style are nonsense once you've picked Canvas
-    // printing. They self-declare via data-only-services="…".
-    const conditionalRows = Array.from(
-      filtersRoot.querySelectorAll<HTMLElement>("[data-only-services]"),
-    );
-
-    function matches(tile: HTMLElement): boolean {
-      if (state.service !== "all" && tile.dataset.service !== state.service) return false;
-      if (state.subject !== "all" && tile.dataset.subject !== state.subject) return false;
-      if (state.paper !== "all" && tile.dataset.paper !== state.paper) return false;
-      if (state.frame_style !== "all" && tile.dataset.frameStyle !== state.frame_style) return false;
+    function tileMatchesPartial(tile: HTMLElement, ignore?: FilterKey): boolean {
+      for (const key of Object.keys(state) as FilterKey[]) {
+        if (key === ignore) continue;
+        if (state[key] === "all") continue;
+        if (tile.dataset[tileDatasetKey[key]] !== state[key]) return false;
+      }
       return true;
     }
 
-    function isFiltering(): boolean {
-      return (
-        state.service !== "all" ||
-        state.subject !== "all" ||
-        state.paper !== "all" ||
-        state.frame_style !== "all"
-      );
+    function matches(tile: HTMLElement): boolean {
+      return tileMatchesPartial(tile);
     }
 
-    function syncConditionalRows() {
-      conditionalRows.forEach((row) => {
-        const allowedServices = (row.dataset.onlyServices ?? "")
-          .split(/\s+/)
-          .filter(Boolean);
-        const visible =
-          state.service === "all" || allowedServices.includes(state.service);
-        row.style.display = visible ? "" : "none";
-        if (!visible) {
-          // Reset every filter inside the hidden row so the grid
-          // doesn't render empty for an irrelevant filter pick.
-          row.querySelectorAll<HTMLButtonElement>("[data-filter]").forEach((chip) => {
-            const filter = chip.dataset.filter as keyof typeof state;
-            if (state[filter] !== "all") {
-              state[filter] = "all";
-            }
-            chip.classList.toggle("is-active", chip.dataset.value === "all");
-          });
+    function isFiltering(): boolean {
+      return (Object.keys(state) as FilterKey[]).some((k) => state[k] !== "all");
+    }
+
+    function countForChip(chip: HTMLButtonElement): number {
+      const filter = chip.dataset.filter as FilterKey;
+      const value = chip.dataset.value!;
+      // Count tiles that would match if this chip were active in its
+      // own group, ignoring the current pick in the same group.
+      let n = 0;
+      for (const tile of tiles) {
+        if (!tileMatchesPartial(tile, filter)) continue;
+        if (value === "all") {
+          n++;
+          continue;
         }
-      });
+        if (tile.dataset[tileDatasetKey[filter]] === value) n++;
+      }
+      return n;
+    }
+
+    function syncChipCounts() {
+      filtersRoot
+        .querySelectorAll<HTMLButtonElement>("[data-filter]")
+        .forEach((chip) => {
+          const n = countForChip(chip);
+          const countEl = chip.querySelector<HTMLElement>("[data-chip-count]");
+          if (countEl) countEl.textContent = String(n);
+          // Disable chips that lead to a dead-end, but never disable
+          // the currently-active chip (so user can deselect via "All")
+          // and never disable an "All" chip (always available reset).
+          const isAll = chip.dataset.value === "all";
+          const isActive = chip.classList.contains("is-active");
+          chip.classList.toggle("is-disabled", n === 0 && !isAll && !isActive);
+        });
+      // Hide a row entirely when every non-All chip in it is zero —
+      // Paper / Frame style auto-collapse for canvas services.
+      filtersRoot
+        .querySelectorAll<HTMLElement>(".gallery-filters__row")
+        .forEach((row) => {
+          const valueChips = row.querySelectorAll<HTMLButtonElement>(
+            '[data-filter]:not([data-value="all"])',
+          );
+          if (valueChips.length === 0) return;
+          const anyAvailable = Array.from(valueChips).some(
+            (c) => !c.classList.contains("is-disabled"),
+          );
+          row.classList.toggle("is-empty", !anyAvailable);
+        });
     }
 
     function apply() {
-      syncConditionalRows();
       let visible = 0;
       tiles.forEach((tile) => {
         const ok = matches(tile);
         tile.classList.toggle("is-hidden", !ok);
         if (ok) visible++;
       });
+      syncChipCounts();
       if (countEl) {
         countEl.textContent = `Showing ${visible} of ${tiles.length}`;
       }
