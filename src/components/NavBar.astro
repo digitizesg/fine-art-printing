@@ -4,10 +4,30 @@ import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
 import { business } from "../data/business";
 
 const services = [
-  { href: "/print-on-paper", label: "Print on paper" },
-  { href: "/print-on-canvas", label: "Print on canvas" },
-  { href: "/canvas-stretching", label: "Stretch existing canvas" },
-  { href: "/custom-framing", label: "Custom framing" },
+  {
+    href: "/print-on-paper",
+    label: "Print on paper",
+    description: "Archival Hahnemühle papers",
+    image: "/photos/photo-rag-1.jpg",
+  },
+  {
+    href: "/print-on-canvas",
+    label: "Print on canvas",
+    description: "Premium canvas substrates",
+    image: "/photos/hahnemuhle-daguerre-canvas-1.jpg",
+  },
+  {
+    href: "/canvas-stretching",
+    label: "Stretch existing canvas",
+    description: "Solid wood, gallery-wrapped",
+    image: "https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/frame-examples/1-black-float-frame-1.jpg",
+  },
+  {
+    href: "/custom-framing",
+    label: "Custom framing",
+    description: "Pine and oak profiles",
+    image: "https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/frame-examples/2.5cm-classic-champagne-1.jpg",
+  },
 ];
 
 const navLinks = [
@@ -37,9 +57,26 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
           </svg>
         </summary>
         <div class="services-menu__panel">
-          {services.map((s) => (
-            <a href={s.href} class="services-menu__link">{s.label}</a>
-          ))}
+          <div class="services-menu__grid">
+            {services.map((s) => (
+              <a href={s.href} class="services-menu__card">
+                <div class="services-menu__card-image">
+                  <img
+                    src={s.image.startsWith("http")
+                      ? `/_vercel/image?url=${encodeURIComponent(s.image)}&w=320&q=80`
+                      : s.image}
+                    alt=""
+                    width="160"
+                    height="120"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+                <span class="services-menu__card-title">{s.label}</span>
+                <span class="services-menu__card-sub">{s.description}</span>
+              </a>
+            ))}
+          </div>
         </div>
       </details>
       {navLinks.map((link) => (
@@ -171,28 +208,67 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     top: calc(100% + 10px);
     left: 50%;
     transform: translateX(-50%);
-    min-width: 240px;
+    width: 720px;
+    max-width: calc(100vw - 32px);
     background: #fff;
     border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
-    border-radius: 12px;
-    box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.18);
-    padding: 6px;
-    display: grid;
-    gap: 1px;
+    border-radius: 16px;
+    box-shadow: 0 20px 48px -16px rgba(0, 0, 0, 0.20);
+    padding: 14px;
     z-index: 50;
   }
-  .services-menu__link {
-    display: block;
-    padding: 10px 14px;
-    border-radius: 8px;
-    font-size: 14px;
-    color: var(--color-ink);
-    text-decoration: none;
-    transition: background 120ms ease-out;
-    white-space: nowrap;
+  /* Invisible bridge so the cursor can travel from trigger to panel
+     without the dropdown closing on a millimetre of dead-space. */
+  .services-menu__panel::before {
+    content: "";
+    position: absolute;
+    inset: -10px 0 calc(100% - 10px) 0;
+    background: transparent;
   }
-  .services-menu__link:hover {
-    background: rgba(0, 0, 0, 0.04);
+  .services-menu__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .services-menu__card {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 8px 12px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background 150ms ease-out;
+  }
+  .services-menu__card:hover {
+    background: rgba(0, 0, 0, 0.035);
+  }
+  .services-menu__card-image {
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #f4efe7;
+    margin-bottom: 10px;
+  }
+  .services-menu__card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 400ms ease-out;
+  }
+  .services-menu__card:hover .services-menu__card-image img {
+    transform: scale(1.04);
+  }
+  .services-menu__card-title {
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-ink);
+    line-height: 1.25;
+  }
+  .services-menu__card-sub {
+    font-size: 12.5px;
+    color: var(--color-subtle);
+    margin-top: 3px;
+    line-height: 1.4;
   }
   .brand {
     display: inline-grid;
@@ -252,8 +328,11 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       cart.onChange(sync);
     }
 
-    // Services dropdown — close on outside click or Escape.
+    // Services dropdown — close on outside click or Escape, plus
+    // hover-to-open on devices with a fine pointer (i.e. mouse, not
+    // touch) so the click affordance still works on tablets/phones.
     const menus = document.querySelectorAll<HTMLDetailsElement>(".services-menu");
+    const supportsHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
     menus.forEach((menu) => {
       document.addEventListener("click", (e) => {
         if (menu.open && !menu.contains(e.target as Node)) {
@@ -266,6 +345,35 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
           menu.querySelector<HTMLElement>("summary")?.focus();
         }
       });
+
+      if (supportsHover) {
+        let closeTimer: ReturnType<typeof setTimeout> | null = null;
+        const cancelClose = () => {
+          if (closeTimer) {
+            clearTimeout(closeTimer);
+            closeTimer = null;
+          }
+        };
+        menu.addEventListener("mouseenter", () => {
+          cancelClose();
+          menu.open = true;
+        });
+        menu.addEventListener("mouseleave", () => {
+          cancelClose();
+          // Small grace period so the cursor can leave the trigger and
+          // re-enter the panel without the menu collapsing.
+          closeTimer = setTimeout(() => {
+            menu.open = false;
+          }, 120);
+        });
+        // On click of summary, prevent the default toggle so we don't
+        // close a hover-opened panel when the user clicks (e.g. trying
+        // to navigate to a card).
+        const summary = menu.querySelector<HTMLElement>("summary");
+        summary?.addEventListener("click", (e) => {
+          if (menu.open) e.preventDefault();
+        });
+      }
     });
 
     // Mobile hamburger menu.
