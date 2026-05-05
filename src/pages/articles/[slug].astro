@@ -32,11 +32,13 @@ const jsonLd = {
   headline: article.data.title,
   datePublished: (article.data.date as Date).toISOString(),
   url: `https://fineartprinting.com.sg/articles/${article.id.replace(/\.md$/, "")}`,
+  ...(article.data.hero ? { image: article.data.hero } : {}),
 };
 ---
 <BaseLayout
   title={`${article.data.title} · Fine Art Printing`}
   description={description}
+  image={article.data.hero}
   jsonLd={jsonLd}
   type="article"
 >
@@ -53,7 +55,21 @@ const jsonLd = {
       </h1>
     </div>
 
-    <div class="mx-auto max-w-[760px] px-6 pb-16 md:pb-20">
+    {article.data.hero && (
+      <div class="mx-auto max-w-[960px] px-6 pb-4">
+        <div class="aspect-[16/9] overflow-hidden rounded-card border border-border-soft bg-stone-100">
+          <img
+            src={article.data.hero}
+            alt=""
+            class="h-full w-full object-cover"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+      </div>
+    )}
+
+    <div class="mx-auto max-w-[760px] px-6 pb-16 md:pb-20 pt-6 md:pt-8">
       <div class="article-body">
         <Content />
       </div>
