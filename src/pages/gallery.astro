@@ -5,6 +5,7 @@ import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
 import FrameLightbox from "../components/FrameLightbox.astro";
+import { Image } from "astro:assets";
 import {
   listExamples,
   detailLabelFor,
@@ -104,11 +105,14 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
       </div>
 
       <div class="gallery-grid mt-10" data-gallery-grid>
-        {examples.map((ex) => {
+        {examples.map((ex, i) => {
           const detailLabel = detailLabelFor(ex, floatFrames, canvases, papers);
           const lightboxName = detailLabel
             ? `${SERVICE_LABELS[ex.service]} · ${detailLabel}`
             : SERVICE_LABELS[ex.service];
+          // First couple of rows render eager so they paint immediately;
+          // the rest stay lazy. With 4 columns above 900px we want ~8 eager.
+          const isEager = i < 8;
           return (
             <article
               class="gallery-tile"
@@ -119,11 +123,14 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
               data-frame-image={ex.imageUrl}
               data-frame-name={lightboxName}
             >
-              <img
+              <Image
                 class="gallery-tile__photo"
                 src={ex.imageUrl}
                 alt={ex.caption ?? lightboxName}
-                loading="lazy"
+                width={600}
+                height={420}
+                loading={isEager ? "eager" : "lazy"}
+                decoding="async"
               />
               <div class="gallery-tile__meta">
                 <span class="gallery-tile__service">{SERVICE_LABELS[ex.service]}</span>
