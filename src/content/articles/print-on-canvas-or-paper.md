@@ -3,6 +3,7 @@ title: "Should I print on canvas or paper?"
 date: 2023-11-12
 slug: print-on-canvas-or-paper
 excerpt: "Guidance on choosing between canvas and paper based on display preferences and content."
+hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/11/frame-with-without-mat-border-web.jpg
 ---
 _**Question: I am looking to print something but I am not sure if it would be better to print on paper or canvas. Can you help me?**_
 

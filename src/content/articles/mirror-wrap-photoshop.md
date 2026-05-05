@@ -3,6 +3,7 @@ title: "Creating a Canvas Mirror Wrap in Photoshop"
 date: 2023-03-29
 slug: mirror-wrap-photoshop
 excerpt: "How to prepare canvas edges and create mirror wrap effects in Photoshop."
+hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/03/mirror-edges-1.jpg
 ---
 When printing on canvas you would usually need to include additional canvas around the edges of your printed image that will be stretched over the wooden stretcher bars. This is basically what would end up showing on the sides of your stretched canvas and there is typically 4 main options to choose from:
 

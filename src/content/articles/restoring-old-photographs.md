@@ -3,6 +3,7 @@ title: "Restoring Old Photographs"
 date: 2024-08-14
 slug: restoring-old-photographs
 excerpt: "Services for rescuing damaged photos affected by mould, discolouration, and physical damage."
+hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/08/restored-master-1.jpg
 ---
 Many organisations and individuals have old photographs or pieces of memorabilia that have suffered from the passage of time and/or various environmental issues. These photographs may be suffering from mould, discolouration, colour loss, insect damage, and various other problems. Whilst the originals themselves may be beyond repair its often possible to rescue, digitize, and create new versions of the damaged originals.
 

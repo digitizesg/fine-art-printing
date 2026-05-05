@@ -3,6 +3,7 @@ title: "How Large Can I Print My Digital Image?"
 date: 2023-04-11
 slug: how-large-print-digital-image
 excerpt: "Guidance on the maximum print size for a digital image at suitable resolution."
+hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/04/maximum-print-size.jpg
 ---
 So you’ve decided you’d like to print a particular digital image but you aren’t sure about the size at which you can print it at whilst maintaining a suitable resolution \[sharpness\]. This is a common question we get asked by our customers and in truth there is not really a one-size fits all answer because there are a number of variables at play. These mostly include:
 

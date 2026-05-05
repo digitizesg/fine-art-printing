@@ -3,6 +3,7 @@ title: "Choosing The Right Fine Art Paper For Your Print"
 date: 2023-08-06
 slug: which-paper-to-choose
 excerpt: "How to navigate paper type and finish options when choosing fine art media."
+hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/04/hahnemuhle-german-etching-1.jpg
 ---
 There is an abundance of paper options out there to choose from and it can sometimes be challenging to decide which paper would produce the best results for your print. Undoubtedly the best option is to find a way to view the different papers in person so you can better appreciate the weight, texture and tone of the paper, but of course this may not always be possible.
 

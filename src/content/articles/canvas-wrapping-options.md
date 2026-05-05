@@ -3,6 +3,7 @@ title: "Canvas Wrapping Options Explained"
 date: 2023-10-27
 slug: canvas-wrapping-options
 excerpt: "Edge-wrapping choices for stretched canvas prints."
+hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/10/stretched-canvas-face.jpg
 ---
 When printing on canvas you will often get asked _**“what type of wrap would you like?”**_ and no, we aren’t asking you for your lunch order. The wrapping refers to what will show on the edges of your canvas and this article will provide you with all the necessary information and images to understand your options.
 

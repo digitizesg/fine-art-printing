@@ -3,6 +3,7 @@ title: "Common Paper Size Measurements"
 date: 2023-05-04
 slug: common-paper-size-measurements
 excerpt: "Standard and custom sizing options when printing on large format media."
+hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/05/common-paper-sizes.jpg
 ---
 One of the benefits of large format printers is the ability to print at very specific, non-standard sizes. For example, if you are printing on a traditional home or office printer you’ll typically be limited to standard cut sheet sizes such as A4 for example. When it comes to large format printing we do sometimes print on cut sheets but more often than not we are printing on rolls, which gives us tons of flexibility on laying out different sized prints on a single roll of paper. When you reach good economies of scale \[i.e., you have many print jobs per day\] using rolls is much for efficient than cut sheets.
 

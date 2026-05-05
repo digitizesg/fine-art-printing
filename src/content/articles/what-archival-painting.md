@@ -3,6 +3,7 @@ title: "What is Archival Paper?"
 date: 2023-03-29
 slug: what-archival-painting
 excerpt: "Acid-free, durable paper designed for long-term preservation of fine art prints."
+hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/03/hahnemuhle-photo-rag-print.jpg
 ---
 Archival paper is a high-quality type of paper that is designed to be extremely durable and resistant to deterioration over time. Proper archival grade papers are typically made from high-quality, acid-free materials and are used for a variety of applications such as fine art prints, historically important documents, and other records that need to be preserved for a long period of time.
 

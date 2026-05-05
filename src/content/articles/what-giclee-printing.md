@@ -3,6 +3,7 @@ title: "What is Giclée Printing?"
 date: 2023-03-29
 slug: what-giclee-printing
 excerpt: "The high-quality digital printing process used to produce fine art prints."
+hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/03/fineart-pearl-giclee-printing.jpg
 ---
 Giclee printing is a high-quality digital printing process that is used primarily to produce fine art prints on paper or canvas.
 

@@ -3,6 +3,7 @@ title: "Where to Buy Affordable Art"
 date: 2024-03-31
 slug: where-to-buy-affordable-art
 excerpt: "Budget-friendly options for wall art and home décor."
+hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/11/the-open-window-print.jpg
 ---
 Sprucing up your walls or adding a wonderful sculpture to your home or office doesn’t necessarily have to come at a hefty price. In this article we have selected and showcased some ideas that fit various price points.
 

@@ -3,6 +3,7 @@ title: "Sell Prints Online — Introducing Our Artists Platform"
 date: 2023-09-30
 slug: introducing-our-artists-platform
 excerpt: "New marketplace for artists to list and sell work internationally."
+hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/09/artist-profile.jpg
 ---
 Are you looking to promote yourself and **sell your prints to an international audience**? Our artist platform might be the answer.
 

@@ -3,6 +3,7 @@ title: "Creating High Quality Mockups Of Your Artwork"
 date: 2023-09-27
 slug: creating-artwork-mockups
 excerpt: "Four approaches for generating promotional mockups for web and social media."
+hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/09/etsy-frame-mockup.jpg
 ---
 This article focuses on covering different options for **creating images of your digital artwork or photography** for usage in various settings such as web and social media. We’ll walk you through 4 different options along with the pros and cons of each. We’ll also give you some useful tips and tricks on how to make the process as pain free as possible.
 
