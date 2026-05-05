@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /cart
+Disallow: /checkout
+Disallow: /make-payment
+Disallow: /api/
+
+Sitemap: https://fineartprinting.com.sg/sitemap-index.xml

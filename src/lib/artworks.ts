@@ -26,6 +26,11 @@ export interface Artwork {
   description: string | null;
   heroImagePath: string;
   heroImageUrl: string;
+  /** Cached pixel dimensions of heroImagePath. Null until the row has
+   *  been backfilled (or the admin upload populates them). The shop
+   *  page uses these to skip <Image inferSize> at build time. */
+  imageWidth: number | null;
+  imageHeight: number | null;
   galleryImages: GalleryImage[];
   availableSizes: AvailableSize[];
   allowPaper: boolean;
@@ -49,6 +54,8 @@ interface DbRow {
   published: boolean;
   featured: boolean;
   display_order: number;
+  image_width: number | null;
+  image_height: number | null;
 }
 
 const SUPABASE_URL = import.meta.env.PUBLIC_SUPABASE_URL;
@@ -78,6 +85,8 @@ function rowToArtwork(row: DbRow): Artwork {
     published: row.published,
     featured: row.featured,
     displayOrder: row.display_order,
+    imageWidth: row.image_width ?? null,
+    imageHeight: row.image_height ?? null,
   };
 }
 

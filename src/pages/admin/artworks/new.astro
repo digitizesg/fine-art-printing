@@ -62,6 +62,23 @@ if (Astro.request.method === "POST") {
     const ext = file.type === "image/png" ? ".png" : extname(file.name) || ".jpg";
     const imagePath = `${randomUUID()}${ext}`;
     const buffer = Buffer.from(await file.arrayBuffer());
+
+    // Capture dimensions while we have the buffer. Cached on the row
+    // so the public shop page can skip <Image inferSize> at build.
+    let imageWidth: number | null = null;
+    let imageHeight: number | null = null;
+    try {
+      const sharp = (await import("sharp")).default;
+      const meta = await sharp(buffer).metadata();
+      if (meta.width && meta.height) {
+        imageWidth = meta.width;
+        imageHeight = meta.height;
+      }
+    } catch {
+      // Sharp shouldn't fail on a valid JPG/PNG, but if it does we just
+      // skip — the build will fall back to inferSize for this row.
+    }
+
     const { error: upErr } = await supabase.storage
       .from("artworks")
       .upload(imagePath, buffer, { contentType: file.type, upsert: false });
@@ -114,6 +131,8 @@ if (Astro.request.method === "POST") {
           allow_canvas: form.get("allow_canvas") === "1",
           published: form.get("published") === "1",
           featured: form.get("featured") === "1",
+          image_width: imageWidth,
+          image_height: imageHeight,
         };
         const { data, error: insErr } = await supabase
           .from("artworks")

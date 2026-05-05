@@ -176,17 +176,37 @@ const jsonLd = {
         <!-- Image + gallery -->
         <div class="md:sticky md:top-6 self-start">
           <figure>
-            <Image
-              src={artwork.heroImageUrl}
-              alt={artwork.title}
-              inferSize
-              data-frame-zoom
-              data-frame-image={artwork.heroImageUrl}
-              data-frame-name={artwork.title}
-              loading="eager"
-              fetchpriority="high"
-              class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)] cursor-zoom-in"
-            />
+            {artwork.imageWidth && artwork.imageHeight ? (
+              <Image
+                src={artwork.heroImageUrl}
+                alt={artwork.title}
+                width={artwork.imageWidth}
+                height={artwork.imageHeight}
+                widths={[480, 720, 1080]}
+                sizes="(max-width: 600px) 96vw, (max-width: 900px) 50vw, 540px"
+                data-frame-zoom
+                data-frame-image={artwork.heroImageUrl}
+                data-frame-name={artwork.title}
+                loading="eager"
+                fetchpriority="high"
+                class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)] cursor-zoom-in"
+              />
+            ) : (
+              /* Fallback for rows that haven't been backfilled yet —
+                 still slow because inferSize fetches at build, but
+                 keeps the page rendering until the script catches up. */
+              <Image
+                src={artwork.heroImageUrl}
+                alt={artwork.title}
+                inferSize
+                data-frame-zoom
+                data-frame-image={artwork.heroImageUrl}
+                data-frame-name={artwork.title}
+                loading="eager"
+                fetchpriority="high"
+                class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)] cursor-zoom-in"
+              />
+            )}
           </figure>
           {artwork.galleryImages.length > 0 && (
             <div class="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">

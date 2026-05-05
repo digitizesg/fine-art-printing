@@ -69,6 +69,19 @@ if (Astro.request.method === "POST") {
       if (upErr) error = `Image upload failed: ${upErr.message}`;
       else {
         update.hero_image_path = newPath;
+        // Capture dimensions of the replacement so the public shop
+        // page can keep skipping <Image inferSize>.
+        try {
+          const sharp = (await import("sharp")).default;
+          const meta = await sharp(buffer).metadata();
+          if (meta.width && meta.height) {
+            update.image_width = meta.width;
+            update.image_height = meta.height;
+          }
+        } catch {
+          // Fall back to leaving columns null; backfill script can
+          // populate later.
+        }
         // Record old path for deletion after a successful row update.
         const { data: existing } = await supabase
           .from("artworks")

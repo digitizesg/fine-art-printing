@@ -1,0 +1,74 @@
+---
+export const prerender = true;
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+
+const description =
+  "The page you're looking for has moved or doesn't exist. Use the links below to find what you need.";
+---
+<BaseLayout title="Page not found · Fine Art Printing" description={description}>
+  <section class="bg-white">
+    <div class="mx-auto max-w-[820px] px-6 pt-20 pb-24 md:pt-28 md:pb-32 text-center">
+      <Eyebrow>404</Eyebrow>
+      <h1 class="mt-4 font-serif text-[clamp(2.4rem,5vw,3.4rem)] font-medium leading-[1.1] text-ink text-balance">
+        We couldn't find that page.
+      </h1>
+      <p class="mt-6 mx-auto max-w-[560px] text-[16px] leading-relaxed text-subtle">
+        It may have moved, been retired, or never existed in the first place.
+        Pick something below, or head to the homepage.
+      </p>
+
+      <div class="mt-10 flex flex-wrap justify-center gap-3">
+        <a
+          href="/"
+          class="inline-flex items-center gap-2 rounded-pill bg-petrol px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
+        >
+          Back to home <span aria-hidden="true">→</span>
+        </a>
+        <a
+          href="/shop"
+          class="inline-flex items-center gap-2 rounded-pill border border-border-soft px-5 py-2.5 text-[14px] font-semibold text-ink hover:bg-black/[0.03]"
+        >
+          Browse the shop
+        </a>
+        <a
+          href="/contact"
+          class="inline-flex items-center gap-2 rounded-pill border border-border-soft px-5 py-2.5 text-[14px] font-semibold text-ink hover:bg-black/[0.03]"
+        >
+          Get in touch
+        </a>
+      </div>
+
+      <div class="mt-16 grid gap-6 text-left sm:grid-cols-2">
+        <a
+          href="/print-on-paper"
+          class="group block rounded-card border border-border-soft p-5 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
+        >
+          <p class="font-serif text-[18px] font-medium text-ink">Print on paper</p>
+          <p class="mt-2 text-[13.5px] text-subtle">Archival Hahnemühle papers, configured to your size.</p>
+        </a>
+        <a
+          href="/print-on-canvas"
+          class="group block rounded-card border border-border-soft p-5 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
+        >
+          <p class="font-serif text-[18px] font-medium text-ink">Print on canvas</p>
+          <p class="mt-2 text-[13.5px] text-subtle">Premium canvas substrates with optional stretching and float frames.</p>
+        </a>
+        <a
+          href="/canvas-stretching"
+          class="group block rounded-card border border-border-soft p-5 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
+        >
+          <p class="font-serif text-[18px] font-medium text-ink">Canvas stretching</p>
+          <p class="mt-2 text-[13.5px] text-subtle">Have an existing canvas? We'll stretch and frame it.</p>
+        </a>
+        <a
+          href="/custom-framing"
+          class="group block rounded-card border border-border-soft p-5 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
+        >
+          <p class="font-serif text-[18px] font-medium text-ink">Custom framing</p>
+          <p class="mt-2 text-[13.5px] text-subtle">Pine and oak profiles, fitted in our showroom.</p>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

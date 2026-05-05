@@ -12,7 +12,19 @@ export default defineConfig({
   adapter: vercel({
     imageService: true,
   }),
-  integrations: [sitemap()],
+  integrations: [
+    sitemap({
+      // Keep admin / transactional pages out of the public sitemap so
+      // search engines don't crawl or index them. robots.txt also
+      // disallows these paths but the sitemap is the more authoritative
+      // signal for what we want indexed.
+      filter: (page) =>
+        !page.includes("/admin") &&
+        !page.includes("/cart") &&
+        !page.includes("/checkout") &&
+        !page.includes("/make-payment"),
+    }),
+  ],
   image: {
     remotePatterns: [
       // Supabase storage hosts article heroes, frame examples, paper /

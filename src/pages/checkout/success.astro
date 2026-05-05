@@ -2,44 +2,94 @@
 export const prerender = false;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Eyebrow from "../../components/Eyebrow.astro";
+import { business } from "../../data/business";
 import { createSupabaseAdminClient } from "../../lib/supabase-server";
 
 const sessionId = Astro.url.searchParams.get("session_id");
 let reference: string | null = null;
+let deliveryMethod: "self" | "local" | null = null;
+let customerName: string | null = null;
+let totalSGD: number | null = null;
+type ShipAddr = {
+  line1?: string | null;
+  line2?: string | null;
+  city?: string | null;
+  postal_code?: string | null;
+} | null;
+let shippingAddress: ShipAddr = null;
 
 if (sessionId) {
   const supabase = createSupabaseAdminClient();
   if (supabase) {
     const { data } = await supabase
       .from("orders")
-      .select("reference")
+      .select("reference, delivery_method, customer_name, total_sgd, shipping_address")
       .eq("stripe_session_id", sessionId)
       .maybeSingle();
     reference = data?.reference ?? null;
+    deliveryMethod = (data?.delivery_method as "self" | "local") ?? null;
+    customerName = data?.customer_name ?? null;
+    totalSGD = data?.total_sgd != null ? Number(data.total_sgd) : null;
+    shippingAddress = (data?.shipping_address as ShipAddr) ?? null;
   }
 }
 
+const firstName = customerName?.split(" ")[0] ?? null;
 const description = "Thanks for your order at Fine Art Printing.";
 ---
 <BaseLayout title="Order confirmed · Fine Art Printing" description={description}>
   <section class="bg-white">
     <div class="mx-auto max-w-[720px] px-6 pt-14 pb-20 md:pt-20 md:pb-28 text-center">
       <Eyebrow>Order confirmed</Eyebrow>
-      <h1 class="mt-3 font-serif text-[clamp(1.85rem,3.5vw,2.4rem)] font-medium leading-[1.1] text-ink">
-        Thank you.
+      <h1 class="mt-3 font-serif text-[clamp(1.85rem,3.5vw,2.4rem)] font-medium leading-[1.1] text-ink text-balance">
+        {firstName ? `Thank you, ${firstName}.` : "Thank you."}
       </h1>
-      {reference && (
-        <Fragment>
-          <p class="mt-6 text-[14px] text-muted">Order reference</p>
-          <p class="mt-1 font-mono text-[18px] font-medium text-ink tracking-tight">{reference}</p>
-        </Fragment>
-      )}
-      <p class="mt-6 text-[15.5px] leading-relaxed text-subtle">
-        Your payment was successful and your order is in our queue. You'll
-        get a confirmation email shortly with your order details and ETA.
-        If you don't see it within a few minutes, check your spam folder
-        or message us on WhatsApp.
+      <p class="mt-6 mx-auto max-w-[560px] text-[15.5px] leading-relaxed text-subtle">
+        Your payment was successful and your order is in our queue. A
+        confirmation email is on its way with your full order details.
       </p>
+
+      {reference && (
+        <div class="mt-10 mx-auto max-w-[480px] rounded-card border border-border-soft bg-[#FAF7F1] p-6 text-left">
+          <div class="flex items-baseline justify-between gap-4">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-muted">Reference</p>
+            <p class="font-mono text-[16px] font-medium text-ink tracking-tight">{reference}</p>
+          </div>
+          {totalSGD != null && (
+            <div class="mt-3 flex items-baseline justify-between gap-4">
+              <p class="text-[12px] font-semibold uppercase tracking-wide text-muted">Total paid</p>
+              <p class="font-serif text-[18px] font-medium text-ink">S${totalSGD.toLocaleString("en-SG")}</p>
+            </div>
+          )}
+          {deliveryMethod === "self" && (
+            <div class="mt-5 border-t border-border-soft pt-5">
+              <p class="text-[12px] font-semibold uppercase tracking-wide text-muted mb-2">Pickup</p>
+              <p class="text-[14px] leading-relaxed text-ink">{business.address.line2}<br/>{business.address.line3}<br/>{business.address.postcode}</p>
+              <p class="mt-3 text-[13px] text-subtle">
+                We'll WhatsApp or email you when your order is ready (typically 5–7 working days). Pickup is Mon–Fri plus Saturday mornings.
+              </p>
+            </div>
+          )}
+          {deliveryMethod === "local" && shippingAddress && (
+            <div class="mt-5 border-t border-border-soft pt-5">
+              <p class="text-[12px] font-semibold uppercase tracking-wide text-muted mb-2">Delivering to</p>
+              <p class="text-[14px] leading-relaxed text-ink">
+                {shippingAddress.line1}{shippingAddress.line2 ? <><br />{shippingAddress.line2}</> : null}<br/>
+                {shippingAddress.city ? `${shippingAddress.city} ` : ""}{shippingAddress.postal_code ?? ""}
+              </p>
+              <p class="mt-3 text-[13px] text-subtle">
+                We'll arrange courier once your order is ready (typically 5–7 working days). You'll get a tracking link when it ships.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      <p class="mt-8 text-[13px] text-subtle">
+        Don't see the email? Check your spam folder, or{" "}
+        <a href={business.whatsappLink} target="_blank" rel="noopener" class="font-semibold text-petrol hover:underline">message us on WhatsApp</a>.
+      </p>
+
       <div class="mt-10 flex flex-wrap justify-center gap-3">
         <a href="/shop" class="inline-flex items-center justify-center rounded-full bg-petrol px-6 py-3 text-[14px] font-semibold text-white">Browse more artwork</a>
         <a href="/" class="inline-flex items-center justify-center rounded-full border border-border-soft px-6 py-3 text-[14px] font-semibold text-ink">Back to home</a>
