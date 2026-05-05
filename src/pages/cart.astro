@@ -473,7 +473,7 @@ const catalogJson = JSON.stringify({
 
     linesEl.innerHTML = lines.map((line) => `
       <li class="cart__line" data-line-id="${line.id}">
-        <img src="${optimisedImage(line.artworkImageUrl, 192)}" alt="${escapeHtml(line.artworkTitle)}" width="96" height="96" loading="lazy" decoding="async" />
+        <img src="${line.artworkImageUrl}" alt="${escapeHtml(line.artworkTitle)}" width="96" height="96" loading="lazy" decoding="async" />
         <div class="cart__line-meta">
           <span class="cart__line-title">${escapeHtml(line.artworkTitle)}</span>
           ${line.artworkArtist ? `<span class="cart__line-artist">${escapeHtml(line.artworkArtist)}</span>` : ""}
@@ -530,15 +530,6 @@ const catalogJson = JSON.stringify({
     cart.update(id, { quantity: next });
   });
 
-  function optimisedImage(src: string, w: number): string {
-    if (!src) return "";
-    // Route remote images through Vercel's image service so cart line
-    // thumbs aren't full-resolution Supabase originals.
-    if (src.startsWith("http")) {
-      return `/_vercel/image?url=${encodeURIComponent(src)}&w=${w}&q=80`;
-    }
-    return src;
-  }
   document.addEventListener("change", (ev) => {
     const target = ev.target as HTMLInputElement;
     if (target.matches("input[name=\"delivery\"]")) render();
