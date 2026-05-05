@@ -103,72 +103,90 @@ const localBusinessJsonLd = {
 >
   <section class="bg-white">
     <div class="mx-auto max-w-[1180px] px-6 pt-16 pb-10 md:pt-24 md:pb-14">
-      <div class="max-w-[820px]">
-        <span class="inline-flex items-center rounded-pill bg-petrol/[0.06] px-3 py-1 text-[12px] text-petrol">
-          Singapore's print and framing studio
-        </span>
-        <h1 class="mt-6 font-serif text-[clamp(2.6rem,6vw,3.5rem)] font-medium leading-[1.05] text-ink">
-          We produce beautiful prints<br />
-          on paper and canvas.
-        </h1>
-        <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
-          Singapore's first and only Hahnemühle Gold-certified print studio. We
-          offer printing, framing, and canvas stretching for businesses and
-          homes across Singapore. Competitive pricing and exceptional quality!
-        </p>
-        <div class="mt-10">
-          <p class="font-serif text-[20px] italic text-ink">
-            What's your primary need today?
+      <div class="grid items-center gap-10 md:grid-cols-12 md:gap-14">
+        <div class="md:col-span-7">
+          <span class="inline-flex items-center rounded-pill bg-petrol/[0.06] px-3 py-1 text-[12px] text-petrol">
+            Singapore's print and framing studio
+          </span>
+          <h1 class="mt-6 font-serif text-[clamp(2.6rem,6vw,3.5rem)] font-medium leading-[1.05] text-ink">
+            We produce beautiful prints<br />
+            on paper and canvas.
+          </h1>
+          <p class="mt-6 max-w-[560px] text-[16px] leading-relaxed text-subtle">
+            Singapore's first and only Hahnemühle Gold-certified print studio. We
+            offer printing, framing, and canvas stretching for businesses and
+            homes across Singapore. Competitive pricing and exceptional quality!
           </p>
+          <div class="mt-10">
+            <p class="font-serif text-[20px] italic text-ink">
+              What's your primary need today?
+            </p>
 
-          <div class="mt-4 flex flex-wrap gap-2.5">
-            {[
-              { href: "/print-on-paper", label: "Print on paper" },
-              { href: "/print-on-canvas", label: "Print on canvas" },
-              { href: "/canvas-stretching", label: "Stretch an existing canvas" },
-              { href: "/custom-framing", label: "Custom framing" },
-            ].map((p) => (
-              <a
-                href={p.href}
-                class="group inline-flex items-center gap-1.5 rounded-pill border border-ink/15 bg-white px-4 py-2.5 text-[14px] font-semibold text-ink transition-colors duration-150 hover:border-petrol hover:bg-petrol hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-petrol"
-              >
-                <span>{p.label}</span>
-                <span
-                  class="text-muted transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-white"
-                  aria-hidden="true"
-                >→</span>
-              </a>
-            ))}
+            <div class="mt-4 flex flex-wrap gap-2.5">
+              {[
+                { href: "/print-on-paper", label: "Print on paper" },
+                { href: "/print-on-canvas", label: "Print on canvas" },
+                { href: "/canvas-stretching", label: "Stretch an existing canvas" },
+                { href: "/custom-framing", label: "Custom framing" },
+              ].map((p) => (
+                <a
+                  href={p.href}
+                  class="group inline-flex items-center gap-1.5 rounded-pill border border-ink/15 bg-white px-4 py-2.5 text-[14px] font-semibold text-ink transition-colors duration-150 hover:border-petrol hover:bg-petrol hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-petrol"
+                >
+                  <span>{p.label}</span>
+                  <span
+                    class="text-muted transition-[transform,color] duration-150 group-hover:translate-x-0.5 group-hover:text-white"
+                    aria-hidden="true"
+                  >→</span>
+                </a>
+              ))}
+            </div>
+
+            <a
+              href={`${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'm not sure what I need yet, can you help?")}`}
+              target="_blank"
+              rel="noopener"
+              class="mt-5 inline-flex items-center gap-2 text-[14px] text-subtle hover:text-ink transition-colors"
+            >
+              <WhatsAppIcon size={15} class="text-[#25D366]" />
+              Not sure? WhatsApp us, we'll help you decide.
+            </a>
+
+            <a
+              href={business.googleReviewsUrl}
+              target="_blank"
+              rel="noopener"
+              class="mt-6 inline-flex items-center gap-3 text-[15px] text-subtle hover:text-ink transition-colors"
+            >
+              <Stars rating={rating} size={20} ariaHidden />
+              <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
+              <span aria-hidden="true">·</span>
+              <span>{userRatingsTotal} Google reviews</span>
+            </a>
           </div>
+        </div>
 
-          <a
-            href={`${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'm not sure what I need yet, can you help?")}`}
-            target="_blank"
-            rel="noopener"
-            class="mt-5 inline-flex items-center gap-2 text-[14px] text-subtle hover:text-ink transition-colors"
-          >
-            <WhatsAppIcon size={15} class="text-[#25D366]" />
-            Not sure? WhatsApp us, we'll help you decide.
-          </a>
-
-          <a
-            href={business.googleReviewsUrl}
-            target="_blank"
-            rel="noopener"
-            class="mt-6 inline-flex items-center gap-3 text-[15px] text-subtle hover:text-ink transition-colors"
-          >
-            <Stars rating={rating} size={20} ariaHidden />
-            <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
-            <span aria-hidden="true">·</span>
-            <span>{userRatingsTotal} Google reviews</span>
-          </a>
+        <div class="md:col-span-5">
+          <div class="aspect-[4/5] overflow-hidden rounded-2xl border border-border-soft bg-stone-100 shadow-sm">
+            <img
+              src="/photos/photo-rag-1.jpg"
+              alt="Archival print of a lion on Hahnemühle Photo Rag, framed and hung in a Singapore home"
+              class="h-full w-full object-cover"
+              loading="eager"
+              fetchpriority="high"
+            />
+          </div>
         </div>
       </div>
     </div>
   </section>
 
+  <TrustedBy />
+
+  <ReviewSection />
+
   <section class="bg-white">
-    <div class="mx-auto max-w-[1180px] px-6 pb-20">
+    <div class="mx-auto max-w-[1180px] px-6 pt-20 pb-4">
       <YouTubeEmbed
         videoId={business.youtubeVideoId}
         title="Canon × Fine Art Printing"
@@ -176,10 +194,6 @@ const localBusinessJsonLd = {
       />
     </div>
   </section>
-
-  <TrustedBy />
-
-  <ReviewSection />
 
   <section class="border-t border-border-soft bg-white">
     <div class="mx-auto max-w-[1180px] px-6 py-20">
