@@ -29,7 +29,7 @@ Alpha-Cellulose refers to papers that are made from a high grade wood pulp. Thes
 
 Alpha-cellulose papers are typically slightly less expensive than cotton rag papers, but the quality and output is not necessarily inferior. The below image is a close-up of the highly textured finish on the **Hahnemühle German Etching paper made from 100% Alpha-cellulose.**
 
-![Hahnemuhle German Etching Paper](/wp-content/uploads/2023/04/hahnemuhle-german-etching-1.jpg)
+![Hahnemuhle German Etching Paper](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/04/hahnemuhle-german-etching-1.jpg)
 
 ## Weight of paper
 
@@ -55,7 +55,7 @@ Every customer has slightly different viewpoints depending on their preferences 
 
 The photo below is the **Hahnemühle Photo Rag**. This is a smooth matt paper, but as you can see there is some slight texture visible.
 
-![Hahnemuhle Photorag 308 Fine Art Paper](/wp-content/uploads/2023/04/hahnemuhle-photorag-2.jpg)
+![Hahnemuhle Photorag 308 Fine Art Paper](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/04/hahnemuhle-photorag-2.jpg)
 
 ## The finish of the paper
 
@@ -77,7 +77,7 @@ We usually recommend this finish whenever a customer is looking to print a photo
 
 The **Hahnemühle FineArt Pearl** is one of our most popular papers for clients looking for that extra vibrancy without high-sheen.
 
-![Hahnemuhle FineArt Pearl Paper](/wp-content/uploads/2023/04/hahnemuhle-fineart-pearl-2.jpg)
+![Hahnemuhle FineArt Pearl Paper](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/04/hahnemuhle-fineart-pearl-2.jpg)
 
 ### Glossy finish
 
@@ -89,7 +89,7 @@ Metallic finish papers have a rather distinctive glossy finish and can be a good
 
 We currently stock **Hahnemühle Metallic Photo Rag®** and **Hahnemühle Metallic Canvas** that provide this metallic finish.
 
-![Hahnemühle Photo Rag® Metallic](/wp-content/uploads/2023/08/photo-rag-metallic-2.jpg)
+![Hahnemühle Photo Rag® Metallic](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/08/photo-rag-metallic-2.jpg)
 
 ## Paper Tone
 

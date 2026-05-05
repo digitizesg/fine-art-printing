@@ -13,7 +13,7 @@ For many months now we’ve been working on a new platform that allows artists a
 3.  Professional, high quality printing
 4.  We handle all the logistics
 
-![Artist profile for selling your prints online](/wp-content/uploads/2023/09/artist-profile.jpg)
+![Artist profile for selling your prints online](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/09/artist-profile.jpg)
 
 ## You have complete control
 
@@ -21,7 +21,7 @@ If you decide to list yourself on our platform you can do so by simply going her
 
 You have control over the size or sizes you wish to sell your work in, and the price you wish to charge the end customer for each of those sizes. You can also add, edit, and remove anything from the site at any time you wish.
 
-![Image that shows the size and pricing functionality within our artist platform](/wp-content/uploads/2023/09/complete-control-platform.jpg)
+![Image that shows the size and pricing functionality within our artist platform](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/09/complete-control-platform.jpg)
 
 Our [terms and conditions](/terms-conditions/) are clear – you own your creations and we’ll never leverage anything you publish on our site without your express permission.
 
@@ -52,7 +52,7 @@ When a customer purchases through us they provide their delivery details and get
 
 From a creators perspective this means you can focus solely on creating great work and let us handle the art of printing and shipping.
 
-![Fine Art Printing Checkout](/wp-content/uploads/2023/09/fine-art-printing-checkout.jpg)
+![Fine Art Printing Checkout](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/09/fine-art-printing-checkout.jpg)
 
 ## Lets take a practical example of how we can help you
 

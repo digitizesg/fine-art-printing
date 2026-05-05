@@ -14,8 +14,8 @@ For 4 of the past masters the client wanted to maintain the original essence of 
 
 Below is some examples of the before and after.
 
-![Photograph Restoration](/wp-content/uploads/2024/08/restored-master-1.jpg)  
-![Photograph Restoration](/wp-content/uploads/2024/08/restored-master-4.jpg)![Photograph Restoration](/wp-content/uploads/2024/08/restored-master-2.jpg)![Photograph Restoration](/wp-content/uploads/2024/08/restored-master-3.jpg)  
-![Photograph Restoration](/wp-content/uploads/2024/08/restored-master-5.jpg)
+![Photograph Restoration](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/08/restored-master-1.jpg)  
+![Photograph Restoration](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/08/restored-master-4.jpg)![Photograph Restoration](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/08/restored-master-2.jpg)![Photograph Restoration](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/08/restored-master-3.jpg)  
+![Photograph Restoration](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/08/restored-master-5.jpg)
 
 Should you require any kind of [image restoration](/scanning-restoration/) please don’t hesitate to get in touch.

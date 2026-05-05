@@ -12,11 +12,11 @@ When you have an artwork or print on canvas you’ll generally want to perform *
 
 Here is an example of a stretched canvas from the front. The original photo was taken by [Frida Lannerstorm](https://unsplash.com/@fridalannerstrom)
 
-![Image of a Zebra on a stretched canvas](/wp-content/uploads/2023/10/stretched-canvas-face.jpg)
+![Image of a Zebra on a stretched canvas](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/10/stretched-canvas-face.jpg)
 
 This is the rear of a stretched canvas where you can see that the excess canvas is stapled into the wooden stretcher bars. Not every vendor will do the same, but we tend to add an additional step of applying a good quality tape over the back to provide a more professional looking finish.
 
-![Back of a stretched canvas](/wp-content/uploads/2023/10/stretched-canvas-back.jpg)
+![Back of a stretched canvas](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/10/stretched-canvas-back.jpg)
 
 ## Why stretch my canvas rather than framing it?
 
@@ -44,29 +44,29 @@ Lets review each of these options below so you can better appreciate the end res
 
 This type of wrap usually means that the edges of your canvas are left raw, i.e., just the natural colour of the unprinted canvas. When the canvas is stretched over the stretcher bars, the edges will retain this raw/natural colour on all 4 edges as per the image below.
 
-![Colour Wrap for Canvas Stretching](/wp-content/uploads/2023/10/canvas-colour-wrap-web.jpg)
+![Colour Wrap for Canvas Stretching](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/10/canvas-colour-wrap-web.jpg)
 
 If you are printing with us you can also request to customise the colour of the edges. For example, if your walls are a particular shade of say yellow, we could print the edges of your canvas in a similar tone, such as the mocked-up example below.
 
-![Yellow colour canvas wrap](/wp-content/uploads/2023/10/yellow-colour-canvas-wrap.jpg)
+![Yellow colour canvas wrap](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/10/yellow-colour-canvas-wrap.jpg)
 
 ### Gallery Wrap
 
 The gallery wrap option involves wrapping some portion of your printed canvas over the edges of the stretcher bars. This can provide a really professional and colourful look to your completed canvas print. As you are losing some of the printed area of your canvas to the sides, this option works best when you have excess area around the edges of the photo that you don’t mind wrapping around the edges.
 
-![Zebra on stretched canvas showing gallery wrap](/wp-content/uploads/2023/10/gallery-wrap-zebra.jpg)
+![Zebra on stretched canvas showing gallery wrap](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/10/gallery-wrap-zebra.jpg)
 
 Below is an example where gallery wrap may not be the best option. There are many balloons close to the edge of the print area which will be cropped away from the front and wrapped onto the sides. In our opinion this would create a less than desirable outcome and other wrap types would work better for this particular photograph. We’d probably choose the colour wrap in this case, or possibly mirror wrap.
 
 The original photo was taken by [Michael Schaffler](https://unsplash.com/@schaffler)
 
-![Gallery Wrap results in some elements missing from the main image](/wp-content/uploads/2023/10/gallery-wrap-canvas-edges.jpg)
+![Gallery Wrap results in some elements missing from the main image](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/10/gallery-wrap-canvas-edges.jpg)
 
 ### Mirror Wrap
 
 Mirror wrap looks very similar to gallery wrap in many respects, but rather than wrapping the edge of the image around the stretcher bars, the image gets mirrored to provide extra space for wrapping without taking anything away from what will be shown on the front. Below is an example of this mirror wrap for your reference. The original photo was taken by [Annie Spratt](https://unsplash.com/@anniespratt)
 
-![Mirror Wrap for Canvas Stretching](/wp-content/uploads/2023/10/canvas-mirror-wrap-web.jpg)
+![Mirror Wrap for Canvas Stretching](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/10/canvas-mirror-wrap-web.jpg)
 
 The one aspect to be cautious of with mirror wrap is if you have people or objects close to the edges of your image as sometimes the mirroring effect can produce weird results. In general its possible to further edit the edges of the image after mirroring to resolve these problems, so it can still be a viable option.
 

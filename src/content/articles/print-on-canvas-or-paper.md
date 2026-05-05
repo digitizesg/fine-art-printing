@@ -12,13 +12,13 @@ This is a very common question we get asked and mostly the answer hinges on how 
 
 When you **print on paper** with the intention of putting the work on your wall you’ll need to **frame the print**. Frames come in many different styles and price points, but most people choose between a frame with mat border or without as shown below.
 
-![Example of a frame with a mat border and a frame without a mat border](/wp-content/uploads/2023/11/frame-with-without-mat-border-web.jpg)
+![Example of a frame with a mat border and a frame without a mat border](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/11/frame-with-without-mat-border-web.jpg)
 
 When you **print on canvas** you would usually need to **stretch the canvas across wooden stretcher bars**. This process is known as **canvas stretching** and is a relatively inexpensive and elegant solution for hanging a canvas print on the wall. In the images below you can see the front face of the stretched canvas followed by a photo of the rear of the canvas.
 
-![Image of a Zebra on a stretched canvas](/wp-content/uploads/2023/10/stretched-canvas-face.jpg)
+![Image of a Zebra on a stretched canvas](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/10/stretched-canvas-face.jpg)
 
-![Back of a stretched canvas](/wp-content/uploads/2023/10/stretched-canvas-back.jpg)
+![Back of a stretched canvas](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/10/stretched-canvas-back.jpg)
 
 Some customers will stretch their canvas and then add something known as a float frame around the edge. Whilst a float frame can add a more “finished” look to a stretched canvas it also adds considerably more cost.
 

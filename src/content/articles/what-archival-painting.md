@@ -22,7 +22,7 @@ Let’s take a deeper look at each of these archival factors below.
 
 Many papers are labelled as archival, but they are not created equal and thus the lifespan from one paper to another may differ substantially. We recommend you purchase from well-known and reputable vendors who have a track record in the fine art printing space.
 
-![Print of a Lion on Hahnemuhle Photo Rag 308](/wp-content/uploads/2023/03/hahnemuhle-photo-rag-print.jpg)
+![Print of a Lion on Hahnemuhle Photo Rag 308](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/03/hahnemuhle-photo-rag-print.jpg)
 
 In our case we only stock fine art papers and canvases from Hahnemühle, a German manufacturer with over 430 years of experience who specialise in the production of high-quality fine art papers and canvases that meet the highest level of age resistance and conform to ISO 9706 standards.
 
@@ -40,7 +40,7 @@ Whilst environmental factors are a problem in Singapore, it does not mean that y
 
 By their very creation, archival papers are delicate and can be prone to smudge marks, scratches and other surface level damage if they are handled incorrectly.
 
-![Printing of Bamboo forest on Hahnemuhle Bamboo 290gsm Fine Art Paper](/wp-content/uploads/2023/03/hahnemuhle-bamboo-print.jpg)
+![Printing of Bamboo forest on Hahnemuhle Bamboo 290gsm Fine Art Paper](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/03/hahnemuhle-bamboo-print.jpg)
 
 When handling archival paper, it is important to do so with clean hands \[or more ideally\] with gloves to avoid transferring any oils, dirt, or other contaminants onto the paper.
 

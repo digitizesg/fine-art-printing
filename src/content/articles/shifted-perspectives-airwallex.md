@@ -8,13 +8,13 @@ The _Shifted Perspectives_ exhibition, a unique collaboration between McLaren Ra
 
 Known for his stunning 3D perception-shifting sculptures, Michael Murphy—whose portfolio includes works featuring Barack Obama and Nike Jordan—creates an immersive experience that challenges how we view art, technology, and human potential. The exhibition aims to inspire visitors by showing how shifting one’s perspective can unlock new opportunities and drive progress.
 
-![Shifted Perspectives Exhibition - Lando Norris](/wp-content/uploads/2024/09/shifted-perspectives-lando-norris.jpg)
+![Shifted Perspectives Exhibition - Lando Norris](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/09/shifted-perspectives-lando-norris.jpg)
 
 ## How we supported the event
 
 Fine Art Printing was delighted to support this event through the handling of [high quality printing](/fine-art-printing/) and framing of all the photographs featured in the event. Leveraging a Hahnemuhle Fine Art Pearl for the photographs and [Hahnemuhle Canvas Artist](/canvas-printing/) for the large Airwallex timeline display.
 
-![Michael Murphy Shifted Perspectives exhibition in Singapore](/wp-content/uploads/2024/09/michael-murphy-shifted-perspectives.jpg)
+![Michael Murphy Shifted Perspectives exhibition in Singapore](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/09/michael-murphy-shifted-perspectives.jpg)
 
 For more details, visit the official [Airwallex website](https://www.airwallex.com/sg/airwallex-mclaren-racing-partnership).
 

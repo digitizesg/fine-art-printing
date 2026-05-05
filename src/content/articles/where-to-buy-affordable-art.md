@@ -23,11 +23,11 @@ In both of these examples below you can see an example of a digital image file c
 
 ### Framed print
 
-![The Open Window by Henri Matisse](/wp-content/uploads/2023/11/the-open-window-print.jpg)
+![The Open Window by Henri Matisse](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/11/the-open-window-print.jpg)
 
 ### Stretched canvas
 
-![Image of a Zebra on a stretched canvas](/wp-content/uploads/2023/10/stretched-canvas-face.jpg)
+![Image of a Zebra on a stretched canvas](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/10/stretched-canvas-face.jpg)
 
 ## Asian Art Platform
 
@@ -37,7 +37,7 @@ Whilst prices are obviously higher than printing you are buying original artwork
 
 One of our particular favourites is Chinese female artist [Jiang Zhaojin](https://asianartplatform.com/artists/jiang-wanlin/) who produces beautitful Shan shui inspired artworks using a mixture of paint and recycled demin.
 
-![Artwork by Jiang Zhaojin](/wp-content/uploads/2024/03/jiang-zhaojin.jpg)
+![Artwork by Jiang Zhaojin](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/03/jiang-zhaojin.jpg)
 
 Another great option is to [commission a painting](https://asianartplatform.com/commission-painting/). If you have some ideas and reference images to work from then Asian Art Platform can create an original painting for you via a stable or artists who specialise in such work. This can be a great way to have an original painting that matches your exact brief. A particularly popular route for those seeking artworks for Feng Shui reasons.
 
@@ -47,7 +47,7 @@ Affordable Art Fair takes place in Singapore every November and brings together 
 
 [Affordable Art Fair Singapore](https://affordableartfair.com/fairs/singapore/)
 
-![Affordable Art Fair Singapore](/wp-content/uploads/2024/03/affordle-art-fair-singapore.jpeg)
+![Affordable Art Fair Singapore](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/03/affordle-art-fair-singapore.jpeg)
 
 ## Etsy, iStock, Unsplash and more
 
@@ -61,4 +61,4 @@ A 70 x 50cm IKEA frame costs around $25 whilst printing on a [high quality archi
 
 In this situation we’d always like to remind you that the print is going to outlast the frame, but if your requirement is simply to temporarily spruce up your home then this is perhaps the best option available.
 
-![Framed print from Etsy](/wp-content/uploads/2024/03/framed-print.jpg)
+![Framed print from Etsy](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/03/framed-print.jpg)

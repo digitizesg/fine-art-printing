@@ -136,4 +136,4 @@ Legal
 
 ## Image showcasing the various A range paper sizes
 
-![Common paper sizes in A series](/wp-content/uploads/2023/05/common-paper-sizes.jpg)
+![Common paper sizes in A series](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/05/common-paper-sizes.jpg)

@@ -34,7 +34,7 @@ Once you know the pixel count of your file \[the height & width\] you can calcul
 
 In this example we have an image downloaded from a popular image repository called Unsplash. The original image size is 5184 x 7752 pixels and currently its set to 72 PPI which is the usual resolution of images used on the web. If we printed this image at the existing 5184 x 7752 pixels \[which is 72″ x 107.6″ for reference\] it would have some pixelation, softness and blurriness as a result of only being 72 PPI. In general our advice in this example would be to reduce the image size to improve output quality.
 
-![Finding the maximum print size at 300 PPI](/wp-content/uploads/2023/04/maximum-print-size.jpg)
+![Finding the maximum print size at 300 PPI](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/04/maximum-print-size.jpg)
 
 So how do we calculate the maximum print size of this particular image to get to 300 PPI? We just take each of the height and width in pixels and divide them by 300:
 
@@ -44,7 +44,7 @@ So how do we calculate the maximum print size of this particular image to get to
 
 Therefore the maximum print size of this file at 300 PPI would be 17.28″ x 25.84″. In Photoshop we can also figure this out by unchecking “Resample” and altering the width and height in inches until such point the resolution hits the desired level, in this case 300 PPI.
 
-![300 PPI Image File](/wp-content/uploads/2023/04/300ppi-image-file.jpg)
+![300 PPI Image File](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/04/300ppi-image-file.jpg)
 
 ## Can I print lower than 300 PPI?
 

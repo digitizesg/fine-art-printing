@@ -12,7 +12,7 @@ The process of Giclee printing today involves the usage of a high-quality printe
 
 Giclee printing is very popular among artists and photographers because they tend to offer exceptional colour accuracy, strong detail, and a quality that is difficult to achieve with more traditional printing methods.
 
-![Geometric shapes printed on Hahnemuhle FineArt Pearl paper](/wp-content/uploads/2023/03/fineart-pearl-giclee-printing.jpg)  
+![Geometric shapes printed on Hahnemuhle FineArt Pearl paper](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/03/fineart-pearl-giclee-printing.jpg)  
 The print above was printed on [Hahnemühle FineArt Pearl](/fine-art-printing/), 285gsm paper.
 
 Combining high quality pigment inks and archival grade papers or canvases Giclee printing is exceptionally durable and resistant to fading. It is for this reason that Giclee printing is an excellent option for artists and photographers who are selling their works to end customers.
@@ -27,7 +27,7 @@ This gives a much smoother gradient transition and wider colour gamut. In simple
 
 In our opinion there’s no real limitation on the type of images that can be printed using Giclee printing. It is often connected with the process of printing fine art reproductions or higher end printing, but it is equally accessible and relevant for producing digital download prints you might buy from popular sites such as Etsy for example.
 
-![Giclee Printing on Hahnemuhle German Etching](/wp-content/uploads/2023/03/german-etching-giclee-print.jpg)  
+![Giclee Printing on Hahnemuhle German Etching](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/03/german-etching-giclee-print.jpg)  
 Printing above was produced on [Hahnemühle German Etching](/fine-art-printing/), 310gsm
 
 If you are looking for a high quality print output and the option to choose from a range of quality and interesting papers and canvases, then Giclee printing is a great option.

@@ -64,11 +64,11 @@ This approach simply requires a quick search on Etsy using keywords like “fram
 
 This is absolutely our advised approach to achieving the best results for the cost and time involved. Below is an example of a photograph mocked up using an Etsy mockup pack that was purchased on special offer for $9 and includes 350 different settings. The photograph inside the frame is by [Karsten Winegart](https://unsplash.com/@karsten116) via Unsplash. This was done in Adobe Photoshop and took about 5 minutes with very minimal technical knowledge required.
 
-![Etsy Frame Mockup example](/wp-content/uploads/2023/09/etsy-frame-mockup.jpg)
+![Etsy Frame Mockup example](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/09/etsy-frame-mockup.jpg)
 
 In this example we leveraged a photograph by [Ivan Bandura](https://unsplash.com/@unstable_affliction) from Unsplash and followed the same approach in Photoshop.
 
-![Etsy frame mockup example](/wp-content/uploads/2023/09/etsy-mockup.jpg)
+![Etsy frame mockup example](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/09/etsy-mockup.jpg)
 
 ### Some drawbacks to this approach
 
@@ -92,11 +92,11 @@ Both vendors allow you to cancel anytime so theoretically you could sign-up, run
 
 Below is an example we generated from Placeit using an image file from Unsplash \[credit to [Karsten Winegeart](https://unsplash.com/@karsten116) for the beautiful photograph\].
 
-![Placeit picture frame mockup](/wp-content/uploads/2023/09/placeit-mockup.jpg)
+![Placeit picture frame mockup](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/09/placeit-mockup.jpg)
 
 Lastly an example where we added 3 random poster images into this mockup.
 
-![3 pictures are mocked up on a wall](/wp-content/uploads/2023/09/picture-frame-mockup.jpg)
+![3 pictures are mocked up on a wall](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/09/picture-frame-mockup.jpg)
 
 ### Some drawbacks of this approach
 
@@ -119,11 +119,11 @@ Generally speaking the main benefit is that you typically get a wider selection 
 
 In the example below we added an image to the existing empty frame and then used the generative fill AI in Photoshop to extend the sides to get the image into the right ratio we wanted.
 
-![Mockup of a picture on a grey wall with a sofa, table and lights infront.](/wp-content/uploads/2023/09/frame-mockup-setting.jpg)
+![Mockup of a picture on a grey wall with a sofa, table and lights infront.](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/09/frame-mockup-setting.jpg)
 
 In this image we added the picture into the existing empty frame of an office setting from Shutterstock. The original image was nicely proportioned so we didn’t need to make any real changes to get the right final size we wanted.
 
-![Picture frame mockup on a wall in an office](/wp-content/uploads/2023/09/frame-mockup-office.jpg)
+![Picture frame mockup on a wall in an office](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/09/frame-mockup-office.jpg)
 
 ### Some drawbacks of this approach
 
@@ -143,7 +143,7 @@ The main benefit to this approach is that you generally end up with very natural
 
 These particular images below were taken by a professional photographer in a studio setting with some basic mockup materials. With more elements you could obviously make quite a nice setting and achieve good results.
 
-![Pictures inside frames taken by us](/wp-content/uploads/2023/09/photograph-frames.jpg)
+![Pictures inside frames taken by us](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/09/photograph-frames.jpg)
 
 ### Some drawbacks of this approach
 
@@ -154,7 +154,7 @@ These particular images below were taken by a professional photographer in a stu
 
 Unless you are really into photography we’d advise giving this option a pass as the cost and effort relative to the return is probably just not worth it in the majority of cases. One route we have deployed in the past is to just ask for customer permission to photograph their work once its up in their home, then we’ll do some editing afterwards to clean it up, but the quality suffers when you don’t have a proper set-up in place.
 
-![Native American print on a dark blue wall](/wp-content/uploads/2023/09/native-american-2.jpg)
+![Native American print on a dark blue wall](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/09/native-american-2.jpg)
 
 ## In conclusion
 
