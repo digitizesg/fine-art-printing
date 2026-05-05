@@ -53,7 +53,12 @@ const fmtDate = (d: Date) =>
   <section class="border-t border-border-soft bg-white">
     <div class="mx-auto max-w-[1180px] px-6 py-12 md:py-16">
       <ul class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {articles.map((article) => (
+        {articles.map((article, i) => {
+          // First few cards are above-the-fold (3 across on desktop, 2
+          // on tablet, 1 on mobile) — eager-load them so the LCP image
+          // isn't lazy-loaded.
+          const isEager = i < 3;
+          return (
           <li>
             <a
               href={`/articles/${article.id.replace(/\.md$/, "")}`}
@@ -66,8 +71,11 @@ const fmtDate = (d: Date) =>
                     alt=""
                     width={720}
                     height={450}
+                    widths={[360, 540, 720]}
+                    sizes="(max-width: 600px) 96vw, (max-width: 900px) 50vw, 33vw"
                     class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                    loading="lazy"
+                    loading={isEager ? "eager" : "lazy"}
+                    fetchpriority={i === 0 ? "high" : undefined}
                   />
                 </div>
               ) : (
@@ -90,7 +98,8 @@ const fmtDate = (d: Date) =>
               </div>
             </a>
           </li>
-        ))}
+          );
+        })}
       </ul>
     </div>
   </section>

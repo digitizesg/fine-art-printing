@@ -11,6 +11,11 @@
   --color-subtle: #6B6B6B;
   --color-petrol: #1A3550;
   --color-gold: #D9B36C;
+  /* Same hue as --color-gold but dark enough (≈ 4.6:1 on white) to
+     pass WCAG AA when the gold is used as text. Stars + decorative
+     uses can keep the lighter --color-gold; ordinal numbers and
+     italic accents should use this. */
+  --color-gold-text: #8A6A2F;
   --color-border: rgba(0, 0, 0, 0.15);
   --color-border-soft: rgba(0, 0, 0, 0.08);
 

@@ -176,6 +176,8 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
                 alt={ex.caption ?? lightboxName}
                 width={600}
                 height={420}
+                widths={[320, 480, 600]}
+                sizes="(max-width: 600px) 96vw, (max-width: 900px) 33vw, 23vw"
                 loading={isEager ? "eager" : "lazy"}
                 decoding="async"
               />

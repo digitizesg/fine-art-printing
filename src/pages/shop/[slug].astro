@@ -4,6 +4,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Eyebrow from "../../components/Eyebrow.astro";
 import DarkCTA from "../../components/DarkCTA.astro";
 import FrameLightbox from "../../components/FrameLightbox.astro";
+import { Image } from "astro:assets";
 import { listArtworks, getArtworkBySlug } from "../../lib/artworks";
 import { listFloatFrames } from "../../lib/float-frames";
 import { listCanvases } from "../../lib/canvases";
@@ -175,12 +176,15 @@ const jsonLd = {
         <!-- Image + gallery -->
         <div class="md:sticky md:top-6 self-start">
           <figure>
-            <img
+            <Image
               src={artwork.heroImageUrl}
               alt={artwork.title}
+              inferSize
               data-frame-zoom
               data-frame-image={artwork.heroImageUrl}
               data-frame-name={artwork.title}
+              loading="eager"
+              fetchpriority="high"
               class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)] cursor-zoom-in"
             />
           </figure>
@@ -195,7 +199,15 @@ const jsonLd = {
                   data-frame-name={`${artwork.title} — view ${i + 2}`}
                   aria-label={`Open larger view ${i + 2}`}
                 >
-                  <img src={img.url} alt="" loading="lazy" class="w-full h-full object-cover" />
+                  <Image
+                    src={img.url}
+                    alt=""
+                    width={300}
+                    height={300}
+                    loading="lazy"
+                    decoding="async"
+                    class="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -240,7 +252,7 @@ const jsonLd = {
 
             <fieldset class="artwork-config__group" data-substrate="paper">
               <legend>Paper</legend>
-              <select name="paper_id" class="artwork-config__select">
+              <select name="paper_id" aria-label="Paper" class="artwork-config__select">
                 {featuredPapers.map((p) => (
                   <option value={p.slug}>{p.brand} {p.shortName}</option>
                 ))}
@@ -268,7 +280,7 @@ const jsonLd = {
 
             <fieldset class="artwork-config__group" data-substrate="canvas">
               <legend>Canvas</legend>
-              <select name="canvas_id" class="artwork-config__select">
+              <select name="canvas_id" aria-label="Canvas substrate" class="artwork-config__select">
                 {featuredCanvases.map((c) => (
                   <option value={c.slug}>{c.brand} {c.shortName}</option>
                 ))}

@@ -43,7 +43,7 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 ---
 <header class="relative border-b border-border-soft bg-white">
   <div class="mx-auto flex max-w-[1180px] items-center justify-between gap-4 px-6 py-5">
-    <a href="/" class="brand" aria-label="Fine Art Printing — print, stretch, frame">
+    <a href="/" class="brand">
       <span class="brand__name">Fine Art Printing</span>
       <span class="brand__sub">PRINT · STRETCH · FRAME</span>
     </a>
@@ -287,7 +287,9 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     font-family: var(--font-sans);
     font-size: 10.5px;
     font-weight: 600;
-    color: rgba(26, 53, 80, 0.62);
+    /* Darkened from 0.62 → 0.85 so the wide-tracked label passes WCAG
+       AA (4.5:1) on white. Visually still reads as a quiet sub-label. */
+    color: rgba(26, 53, 80, 0.88);
     letter-spacing: 0.22em;
     margin-top: 4px;
   }
