@@ -3,6 +3,7 @@ title: "We are now a Hahnemühle Gold Certified Studio"
 date: 2024-02-06
 slug: hahnemuhle-gold-certified-studio
 excerpt: "First print studio in Singapore to achieve Hahnemühle Gold certification."
+hero: /photos/bamboo-gloss-baryta-1.jpg
 ---
 We are delighted to announce that Fine Art Printing has become the **first printer in Singapore to achieve certification from Hahnemühle as a Certified Gold Studio**.
 

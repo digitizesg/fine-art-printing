@@ -3,6 +3,7 @@ title: "Introducing the new Canon Pro-566 printer"
 date: 2024-06-23
 slug: introducing-canon-566-printer
 excerpt: "First customer in Singapore to purchase Canon's top-tier large format Pro-566 printer."
+hero: /photos/bamboo-1.jpg
 ---
 We are delighted to announce that after a rigorous review we have acquired a brand new **Canon Pro-566 printer** to further extend our printing capabilities in Singapore. We are the very first customer in Singapore to purchase the new, top of the line large format printer from Canon.
 

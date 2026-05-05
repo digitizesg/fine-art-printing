@@ -3,6 +3,7 @@ title: "Why invest in a high quality paper?"
 date: 2023-11-08
 slug: why-invest-high-quality-paper
 excerpt: "Why premium fine-art paper is worth the cost compared to standard alternatives."
+hero: /photos/bamboo-2.jpg
 ---
 In this article we’re going to touch upon the topic of **why you should invest in a good quality paper vs. saving a few dollars and using a normal quality one**. As the saying goes “you get what you pay for” and this really plays true when it comes to selecting a paper to print on.
 

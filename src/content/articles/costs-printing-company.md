@@ -3,6 +3,7 @@ title: "What Costs are Involved in Printing?"
 date: 2023-03-29
 slug: costs-printing-company
 excerpt: "Equipment, software, consumables, and shipping costs that influence print pricing."
+hero: /photos/german-etching-1.jpg
 ---
 Have you ever wondered what costs are involved in printing that go into determining the selling price of prints? In this article we’ll give you a bit of insight into the costs involved.
 

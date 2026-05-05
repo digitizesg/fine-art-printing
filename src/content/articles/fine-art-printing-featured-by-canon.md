@@ -3,6 +3,7 @@ title: "Fine Art Printing Featured by Canon"
 date: 2024-11-30
 slug: fine-art-printing-featured-by-canon
 excerpt: "Fine Art Printing acquired the Canon Pro-566 printer in 2024, becoming the first studio in Singapore with this large format printer."
+hero: /photos/photo-rag-1.jpg
 ---
 In our efforts to always remain at the forefront of fine art printing we acquired the new [Canon Pro-566 printer](/introducing-canon-566-printer/) in 2024. We were the very first print studio in Singapore to acquire this new large format printer and had the opportunity to sit down with the team from Canon to explain our rationale behind investing in the new machine.
 

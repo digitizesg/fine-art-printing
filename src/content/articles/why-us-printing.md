@@ -3,6 +3,7 @@ title: "Why choose us for printing?"
 date: 2024-08-24
 slug: why-us-printing
 excerpt: "What sets Fine Art Printing apart from other vendors offering art and photo printing in Singapore."
+hero: /photos/hahnemuhle-canvas-metallic-1.jpg
 ---
 Theres plenty of vendors out there offering [art and photo printing](/fine-art-printing/), but why should you choose us? In this article I am going to try and convince you on why we are the best in Singapore.
 

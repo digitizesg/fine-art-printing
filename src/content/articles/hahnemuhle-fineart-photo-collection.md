@@ -3,6 +3,7 @@ title: "Hahnemühle Digital FineArt vs Hahnemühle Photo Collection"
 date: 2024-03-26
 slug: hahnemuhle-fineart-photo-collection
 excerpt: "Comparing two paper and canvas collections from the premium German supplier."
+hero: /photos/fineart-pearl-1.jpg
 ---
 Hahnemühle has a range of different media and historically we only stocked papers and canvases that fell into their **Digital FineArt Collection**. In this article we are going to provide a relatively high level summary of the differences between this FineArt Collection and the Photo Collection.
 

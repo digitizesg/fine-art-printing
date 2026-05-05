@@ -3,6 +3,7 @@ title: "Why choose us for canvas printing and stretching?"
 date: 2024-08-18
 slug: canvas-printing-stretching
 excerpt: "Premium canvases, gold-certified studio, in-house stretching — what sets us apart on canvas."
+hero: /photos/hahnemuhle-canvas-artist-1.jpg
 ---
 Theres plenty of vendors out there offering [canvas printing and stretching](/canvas-printing/), but why should you choose us? In this article I am going to try and convince you on why we are the best in Singapore.
 
