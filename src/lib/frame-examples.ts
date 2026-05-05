@@ -24,6 +24,12 @@ export type Subject =
   | "document"
   | "memorabilia";
 
+export type FrameStyle =
+  | "standard"
+  | "shadow-box"
+  | "float-mount"
+  | "mat-bordered";
+
 export const SERVICE_LABELS: Record<Service, string> = {
   "custom-framing": "Custom framing",
   "canvas-printing": "Canvas printing",
@@ -39,6 +45,24 @@ export const SUBJECT_LABELS: Record<Subject, string> = {
   memorabilia: "Memorabilia",
 };
 
+export const FRAME_STYLE_LABELS: Record<FrameStyle, string> = {
+  standard: "Standard",
+  "shadow-box": "Shadow box",
+  "float-mount": "Float mount",
+  "mat-bordered": "Mat-bordered",
+};
+
+/** One-line explainer per style — used in the filter chip tooltip / help. */
+export const FRAME_STYLE_DESCRIPTIONS: Record<FrameStyle, string> = {
+  standard: "A regular frame, glass or acrylic right against the artwork.",
+  "shadow-box":
+    "A deep frame with space behind the glass, used for memorabilia or 3D objects.",
+  "float-mount":
+    "The artwork sits raised on a backing board so the edges show, often with deckle edges visible.",
+  "mat-bordered":
+    "A mat board window sits between the artwork and the frame for a wider visual margin.",
+};
+
 export interface FrameExample {
   id: string;
   imagePath: string;
@@ -52,6 +76,7 @@ export interface FrameExample {
   stretchingDepth: "1in" | "1.5in" | null;
   canvasId: string | null;
   paperId: string | null;
+  frameStyle: FrameStyle | null;
   displayOrder: number;
 }
 
@@ -66,6 +91,7 @@ interface DbRow {
   stretching_depth: "1in" | "1.5in" | null;
   canvas_id: string | null;
   paper_id: string | null;
+  frame_style: FrameStyle | null;
   image_path: string;
   display_order: number;
 }
@@ -84,6 +110,7 @@ function rowToExample(row: DbRow): FrameExample {
     stretchingDepth: row.stretching_depth,
     canvasId: row.canvas_id,
     paperId: row.paper_id,
+    frameStyle: row.frame_style,
     displayOrder: row.display_order,
   };
 }

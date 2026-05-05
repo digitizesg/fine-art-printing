@@ -2,8 +2,10 @@
 import {
   SERVICE_LABELS,
   SUBJECT_LABELS,
+  FRAME_STYLE_LABELS,
   type Service,
   type Subject,
+  type FrameStyle,
 } from "../../lib/frame-examples";
 import { PICTURE_FRAME_GROUPS } from "../../data/picture-frames";
 import { listFloatFrames } from "../../lib/float-frames";
@@ -29,6 +31,7 @@ interface Props {
     stretching_depth: "1in" | "1.5in" | null;
     canvas_id: string | null;
     paper_id: string | null;
+    frame_style: FrameStyle | null;
   };
   error?: string;
   message?: string;
@@ -96,6 +99,18 @@ const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.
         <option value="" selected={!example?.paper_id}>—</option>
         {papers.map((p) => (
           <option value={p.slug} selected={example?.paper_id === p.slug}>{p.brand} {p.shortName}</option>
+        ))}
+      </select>
+    </label>
+  </div>
+
+  <div data-only="custom-framing">
+    <label>
+      <span>Framing style (powers the gallery filter)</span>
+      <select name="frame_style">
+        <option value="" selected={!example?.frame_style}>— (untagged)</option>
+        {(Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).map((s) => (
+          <option value={s} selected={example?.frame_style === s}>{FRAME_STYLE_LABELS[s]}</option>
         ))}
       </select>
     </label>

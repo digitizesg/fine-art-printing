@@ -23,6 +23,7 @@ if (Astro.request.method === "POST") {
     stretching_depth: (form.get("stretching_depth") as string)?.trim() || null,
     canvas_id: (form.get("canvas_id") as string)?.trim() || null,
     paper_id: (form.get("paper_id") as string)?.trim() || null,
+    frame_style: (form.get("frame_style") as string)?.trim() || null,
   };
 
   // Optional image replacement.

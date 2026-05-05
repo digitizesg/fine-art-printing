@@ -11,8 +11,11 @@ import {
   detailLabelFor,
   SERVICE_LABELS,
   SUBJECT_LABELS,
+  FRAME_STYLE_LABELS,
+  FRAME_STYLE_DESCRIPTIONS,
   type Service,
   type Subject,
+  type FrameStyle,
 } from "../lib/frame-examples";
 import { listFloatFrames } from "../lib/float-frames";
 import { listCanvases } from "../lib/canvases";
@@ -40,6 +43,12 @@ const jsonLd = {
 
 const services = Object.keys(SERVICE_LABELS) as Service[];
 const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
+// Only show frame-style chips for styles that actually appear on at
+// least one custom-framing example, so we don't surface empty filters.
+const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filter(
+  (style) =>
+    examples.some((e) => e.service === "custom-framing" && e.frameStyle === style),
+);
 ---
 <BaseLayout
   title="Gallery · Fine Art Printing"
@@ -96,6 +105,23 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
             ))}
           </div>
         )}
+        {frameStylesInUse.length > 0 && (
+          <div class="gallery-filters__row" data-frame-style-row>
+            <span class="gallery-filters__label">Frame style</span>
+            <button type="button" class="gallery-filter-chip is-active" data-filter="frame_style" data-value="all">All</button>
+            {frameStylesInUse.map((s) => (
+              <button
+                type="button"
+                class="gallery-filter-chip"
+                data-filter="frame_style"
+                data-value={s}
+                title={FRAME_STYLE_DESCRIPTIONS[s]}
+              >
+                {FRAME_STYLE_LABELS[s]}
+              </button>
+            ))}
+          </div>
+        )}
         <div class="gallery-filters__row gallery-filters__row--meta">
           <span class="gallery-filters__count" data-gallery-count>
             Showing {examples.length} of {examples.length}
@@ -119,6 +145,7 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
               data-service={ex.service}
               data-subject={ex.subject}
               data-paper={ex.paperId ?? ""}
+              data-frame-style={ex.frameStyle ?? ""}
               data-frame-zoom
               data-frame-image={ex.imageUrl}
               data-frame-name={lightboxName}
@@ -319,20 +346,47 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
       service: "all",
       subject: "all",
       paper: "all",
+      frame_style: "all",
     };
+
+    const frameStyleRow = filtersRoot.querySelector<HTMLElement>("[data-frame-style-row]");
 
     function matches(tile: HTMLElement): boolean {
       if (state.service !== "all" && tile.dataset.service !== state.service) return false;
       if (state.subject !== "all" && tile.dataset.subject !== state.subject) return false;
       if (state.paper !== "all" && tile.dataset.paper !== state.paper) return false;
+      if (state.frame_style !== "all" && tile.dataset.frameStyle !== state.frame_style) return false;
       return true;
     }
 
     function isFiltering(): boolean {
-      return state.service !== "all" || state.subject !== "all" || state.paper !== "all";
+      return (
+        state.service !== "all" ||
+        state.subject !== "all" ||
+        state.paper !== "all" ||
+        state.frame_style !== "all"
+      );
+    }
+
+    function syncFrameStyleVisibility() {
+      if (!frameStyleRow) return;
+      // Frame styles are only meaningful for custom-framing examples,
+      // so hide the row if the active service filter excludes it.
+      const allowed = state.service === "all" || state.service === "custom-framing";
+      frameStyleRow.style.display = allowed ? "" : "none";
+      if (!allowed && state.frame_style !== "all") {
+        // Clear a stale frame-style pick so the grid doesn't render empty.
+        state.frame_style = "all";
+        filtersRoot
+          .querySelectorAll<HTMLButtonElement>('[data-filter="frame_style"]')
+          .forEach((c) =>
+            c.classList.toggle("is-active", c.dataset.value === "all"),
+          );
+      }
     }
 
     function apply() {
+      syncFrameStyleVisibility();
       let visible = 0;
       tiles.forEach((tile) => {
         const ok = matches(tile);
@@ -348,7 +402,7 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
 
     filtersRoot.querySelectorAll<HTMLButtonElement>("[data-filter]").forEach((chip) => {
       chip.addEventListener("click", () => {
-        const filter = chip.dataset.filter as "service" | "subject" | "paper";
+        const filter = chip.dataset.filter as "service" | "subject" | "paper" | "frame_style";
         const value = chip.dataset.value!;
         state[filter] = value;
         // Toggle active across this filter group
@@ -364,6 +418,7 @@ const subjects = Object.keys(SUBJECT_LABELS) as Subject[];
         state.service = "all";
         state.subject = "all";
         state.paper = "all";
+        state.frame_style = "all";
         filtersRoot
           .querySelectorAll<HTMLButtonElement>(".gallery-filter-chip")
           .forEach((c) => {
