@@ -6,6 +6,7 @@ import {
   sendStudioOrderNotification,
   type OrderEmailContext,
 } from "../../lib/emails";
+import { extractShippingAddress } from "../../lib/stripe-shipping";
 
 export const prerender = false;
 
@@ -78,10 +79,7 @@ export const POST: APIRoute = async ({ request }) => {
   const customerEmail = fullSession.customer_details?.email ?? null;
   const customerName = fullSession.customer_details?.name ?? null;
   const customerPhone = fullSession.customer_details?.phone ?? null;
-  const shippingAddress =
-    (fullSession as any).shipping_details?.address ??
-    fullSession.customer_details?.address ??
-    null;
+  const shippingAddress = extractShippingAddress(fullSession);
   const deliveryMethod = (fullSession.metadata?.delivery as "self" | "local") ?? "self";
   const kind: "shop" | "custom_payment" =
     fullSession.metadata?.kind === "custom_payment" ? "custom_payment" : "shop";
