@@ -4,7 +4,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import Stars from "../components/Stars.astro";
-import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
 import YouTubeEmbed from "../components/YouTubeEmbed.astro";
 import ReviewSection from "../components/ReviewSection.astro";
 import ServiceTile from "../components/ServiceTile.astro";
@@ -143,22 +142,12 @@ const localBusinessJsonLd = {
             </div>
 
             <a
-              href={`${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'm not sure what I need yet, can you help?")}`}
-              target="_blank"
-              rel="noopener"
-              class="mt-5 inline-flex items-center gap-2 text-[14px] text-subtle hover:text-ink transition-colors"
-            >
-              <WhatsAppIcon size={15} class="text-[#25D366]" />
-              Not sure? WhatsApp us, we'll help you decide.
-            </a>
-
-            <a
               href={business.googleReviewsUrl}
               target="_blank"
               rel="noopener"
-              class="mt-6 inline-flex items-center gap-3 text-[15px] text-subtle hover:text-ink transition-colors"
+              class="mt-8 inline-flex items-center gap-3 text-[17px] text-subtle hover:text-ink transition-colors"
             >
-              <Stars rating={rating} size={20} ariaHidden />
+              <Stars rating={rating} size={26} ariaHidden />
               <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
               <span aria-hidden="true">·</span>
               <span>{userRatingsTotal} Google reviews</span>
