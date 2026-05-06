@@ -48,8 +48,8 @@ export const RESTORATION_DESCRIPTIONS: Record<RestorationLevel, string> = {
 export const SIZE_BUCKETS: { id: SizeBucket; label: string; scans: number | null; note: string }[] = [
   { id: "a4", label: "A4 or smaller", scans: 1, note: "Postcard, family photo, small print" },
   { id: "a3", label: "A3", scans: 1, note: "Magazine, large family photo" },
-  { id: "a2", label: "A2", scans: 2, note: "Two scans + stitching" },
-  { id: "a1", label: "A1", scans: 4, note: "Four scans + stitching" },
+  { id: "a2", label: "A2", scans: 2, note: "Roughly tabloid / poster size" },
+  { id: "a1", label: "A1", scans: 4, note: "Roughly broadsheet / large poster size" },
   { id: "larger", label: "Larger than A1", scans: null, note: "Needs a custom quote" },
 ];
 
