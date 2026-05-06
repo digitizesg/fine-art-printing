@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
@@ -18,7 +19,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 const description =
   "Canvas stretching in Singapore for original artworks, existing canvas works, and re-stretching of damaged pieces. Solid pine bars, professional finish, optional float frame.";
 
-const jsonLd = {
+const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
   serviceType: "Canvas stretching",
@@ -74,6 +75,7 @@ const faqs = [
     a: `We can stretch up to roughly 152 × 200 cm in-house. For anything larger, message us and we'll see what's possible.`,
   },
 ];
+const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 ---
 <BaseLayout
   title="Canvas stretching and framing in Singapore | Fine Art Printing"

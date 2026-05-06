@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
@@ -18,7 +19,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 const description =
   "Custom picture framing in Singapore. Choose from 14+ wood, painted, and metallic profiles. Conservation mats and glazing on request. Fast turnaround under one roof.";
 
-const jsonLd = {
+const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
   serviceType: "Custom picture framing",
@@ -85,6 +86,7 @@ const faqs = [
 4. Pick up at the studio, or arrange local delivery.`,
   },
 ];
+const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 ---
 <BaseLayout
   title="Custom picture framing in Singapore | Frame maker | Fine Art Printing"

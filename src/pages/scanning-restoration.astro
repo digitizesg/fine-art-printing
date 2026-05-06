@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
@@ -12,7 +13,7 @@ import { business } from "../data/business";
 const description =
   "Photo restoration, scanning, enlargement, and image enhancement in Singapore. Old family photos brought back to print quality. Pricing starts from S$200 depending on condition.";
 
-const jsonLd = {
+const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
   serviceType: "Photo restoration and scanning",
@@ -79,6 +80,7 @@ const faqs = [
     a: `It really depends on what you need and the condition of the original, and expectations you might have on the end result. Our online quote tool above provides a good general guideline of where pricing would start from. Please understand that digital restoration, despite the advances and promises of AI tools still requires a considerable amount of hands-on time from skilled professionals.`,
   },
 ];
+const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 ---
 <BaseLayout
   title="Old photo restoration and photo scanning in Singapore | Fine Art Printing"

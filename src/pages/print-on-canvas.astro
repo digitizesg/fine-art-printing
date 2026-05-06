@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
@@ -22,7 +23,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 const description =
   "Archival canvas printing on Hahnemühle and Datajet substrates, with optional gallery-wrap stretching and float frames. Singapore's only Hahnemühle Gold-certified studio.";
 
-const jsonLd = {
+const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
   serviceType: "Fine art printing on canvas",
@@ -101,6 +102,7 @@ Don't worry if you can't hit these exactly. Send what you have and we'll check i
     a: `Standard turnaround is 5 to 7 working days for a single piece, longer for larger jobs or corporate runs. For rush jobs message us, we can often turn things around faster.`,
   },
 ];
+const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 ---
 <BaseLayout
   title="Canvas printing in Singapore | High-quality custom prints | Fine Art Printing"

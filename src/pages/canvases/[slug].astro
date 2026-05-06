@@ -5,6 +5,7 @@ import Eyebrow from "../../components/Eyebrow.astro";
 import DarkCTA from "../../components/DarkCTA.astro";
 import FrameLightbox from "../../components/FrameLightbox.astro";
 import { listCanvases, type Canvas } from "../../lib/canvases";
+import { breadcrumbSchema } from "../../lib/schema";
 import { business } from "../../data/business";
 
 export async function getStaticPaths() {
@@ -38,40 +39,47 @@ const description =
 
 const heroImage = canvas.imageUrls[0];
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Product",
-  name: canvas.name,
-  description,
-  brand: { "@type": "Brand", name: canvas.brand },
-  image: canvas.imageUrls.length > 0 ? canvas.imageUrls : undefined,
-  category: "Fine art canvas",
-  additionalProperty: [
-    { "@type": "PropertyValue", name: "Weight", value: `${canvas.gsm}gsm` },
-    { "@type": "PropertyValue", name: "Finish", value: finishLabel },
-    { "@type": "PropertyValue", name: "Tone", value: canvas.tone },
-    { "@type": "PropertyValue", name: "Texture", value: canvas.texture },
-    { "@type": "PropertyValue", name: "Maximum print width", value: `${canvas.maxPrintWidthCm} cm` },
-    { "@type": "PropertyValue", name: "Maximum print length", value: `${canvas.maxPrintLengthCm} cm` },
-  ],
-  offers: {
-    "@type": "Offer",
-    price: canvas.sellPricePerSqm.toFixed(2),
-    priceCurrency: "SGD",
-    priceSpecification: {
-      "@type": "UnitPriceSpecification",
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: canvas.name,
+    description,
+    brand: { "@type": "Brand", name: canvas.brand },
+    image: canvas.imageUrls.length > 0 ? canvas.imageUrls : undefined,
+    category: "Fine art canvas",
+    additionalProperty: [
+      { "@type": "PropertyValue", name: "Weight", value: `${canvas.gsm}gsm` },
+      { "@type": "PropertyValue", name: "Finish", value: finishLabel },
+      { "@type": "PropertyValue", name: "Tone", value: canvas.tone },
+      { "@type": "PropertyValue", name: "Texture", value: canvas.texture },
+      { "@type": "PropertyValue", name: "Maximum print width", value: `${canvas.maxPrintWidthCm} cm` },
+      { "@type": "PropertyValue", name: "Maximum print length", value: `${canvas.maxPrintLengthCm} cm` },
+    ],
+    offers: {
+      "@type": "Offer",
       price: canvas.sellPricePerSqm.toFixed(2),
       priceCurrency: "SGD",
-      unitText: "per square metre",
-    },
-    availability: "https://schema.org/InStock",
-    seller: {
-      "@type": "LocalBusiness",
-      name: business.name,
-      url: `https://${business.domain}`,
+      priceSpecification: {
+        "@type": "UnitPriceSpecification",
+        price: canvas.sellPricePerSqm.toFixed(2),
+        priceCurrency: "SGD",
+        unitText: "per square metre",
+      },
+      availability: "https://schema.org/InStock",
+      seller: {
+        "@type": "LocalBusiness",
+        name: business.name,
+        url: `https://${business.domain}`,
+      },
     },
   },
-};
+  breadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Print on canvas", url: "/print-on-canvas" },
+    { name: canvas.name },
+  ]),
+];
 ---
 <BaseLayout
   title={`${canvas.name} · Fine Art Printing Singapore`}

@@ -5,6 +5,7 @@ import Eyebrow from "../../components/Eyebrow.astro";
 import DarkCTA from "../../components/DarkCTA.astro";
 import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
+import { breadcrumbSchema } from "../../lib/schema";
 
 export async function getStaticPaths() {
   const articles = await getCollection("articles");
@@ -27,14 +28,23 @@ const fmtDate = (d: Date) =>
 const description =
   article.data.excerpt ?? `${article.data.title} — Fine Art Printing.`;
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Article",
-  headline: article.data.title,
-  datePublished: (article.data.date as Date).toISOString(),
-  url: `https://fineartprinting.com.sg/articles/${article.id.replace(/\.md$/, "")}`,
-  ...(article.data.hero ? { image: article.data.hero } : {}),
-};
+const articleSlug = article.id.replace(/\.md$/, "");
+
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: article.data.title,
+    datePublished: (article.data.date as Date).toISOString(),
+    url: `https://fineartprinting.com.sg/articles/${articleSlug}`,
+    ...(article.data.hero ? { image: article.data.hero } : {}),
+  },
+  breadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Articles", url: "/articles" },
+    { name: article.data.title },
+  ]),
+];
 ---
 <BaseLayout
   title={`${article.data.title} · Fine Art Printing`}

@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
@@ -11,7 +12,7 @@ import { business } from "../data/business";
 const description =
   "Art valuation and appraisal services in Singapore for private individuals, companies, and government bodies. Online submission from S$80 per artwork, or on-site assessment for larger collections.";
 
-const jsonLd = {
+const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
   serviceType: "Art valuation and appraisal",
@@ -60,6 +61,7 @@ const faqs = [
     a: `Sorry, no. Each valuation takes time and database access we pay for. The fee covers that work whether the answer is "this is rare" or "this is decorative".`,
   },
 ];
+const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 ---
 <BaseLayout
   title="Art valuation and appraisal services in Singapore | Fine Art Printing"

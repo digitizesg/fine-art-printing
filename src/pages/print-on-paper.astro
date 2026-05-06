@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
@@ -21,7 +22,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 const description =
   "Archival fine art printing on Hahnemühle, Fotospeed, and Datajet papers. Singapore's only Hahnemühle Gold-certified studio. Get an instant indicative quote below.";
 
-const jsonLd = {
+const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
   serviceType: "Fine art printing on paper",
@@ -92,6 +93,7 @@ Default border around your print is 3mm, we can adjust to your preference. Don't
     a: "Yes. If you have several smaller images of consistent size, you can combine them into a single image file and we'll print it as one sheet, which usually saves money. You'll need to consolidate the images and add any crop marks. If you want us to cut the prints out from the sheet afterwards, that's chargeable, message us first to discuss.",
   },
 ];
+const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 ---
 <BaseLayout
   title="Giclée printing on Hahnemühle papers in Singapore | Fine Art Printing"

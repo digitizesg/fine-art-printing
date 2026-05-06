@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
@@ -11,7 +12,7 @@ import { business } from "../data/business";
 const description =
   "Professional art restoration, cleaning, and conservation for paintings and sculptures in Singapore. Send us images for a no-obligation assessment and quote.";
 
-const jsonLd = {
+const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
   serviceType: "Art restoration",
@@ -81,6 +82,7 @@ const faqs = [
     a: `Anywhere from one to several weeks depending on the work. Light cleaning and surface fixes are quick. Structural repairs, in-painting, or full conservation jobs need longer. We'll give you a realistic estimate with the quote.`,
   },
 ];
+const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 ---
 <BaseLayout
   title="Art restoration in Singapore | Paintings and sculptures | Fine Art Printing"

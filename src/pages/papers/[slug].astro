@@ -5,6 +5,7 @@ import Eyebrow from "../../components/Eyebrow.astro";
 import DarkCTA from "../../components/DarkCTA.astro";
 import FrameLightbox from "../../components/FrameLightbox.astro";
 import { listPapers, getPaperBySlug, type Paper } from "../../lib/papers";
+import { breadcrumbSchema } from "../../lib/schema";
 import { business } from "../../data/business";
 
 export async function getStaticPaths() {
@@ -46,41 +47,48 @@ const description =
 
 const heroImage = paper.imageUrls[0];
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Product",
-  name: paper.name,
-  description,
-  brand: { "@type": "Brand", name: paper.brand },
-  image: paper.imageUrls.length > 0 ? paper.imageUrls : undefined,
-  category: "Fine art paper",
-  additionalProperty: [
-    { "@type": "PropertyValue", name: "Weight", value: `${paper.gsm}gsm` },
-    { "@type": "PropertyValue", name: "Finish", value: finishLabel },
-    { "@type": "PropertyValue", name: "Tone", value: paper.tone },
-    { "@type": "PropertyValue", name: "Texture", value: paper.texture },
-    { "@type": "PropertyValue", name: "Durability", value: paper.durability },
-    { "@type": "PropertyValue", name: "Maximum print width", value: `${paper.maxPrintWidthCm} cm` },
-    { "@type": "PropertyValue", name: "Maximum print length", value: `${paper.maxPrintLengthCm} cm` },
-  ],
-  offers: {
-    "@type": "Offer",
-    price: paper.sellPricePerSqm.toFixed(2),
-    priceCurrency: "SGD",
-    priceSpecification: {
-      "@type": "UnitPriceSpecification",
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: paper.name,
+    description,
+    brand: { "@type": "Brand", name: paper.brand },
+    image: paper.imageUrls.length > 0 ? paper.imageUrls : undefined,
+    category: "Fine art paper",
+    additionalProperty: [
+      { "@type": "PropertyValue", name: "Weight", value: `${paper.gsm}gsm` },
+      { "@type": "PropertyValue", name: "Finish", value: finishLabel },
+      { "@type": "PropertyValue", name: "Tone", value: paper.tone },
+      { "@type": "PropertyValue", name: "Texture", value: paper.texture },
+      { "@type": "PropertyValue", name: "Durability", value: paper.durability },
+      { "@type": "PropertyValue", name: "Maximum print width", value: `${paper.maxPrintWidthCm} cm` },
+      { "@type": "PropertyValue", name: "Maximum print length", value: `${paper.maxPrintLengthCm} cm` },
+    ],
+    offers: {
+      "@type": "Offer",
       price: paper.sellPricePerSqm.toFixed(2),
       priceCurrency: "SGD",
-      unitText: "per square metre",
-    },
-    availability: "https://schema.org/InStock",
-    seller: {
-      "@type": "LocalBusiness",
-      name: business.name,
-      url: `https://${business.domain}`,
+      priceSpecification: {
+        "@type": "UnitPriceSpecification",
+        price: paper.sellPricePerSqm.toFixed(2),
+        priceCurrency: "SGD",
+        unitText: "per square metre",
+      },
+      availability: "https://schema.org/InStock",
+      seller: {
+        "@type": "LocalBusiness",
+        name: business.name,
+        url: `https://${business.domain}`,
+      },
     },
   },
-};
+  breadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Print on paper", url: "/print-on-paper" },
+    { name: paper.name },
+  ]),
+];
 ---
 <BaseLayout
   title={`${paper.name} · Fine Art Printing Singapore`}

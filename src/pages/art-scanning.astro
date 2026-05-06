@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
 import DarkCTA from "../components/DarkCTA.astro";
@@ -12,7 +13,7 @@ import { business } from "../data/business";
 const description =
   "High-resolution artwork scanning in Singapore. Studio-grade flatbed digitisation with calibrated colour matching, ready for archival reprints and resale.";
 
-const jsonLd = {
+const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
   serviceType: "Art scanning and digitisation",
@@ -89,6 +90,7 @@ const faqs = [
     a: `Yes. Many clients keep the workflow under one roof: we scan, you approve the file, and we print on archival paper or canvas. Same colour pipeline end to end, so the printed result matches what we delivered digitally.`,
   },
 ];
+const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 ---
 <BaseLayout
   title="Art scanning and digitisation in Singapore | Fine Art Printing"

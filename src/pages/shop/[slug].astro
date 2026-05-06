@@ -13,6 +13,7 @@ import { quotePaperPrint } from "../../data/pricing/paper";
 import { quoteCanvasPrint } from "../../data/pricing/canvas";
 import { SHOP_ARTWORK_BASE_SGD } from "../../data/pricing/shop";
 import { business } from "../../data/business";
+import { breadcrumbSchema } from "../../lib/schema";
 import "../../styles/canvas-quote.css";
 
 export async function getStaticPaths() {
@@ -127,35 +128,42 @@ function lowestPriceForArtwork(): number | null {
 const lowestPrice = lowestPriceForArtwork();
 const productUrl = `https://${business.domain}/shop/${artwork.slug}`;
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Product",
-  name: artwork.title,
-  image: artwork.heroImageUrl,
-  description,
-  sku: artwork.slug,
-  productID: artwork.slug,
-  url: productUrl,
-  brand: { "@type": "Brand", name: "Fine Art Printing" },
-  category: "Home & Garden > Decor > Artwork > Posters, Prints, & Visual Artwork",
-  ...(artwork.artistName
-    ? { creator: { "@type": "Person", name: artwork.artistName } }
-    : {}),
-  ...(lowestPrice != null
-    ? {
-        offers: {
-          "@type": "AggregateOffer",
-          priceCurrency: "SGD",
-          lowPrice: lowestPrice,
-          offerCount: artwork.availableSizes.length,
-          availability: "https://schema.org/InStock",
-          itemCondition: "https://schema.org/NewCondition",
-          url: productUrl,
-          seller: { "@type": "Organization", name: "Fine Art Printing" },
-        },
-      }
-    : {}),
-};
+const jsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: artwork.title,
+    image: artwork.heroImageUrl,
+    description,
+    sku: artwork.slug,
+    productID: artwork.slug,
+    url: productUrl,
+    brand: { "@type": "Brand", name: "Fine Art Printing" },
+    category: "Home & Garden > Decor > Artwork > Posters, Prints, & Visual Artwork",
+    ...(artwork.artistName
+      ? { creator: { "@type": "Person", name: artwork.artistName } }
+      : {}),
+    ...(lowestPrice != null
+      ? {
+          offers: {
+            "@type": "AggregateOffer",
+            priceCurrency: "SGD",
+            lowPrice: lowestPrice,
+            offerCount: artwork.availableSizes.length,
+            availability: "https://schema.org/InStock",
+            itemCondition: "https://schema.org/NewCondition",
+            url: productUrl,
+            seller: { "@type": "Organization", name: "Fine Art Printing" },
+          },
+        }
+      : {}),
+  },
+  breadcrumbSchema([
+    { name: "Home", url: "/" },
+    { name: "Shop", url: "/shop" },
+    { name: artwork.title },
+  ]),
+];
 
 ---
 <BaseLayout

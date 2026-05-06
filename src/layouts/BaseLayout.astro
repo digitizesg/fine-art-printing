@@ -5,6 +5,7 @@ import Footer from "../components/Footer.astro";
 import SEO from "../components/SEO.astro";
 import FloatingWhatsApp from "../components/FloatingWhatsApp.astro";
 import CartToast from "../components/CartToast.astro";
+import { organizationSchema } from "../lib/schema";
 
 interface Props {
   title: string;
@@ -15,6 +16,14 @@ interface Props {
 }
 
 const { title, description, image, type, jsonLd } = Astro.props;
+
+// Combine the page's own schema (if any) with the sitewide Organization
+// node so every page reinforces the same entity in Google's knowledge
+// graph. Order: Organization first, then page-specific.
+const combinedJsonLd: Record<string, unknown>[] = [
+  organizationSchema as Record<string, unknown>,
+  ...(jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []),
+];
 ---
 <!doctype html>
 <html lang="en">
@@ -24,12 +33,11 @@ const { title, description, image, type, jsonLd } = Astro.props;
     <meta name="generator" content={Astro.generator} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <SEO title={title} description={description} image={image} type={type} />
-    {jsonLd && (
-      <script
-        type="application/ld+json"
-        set:html={JSON.stringify(jsonLd)}
-      />
-    )}
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(combinedJsonLd)}
+    />
+
   </head>
   <body class="bg-white text-ink antialiased">
     <a
