@@ -1,0 +1,242 @@
+---
+export const prerender = true;
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+import DisplayHeading from "../components/DisplayHeading.astro";
+import DarkCTA from "../components/DarkCTA.astro";
+import GoogleReviewsBadge from "../components/GoogleReviewsBadge.astro";
+import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
+import { business } from "../data/business";
+
+const description =
+  "Art valuation and appraisal services in Singapore for private individuals, companies, and government bodies. Online submission from S$80 per artwork, or on-site assessment for larger collections.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  serviceType: "Art valuation and appraisal",
+  provider: {
+    "@type": "LocalBusiness",
+    name: "Fine Art Printing",
+    url: "https://fineartprinting.com.sg",
+  },
+  areaServed: { "@type": "Country", name: "Singapore" },
+};
+
+const valuationCTA = encodeURIComponent(
+  "Hi Fine Art Printing, I'd like an art valuation. Attached are images of the artwork(s) and any details I have on the artist or provenance.",
+);
+const waLink = `${business.whatsappLink}?text=${valuationCTA}`;
+const onlineSubmitLink = `/contact?message=${valuationCTA}`;
+
+const useCases = [
+  "Art insurance and renewals",
+  "Estate, probate, and inheritance",
+  "Mark-to-market on corporate balance sheets",
+  "Pre-sale or auction estimates",
+  "Shipping declarations",
+  "Debt recovery and collateral",
+];
+
+const faqs = [
+  {
+    q: "How do you value an artwork?",
+    a: `We assess on artist, size, medium, year of creation, and any provenance. From there, the value is grounded in our experience of the art market plus access to private auction databases. When the artist isn't well known or doesn't have an auction record, we'll give a fair, evidenced estimate and tell you how confident we are in it.`,
+  },
+  {
+    q: "How long does it take?",
+    a: `For 1 to 2 works submitted online, typically 2 to 3 working days from when we have good images and any background you can share. For larger collections it depends on the volume, locations, and how quickly we can access the works in person.`,
+  },
+  {
+    q: "I'm not sure my work is worth anything. Should I still submit?",
+    a: `Many artworks are decorative. They may have personal or sentimental value but limited market value. If you aren't sure about the artist or what the piece is worth, you can still submit, that's exactly what valuation is for. We aren't able to review for free.`,
+  },
+  {
+    q: "Can you issue a certificate of authenticity?",
+    a: `No. A certificate of authenticity should come from the gallery or individual that sold you the work. What we do issue is a valuation certificate, which is the document insurers, shippers, and finance teams typically need.\n\nFor in-person assessments we can sometimes give a verbal view on authenticity, and we can introduce you to leading auction houses (Christie's, Sotheby's, etc.) if you're considering an auction sale.`,
+  },
+  {
+    q: "Can you check my artwork for free?",
+    a: `Sorry, no. Each valuation takes time and database access we pay for. The fee covers that work whether the answer is "this is rare" or "this is decorative".`,
+  },
+];
+---
+<BaseLayout
+  title="Art valuation and appraisal in Singapore · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-12 md:pt-20 md:pb-20">
+      <div class="grid gap-10 md:grid-cols-12 md:items-center md:gap-14">
+        <div class="md:col-span-6">
+          <Eyebrow>Art valuation</Eyebrow>
+          <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink text-balance">
+            Independent valuations and appraisals.
+          </h1>
+          <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+            We provide art valuation and appraisal services for private
+            collectors, companies, and government bodies in Singapore. From a
+            single artwork to collections of 500 or more, with valuation
+            certificates suitable for insurance, estates, shipping, and
+            mark-to-market.
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a
+              href="#engage"
+              class="inline-flex items-center gap-2 rounded-pill bg-petrol px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
+            >
+              See pricing <span aria-hidden="true">↓</span>
+            </a>
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 rounded-pill border border-[#1ebe5b] bg-[#25D366] px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#1ebe5b]"
+            >
+              <WhatsAppIcon size={16} />
+              <span>WhatsApp us</span>
+            </a>
+          </div>
+
+          <GoogleReviewsBadge class="mt-6" />
+        </div>
+
+        <div class="md:col-span-6">
+          <figure>
+            <img
+              src="/photos/german-etching-1.jpg"
+              alt="Archival print being assessed at the Fine Art Printing studio"
+              class="aspect-[4/5] w-full rounded-card object-cover shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)]"
+            />
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Engagement options -->
+  <section id="engage" class="border-t border-border-soft bg-[#FAF7F1] scroll-mt-6">
+    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+      <div class="mx-auto max-w-[680px] text-center">
+        <Eyebrow>How to engage us</Eyebrow>
+        <DisplayHeading level={2} class="mt-3">
+          Two ways to get a valuation.
+        </DisplayHeading>
+        <p class="mt-5 text-[16px] leading-relaxed text-subtle">
+          Pick the path that fits your situation. Online submission is fastest
+          and cheapest for a handful of works. Site visits are right for
+          larger collections, internal procurement workflows, or pieces you'd
+          rather not move.
+        </p>
+      </div>
+
+      <div class="mt-12 grid gap-5 md:grid-cols-2">
+        <article class="flex flex-col gap-4 rounded-card border border-border-soft bg-white p-7">
+          <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">Online submission</p>
+          <h3 class="font-serif text-[26px] font-medium leading-[1.15] text-ink">From <span class="tabular-nums">S$80</span> <span class="text-[15px] font-normal text-subtle">per artwork</span></h3>
+          <p class="text-[14.5px] leading-relaxed text-subtle">Best when you have up to six pieces, can submit good-quality images, and don't need us to come on site.</p>
+          <ul class="mt-2 grid gap-2 text-[14px] text-ink">
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 rounded-full bg-petrol shrink-0"></span> Up to 6 artworks per submission</li>
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 rounded-full bg-petrol shrink-0"></span> Submit images and details by email or contact form</li>
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 rounded-full bg-petrol shrink-0"></span> Pay online once we confirm scope</li>
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 rounded-full bg-petrol shrink-0"></span> Valuation certificate per artwork</li>
+          </ul>
+          <a
+            href={onlineSubmitLink}
+            class="mt-3 inline-flex items-center justify-center gap-2 rounded-pill bg-petrol px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
+          >
+            Submit online <span aria-hidden="true">→</span>
+          </a>
+        </article>
+
+        <article class="flex flex-col gap-4 rounded-card border border-border-soft bg-white p-7">
+          <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">Site visit</p>
+          <h3 class="font-serif text-[26px] font-medium leading-[1.15] text-ink">From <span class="tabular-nums">S$100</span> <span class="text-[15px] font-normal text-subtle">per artwork</span></h3>
+          <p class="text-[14.5px] leading-relaxed text-subtle">Best for larger collections, multi-location holdings, internal procurement, or work that needs an in-person assessment.</p>
+          <ul class="mt-2 grid gap-2 text-[14px] text-ink">
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 rounded-full bg-petrol shrink-0"></span> Suitable for 7+ artworks</li>
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 rounded-full bg-petrol shrink-0"></span> On-site assessment of each work</li>
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 rounded-full bg-petrol shrink-0"></span> Consolidated report at the end</li>
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 rounded-full bg-petrol shrink-0"></span> Compatible with internal procurement / vendor processes</li>
+          </ul>
+          <a
+            href="/contact"
+            class="mt-3 inline-flex items-center justify-center gap-2 rounded-pill border border-border px-5 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:bg-black/[0.03]"
+          >
+            Contact us <span aria-hidden="true">→</span>
+          </a>
+        </article>
+      </div>
+
+      <p class="mt-8 max-w-[820px] mx-auto text-center text-[13px] text-subtle">
+        Decades of experience and access to private auction databases sit
+        behind every valuation. We aren't able to provide free appraisals.
+      </p>
+    </div>
+  </section>
+
+  <!-- Use cases -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="mx-auto max-w-[680px] text-center">
+        <Eyebrow>Valid for</Eyebrow>
+        <DisplayHeading level={2} class="mt-3">
+          What our valuation certificates cover.
+        </DisplayHeading>
+        <p class="mt-5 text-[16px] leading-relaxed text-subtle">
+          Our written valuation certificate is suitable for the situations
+          most clients need it for. Note: this is not a certificate of
+          authenticity, which has to come from the gallery or person you
+          bought the work from.
+        </p>
+      </div>
+      <ul class="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {useCases.map((u) => (
+          <li class="flex items-start gap-3 rounded-card border border-border-soft bg-white p-4">
+            <span class="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-petrol/10 text-petrol">
+              <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true">
+                <path d="M2 6l3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="text-[14.5px] leading-relaxed text-ink">{u}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>FAQ</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">
+            Common questions.
+          </DisplayHeading>
+          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+            If yours isn't here, WhatsApp us with a photo and we'll come back
+            with a steer.
+          </p>
+        </div>
+        <ul class="md:col-span-8 grid grid-cols-1 gap-4">
+          {faqs.map(({ q, a }) => (
+            <li class="rounded-card border border-border-soft bg-white p-6">
+              <h3 class="font-serif text-[18px] font-medium leading-[1.3] text-ink">
+                {q}
+              </h3>
+              <p class="mt-3 text-[14.5px] leading-relaxed text-subtle whitespace-pre-line">
+                {a}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <DarkCTA />
+</BaseLayout>

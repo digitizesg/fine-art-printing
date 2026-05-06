@@ -1,0 +1,232 @@
+---
+export const prerender = true;
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+import DisplayHeading from "../components/DisplayHeading.astro";
+import DarkCTA from "../components/DarkCTA.astro";
+import GoogleReviewsBadge from "../components/GoogleReviewsBadge.astro";
+import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
+import { business } from "../data/business";
+
+const description =
+  "Professional art restoration, cleaning, and conservation for paintings and sculptures in Singapore. Send us images for a no-obligation assessment and quote.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  serviceType: "Art restoration",
+  provider: {
+    "@type": "LocalBusiness",
+    name: "Fine Art Printing",
+    url: "https://fineartprinting.com.sg",
+  },
+  areaServed: { "@type": "Country", name: "Singapore" },
+};
+
+const restorationCTA = encodeURIComponent(
+  "Hi Fine Art Printing, I'd like a quote for art restoration. I've attached photos of the work and a description of the damage.",
+);
+const waLink = `${business.whatsappLink}?text=${restorationCTA}`;
+const contactLink = `/contact?message=${restorationCTA}`;
+
+const commonIssues = [
+  "Damage or tears to the artwork",
+  "Cracked or flaking paint",
+  "Staining or discolouration of the paintwork",
+  "Water and moisture damage",
+  "Loose and rippled canvas",
+  "Yellowing and mould spots on paper works",
+  "Insect damage",
+  "Damage from outside elements (sunlight, rain, traffic)",
+];
+
+const whatWeRestore = [
+  {
+    title: "Paintings",
+    body:
+      "Oil and acrylic on canvas, watercolours on paper, mixed media. Cleaning, in-painting, re-stretching, and surface stabilisation.",
+  },
+  {
+    title: "Sculptures",
+    body:
+      "Indoor and outdoor sculptures across stone, bronze, wood, and resin. Cleaning, structural repair, and protective treatment.",
+  },
+  {
+    title: "Old photographs",
+    body:
+      "Faded, mouldy, or torn photographs. Handled separately on our scanning and restoration page since the workflow is digital rather than physical.",
+  },
+];
+
+const faqs = [
+  {
+    q: "How much does art restoration cost?",
+    a: `It really depends on the artwork, the medium, and the condition. Send us photos of the piece and the damage and we'll come back with options and pricing. We're competitive within the Singapore market.`,
+  },
+  {
+    q: "What types of artworks can you restore?",
+    a: `All kinds. Paintings on canvas or paper, sculptures (indoor and outdoor), and most mixed-media pieces. For old photographs, see our scanning and restoration service since that's a digital workflow. Send images and we'll advise.`,
+  },
+  {
+    q: "My work isn't especially valuable. Is it still worth restoring?",
+    a: `Restoration is skilled, time-intensive work, so it isn't cheap. It tends to make sense for valuable pieces or works with strong sentimental value. Either way, send us images and we'll give you an honest assessment of cost vs benefit.`,
+  },
+  {
+    q: "How does the process work?",
+    a: `Send us photos and a short description of the damage by WhatsApp, email, or the contact form. We'll come back with a no-obligation assessment, a recommended approach, and a quote. If you go ahead, we arrange drop-off (or pickup for larger pieces) and confirm a turnaround time before any work starts.`,
+  },
+  {
+    q: "How long does restoration take?",
+    a: `Anywhere from one to several weeks depending on the work. Light cleaning and surface fixes are quick. Structural repairs, in-painting, or full conservation jobs need longer. We'll give you a realistic estimate with the quote.`,
+  },
+];
+---
+<BaseLayout
+  title="Art restoration in Singapore · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-12 md:pt-20 md:pb-20">
+      <div class="grid gap-10 md:grid-cols-12 md:items-center md:gap-14">
+        <div class="md:col-span-6">
+          <Eyebrow>Art restoration</Eyebrow>
+          <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink text-balance">
+            Professional restoration, cleaning, and conservation.
+          </h1>
+          <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+            Restoration services for paintings, sculptures, and works on paper.
+            We work with private collectors, companies, and government bodies
+            across Singapore. Send us photos of the piece and we'll come back
+            with options, an approach, and a no-obligation quote.
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a
+              href={contactLink}
+              class="inline-flex items-center gap-2 rounded-pill bg-petrol px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
+            >
+              Request a quote <span aria-hidden="true">→</span>
+            </a>
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 rounded-pill border border-[#1ebe5b] bg-[#25D366] px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#1ebe5b]"
+            >
+              <WhatsAppIcon size={16} />
+              <span>WhatsApp us</span>
+            </a>
+          </div>
+
+          <GoogleReviewsBadge class="mt-6" />
+        </div>
+
+        <div class="md:col-span-6">
+          <figure>
+            <img
+              src="/photos/photo-rag-1.jpg"
+              alt="Detail of a restored archival print mounted in a fine art frame"
+              class="aspect-[4/5] w-full rounded-card object-cover shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)]"
+            />
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Common issues we handle -->
+  <section class="border-t border-border-soft bg-[#FAF7F1]">
+    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+      <div class="mx-auto max-w-[680px] text-center">
+        <Eyebrow>What we handle</Eyebrow>
+        <DisplayHeading level={2} class="mt-3">
+          Common restoration issues.
+        </DisplayHeading>
+        <p class="mt-5 text-[16px] leading-relaxed text-subtle">
+          A non-exhaustive list of the kinds of damage we regularly see and
+          treat. If your piece isn't on the list, send us a photo, we'll tell
+          you whether it's something we can help with.
+        </p>
+      </div>
+
+      <ul class="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
+        {commonIssues.map((issue) => (
+          <li class="flex items-start gap-3 rounded-card border border-border-soft bg-white p-4">
+            <span class="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-petrol/10 text-petrol">
+              <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true">
+                <path d="M2 6l3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="text-[14.5px] leading-relaxed text-ink">{issue}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- What we restore -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="mx-auto max-w-[680px] text-center">
+        <Eyebrow>What we restore</Eyebrow>
+        <DisplayHeading level={2} class="mt-3">
+          Across most fine art mediums.
+        </DisplayHeading>
+        <p class="mt-5 text-[16px] leading-relaxed text-subtle">
+          We work with skilled conservators across painting, sculpture, and
+          paper. Most jobs start the same way: photos and a short description,
+          followed by an in-person assessment for anything substantial.
+        </p>
+      </div>
+      <ol class="mt-14 grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-3">
+        {whatWeRestore.map((row, i) => (
+          <li class="border-t border-ink/10 pt-5">
+            <span class="font-serif italic text-[14px] text-[var(--color-gold-text)]">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <h3 class="mt-2 font-serif text-[20px] font-medium leading-[1.3] text-ink">
+              {row.title}
+            </h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-subtle">
+              {row.body}
+            </p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>FAQ</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">
+            Common questions.
+          </DisplayHeading>
+          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+            If yours isn't here, WhatsApp us with a photo, we usually reply
+            within the hour during studio hours.
+          </p>
+        </div>
+        <ul class="md:col-span-8 grid grid-cols-1 gap-4">
+          {faqs.map(({ q, a }) => (
+            <li class="rounded-card border border-border-soft bg-white p-6">
+              <h3 class="font-serif text-[18px] font-medium leading-[1.3] text-ink">
+                {q}
+              </h3>
+              <p class="mt-3 text-[14.5px] leading-relaxed text-subtle whitespace-pre-line">
+                {a}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <DarkCTA />
+</BaseLayout>
