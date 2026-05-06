@@ -103,8 +103,7 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
       </p>
       <ul class="psc__quote-lines" data-quote-lines></ul>
       <p class="psc__quote-disclaimer">
-        Estimate only. Submit photos for an exact quote — every job is
-        different and condition matters more than size.
+        <strong>Estimate only.</strong> Submit photos for an exact quote. Every job is different and condition matters more than size.
       </p>
     </div>
     <div class="psc__quote-result" data-quote-oversize hidden>
@@ -343,11 +342,18 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
     color: var(--color-subtle);
   }
   .psc__quote-disclaimer {
-    margin: 0;
-    font-size: 12px;
-    color: var(--color-muted);
-    line-height: 1.5;
-    font-style: italic;
+    margin: 4px 0 0;
+    padding: 12px 14px;
+    background: rgba(184, 57, 11, 0.06);
+    border-left: 3px solid #B8390B;
+    border-radius: 6px;
+    font-size: 13.5px;
+    color: var(--color-ink);
+    line-height: 1.55;
+  }
+  .psc__quote-disclaimer strong {
+    color: #8a2a08;
+    font-weight: 700;
   }
   .psc__cta {
     display: flex;
