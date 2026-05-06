@@ -28,21 +28,13 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
     </div>
   )}
 
-  <div class="psc__intro" data-intro="restoration">
-    <p>
-      Old photographs that need scanning and repair. Pick the size and the
-      restoration level, we'll show you a per-photo estimate.
+  <div class="psc__group">
+    <p class="psc__lede" data-intro="restoration">
+      Please input the height and width below to get a rough estimate for your restoration.
     </p>
-  </div>
-  <div class="psc__intro" data-intro="art-scanning" hidden>
-    <p>
-      Artwork being digitised for prints or resale. Pick the size and whether
-      you need accurate colour matching, we'll show you a per-piece estimate.
+    <p class="psc__lede" data-intro="art-scanning" hidden>
+      Please input the height and width below to get a rough estimate for your scan.
     </p>
-  </div>
-
-  <fieldset class="psc__group">
-    <legend>Original size</legend>
     <div class="psc__dims">
       <label class="psc__dim">
         <span>Width</span>
@@ -78,7 +70,7 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
       Anything larger than {MAX_DIMENSION_CM} cm on either side needs a
       custom quote, that's where our workflow shifts to camera capture.
     </p>
-  </fieldset>
+  </div>
 
   <fieldset class="psc__group" data-only="restoration">
     <legend>Restoration level</legend>
@@ -207,6 +199,14 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
     font-size: 14px;
     color: var(--color-subtle);
     line-height: 1.6;
+  }
+  .psc__lede {
+    margin: 0 0 14px;
+    font-family: var(--font-serif);
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--color-ink);
   }
   .psc__group {
     border: 0;
