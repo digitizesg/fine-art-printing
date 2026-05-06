@@ -31,6 +31,24 @@ const services = [
   },
 ];
 
+const specialtyServices = [
+  {
+    href: "/art-restoration",
+    label: "Art restoration",
+    description: "Paintings, sculptures, conservation",
+  },
+  {
+    href: "/scanning-restoration",
+    label: "Photo restoration",
+    description: "Old photos, scanning, enlargement",
+  },
+  {
+    href: "/art-valuation",
+    label: "Art valuation",
+    description: "Insurance, estate, appraisals",
+  },
+];
+
 const navLinks = [
   { href: "/shop", label: "Shop" },
   { href: "/gallery", label: "Gallery" },
@@ -75,6 +93,17 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
                 <span class="services-menu__card-sub">{s.description}</span>
               </a>
             ))}
+          </div>
+          <div class="services-menu__specialty">
+            <p class="services-menu__specialty-label">Also available</p>
+            <div class="services-menu__specialty-grid">
+              {specialtyServices.map((s) => (
+                <a href={s.href} class="services-menu__specialty-card">
+                  <span class="services-menu__specialty-title">{s.label}</span>
+                  <span class="services-menu__specialty-sub">{s.description}</span>
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </details>
@@ -141,6 +170,18 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       <p class="text-[11px] font-semibold uppercase tracking-wide text-muted">Services</p>
       <div class="mt-1 flex flex-col">
         {services.map((s) => (
+          <a
+            href={s.href}
+            class="block py-2.5 text-[15px] text-ink hover:text-petrol transition-colors"
+          >
+            {s.label}
+          </a>
+        ))}
+      </div>
+
+      <p class="mt-4 text-[11px] font-semibold uppercase tracking-wide text-muted">Also available</p>
+      <div class="mt-1 flex flex-col">
+        {specialtyServices.map((s) => (
           <a
             href={s.href}
             class="block py-2.5 text-[15px] text-ink hover:text-petrol transition-colors"
@@ -267,6 +308,48 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     font-size: 12.5px;
     color: var(--color-subtle);
     margin-top: 3px;
+    line-height: 1.4;
+  }
+  .services-menu__specialty {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.10);
+  }
+  .services-menu__specialty-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-muted);
+    margin: 0 8px 6px;
+  }
+  .services-menu__specialty-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 4px;
+  }
+  .services-menu__specialty-card {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 150ms ease-out;
+  }
+  .services-menu__specialty-card:hover {
+    background: rgba(0, 0, 0, 0.035);
+  }
+  .services-menu__specialty-title {
+    font-family: var(--font-serif);
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--color-ink);
+    line-height: 1.25;
+  }
+  .services-menu__specialty-sub {
+    font-size: 12px;
+    color: var(--color-subtle);
+    margin-top: 2px;
     line-height: 1.4;
   }
   .brand {
