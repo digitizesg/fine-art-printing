@@ -1,8 +1,8 @@
 ---
 import {
-  SIZE_BUCKETS,
   RESTORATION_LABELS,
   RESTORATION_DESCRIPTIONS,
+  MAX_DIMENSION_CM,
   type JobKind,
 } from "../data/pricing/photo-services";
 import { business } from "../data/business";
@@ -43,17 +43,41 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
 
   <fieldset class="psc__group">
     <legend>Original size</legend>
-    <div class="psc__sizes">
-      {SIZE_BUCKETS.map((b) => (
-        <label class="psc__size">
-          <input type="radio" name="size" value={b.id} data-input-size />
-          <span class="psc__size-body">
-            <span class="psc__size-label">{b.label}</span>
-            <span class="psc__size-note">{b.note}</span>
-          </span>
-        </label>
-      ))}
+    <div class="psc__dims">
+      <label class="psc__dim">
+        <span>Width</span>
+        <input
+          type="number"
+          name="width_cm"
+          min="1"
+          max={MAX_DIMENSION_CM}
+          step="0.5"
+          inputmode="decimal"
+          placeholder="e.g. 30"
+          data-input-width
+        />
+        <span class="psc__dim-unit">cm</span>
+      </label>
+      <span class="psc__dim-x" aria-hidden="true">×</span>
+      <label class="psc__dim">
+        <span>Height</span>
+        <input
+          type="number"
+          name="height_cm"
+          min="1"
+          max={MAX_DIMENSION_CM}
+          step="0.5"
+          inputmode="decimal"
+          placeholder="e.g. 40"
+          data-input-height
+        />
+        <span class="psc__dim-unit">cm</span>
+      </label>
     </div>
+    <p class="psc__dim-hint">
+      Anything larger than {MAX_DIMENSION_CM} cm on either side needs a
+      custom quote, that's where our workflow shifts to camera capture.
+    </p>
   </fieldset>
 
   <fieldset class="psc__group" data-only="restoration">
@@ -120,8 +144,9 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
       <p class="psc__quote-eyebrow">Oversize</p>
       <p class="psc__quote-grand">Custom quote</p>
       <p class="psc__quote-per">
-        Anything larger than A1 needs a quote because we work with a different
-        camera setup. WhatsApp us photos and dimensions.
+        Anything larger than {MAX_DIMENSION_CM} cm on either side needs a custom
+        quote, that's where the workflow shifts to camera capture. WhatsApp us
+        photos and dimensions.
       </p>
     </div>
   </div>
@@ -199,10 +224,62 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
     padding: 0;
     margin-bottom: 4px;
   }
-  .psc__sizes {
+  .psc__dims {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .psc__dim {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 8px;
+    gap: 4px;
+    flex: 1 1 140px;
+    min-width: 130px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-ink);
+    position: relative;
+  }
+  .psc__dim input {
+    font: inherit;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+    padding: 10px 38px 10px 12px;
+    border: 1px solid var(--color-border, rgba(0,0,0,0.18));
+    border-radius: 10px;
+    background: #fff;
+    color: var(--color-ink);
+    -moz-appearance: textfield;
+  }
+  .psc__dim input::-webkit-outer-spin-button,
+  .psc__dim input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  .psc__dim input:focus {
+    outline: 2px solid var(--color-petrol);
+    outline-offset: 1px;
+  }
+  .psc__dim-unit {
+    position: absolute;
+    right: 12px;
+    bottom: 11px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--color-muted);
+    pointer-events: none;
+  }
+  .psc__dim-x {
+    font-size: 18px;
+    color: var(--color-muted);
+    padding-bottom: 10px;
+    user-select: none;
+  }
+  .psc__dim-hint {
+    margin: 8px 0 0;
+    font-size: 12.5px;
+    color: var(--color-subtle);
+    line-height: 1.5;
   }
   .psc__size, .psc__level {
     display: flex;
@@ -391,7 +468,7 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
 </style>
 
 <script>
-  import { quotePhotoService, type JobKind, type RestorationLevel, type SizeBucket } from "../data/pricing/photo-services";
+  import { quotePhotoService, type JobKind, type RestorationLevel } from "../data/pricing/photo-services";
 
   const root = document.querySelector<HTMLElement>("[data-psc]");
   if (root) initCalc(root);
@@ -439,16 +516,24 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
       return el?.value ?? null;
     }
 
+    const widthInput = root.querySelector<HTMLInputElement>("[data-input-width]")!;
+    const heightInput = root.querySelector<HTMLInputElement>("[data-input-height]")!;
+
     function update() {
-      const size = getRadio("size") as SizeBucket | null;
+      const widthCm = parseFloat(widthInput.value);
+      const heightCm = parseFloat(heightInput.value);
       const restoration = (getRadio("restoration") as RestorationLevel | null) ?? "none";
       const colourEl = root.querySelector<HTMLInputElement>("[data-input-colour]");
       const colourMatching = colourEl ? colourEl.checked : false;
       const quantity = Math.max(1, Math.min(50, parseInt(qtyInput.value, 10) || 1));
 
-      // Restoration tab needs both size + level. Scanning tab needs size.
+      const haveDims =
+        Number.isFinite(widthCm) && Number.isFinite(heightCm) && widthCm > 0 && heightCm > 0;
+
+      // Restoration tab needs both dims + level. Scanning tab needs dims.
       const ready =
-        size && (kind === "art-scanning" || (kind === "restoration" && getRadio("restoration") !== null));
+        haveDims &&
+        (kind === "art-scanning" || (kind === "restoration" && getRadio("restoration") !== null));
       if (!ready) {
         promptEl.hidden = false;
         resultEl.hidden = true;
@@ -456,16 +541,10 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
         return;
       }
 
-      if (size === "larger") {
-        promptEl.hidden = true;
-        resultEl.hidden = true;
-        oversizeEl.hidden = false;
-        return;
-      }
-
       const r = quotePhotoService({
         kind,
-        size: size as SizeBucket,
+        widthCm,
+        heightCm,
         quantity,
         restoration,
         colourMatching,
@@ -494,8 +573,7 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
         .join("");
 
       // Pre-fill the contact / WhatsApp messages with the configuration.
-      const sizeLabel =
-        ({ a4: "A4 or smaller", a3: "A3", a2: "A2", a1: "A1" } as Record<string, string>)[size as string] ?? size;
+      const sizeLabel = `${widthCm} × ${heightCm} cm`;
       const kindLabel = kind === "restoration" ? "photo restoration" : "art scanning";
       const restorationLabelMap: Record<RestorationLevel, string> = {
         none: "scan only",
@@ -517,6 +595,11 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
     ctaWhatsapp.dataset.baseHref = ctaWhatsapp.href.split("?")[0];
 
     root.addEventListener("change", update);
+    // Number inputs don't fire `change` on every keystroke, so listen
+    // to `input` too — visitors expect the price to update live as
+    // they type.
+    widthInput.addEventListener("input", update);
+    heightInput.addEventListener("input", update);
     root.querySelector<HTMLButtonElement>("[data-qty-dec]")?.addEventListener("click", () => {
       qtyInput.value = String(Math.max(1, parseInt(qtyInput.value, 10) - 1));
       update();

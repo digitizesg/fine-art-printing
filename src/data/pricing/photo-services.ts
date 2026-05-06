@@ -1,6 +1,6 @@
 /**
  * Pricing for the photo-restoration / art-scanning quoter on
- * /scanning-restoration. Job kinds:
+ * /scanning-restoration and /art-scanning. Job kinds:
  *
  *   1. "restoration"  — old photo + condition-based repair work
  *   2. "art-scanning" — artwork digitisation for resale, optional colour matching
@@ -10,11 +10,11 @@
  * a level-based per-item fee. Scanning jobs optionally add a flat
  * colour-matching fee.
  *
- * Prices in SGD whole dollars. Tune in one place if the brackets
- * shift; the component imports straight from here.
+ * Customer enters width × height in cm. The engine works out how
+ * many flatbed passes are needed by trying both orientations and
+ * picking the cheaper tile count.
  */
 
-export type SizeBucket = "a4" | "a3" | "a2" | "a1" | "larger";
 export type RestorationLevel = "none" | "light" | "heavy" | "major";
 export type JobKind = "restoration" | "art-scanning";
 
@@ -22,6 +22,16 @@ export const SCAN_FIRST_SGD = 50;
 export const SCAN_ADDITIONAL_SGD = 10;
 export const STITCHING_SGD = 25;
 export const COLOUR_MATCHING_SGD = 150;
+
+/** Physical flatbed dimensions in cm (Epson Expression 13000XL = A3). */
+export const FLATBED_LONG_CM = 42;
+export const FLATBED_SHORT_CM = 29.7;
+/** Items barely over a scan-edge (e.g. 30 cm vs the 29.7 short edge)
+ *  shouldn't get billed for an extra scan they don't really need. */
+const TOLERANCE_CM = 0.5;
+/** Hard cap. Above this we punt to a custom quote — at that scale
+ *  the workflow shifts to camera capture rather than flatbed tiling. */
+export const MAX_DIMENSION_CM = 120;
 
 export const RESTORATION_PRICE_SGD: Record<RestorationLevel, number> = {
   none: 0,
@@ -45,17 +55,10 @@ export const RESTORATION_DESCRIPTIONS: Record<RestorationLevel, string> = {
     "Extensive damage with in-painting. Slow, painstaking work; expect a longer turnaround.",
 };
 
-export const SIZE_BUCKETS: { id: SizeBucket; label: string; scans: number | null; note: string }[] = [
-  { id: "a4", label: "A4 or smaller", scans: 1, note: "Postcard, family photo, small print" },
-  { id: "a3", label: "A3", scans: 1, note: "Magazine, large family photo" },
-  { id: "a2", label: "A2", scans: 2, note: "Roughly tabloid / poster size" },
-  { id: "a1", label: "A1", scans: 4, note: "Roughly broadsheet / large poster size" },
-  { id: "larger", label: "Larger than A1", scans: null, note: "Needs a custom quote" },
-];
-
 export interface PhotoQuoteInput {
   kind: JobKind;
-  size: SizeBucket;
+  widthCm: number;
+  heightCm: number;
   quantity: number;
   /** Restoration level — only used when kind === "restoration". */
   restoration?: RestorationLevel;
@@ -76,31 +79,68 @@ export type PhotoQuoteResult =
       quantity: number;
       grandTotal: number;
     }
-  | { ok: false; reason: "oversize" | "invalid-quantity" };
+  | { ok: false; reason: "oversize" | "invalid-dimensions" | "invalid-quantity" };
+
+function scansForEdge(dim: number, edge: number): number {
+  if (dim <= edge + TOLERANCE_CM) return 1;
+  return Math.ceil((dim - TOLERANCE_CM) / edge);
+}
+
+/**
+ * Smallest number of A3 flatbed passes that cover an item with the
+ * given dimensions. Tries both orientations (item-long vs flatbed-
+ * long, item-long vs flatbed-short) and picks whichever tiles into
+ * fewer scans.
+ */
+export function scanCountForDimensions(
+  widthCm: number,
+  heightCm: number,
+): number | null {
+  if (
+    !Number.isFinite(widthCm) ||
+    !Number.isFinite(heightCm) ||
+    widthCm <= 0 ||
+    heightCm <= 0
+  ) {
+    return null;
+  }
+  if (widthCm > MAX_DIMENSION_CM || heightCm > MAX_DIMENSION_CM) {
+    return null;
+  }
+  const long = Math.max(widthCm, heightCm);
+  const short = Math.min(widthCm, heightCm);
+  const a = scansForEdge(long, FLATBED_LONG_CM) * scansForEdge(short, FLATBED_SHORT_CM);
+  const b = scansForEdge(long, FLATBED_SHORT_CM) * scansForEdge(short, FLATBED_LONG_CM);
+  return Math.min(a, b);
+}
 
 export function quotePhotoService(input: PhotoQuoteInput): PhotoQuoteResult {
-  const bucket = SIZE_BUCKETS.find((b) => b.id === input.size);
-  if (!bucket || bucket.scans === null) {
-    return { ok: false, reason: "oversize" };
+  if (
+    !Number.isFinite(input.widthCm) ||
+    !Number.isFinite(input.heightCm) ||
+    input.widthCm <= 0 ||
+    input.heightCm <= 0
+  ) {
+    return { ok: false, reason: "invalid-dimensions" };
   }
   const quantity = Math.floor(input.quantity || 0);
   if (!Number.isFinite(quantity) || quantity < 1) {
     return { ok: false, reason: "invalid-quantity" };
   }
-  const scans = bucket.scans;
+  const scans = scanCountForDimensions(input.widthCm, input.heightCm);
+  if (scans === null) {
+    return { ok: false, reason: "oversize" };
+  }
 
   const lines: PhotoQuoteLine[] = [];
 
   // Internal mechanics: $50 first scan + $10 each additional + $25
-  // stitching when more than one scan. Surfaced to the customer as a
-  // single consolidated "Scanning" line — they don't need to think
-  // about scan counts or our Photoshop step.
+  // stitching when more than one scan. Customer-facing single line.
   const rawScanCost = SCAN_FIRST_SGD + Math.max(0, scans - 1) * SCAN_ADDITIONAL_SGD;
   const stitchingCost = scans > 1 ? STITCHING_SGD : 0;
   const scanLineAmount = rawScanCost + stitchingCost;
   lines.push({ label: "Scanning", amount: scanLineAmount });
 
-  // Restoration / colour-matching add-on, depending on job kind.
   if (input.kind === "restoration") {
     const level = input.restoration ?? "none";
     const restorationCost = RESTORATION_PRICE_SGD[level];
