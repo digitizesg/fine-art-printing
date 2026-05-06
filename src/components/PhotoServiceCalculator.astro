@@ -364,6 +364,12 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
     border-radius: 10px;
     background: #fff;
     font-variant-numeric: tabular-nums;
+    -moz-appearance: textfield;
+  }
+  .psc__qty input::-webkit-outer-spin-button,
+  .psc__qty input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
   }
   .psc__qty-btn {
     width: 36px;
