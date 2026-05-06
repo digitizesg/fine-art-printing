@@ -6,6 +6,7 @@
  * for frame-examples.
  */
 import { supabasePublic } from "./supabase";
+import { buildMemo } from "./build-cache";
 
 export interface AvailableSize {
   width_cm: number;
@@ -91,20 +92,23 @@ function rowToArtwork(row: DbRow): Artwork {
 }
 
 export async function listArtworks(opts: { onlyPublished?: boolean } = {}): Promise<Artwork[]> {
-  let query = supabasePublic
-    .from("artworks")
-    .select("*")
-    .order("display_order", { ascending: true })
-    .order("created_at", { ascending: false });
-  if (opts.onlyPublished !== false) {
-    query = query.eq("published", true);
-  }
-  const { data, error } = await query;
-  if (error) {
-    console.error("Failed to load artworks:", error.message);
-    return [];
-  }
-  return (data as DbRow[]).map(rowToArtwork);
+  const onlyPublished = opts.onlyPublished !== false;
+  return buildMemo(`artworks:onlyPublished=${onlyPublished}`, async () => {
+    let query = supabasePublic
+      .from("artworks")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: false });
+    if (onlyPublished) {
+      query = query.eq("published", true);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.error("Failed to load artworks:", error.message);
+      return [];
+    }
+    return (data as DbRow[]).map(rowToArtwork);
+  });
 }
 
 export async function getArtworkBySlug(slug: string): Promise<Artwork | null> {

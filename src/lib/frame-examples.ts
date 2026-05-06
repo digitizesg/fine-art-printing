@@ -6,6 +6,7 @@
  * supabase client but with the user's session for write access.
  */
 import { supabasePublic, frameExampleUrl } from "./supabase";
+import { buildMemo } from "./build-cache";
 import { PICTURE_FRAMES } from "../data/picture-frames";
 import type { FloatFrame } from "./float-frames";
 import type { Canvas } from "./canvases";
@@ -116,15 +117,17 @@ function rowToExample(row: DbRow): FrameExample {
 }
 
 export async function listExamples(): Promise<FrameExample[]> {
-  const { data, error } = await supabasePublic
-    .from("frame_examples")
-    .select("*")
-    .order("display_order", { ascending: true });
-  if (error) {
-    console.error("Failed to load frame examples:", error.message);
-    return [];
-  }
-  return (data as DbRow[]).map(rowToExample);
+  return buildMemo("frame-examples:all", async () => {
+    const { data, error } = await supabasePublic
+      .from("frame_examples")
+      .select("*")
+      .order("display_order", { ascending: true });
+    if (error) {
+      console.error("Failed to load frame examples:", error.message);
+      return [];
+    }
+    return (data as DbRow[]).map(rowToExample);
+  });
 }
 
 /**

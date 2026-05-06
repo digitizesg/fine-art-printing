@@ -3,6 +3,7 @@
  * and stretching. Replaces the static CANVASES constant in canvas.ts.
  */
 import { supabasePublic } from "./supabase";
+import { buildMemo } from "./build-cache";
 
 export type CanvasFinish = "matt" | "smooth-matt" | "high-gloss";
 
@@ -90,20 +91,23 @@ function rowToCanvas(row: DbRow): Canvas {
 }
 
 export async function listCanvases(opts: { onlyPublished?: boolean } = {}): Promise<Canvas[]> {
-  let query = supabasePublic
-    .from("canvases")
-    .select("*")
-    .order("display_order", { ascending: true })
-    .order("created_at", { ascending: true });
-  if (opts.onlyPublished !== false) {
-    query = query.eq("published", true);
-  }
-  const { data, error } = await query;
-  if (error) {
-    console.error("Failed to load canvases:", error.message);
-    return [];
-  }
-  return (data as DbRow[]).map(rowToCanvas);
+  const onlyPublished = opts.onlyPublished !== false;
+  return buildMemo(`canvases:onlyPublished=${onlyPublished}`, async () => {
+    let query = supabasePublic
+      .from("canvases")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (onlyPublished) {
+      query = query.eq("published", true);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.error("Failed to load canvases:", error.message);
+      return [];
+    }
+    return (data as DbRow[]).map(rowToCanvas);
+  });
 }
 
 export async function getCanvasBySlug(slug: string): Promise<Canvas | null> {

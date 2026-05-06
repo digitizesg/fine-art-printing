@@ -3,6 +3,7 @@
  * PAPERS constant in src/data/pricing/paper.ts.
  */
 import { supabasePublic } from "./supabase";
+import { buildMemo } from "./build-cache";
 
 export type PaperFinish =
   | "matt"
@@ -109,20 +110,23 @@ function rowToPaper(row: DbRow): Paper {
 }
 
 export async function listPapers(opts: { onlyPublished?: boolean } = {}): Promise<Paper[]> {
-  let query = supabasePublic
-    .from("papers")
-    .select("*")
-    .order("display_order", { ascending: true })
-    .order("created_at", { ascending: true });
-  if (opts.onlyPublished !== false) {
-    query = query.eq("published", true);
-  }
-  const { data, error } = await query;
-  if (error) {
-    console.error("Failed to load papers:", error.message);
-    return [];
-  }
-  return (data as DbRow[]).map(rowToPaper);
+  const onlyPublished = opts.onlyPublished !== false;
+  return buildMemo(`papers:onlyPublished=${onlyPublished}`, async () => {
+    let query = supabasePublic
+      .from("papers")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (onlyPublished) {
+      query = query.eq("published", true);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.error("Failed to load papers:", error.message);
+      return [];
+    }
+    return (data as DbRow[]).map(rowToPaper);
+  });
 }
 
 export async function getPaperBySlug(slug: string): Promise<Paper | null> {

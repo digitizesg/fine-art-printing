@@ -4,6 +4,7 @@
  * pages call listFloatFrames() at build time.
  */
 import { supabasePublic } from "./supabase";
+import { buildMemo } from "./build-cache";
 
 export interface FloatFrame {
   id: string;
@@ -50,20 +51,23 @@ function rowToFloatFrame(row: DbRow): FloatFrame {
 }
 
 export async function listFloatFrames(opts: { onlyPublished?: boolean } = {}): Promise<FloatFrame[]> {
-  let query = supabasePublic
-    .from("float_frames")
-    .select("*")
-    .order("display_order", { ascending: true })
-    .order("created_at", { ascending: true });
-  if (opts.onlyPublished !== false) {
-    query = query.eq("published", true);
-  }
-  const { data, error } = await query;
-  if (error) {
-    console.error("Failed to load float_frames:", error.message);
-    return [];
-  }
-  return (data as DbRow[]).map(rowToFloatFrame);
+  const onlyPublished = opts.onlyPublished !== false;
+  return buildMemo(`float-frames:onlyPublished=${onlyPublished}`, async () => {
+    let query = supabasePublic
+      .from("float_frames")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (onlyPublished) {
+      query = query.eq("published", true);
+    }
+    const { data, error } = await query;
+    if (error) {
+      console.error("Failed to load float_frames:", error.message);
+      return [];
+    }
+    return (data as DbRow[]).map(rowToFloatFrame);
+  });
 }
 
 export async function getFloatFrameBySlug(slug: string): Promise<FloatFrame | null> {

@@ -91,17 +91,14 @@ export function quotePhotoService(input: PhotoQuoteInput): PhotoQuoteResult {
 
   const lines: PhotoQuoteLine[] = [];
 
-  // Scan cost: $50 first + $10 each additional.
-  const scanCost = SCAN_FIRST_SGD + Math.max(0, scans - 1) * SCAN_ADDITIONAL_SGD;
-  lines.push({
-    label: scans === 1 ? "Scan" : `Scanning (${scans} scans)`,
-    amount: scanCost,
-  });
-
-  // Stitching when more than one scan.
-  if (scans > 1) {
-    lines.push({ label: "Photoshop stitching", amount: STITCHING_SGD });
-  }
+  // Internal mechanics: $50 first scan + $10 each additional + $25
+  // stitching when more than one scan. Surfaced to the customer as a
+  // single consolidated "Scanning" line — they don't need to think
+  // about scan counts or our Photoshop step.
+  const rawScanCost = SCAN_FIRST_SGD + Math.max(0, scans - 1) * SCAN_ADDITIONAL_SGD;
+  const stitchingCost = scans > 1 ? STITCHING_SGD : 0;
+  const scanLineAmount = rawScanCost + stitchingCost;
+  lines.push({ label: "Scanning", amount: scanLineAmount });
 
   // Restoration / colour-matching add-on, depending on job kind.
   if (input.kind === "restoration") {
