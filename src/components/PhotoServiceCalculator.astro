@@ -3,20 +3,30 @@ import {
   SIZE_BUCKETS,
   RESTORATION_LABELS,
   RESTORATION_DESCRIPTIONS,
+  type JobKind,
 } from "../data/pricing/photo-services";
 import { business } from "../data/business";
 
+interface Props {
+  /** Lock the calculator to a single flow and hide the tabs. Used by
+   *  the dedicated photo-restoration / art-scanning service pages. */
+  fixedKind?: JobKind;
+}
+const { fixedKind } = Astro.props;
+
 const restorationLevels = ["none", "light", "heavy", "major"] as const;
 ---
-<div class="psc" data-psc>
-  <div class="psc__tabs" role="tablist">
-    <button type="button" class="psc__tab is-active" data-tab="restoration" role="tab" aria-selected="true">
-      Photo restoration
-    </button>
-    <button type="button" class="psc__tab" data-tab="art-scanning" role="tab" aria-selected="false">
-      Art scanning
-    </button>
-  </div>
+<div class="psc" data-psc data-fixed-kind={fixedKind ?? ""}>
+  {!fixedKind && (
+    <div class="psc__tabs" role="tablist">
+      <button type="button" class="psc__tab is-active" data-tab="restoration" role="tab" aria-selected="true">
+        Photo restoration
+      </button>
+      <button type="button" class="psc__tab" data-tab="art-scanning" role="tab" aria-selected="false">
+        Art scanning
+      </button>
+    </div>
+  )}
 
   <div class="psc__intro" data-intro="restoration">
     <p>
@@ -387,7 +397,8 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
   if (root) initCalc(root);
 
   function initCalc(root: HTMLElement) {
-    let kind: JobKind = "restoration";
+    const fixed = (root.dataset.fixedKind as JobKind | "") || "";
+    let kind: JobKind = fixed || "restoration";
 
     const tabs = root.querySelectorAll<HTMLButtonElement>("[data-tab]");
     const intros = root.querySelectorAll<HTMLElement>("[data-intro]");
@@ -516,6 +527,6 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
     });
     qtyInput.addEventListener("input", update);
 
-    applyTab("restoration");
+    applyTab(kind);
   }
 </script>

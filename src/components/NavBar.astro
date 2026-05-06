@@ -40,7 +40,12 @@ const specialtyServices = [
   {
     href: "/scanning-restoration",
     label: "Photo restoration",
-    description: "Old photos, scanning, enlargement",
+    description: "Old photos brought back",
+  },
+  {
+    href: "/art-scanning",
+    label: "Art scanning",
+    description: "Calibrated scans for reprints",
   },
   {
     href: "/art-valuation",
@@ -325,7 +330,7 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
   }
   .services-menu__specialty-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 4px;
   }
   .services-menu__specialty-card {

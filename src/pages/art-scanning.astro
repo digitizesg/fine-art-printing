@@ -10,12 +10,12 @@ import PhotoServiceCalculator from "../components/PhotoServiceCalculator.astro";
 import { business } from "../data/business";
 
 const description =
-  "Photo restoration, scanning, enlargement, and image enhancement in Singapore. Old family photos brought back to print quality. Pricing starts from S$200 depending on condition.";
+  "High-resolution artwork scanning in Singapore. Studio-grade flatbed digitisation with calibrated colour matching, ready for archival reprints and resale.";
 
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Service",
-  serviceType: "Photo restoration and scanning",
+  serviceType: "Art scanning and digitisation",
   provider: {
     "@type": "LocalBusiness",
     name: "Fine Art Printing",
@@ -25,63 +25,65 @@ const jsonLd = {
 };
 
 const ctaText = encodeURIComponent(
-  "Hi Fine Art Printing, I'd like a quote for photo restoration / scanning. I've attached images of the photo and a short description of what I'd like done.",
+  "Hi Fine Art Printing, I'd like a quote for art scanning. I've attached photos of the artwork(s) and a short description.",
 );
 const waLink = `${business.whatsappLink}?text=${ctaText}`;
-const contactLink = `/contact?message=${ctaText}`;
 
-const services = [
+const whyScanWithUs = [
   {
-    title: "Photo restoration",
+    title: "Flatbed first, camera only when we have to",
     body:
-      "Old family photographs brought back. Our team can scan, repair, and reprint just about anything once we've seen the original. Send images and we'll come back with what's possible and a quote.",
+      "We always prefer the Epson Expression 13000XL flatbed for accuracy and detail. Photographing introduces lens distortion, lighting variance, and reflection. We only switch to camera capture when an artwork is too large to scan in pieces.",
   },
   {
-    title: "Scanning and digitisation",
+    title: "Calibrated colour, not eyeballed",
     body:
-      "Soft copies of paintings, prints, and old photographs. A2 and smaller goes through the Epson Expression 13000XL flatbed; anything larger is captured with a Sony A7R IV (61 MP) for accurate colour and full detail.",
+      "Our scanning workflow is colour-managed end to end. With colour matching enabled, the digital file matches the original under standard viewing conditions, so prints from it look like the original — not like a scan of it.",
   },
   {
-    title: "Enlargement",
+    title: "Print-ready files, your formats",
     body:
-      "Common request before printing on paper or canvas. We combine traditional sharpening with AI upscaling to push small originals to large-print sizes without the usual softening.",
+      "TIFF or JPEG at the resolution your reprint needs. RGB or sRGB on request. We hand the files over and they're yours; we don't watermark, retain rights, or repurpose your work.",
   },
-  {
-    title: "Enhancement and editing",
-    body:
-      "In-house designers for retouching, colour correction, background work, and any pre-print prep your image needs. Tell us the look you want and we'll quote it.",
-  },
+];
+
+const useCases = [
+  "Original paintings being turned into a print run",
+  "Illustrators digitising work for licensing or print-on-demand",
+  "Galleries and dealers cataloguing inventory",
+  "Estates digitising a deceased artist's body of work",
+  "Insurance archives that need accurate visual records",
 ];
 
 const faqs = [
   {
-    q: "My photo is very damaged. Can you help?",
-    a: `Probably. Restoration is a balance between the state of the original and what you want the end result to look like. Send us a photo of the photo and we'll be honest about what's achievable, what it'll cost, and whether it's worth the spend.`,
+    q: "What format do you deliver, and at what resolution?",
+    a: `TIFF or JPEG at 300 DPI relative to the original size as standard, higher on request. We can also export specifically sized for a target print (e.g. "300 DPI at 60 × 80 cm"). RGB by default; we can convert to sRGB or a specific ICC profile if your printer needs one.`,
   },
   {
-    q: "I'd like a digital copy of my artwork. Can you help?",
-    a: `Yes, this is a regular job for us. For A2 and below we use the Epson Expression 13000XL flatbed scanner. For anything larger we capture with a Sony A7R IV (61 MP full-frame). Both routes give print-ready, colour-accurate digital files.`,
+    q: "Do I retain copyright and ownership of the files?",
+    a: `Yes, completely. We're providing a digitisation service. The files are yours from the moment we deliver them. We don't watermark, register, license, or reuse your work in any way.`,
   },
   {
-    q: "My photo is really faded. Can it be restored?",
-    a: `Often, yes. Faded colour can usually be brought back. Send the photo so we can review and tell you what's likely.`,
+    q: "What's colour matching, and is it always needed?",
+    a: `Colour matching means we tune the scan against the original under controlled viewing conditions so reprints come out faithful to the source. It's S$150 on top of the scan fee.\n\nIf you're scanning for print-for-resale or licensing, we strongly recommend it. If you only need a record copy and don't plan to reproduce, you can skip it.`,
   },
   {
-    q: "I want to blow up a small photo to print large. Can it be done?",
-    a: `Very common request, especially for customers who plan to print with us afterwards. We use a mix of traditional sharpening, AI upscaling, and the enlargement software bundled with the Epson scanner. Results from small originals can be surprising.`,
+    q: "What's the largest size you can scan?",
+    a: `The flatbed is A3, but we routinely scan larger originals in pieces and stitch them in Photoshop, up to about A1. For pieces larger than A1, the workflow shifts to camera capture (Sony A7R IV, 61 MP) which we handle case by case. Send us dimensions and we'll quote.`,
   },
   {
-    q: "Do you offer design and editing services?",
-    a: `Yes. We have designers on staff who handle retouching, layout, and pre-print preparation. Tell us what you need.`,
+    q: "How long does it take?",
+    a: `Single-piece A3 with colour matching: typically 3 to 5 working days. Larger pieces or batches take longer because of the stitching and review steps. We confirm a turnaround when we quote.`,
   },
   {
-    q: "How much do your services cost?",
-    a: `Pricing starts from S$200 and varies with the condition of the original and how far you want us to take the work. Send images and we'll come back with a no-obligation quote.`,
+    q: "Can you also print from the file you make?",
+    a: `Yes. Many clients keep the workflow under one roof: we scan, you approve the file, and we print on archival paper or canvas. Same colour pipeline end to end, so the printed result matches what we delivered digitally.`,
   },
 ];
 ---
 <BaseLayout
-  title="Photo restoration and scanning · Fine Art Printing"
+  title="Art scanning and digitisation in Singapore · Fine Art Printing"
   description={description}
   jsonLd={jsonLd}
 >
@@ -90,14 +92,15 @@ const faqs = [
     <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-12 md:pt-20 md:pb-20">
       <div class="grid gap-10 md:grid-cols-12 md:items-center md:gap-14">
         <div class="md:col-span-6">
-          <Eyebrow>Photo restoration and scanning</Eyebrow>
+          <Eyebrow>Art scanning</Eyebrow>
           <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink text-balance">
-            Old photos, brought back.
+            Studio-grade artwork scanning, calibrated for colour.
           </h1>
           <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
-            Scanning, digitisation, enlargement, and full restoration of old
-            photographs and other paper-based works. Send us images of what
-            you have and we'll tell you what's possible.
+            High-resolution digitisation of original artwork for reprints,
+            licensing, and archival records. Flatbed-first workflow with
+            optional colour matching, so reprints from your file look like
+            the original — not like a scan of it.
           </p>
 
           <div class="mt-8 flex flex-wrap items-center gap-3">
@@ -124,8 +127,8 @@ const faqs = [
         <div class="md:col-span-6">
           <figure>
             <img
-              src="/photos/photo-rag-1.jpg"
-              alt="Restored archival photograph printed on Hahnemühle Photo Rag"
+              src="/photos/german-etching-1.jpg"
+              alt="Studio-grade scan of a fine art original being prepared for print reproduction"
               class="aspect-[4/5] w-full rounded-card object-cover shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)]"
             />
           </figure>
@@ -134,23 +137,22 @@ const faqs = [
     </div>
   </section>
 
-  <!-- Services -->
+  <!-- Why scan with us -->
   <section class="border-t border-border-soft bg-[#FAF7F1]">
-    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
       <div class="mx-auto max-w-[680px] text-center">
-        <Eyebrow>What we do</Eyebrow>
+        <Eyebrow>Why scan with us</Eyebrow>
         <DisplayHeading level={2} class="mt-3">
-          Image services we offer.
+          Built for reproduction, not capture.
         </DisplayHeading>
         <p class="mt-5 text-[16px] leading-relaxed text-subtle">
-          Most jobs combine more than one of these. Send us your photo with a
-          short description of what you'd like done, we'll suggest the right
-          mix.
+          We scan artwork the way printers want to receive it. Flat, sharp,
+          colour-true, in a format that survives the trip from your scan to a
+          finished print without any of the usual losses.
         </p>
       </div>
-
-      <ol class="mt-14 grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-2">
-        {services.map((row, i) => (
+      <ol class="mt-14 grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-3">
+        {whyScanWithUs.map((row, i) => (
           <li class="border-t border-ink/10 pt-5">
             <span class="font-serif italic text-[14px] text-[var(--color-gold-text)]">
               {String(i + 1).padStart(2, "0")}
@@ -177,37 +179,64 @@ const faqs = [
             Get a price now.
           </DisplayHeading>
           <p class="mt-5 max-w-[380px] text-[15px] leading-relaxed text-subtle">
-            Pick the size of your original and how much restoration work you
-            need. The estimate covers our scanning workflow plus any
-            restoration. Submit photos for an exact quote, condition matters
-            more than size.
+            Pick the size of your original and whether you need calibrated
+            colour matching. Submit photos for an exact quote, condition and
+            surface texture can shift the workflow.
           </p>
           <p class="mt-4 max-w-[380px] text-[14px] leading-relaxed text-subtle">
-            Scanning artwork to make reprints?{" "}
-            <a href="/art-scanning" class="text-petrol underline-offset-2 hover:underline">
-              See art scanning →
+            Restoring an old photo instead?{" "}
+            <a href="/scanning-restoration" class="text-petrol underline-offset-2 hover:underline">
+              See photo restoration →
             </a>
           </p>
         </div>
         <div class="md:col-span-8">
-          <PhotoServiceCalculator fixedKind="restoration" />
+          <PhotoServiceCalculator fixedKind="art-scanning" />
         </div>
       </div>
     </div>
   </section>
 
-  <!-- After scanning, you can print -->
+  <!-- Use cases -->
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="mx-auto max-w-[680px] text-center">
+        <Eyebrow>Who it's for</Eyebrow>
+        <DisplayHeading level={2} class="mt-3">
+          Common use cases.
+        </DisplayHeading>
+        <p class="mt-5 text-[16px] leading-relaxed text-subtle">
+          The output we produce works for any flow that ends in a printed
+          reproduction or a licensable digital asset.
+        </p>
+      </div>
+      <ul class="mt-12 grid gap-3 sm:grid-cols-2 lg:grid-cols-2">
+        {useCases.map((u) => (
+          <li class="flex items-start gap-3 rounded-card border border-border-soft bg-white p-4">
+            <span class="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-petrol/10 text-petrol">
+              <svg width="11" height="11" viewBox="0 0 12 12" aria-hidden="true">
+                <path d="M2 6l3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="text-[14.5px] leading-relaxed text-ink">{u}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- Pair with print -->
   <section class="border-t border-border-soft bg-white">
     <div class="mx-auto max-w-[1180px] px-6 py-20">
       <div class="mx-auto max-w-[820px] text-center">
         <Eyebrow>What's next</Eyebrow>
         <DisplayHeading level={2} class="mt-3">
-          Print the result.
+          Print from your scan.
         </DisplayHeading>
         <p class="mt-5 text-[16px] leading-relaxed text-subtle">
-          Once a digital file has been restored, scanned, or enlarged, most
-          clients reprint with us on archival paper or canvas. Same studio,
-          same colour pipeline, no handover.
+          Once you've approved the digital file, we can run reprints with
+          the same colour pipeline that produced the scan. Same studio, no
+          handover, the print matches the source.
         </p>
       </div>
       <div class="mt-10 grid gap-5 md:grid-cols-2">
@@ -247,8 +276,8 @@ const faqs = [
             Common questions.
           </DisplayHeading>
           <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
-            If yours isn't here, WhatsApp us a photo of the original, we'll
-            tell you what's possible.
+            If yours isn't here, send us a photo and dimensions, we'll come
+            back with a steer.
           </p>
         </div>
         <ul class="md:col-span-8 grid grid-cols-1 gap-4">
