@@ -37,21 +37,6 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
     </p>
     <div class="psc__dims">
       <label class="psc__dim">
-        <span>Width</span>
-        <input
-          type="number"
-          name="width_cm"
-          min="1"
-          max={MAX_DIMENSION_CM}
-          step="0.5"
-          inputmode="decimal"
-          placeholder="e.g. 30"
-          data-input-width
-        />
-        <span class="psc__dim-unit">cm</span>
-      </label>
-      <span class="psc__dim-x" aria-hidden="true">×</span>
-      <label class="psc__dim">
         <span>Height</span>
         <input
           type="number"
@@ -62,6 +47,21 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
           inputmode="decimal"
           placeholder="e.g. 40"
           data-input-height
+        />
+        <span class="psc__dim-unit">cm</span>
+      </label>
+      <span class="psc__dim-x" aria-hidden="true">×</span>
+      <label class="psc__dim">
+        <span>Width</span>
+        <input
+          type="number"
+          name="width_cm"
+          min="1"
+          max={MAX_DIMENSION_CM}
+          step="0.5"
+          inputmode="decimal"
+          placeholder="e.g. 30"
+          data-input-width
         />
         <span class="psc__dim-unit">cm</span>
       </label>
@@ -586,7 +586,7 @@ const restorationLevels = ["none", "light", "heavy", "major"] as const;
         .join("");
 
       // Pre-fill the contact / WhatsApp messages with the configuration.
-      const sizeLabel = `${widthCm} × ${heightCm} cm`;
+      const sizeLabel = `${heightCm} × ${widthCm} cm`;
       const kindLabel = kind === "restoration" ? "photo restoration" : "art scanning";
       const restorationLabelMap: Record<RestorationLevel, string> = {
         none: "scan only",
