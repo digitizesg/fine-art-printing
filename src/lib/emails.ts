@@ -191,3 +191,158 @@ export async function sendStudioOrderNotification(ctx: OrderEmailContext): Promi
     console.error("[emails] studio notification failed:", e);
   }
 }
+
+// ─── Valuation submission emails ───────────────────────────────────────
+
+export interface ValuationEmailContext {
+  reference: string;
+  customerEmail: string | null;
+  customerName: string | null;
+  customerPhone: string | null;
+  quantity: number;
+  totalSGD: number;
+  additionalDetails: string;
+  /**
+   * Pre-signed download URLs for the customer-uploaded photos. The
+   * webhook generates these at email-send time using the service-role
+   * client; they expire after 7 days, giving the studio a reasonable
+   * window to download.
+   */
+  signedPhotoUrls: { name: string; url: string }[];
+}
+
+export async function sendValuationCustomerConfirmation(
+  ctx: ValuationEmailContext,
+): Promise<void> {
+  if (!ctx.customerEmail) return;
+  const resend = getResend();
+  const from = import.meta.env.ORDER_FROM_EMAIL || "hello@fineartprinting.com.sg";
+  if (!resend) {
+    console.warn("[emails] RESEND_API_KEY not set, skipping valuation customer email");
+    return;
+  }
+
+  const firstName = ctx.customerName?.split(" ")[0] ?? null;
+  const subject = `Valuation submission received · ${ctx.reference}`;
+
+  const html = `<!doctype html>
+<html><head><meta charset="utf-8"><title>${escapeHtml(subject)}</title></head>
+<body style="margin:0;padding:0;background:#f6f3ec;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+<div style="max-width:600px;margin:0 auto;padding:32px 20px;">
+  <div style="background:#fff;border-radius:12px;border:1px solid rgba(0,0,0,0.06);overflow:hidden;">
+    <div style="padding:28px;">
+      <p style="margin:0 0 4px;font-size:12px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">Fine Art Printing</p>
+      <h1 style="margin:0 0 12px;font-family:'Lora',Georgia,serif;font-weight:500;font-size:22px;color:#1a1a1a;">Submission received.</h1>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#333;">
+        Thanks${firstName ? `, ${escapeHtml(firstName)}` : ""}. We've received your art valuation submission and your payment of <strong>${fmtSGD(ctx.totalSGD)}</strong> for ${ctx.quantity} artwork${ctx.quantity === 1 ? "" : "s"}.
+      </p>
+      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#333;">
+        We'll review your submission and respond within <strong>2 to 3 working days</strong>. If we need any further information about the artwork or artist we'll reach out by email.
+      </p>
+      <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;margin:16px 0 8px;">
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#666;">Reference</td>
+          <td style="padding:6px 0;font-size:13px;color:#1a1a1a;font-family:monospace;text-align:right;">${escapeHtml(ctx.reference)}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#666;">Artworks submitted</td>
+          <td style="padding:6px 0;font-size:13px;color:#1a1a1a;text-align:right;">${ctx.quantity}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#666;border-top:1px solid #eee;">Paid</td>
+          <td style="padding:6px 0;font-family:'Lora',Georgia,serif;font-size:16px;color:#1a1a1a;text-align:right;border-top:1px solid #eee;">${fmtSGD(ctx.totalSGD)}</td>
+        </tr>
+      </table>
+    </div>
+    <div style="padding:16px 28px;background:#FAF7F1;border-top:1px solid rgba(0,0,0,0.06);font-size:12px;color:#666;line-height:1.5;">
+      Reply to this email if you need to add any details, or message us on WhatsApp.
+      <br>Fine Art Printing — Hahnemühle Gold-certified studio in Singapore.
+    </div>
+  </div>
+</div>
+</body></html>`;
+
+  try {
+    await resend.emails.send({
+      from: `Fine Art Printing <${from}>`,
+      to: ctx.customerEmail,
+      subject,
+      html,
+    });
+  } catch (e) {
+    console.error("[emails] valuation customer confirmation failed:", e);
+  }
+}
+
+export async function sendValuationStudioNotification(
+  ctx: ValuationEmailContext,
+): Promise<void> {
+  const resend = getResend();
+  const from = import.meta.env.ORDER_FROM_EMAIL || "hello@fineartprinting.com.sg";
+  const to = import.meta.env.ORDER_NOTIFICATION_EMAIL || "hello@fineartprinting.com.sg";
+  if (!resend) {
+    console.warn("[emails] RESEND_API_KEY not set, skipping valuation studio email");
+    return;
+  }
+
+  const customerLine = [ctx.customerName, ctx.customerEmail, ctx.customerPhone]
+    .filter(Boolean)
+    .join(" · ");
+  const subject = `New valuation · ${ctx.reference} · ${ctx.quantity} works · ${fmtSGD(ctx.totalSGD)}`;
+
+  const photosHtml = ctx.signedPhotoUrls.length
+    ? `<p style="margin:16px 0 8px;font-size:13px;font-weight:600;color:#1a1a1a;">Photos (links expire in 7 days)</p>
+       <ul style="margin:0;padding-left:20px;font-size:13px;line-height:1.8;color:#1a3550;">
+         ${ctx.signedPhotoUrls
+           .map(
+             (p) =>
+               `<li><a href="${escapeHtml(p.url)}" style="color:#1a3550;">${escapeHtml(p.name)}</a></li>`,
+           )
+           .join("")}
+       </ul>`
+    : "";
+
+  const detailsHtml = ctx.additionalDetails
+    ? `<p style="margin:16px 0 4px;font-size:13px;font-weight:600;color:#1a1a1a;">Additional details from customer</p>
+       <p style="margin:0;font-size:13.5px;line-height:1.6;color:#333;white-space:pre-wrap;">${escapeHtml(ctx.additionalDetails)}</p>`
+    : "";
+
+  const html = `<!doctype html>
+<html><head><meta charset="utf-8"><title>${escapeHtml(subject)}</title></head>
+<body style="margin:0;padding:0;background:#f6f3ec;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+<div style="max-width:640px;margin:0 auto;padding:32px 20px;">
+  <div style="background:#fff;border-radius:12px;border:1px solid rgba(0,0,0,0.06);overflow:hidden;">
+    <div style="padding:24px 28px;">
+      <p style="margin:0 0 4px;font-size:12px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">New valuation submission</p>
+      <h1 style="margin:0 0 8px;font-family:'Lora',Georgia,serif;font-weight:500;font-size:20px;color:#1a1a1a;">${escapeHtml(ctx.reference)}</h1>
+      <p style="margin:0 0 12px;font-size:13.5px;color:#444;">
+        ${escapeHtml(customerLine || "(unknown customer)")}
+      </p>
+      <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;">
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#666;">Artworks</td>
+          <td style="padding:6px 0;font-size:13px;color:#1a1a1a;text-align:right;">${ctx.quantity}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0;font-size:13px;color:#666;border-top:1px solid #eee;">Total paid</td>
+          <td style="padding:6px 0;font-family:'Lora',Georgia,serif;font-size:16px;color:#1a1a1a;text-align:right;border-top:1px solid #eee;">${fmtSGD(ctx.totalSGD)}</td>
+        </tr>
+      </table>
+      ${detailsHtml}
+      ${photosHtml}
+    </div>
+  </div>
+</div>
+</body></html>`;
+
+  try {
+    await resend.emails.send({
+      from: `Fine Art Printing <${from}>`,
+      to,
+      subject,
+      html,
+    });
+  } catch (e) {
+    console.error("[emails] valuation studio notification failed:", e);
+  }
+}

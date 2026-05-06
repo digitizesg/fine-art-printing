@@ -1,0 +1,326 @@
+---
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Eyebrow from "../../components/Eyebrow.astro";
+
+const description =
+  "Submit between 1 and 6 artworks for online valuation at S$80 per artwork. Pay securely via Stripe and we'll review within 2-3 working days.";
+---
+<BaseLayout
+  title="Online valuation submission · Fine Art Printing"
+  description={description}
+>
+  <section class="bg-white">
+    <div class="mx-auto max-w-[820px] px-6 pt-14 pb-20 md:pt-20 md:pb-24">
+      <p class="text-[13px] text-muted">
+        <a href="/art-valuation" class="hover:text-ink hover:underline underline-offset-2">Art valuation</a>
+        <span class="px-1.5 text-subtle" aria-hidden="true">›</span>
+        <span class="text-ink">Online submission</span>
+      </p>
+      <Eyebrow class="mt-5">Online submission</Eyebrow>
+      <h1 class="mt-3 font-serif text-[clamp(2rem,4.5vw,2.7rem)] font-medium leading-[1.1] text-ink text-balance">
+        Submit your artworks for valuation.
+      </h1>
+      <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+        For 1 to 6 artworks at S$80 per artwork. If you have more than 6,
+        please <a href="/contact" class="text-petrol underline-offset-2 hover:underline">get in touch</a>{" "}
+        and we'll arrange a site visit instead.
+      </p>
+
+      <form
+        id="valuation-form"
+        class="valuation-form"
+        method="POST"
+        action="/api/valuation"
+        enctype="multipart/form-data"
+        novalidate
+      >
+        <!-- Honeypot, hidden from real users via CSS -->
+        <div class="valuation-form__hp" aria-hidden="true">
+          <label>Website (leave blank)
+            <input type="text" name="website" tabindex="-1" autocomplete="off" />
+          </label>
+        </div>
+
+        <fieldset class="valuation-form__group">
+          <legend>Number of artworks <span class="valuation-form__req">*</span></legend>
+          <div class="valuation-form__qty" role="radiogroup" aria-label="Quantity">
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <label class="valuation-form__qty-opt">
+                <input
+                  type="radio"
+                  name="quantity"
+                  value={n}
+                  required
+                  data-quantity-input
+                />
+                <span>{n}</span>
+              </label>
+            ))}
+          </div>
+          <p class="valuation-form__total" data-quantity-summary>
+            Pick a quantity. <span class="text-muted">Each artwork: S$80.</span>
+          </p>
+        </fieldset>
+
+        <div class="valuation-form__row">
+          <label class="valuation-form__label">
+            <span>First name <span class="valuation-form__req">*</span></span>
+            <input type="text" name="first_name" required maxlength="100" autocomplete="given-name" />
+          </label>
+          <label class="valuation-form__label">
+            <span>Last name <span class="valuation-form__req">*</span></span>
+            <input type="text" name="last_name" required maxlength="100" autocomplete="family-name" />
+          </label>
+        </div>
+
+        <div class="valuation-form__row">
+          <label class="valuation-form__label">
+            <span>Email <span class="valuation-form__req">*</span></span>
+            <input type="email" name="email" required maxlength="254" autocomplete="email" />
+          </label>
+          <label class="valuation-form__label">
+            <span>Phone <span class="valuation-form__req">*</span></span>
+            <input type="tel" name="phone" required maxlength="40" autocomplete="tel" />
+          </label>
+        </div>
+
+        <label class="valuation-form__label">
+          <span>Additional details <span class="valuation-form__req">*</span></span>
+          <textarea
+            name="additional_details"
+            rows="6"
+            maxlength="5000"
+            required
+            placeholder="Tell us anything you know about the artist, medium, size, year of creation, and any provenance."
+          ></textarea>
+        </label>
+
+        <label class="valuation-form__label">
+          <span>Photos of the artwork <span class="valuation-form__req">*</span></span>
+          <input
+            type="file"
+            name="photos"
+            multiple
+            required
+            accept="image/jpeg,image/png,image/heic,image/tiff,application/pdf,.jpg,.jpeg,.png,.heic,.tif,.tiff,.pdf"
+          />
+          <span class="valuation-form__hint">
+            Up to 10 files, 25 MB each. JPG, PNG, TIFF, HEIC, or PDF. Include
+            distinguishing marks like the artist's signature.
+          </span>
+        </label>
+
+        <p class="valuation-form__error" data-error hidden></p>
+
+        <div class="valuation-form__submit">
+          <button type="submit" class="valuation-form__btn" data-submit>
+            Continue to payment <span aria-hidden="true">→</span>
+          </button>
+          <p class="valuation-form__small">
+            You'll be taken to Stripe to complete payment. Prices are in SGD.
+          </p>
+        </div>
+      </form>
+    </div>
+  </section>
+</BaseLayout>
+
+<style is:global>
+  .valuation-form {
+    display: grid;
+    gap: 22px;
+    margin-top: 36px;
+    padding: 26px;
+    background: #FAF7F1;
+    border: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+    border-radius: 14px;
+  }
+  .valuation-form__hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .valuation-form__group {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .valuation-form__group legend {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin-bottom: 4px;
+    padding: 0;
+  }
+  .valuation-form__req { color: #b8390b; }
+  .valuation-form__qty {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .valuation-form__qty-opt {
+    cursor: pointer;
+  }
+  .valuation-form__qty-opt input { position: absolute; opacity: 0; pointer-events: none; }
+  .valuation-form__qty-opt span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 48px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(0,0,0,0.18);
+    background: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-ink);
+    transition: background 120ms, border-color 120ms, color 120ms;
+  }
+  .valuation-form__qty-opt:hover span {
+    border-color: rgba(0,0,0,0.32);
+  }
+  .valuation-form__qty-opt input:checked + span {
+    background: var(--color-selected);
+    border-color: var(--color-selected);
+    color: #fff;
+  }
+  .valuation-form__total {
+    margin: 4px 0 0;
+    font-family: var(--font-serif);
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+  .valuation-form__row {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: 1fr 1fr;
+  }
+  @media (max-width: 600px) {
+    .valuation-form__row { grid-template-columns: 1fr; }
+  }
+  .valuation-form__label {
+    display: grid;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .valuation-form__label input,
+  .valuation-form__label textarea {
+    font: inherit;
+    font-weight: 400;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border, rgba(0,0,0,0.18));
+    border-radius: 10px;
+    background: #fff;
+    color: var(--color-ink);
+  }
+  .valuation-form__label input:focus,
+  .valuation-form__label textarea:focus {
+    outline: 2px solid var(--color-petrol);
+    outline-offset: 1px;
+  }
+  .valuation-form__hint {
+    font-size: 12.5px;
+    font-weight: 400;
+    color: var(--color-subtle);
+    line-height: 1.5;
+  }
+  .valuation-form__error {
+    margin: 0;
+    padding: 10px 14px;
+    background: rgba(190, 30, 30, 0.06);
+    border: 1px solid rgba(190, 30, 30, 0.18);
+    border-radius: 8px;
+    font-size: 13px;
+    color: #8a1414;
+  }
+  .valuation-form__submit {
+    display: grid;
+    gap: 8px;
+  }
+  .valuation-form__btn {
+    appearance: none;
+    border: 0;
+    background: var(--color-petrol);
+    color: #fff;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 14px 22px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 150ms ease-out;
+  }
+  .valuation-form__btn:hover { background: #142a40; }
+  .valuation-form__btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  .valuation-form__small {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--color-subtle);
+    text-align: center;
+  }
+</style>
+
+<script>
+  const form = document.getElementById("valuation-form") as HTMLFormElement | null;
+  if (form) {
+    const summary = form.querySelector<HTMLElement>("[data-quantity-summary]");
+    const errEl = form.querySelector<HTMLElement>("[data-error]");
+    const submitBtn = form.querySelector<HTMLButtonElement>("[data-submit]");
+    const PRICE = 80;
+
+    const updateSummary = () => {
+      const checked = form.querySelector<HTMLInputElement>('input[name="quantity"]:checked');
+      if (!summary) return;
+      if (!checked) {
+        summary.innerHTML = `Pick a quantity. <span class="text-muted">Each artwork: S$${PRICE}.</span>`;
+        return;
+      }
+      const n = parseInt(checked.value, 10);
+      const total = n * PRICE;
+      summary.textContent = `Total: S$${total.toLocaleString("en-SG")} (${n} × S$${PRICE})`;
+    };
+    form.querySelectorAll<HTMLInputElement>("input[name='quantity']").forEach((el) => {
+      el.addEventListener("change", updateSummary);
+    });
+    updateSummary();
+
+    form.addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      if (!errEl || !submitBtn) return;
+      errEl.hidden = true;
+      submitBtn.disabled = true;
+      const original = submitBtn.textContent;
+      submitBtn.textContent = "Uploading…";
+
+      try {
+        const fd = new FormData(form);
+        const res = await fetch("/api/valuation", { method: "POST", body: fd });
+        const data = await res.json().catch(() => null);
+        if (!res.ok || !data?.url) {
+          errEl.textContent = data?.error ?? `Submission failed (${res.status}). Please try again.`;
+          errEl.hidden = false;
+          submitBtn.disabled = false;
+          submitBtn.textContent = original;
+          return;
+        }
+        window.location.href = data.url;
+      } catch {
+        errEl.textContent = "Network error. Please try again.";
+        errEl.hidden = false;
+        submitBtn.disabled = false;
+        submitBtn.textContent = original;
+      }
+    });
+  }
+</script>

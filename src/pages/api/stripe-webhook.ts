@@ -4,7 +4,10 @@ import { createSupabaseAdminClient } from "../../lib/supabase-server";
 import {
   sendCustomerOrderConfirmation,
   sendStudioOrderNotification,
+  sendValuationCustomerConfirmation,
+  sendValuationStudioNotification,
   type OrderEmailContext,
+  type ValuationEmailContext,
 } from "../../lib/emails";
 import { extractShippingAddress } from "../../lib/stripe-shipping";
 
@@ -81,8 +84,11 @@ export const POST: APIRoute = async ({ request }) => {
   const customerPhone = fullSession.customer_details?.phone ?? null;
   const shippingAddress = extractShippingAddress(fullSession);
   const deliveryMethod = (fullSession.metadata?.delivery as "self" | "local") ?? "self";
-  const kind: "shop" | "custom_payment" =
-    fullSession.metadata?.kind === "custom_payment" ? "custom_payment" : "shop";
+  const metaKind = fullSession.metadata?.kind;
+  const kind: "shop" | "custom_payment" | "valuation" =
+    metaKind === "custom_payment" ? "custom_payment"
+    : metaKind === "valuation" ? "valuation"
+    : "shop";
 
   const paymentIntentId =
     typeof fullSession.payment_intent === "string"
@@ -181,6 +187,53 @@ export const POST: APIRoute = async ({ request }) => {
     // Couldn't establish an order — bail without sending email so we
     // don't promise the customer an order we can't track.
     return new Response("ok-without-record", { status: 200 });
+  }
+
+  // Valuation submissions get their own email pair: photos go to a
+  // private bucket and ride into the studio email as 7-day signed URLs.
+  if (kind === "valuation") {
+    const valuationLine = (existing?.line_items as any[] | undefined)?.[0] as
+      | {
+          uploadPaths?: { path: string; name: string }[];
+          quantity?: number;
+          unitPriceSGD?: number;
+          additionalDetails?: string;
+        }
+      | undefined;
+    const uploadPaths = valuationLine?.uploadPaths ?? [];
+    const quantity = valuationLine?.quantity ?? 1;
+    const additionalDetails = valuationLine?.additionalDetails ?? "";
+
+    const signedPhotoUrls: { name: string; url: string }[] = [];
+    for (const p of uploadPaths) {
+      const { data: signed, error: signErr } = await supabase.storage
+        .from("valuation-uploads")
+        .createSignedUrl(p.path, 60 * 60 * 24 * 7);
+      if (signErr) {
+        console.error("[stripe-webhook] sign failed for", p.path, signErr.message);
+        continue;
+      }
+      if (signed?.signedUrl) {
+        signedPhotoUrls.push({ name: p.name, url: signed.signedUrl });
+      }
+    }
+
+    const valuationCtx: ValuationEmailContext = {
+      reference,
+      customerEmail,
+      customerName,
+      customerPhone,
+      quantity,
+      totalSGD,
+      additionalDetails,
+      signedPhotoUrls,
+    };
+
+    await Promise.all([
+      sendValuationCustomerConfirmation(valuationCtx),
+      sendValuationStudioNotification(valuationCtx),
+    ]);
+    return new Response("ok", { status: 200 });
   }
 
   const ctx: OrderEmailContext = {
