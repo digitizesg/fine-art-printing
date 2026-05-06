@@ -1,0 +1,34 @@
+{
+  "redirects": [
+    { "source": "/fine-art-printing",                       "destination": "/print-on-paper",          "permanent": true },
+    { "source": "/canvas-printing",                         "destination": "/print-on-canvas",         "permanent": true },
+    { "source": "/canvas-stretching-framing",               "destination": "/canvas-stretching",       "permanent": true },
+    { "source": "/about-us",                                "destination": "/about",                   "permanent": true },
+    { "source": "/contact-us",                              "destination": "/contact",                 "permanent": true },
+    { "source": "/art-valuation/valuation-submission-online","destination": "/art-valuation/submit",   "permanent": true },
+    { "source": "/buy-prints",                              "destination": "/shop",                    "permanent": true },
+    { "source": "/image-analyser",                          "destination": "/tools/image-analyser",    "permanent": true },
+
+    { "source": "/fine-art-printing-featured-by-canon",     "destination": "/articles/fine-art-printing-featured-by-canon",   "permanent": true },
+    { "source": "/shifted-perspectives-airwallex",          "destination": "/articles/shifted-perspectives-airwallex",        "permanent": true },
+    { "source": "/why-us-printing",                         "destination": "/articles/why-us-printing",                       "permanent": true },
+    { "source": "/canvas-printing-stretching",              "destination": "/articles/canvas-printing-stretching",            "permanent": true },
+    { "source": "/restoring-old-photographs",               "destination": "/articles/restoring-old-photographs",             "permanent": true },
+    { "source": "/introducing-canon-566-printer",           "destination": "/articles/introducing-canon-566-printer",         "permanent": true },
+    { "source": "/where-to-buy-affordable-art",             "destination": "/articles/where-to-buy-affordable-art",           "permanent": true },
+    { "source": "/hahnemuhle-fineart-photo-collection",     "destination": "/articles/hahnemuhle-fineart-photo-collection",   "permanent": true },
+    { "source": "/hahnemuhle-gold-certified-studio",        "destination": "/articles/hahnemuhle-gold-certified-studio",      "permanent": true },
+    { "source": "/why-invest-high-quality-paper",           "destination": "/articles/why-invest-high-quality-paper",         "permanent": true },
+    { "source": "/print-on-canvas-or-paper",                "destination": "/articles/print-on-canvas-or-paper",              "permanent": true },
+    { "source": "/canvas-wrapping-options",                 "destination": "/articles/canvas-wrapping-options",               "permanent": true },
+    { "source": "/introducing-our-artists-platform",        "destination": "/articles/introducing-our-artists-platform",      "permanent": true },
+    { "source": "/creating-artwork-mockups",                "destination": "/articles/creating-artwork-mockups",              "permanent": true },
+    { "source": "/which-paper-to-choose",                   "destination": "/articles/which-paper-to-choose",                 "permanent": true },
+    { "source": "/common-paper-size-measurements",          "destination": "/articles/common-paper-size-measurements",        "permanent": true },
+    { "source": "/how-large-print-digital-image",           "destination": "/articles/how-large-print-digital-image",         "permanent": true },
+    { "source": "/costs-printing-company",                  "destination": "/articles/costs-printing-company",                "permanent": true },
+    { "source": "/mirror-wrap-photoshop",                   "destination": "/articles/mirror-wrap-photoshop",                 "permanent": true },
+    { "source": "/what-archival-painting",                  "destination": "/articles/what-archival-painting",                "permanent": true },
+    { "source": "/what-giclee-printing",                    "destination": "/articles/what-giclee-printing",                  "permanent": true }
+  ]
+}
