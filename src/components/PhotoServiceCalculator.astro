@@ -1,0 +1,515 @@
+---
+import {
+  SIZE_BUCKETS,
+  RESTORATION_LABELS,
+  RESTORATION_DESCRIPTIONS,
+} from "../data/pricing/photo-services";
+import { business } from "../data/business";
+
+const restorationLevels = ["none", "light", "heavy", "major"] as const;
+---
+<div class="psc" data-psc>
+  <div class="psc__tabs" role="tablist">
+    <button type="button" class="psc__tab is-active" data-tab="restoration" role="tab" aria-selected="true">
+      Photo restoration
+    </button>
+    <button type="button" class="psc__tab" data-tab="art-scanning" role="tab" aria-selected="false">
+      Art scanning
+    </button>
+  </div>
+
+  <div class="psc__intro" data-intro="restoration">
+    <p>
+      Old photographs that need scanning and repair. Pick the size and the
+      restoration level, we'll show you a per-photo estimate.
+    </p>
+  </div>
+  <div class="psc__intro" data-intro="art-scanning" hidden>
+    <p>
+      Artwork being digitised for prints or resale. Pick the size and whether
+      you need accurate colour matching, we'll show you a per-piece estimate.
+    </p>
+  </div>
+
+  <fieldset class="psc__group">
+    <legend>Original size</legend>
+    <div class="psc__sizes">
+      {SIZE_BUCKETS.map((b) => (
+        <label class="psc__size">
+          <input type="radio" name="size" value={b.id} data-input-size />
+          <span class="psc__size-body">
+            <span class="psc__size-label">{b.label}</span>
+            <span class="psc__size-note">{b.note}</span>
+          </span>
+        </label>
+      ))}
+    </div>
+  </fieldset>
+
+  <fieldset class="psc__group" data-only="restoration">
+    <legend>Restoration level</legend>
+    <div class="psc__levels">
+      {restorationLevels.map((lvl) => (
+        <label class="psc__level">
+          <input type="radio" name="restoration" value={lvl} data-input-restoration />
+          <span class="psc__level-body">
+            <span class="psc__level-label">{RESTORATION_LABELS[lvl]}</span>
+            <span class="psc__level-note">{RESTORATION_DESCRIPTIONS[lvl]}</span>
+          </span>
+        </label>
+      ))}
+    </div>
+  </fieldset>
+
+  <fieldset class="psc__group" data-only="art-scanning" hidden>
+    <legend>Colour matching</legend>
+    <label class="psc__check">
+      <input type="checkbox" name="colour_matching" checked data-input-colour />
+      <span>
+        <strong>Add colour matching · S$150</strong>
+        <em>Calibrated, colour-accurate output for reprints. Recommended whenever the goal is reproduction.</em>
+      </span>
+    </label>
+  </fieldset>
+
+  <fieldset class="psc__group">
+    <legend>How many?</legend>
+    <div class="psc__qty">
+      <button type="button" class="psc__qty-btn" data-qty-dec aria-label="Decrease quantity">−</button>
+      <input
+        type="number"
+        name="quantity"
+        min="1"
+        max="50"
+        step="1"
+        value="1"
+        data-input-quantity
+      />
+      <button type="button" class="psc__qty-btn" data-qty-inc aria-label="Increase quantity">+</button>
+    </div>
+  </fieldset>
+
+  <div class="psc__quote" data-quote-card>
+    <p class="psc__quote-prompt" data-quote-prompt>
+      Pick a size and we'll estimate the price.
+    </p>
+    <div class="psc__quote-result" data-quote-result hidden>
+      <p class="psc__quote-eyebrow">Estimate</p>
+      <p class="psc__quote-grand">
+        <span data-quote-grand>—</span>
+      </p>
+      <p class="psc__quote-per">
+        <span data-quote-per></span>
+      </p>
+      <ul class="psc__quote-lines" data-quote-lines></ul>
+      <p class="psc__quote-disclaimer">
+        Estimate only. Submit photos for an exact quote — every job is
+        different and condition matters more than size.
+      </p>
+    </div>
+    <div class="psc__quote-result" data-quote-oversize hidden>
+      <p class="psc__quote-eyebrow">Oversize</p>
+      <p class="psc__quote-grand">Custom quote</p>
+      <p class="psc__quote-per">
+        Anything larger than A1 needs a quote because we work with a different
+        camera setup. WhatsApp us photos and dimensions.
+      </p>
+    </div>
+  </div>
+
+  <div class="psc__cta">
+    <a class="psc__btn" data-cta-contact href="/contact">
+      Submit photos for an exact quote <span aria-hidden="true">→</span>
+    </a>
+    <a
+      class="psc__btn psc__btn--whatsapp"
+      target="_blank"
+      rel="noopener"
+      data-cta-whatsapp
+      href={business.whatsappLink}
+    >
+      WhatsApp us
+    </a>
+  </div>
+</div>
+
+<style is:global>
+  .psc {
+    border: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+    border-radius: 14px;
+    background: #fff;
+    padding: 22px;
+    display: grid;
+    gap: 22px;
+  }
+  .psc__tabs {
+    display: inline-flex;
+    gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.04);
+    align-self: start;
+  }
+  .psc__tab {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition: background 120ms, color 120ms;
+  }
+  .psc__tab.is-active {
+    background: #fff;
+    color: var(--color-ink);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .psc__intro p {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-subtle);
+    line-height: 1.6;
+  }
+  .psc__group {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .psc__group legend {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+    padding: 0;
+    margin-bottom: 4px;
+  }
+  .psc__sizes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+  }
+  .psc__size, .psc__level {
+    display: flex;
+    cursor: pointer;
+    border: 1px solid var(--color-border-soft, rgba(0,0,0,0.10));
+    border-radius: 10px;
+    padding: 12px 14px;
+    background: #fff;
+    transition: border-color 120ms, background 120ms;
+  }
+  .psc__size input, .psc__level input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .psc__size:has(input:checked),
+  .psc__level:has(input:checked) {
+    border-color: var(--color-selected);
+    background: var(--color-selected-bg);
+    box-shadow: inset 0 0 0 1px var(--color-selected);
+  }
+  .psc__size-body, .psc__level-body {
+    display: grid;
+    gap: 2px;
+  }
+  .psc__size-label, .psc__level-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .psc__size-note, .psc__level-note {
+    font-size: 12.5px;
+    color: var(--color-subtle);
+    line-height: 1.4;
+  }
+  .psc__levels {
+    display: grid;
+    gap: 8px;
+  }
+  .psc__check {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border-soft, rgba(0,0,0,0.10));
+    border-radius: 10px;
+    cursor: pointer;
+  }
+  .psc__check:has(input:checked) {
+    border-color: var(--color-selected);
+    background: var(--color-selected-bg);
+    box-shadow: inset 0 0 0 1px var(--color-selected);
+  }
+  .psc__check input { margin-top: 4px; flex: 0 0 auto; }
+  .psc__check span { display: grid; gap: 2px; }
+  .psc__check strong { font-weight: 600; font-size: 14px; }
+  .psc__check em {
+    font-style: normal;
+    font-size: 12.5px;
+    color: var(--color-subtle);
+    line-height: 1.4;
+  }
+  .psc__qty {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .psc__qty input {
+    width: 80px;
+    text-align: center;
+    font: inherit;
+    font-size: 16px;
+    padding: 8px 10px;
+    border: 1px solid var(--color-border, rgba(0,0,0,0.18));
+    border-radius: 10px;
+    background: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+  .psc__qty-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 1px solid var(--color-border, rgba(0,0,0,0.18));
+    background: #fff;
+    font-size: 18px;
+    color: var(--color-ink);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .psc__qty-btn:hover {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.05);
+  }
+  .psc__quote {
+    border-radius: 12px;
+    background: #FAF7F1;
+    padding: 18px 20px;
+    border: 1px dashed rgba(0, 0, 0, 0.10);
+  }
+  .psc__quote-prompt {
+    margin: 0;
+    font-size: 14px;
+    color: var(--color-subtle);
+  }
+  .psc__quote-eyebrow {
+    margin: 0 0 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-muted);
+  }
+  .psc__quote-grand {
+    margin: 0 0 4px;
+    font-family: var(--font-serif);
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .psc__quote-per {
+    margin: 0 0 12px;
+    font-size: 13.5px;
+    color: var(--color-subtle);
+    line-height: 1.5;
+  }
+  .psc__quote-lines {
+    list-style: none;
+    margin: 0 0 12px;
+    padding: 12px 0 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    display: grid;
+    gap: 6px;
+  }
+  .psc__quote-lines li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+    color: var(--color-ink);
+  }
+  .psc__quote-lines li span:last-child {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-subtle);
+  }
+  .psc__quote-disclaimer {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-muted);
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .psc__cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .psc__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    background: var(--color-petrol);
+    color: #fff;
+    transition: background 120ms;
+  }
+  .psc__btn:hover { background: #142a40; text-decoration: none; }
+  .psc__btn--whatsapp {
+    background: #25D366;
+  }
+  .psc__btn--whatsapp:hover { background: #1ebe5b; }
+</style>
+
+<script>
+  import { quotePhotoService, type JobKind, type RestorationLevel, type SizeBucket } from "../data/pricing/photo-services";
+
+  const root = document.querySelector<HTMLElement>("[data-psc]");
+  if (root) initCalc(root);
+
+  function initCalc(root: HTMLElement) {
+    let kind: JobKind = "restoration";
+
+    const tabs = root.querySelectorAll<HTMLButtonElement>("[data-tab]");
+    const intros = root.querySelectorAll<HTMLElement>("[data-intro]");
+    const conditional = root.querySelectorAll<HTMLElement>("[data-only]");
+
+    const promptEl = root.querySelector<HTMLElement>("[data-quote-prompt]")!;
+    const resultEl = root.querySelector<HTMLElement>("[data-quote-result]")!;
+    const oversizeEl = root.querySelector<HTMLElement>("[data-quote-oversize]")!;
+    const grandEl = root.querySelector<HTMLElement>("[data-quote-grand]")!;
+    const perEl = root.querySelector<HTMLElement>("[data-quote-per]")!;
+    const linesEl = root.querySelector<HTMLElement>("[data-quote-lines]")!;
+    const ctaContact = root.querySelector<HTMLAnchorElement>("[data-cta-contact]")!;
+    const ctaWhatsapp = root.querySelector<HTMLAnchorElement>("[data-cta-whatsapp]")!;
+    const qtyInput = root.querySelector<HTMLInputElement>("[data-input-quantity]")!;
+
+    function applyTab(next: JobKind) {
+      kind = next;
+      tabs.forEach((t) => {
+        const active = t.dataset.tab === next;
+        t.classList.toggle("is-active", active);
+        t.setAttribute("aria-selected", String(active));
+      });
+      intros.forEach((el) => {
+        el.hidden = el.dataset.intro !== next;
+      });
+      conditional.forEach((el) => {
+        el.hidden = el.dataset.only !== next;
+      });
+      update();
+    }
+
+    tabs.forEach((t) => {
+      t.addEventListener("click", () => applyTab(t.dataset.tab as JobKind));
+    });
+
+    function getRadio(name: string): string | null {
+      const el = root.querySelector<HTMLInputElement>(`input[name="${name}"]:checked`);
+      return el?.value ?? null;
+    }
+
+    function update() {
+      const size = getRadio("size") as SizeBucket | null;
+      const restoration = (getRadio("restoration") as RestorationLevel | null) ?? "none";
+      const colourEl = root.querySelector<HTMLInputElement>("[data-input-colour]");
+      const colourMatching = colourEl ? colourEl.checked : false;
+      const quantity = Math.max(1, Math.min(50, parseInt(qtyInput.value, 10) || 1));
+
+      // Restoration tab needs both size + level. Scanning tab needs size.
+      const ready =
+        size && (kind === "art-scanning" || (kind === "restoration" && getRadio("restoration") !== null));
+      if (!ready) {
+        promptEl.hidden = false;
+        resultEl.hidden = true;
+        oversizeEl.hidden = true;
+        return;
+      }
+
+      if (size === "larger") {
+        promptEl.hidden = true;
+        resultEl.hidden = true;
+        oversizeEl.hidden = false;
+        return;
+      }
+
+      const r = quotePhotoService({
+        kind,
+        size: size as SizeBucket,
+        quantity,
+        restoration,
+        colourMatching,
+      });
+
+      if (!r.ok) {
+        promptEl.hidden = true;
+        resultEl.hidden = true;
+        oversizeEl.hidden = false;
+        return;
+      }
+
+      promptEl.hidden = true;
+      oversizeEl.hidden = true;
+      resultEl.hidden = false;
+
+      grandEl.textContent = `S$${r.grandTotal.toLocaleString("en-SG")}`;
+      perEl.textContent =
+        quantity === 1
+          ? `for ${quantity} item`
+          : `S$${r.perItemTotal.toLocaleString("en-SG")} per item × ${quantity}`;
+      linesEl.innerHTML = r.perItemLines
+        .map(
+          (l) => `<li><span>${l.label}</span><span>S$${l.amount.toLocaleString("en-SG")}</span></li>`,
+        )
+        .join("");
+
+      // Pre-fill the contact / WhatsApp messages with the configuration.
+      const sizeLabel =
+        ({ a4: "A4 or smaller", a3: "A3", a2: "A2", a1: "A1" } as Record<string, string>)[size as string] ?? size;
+      const kindLabel = kind === "restoration" ? "photo restoration" : "art scanning";
+      const restorationLabelMap: Record<RestorationLevel, string> = {
+        none: "scan only",
+        light: "light restoration",
+        heavy: "heavy restoration",
+        major: "major restoration",
+      };
+      const tail =
+        kind === "restoration"
+          ? `Restoration level: ${restorationLabelMap[restoration]}.`
+          : `Colour matching: ${colourMatching ? "yes" : "no"}.`;
+      const message = `Hi Fine Art Printing, I'd like a quote for ${kindLabel}. ${quantity} item${quantity === 1 ? "" : "s"}, ${sizeLabel}. ${tail} Estimate from your calculator: S$${r.grandTotal.toLocaleString("en-SG")}.`;
+      const encoded = encodeURIComponent(message);
+      ctaContact.href = `/contact?message=${encoded}`;
+      ctaWhatsapp.href = `${ctaWhatsapp.dataset.baseHref ?? ctaWhatsapp.href.split("?")[0]}?text=${encoded}`;
+    }
+
+    // Cache the WhatsApp base href so we can rewrite ?text= on update.
+    ctaWhatsapp.dataset.baseHref = ctaWhatsapp.href.split("?")[0];
+
+    root.addEventListener("change", update);
+    root.querySelector<HTMLButtonElement>("[data-qty-dec]")?.addEventListener("click", () => {
+      qtyInput.value = String(Math.max(1, parseInt(qtyInput.value, 10) - 1));
+      update();
+    });
+    root.querySelector<HTMLButtonElement>("[data-qty-inc]")?.addEventListener("click", () => {
+      qtyInput.value = String(Math.min(50, parseInt(qtyInput.value, 10) + 1));
+      update();
+    });
+    qtyInput.addEventListener("input", update);
+
+    applyTab("restoration");
+  }
+</script>
