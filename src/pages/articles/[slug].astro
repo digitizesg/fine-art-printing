@@ -82,12 +82,50 @@ const jsonLd = [
       </div>
     )}
 
-    <div class="mx-auto max-w-[760px] px-6 pb-16 md:pb-20 pt-6 md:pt-8">
+    <div class="mx-auto max-w-[760px] px-6 pb-12 md:pb-16 pt-6 md:pt-8">
       <div class="article-body">
         <Content />
       </div>
     </div>
   </article>
+
+  <!-- Related services / next steps. Surfaces our four core services
+       at the bottom of every article so a visitor finishing the read
+       has a clear path into the rest of the site. -->
+  <section class="border-t border-border-soft bg-[#FAF7F1]">
+    <div class="mx-auto max-w-[1180px] px-6 py-16">
+      <p class="text-[12px] font-semibold uppercase tracking-wide text-muted">Ready to print?</p>
+      <h2 class="mt-2 font-serif text-[clamp(1.6rem,3vw,2rem)] font-medium leading-tight text-ink">
+        Pick a service and get a quote.
+      </h2>
+      <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <a href="/print-on-paper" class="group block rounded-card border border-border-soft bg-white p-5 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]">
+          <p class="font-serif text-[17px] font-medium text-ink">Print on paper</p>
+          <span class="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-petrol">
+            Get a quote <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
+          </span>
+        </a>
+        <a href="/print-on-canvas" class="group block rounded-card border border-border-soft bg-white p-5 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]">
+          <p class="font-serif text-[17px] font-medium text-ink">Print on canvas</p>
+          <span class="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-petrol">
+            Get a quote <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
+          </span>
+        </a>
+        <a href="/canvas-stretching" class="group block rounded-card border border-border-soft bg-white p-5 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]">
+          <p class="font-serif text-[17px] font-medium text-ink">Canvas stretching</p>
+          <span class="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-petrol">
+            Get a quote <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
+          </span>
+        </a>
+        <a href="/custom-framing" class="group block rounded-card border border-border-soft bg-white p-5 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]">
+          <p class="font-serif text-[17px] font-medium text-ink">Custom framing</p>
+          <span class="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-petrol">
+            Get a quote <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
 
   <DarkCTA />
 </BaseLayout>

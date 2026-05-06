@@ -6,7 +6,7 @@ import { Image } from "astro:assets";
 import { getCollection } from "astro:content";
 
 const description =
-  "Articles on fine art printing, paper and canvas selection, framing, colour management, and the craft of producing archival prints in Singapore.";
+  "Articles and tips on fine art printing in Singapore: paper and canvas selection, framing, colour management, and the craft behind archival prints.";
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -101,6 +101,20 @@ const fmtDate = (d: Date) =>
           );
         })}
       </ul>
+    </div>
+  </section>
+
+  <!-- Service jump-off — keeps article-driven traffic moving into the
+       services pages where conversions happen. -->
+  <section class="border-t border-border-soft bg-[#FAF7F1]">
+    <div class="mx-auto max-w-[1180px] px-6 py-12 text-center">
+      <p class="text-[14px] text-subtle">
+        Ready for a quote on{" "}
+        <a href="/print-on-paper" class="font-semibold text-petrol hover:underline underline-offset-2">paper printing</a>,{" "}
+        <a href="/print-on-canvas" class="font-semibold text-petrol hover:underline underline-offset-2">canvas printing</a>,{" "}
+        <a href="/canvas-stretching" class="font-semibold text-petrol hover:underline underline-offset-2">canvas stretching</a>, or{" "}
+        <a href="/custom-framing" class="font-semibold text-petrol hover:underline underline-offset-2">custom framing</a>?
+      </p>
     </div>
   </section>
 </BaseLayout>
