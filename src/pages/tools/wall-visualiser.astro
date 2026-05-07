@@ -107,6 +107,34 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
               ))}
             </div>
 
+            <p class="wall-vis__group-title wall-vis__group-title--space">Wall colour</p>
+            <div class="wall-vis__colours" role="radiogroup" aria-label="Wall colour">
+              <label class="wall-vis__colour" style="--swatch: #ffffff" title="Bright white">
+                <input type="radio" name="wv-wall-color" data-bg="#ffffff" data-dark="false" checked />
+                <span></span>
+              </label>
+              <label class="wall-vis__colour" style="--swatch: #f4eee2" title="Warm white">
+                <input type="radio" name="wv-wall-color" data-bg="#f4eee2" data-dark="false" />
+                <span></span>
+              </label>
+              <label class="wall-vis__colour" style="--swatch: #d8d4cc" title="Stone">
+                <input type="radio" name="wv-wall-color" data-bg="#d8d4cc" data-dark="false" />
+                <span></span>
+              </label>
+              <label class="wall-vis__colour" style="--swatch: #b8c0a8" title="Sage">
+                <input type="radio" name="wv-wall-color" data-bg="#b8c0a8" data-dark="false" />
+                <span></span>
+              </label>
+              <label class="wall-vis__colour" style="--swatch: #2c3e50" title="Navy">
+                <input type="radio" name="wv-wall-color" data-bg="#2c3e50" data-dark="true" />
+                <span></span>
+              </label>
+              <label class="wall-vis__colour" style="--swatch: #2a2a2a" title="Charcoal">
+                <input type="radio" name="wv-wall-color" data-bg="#2a2a2a" data-dark="true" />
+                <span></span>
+              </label>
+            </div>
+
             <p class="wall-vis__group-title wall-vis__group-title--space">Orientation</p>
             <div class="wall-vis__orient" role="radiogroup" aria-label="Orientation">
               <label>
@@ -400,6 +428,28 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     color: #fff;
   }
 
+  .wall-vis__colours {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .wall-vis__colour { cursor: pointer; }
+  .wall-vis__colour input { position: absolute; opacity: 0; pointer-events: none; }
+  .wall-vis__colour span {
+    display: block;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background: var(--swatch);
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    transition: transform 120ms ease-out;
+  }
+  .wall-vis__colour:hover span { transform: scale(1.07); }
+  .wall-vis__colour input:checked + span {
+    outline: 2px solid var(--color-petrol);
+    outline-offset: 2px;
+  }
+
   .wall-vis__orient {
     display: inline-flex;
     justify-self: start;
@@ -606,6 +656,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     const furnH = root.querySelector<HTMLInputElement>("[data-furn-h]")!;
     const countInputs = Array.from(root.querySelectorAll<HTMLInputElement>("[data-count]"));
     const orientInputs = Array.from(root.querySelectorAll<HTMLInputElement>("[data-orient]"));
+    const colourInputs = Array.from(root.querySelectorAll<HTMLInputElement>("[data-bg]"));
     const coverage = root.querySelector<HTMLInputElement>("[data-coverage]")!;
     const coverageReadout = root.querySelector<HTMLElement>("[data-coverage-readout]")!;
     const svg = root.querySelector<SVGSVGElement>("[data-svg]")!;
@@ -623,6 +674,13 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     function selectedOrient(): Orient {
       const sel = orientInputs.find((i) => i.checked);
       return (sel?.value as Orient) ?? "landscape";
+    }
+    function selectedWallColour(): { bg: string; dark: boolean } {
+      const sel = colourInputs.find((i) => i.checked);
+      return {
+        bg: sel?.dataset.bg ?? "#ffffff",
+        dark: (sel?.dataset.dark ?? "false") === "true",
+      };
     }
 
     /** Round to nearest 5 cm — produces realistic "you can actually buy
@@ -758,28 +816,31 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       const pieces: string[] = [];
       const startX = wallX + (ww - comboW) / 2;
       const topY = yFromAff(bottomAff + comboH);
+      const pieceStroke = onDark ? "#fff" : "#1a1a1a";
+      const pieceStrokeWidth = onDark ? 0.6 : 1;
       for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
           const x = startX + col * (pieceW + spacing);
           const y = topY + row * (pieceH + spacing);
           pieces.push(
-            `<rect x="${x}" y="${y}" width="${pieceW}" height="${pieceH}" fill="#fff" stroke="#1a1a1a" stroke-width="1" rx="0.6" />` +
-            `<rect x="${x + 1}" y="${y + 1}" width="${pieceW - 2}" height="${pieceH - 2}" fill="none" stroke="rgba(0,0,0,0.06)" />`
+            `<rect x="${x}" y="${y}" width="${pieceW}" height="${pieceH}" fill="#fff" stroke="${pieceStroke}" stroke-width="${pieceStrokeWidth}" rx="0.6" />`
           );
         }
       }
 
+      const wall = selectedWallColour();
+      const onDark = wall.dark;
+
       const furniture = hasFurn && fh > 0
-        ? `<rect x="${wallX}" y="${yFromAff(fh)}" width="${ww}" height="${fh}" fill="#cdb89a" opacity="0.55" />`
+        ? `<rect x="${wallX}" y="${yFromAff(fh)}" width="${ww}" height="${fh}" fill="${onDark ? "#5a4a38" : "#cdb89a"}" opacity="${onDark ? 0.85 : 0.6}" />`
         : "";
 
       // Floor line.
       const floorY = yFromAff(0);
-      // Ceiling guide (subtle dashed).
-      const ceilingY = yFromAff(wh);
 
-      // Wall background.
-      const bg = `<rect x="${wallX}" y="${wallY}" width="${ww}" height="${wh}" fill="#f7f1e7" stroke="rgba(0,0,0,0.18)" stroke-width="0.6" />`;
+      // Wall background. Outer stroke is a touch darker so a white wall
+      // remains distinguishable from the white stage card.
+      const bg = `<rect x="${wallX}" y="${wallY}" width="${ww}" height="${wh}" fill="${wall.bg}" stroke="rgba(0,0,0,0.28)" stroke-width="0.6" />`;
       const floorLine = `<line x1="${wallX - padX * 0.4}" y1="${floorY}" x2="${wallX + ww + padX * 0.4}" y2="${floorY}" stroke="#1a1a1a" stroke-width="1" />`;
       const floorHatch = `<line x1="${wallX - padX * 0.4}" y1="${floorY + 4}" x2="${wallX + ww + padX * 0.4}" y2="${floorY + 4}" stroke="rgba(0,0,0,0.4)" stroke-width="0.4" stroke-dasharray="3 3" />`;
 
@@ -804,8 +865,11 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
           })()
         : "";
 
-      // Hanging line at centre of art (subtle).
-      const centreLine = `<line x1="${wallX}" y1="${yFromAff(r.centreAff)}" x2="${wallX + ww}" y2="${yFromAff(r.centreAff)}" stroke="rgba(26,53,80,0.25)" stroke-width="0.6" stroke-dasharray="6 6" />`;
+      // Hanging line at centre of art (subtle, light on dark walls).
+      const centreLineStroke = onDark
+        ? "rgba(255,255,255,0.35)"
+        : "rgba(26,53,80,0.25)";
+      const centreLine = `<line x1="${wallX}" y1="${yFromAff(r.centreAff)}" x2="${wallX + ww}" y2="${yFromAff(r.centreAff)}" stroke="${centreLineStroke}" stroke-width="0.6" stroke-dasharray="6 6" />`;
 
       // Labels — keep these minimal so the visual stays calm.
       const labelStyle = `font-family: var(--font-sans, sans-serif); font-size: 12px; fill: rgba(0,0,0,0.55);`;
@@ -860,7 +924,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     [wallW, wallH, furnH, coverage].forEach((el) =>
       el.addEventListener("input", update),
     );
-    [...countInputs, ...orientInputs].forEach((el) =>
+    [...countInputs, ...orientInputs, ...colourInputs].forEach((el) =>
       el.addEventListener("change", update),
     );
     furnToggle.addEventListener("change", () => {
