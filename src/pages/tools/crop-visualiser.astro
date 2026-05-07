@@ -1,0 +1,1025 @@
+---
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Eyebrow from "../../components/Eyebrow.astro";
+import DisplayHeading from "../../components/DisplayHeading.astro";
+import DarkCTA from "../../components/DarkCTA.astro";
+import WhatsAppIcon from "../../components/icons/WhatsAppIcon.astro";
+import { business } from "../../data/business";
+
+const description =
+  "Free crop visualiser. Drop in your photo and see exactly what gets cropped at common print sizes like 50×70cm, A2, 60×80cm. Drag to reposition the crop. Runs entirely in your browser.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Crop visualiser",
+  applicationCategory: "MultimediaApplication",
+  operatingSystem: "Any (web browser)",
+  url: "https://fineartprinting.com.sg/tools/crop-visualiser",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "SGD",
+  },
+};
+
+const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I just used the crop visualiser tool and would like to discuss a print.")}`;
+
+// Curated common print sizes. Aspect ratio is what matters for cropping;
+// the cm values are shown to anchor people to real-world print sizes.
+const presets = [
+  { id: "a4",     label: "A4",          w: 21,   h: 29.7, hint: "21 × 29.7 cm" },
+  { id: "a3",     label: "A3",          w: 29.7, h: 42,   hint: "29.7 × 42 cm" },
+  { id: "a2",     label: "A2",          w: 42,   h: 59.4, hint: "42 × 59.4 cm" },
+  { id: "a1",     label: "A1",          w: 59.4, h: 84.1, hint: "59.4 × 84.1 cm" },
+  { id: "30x40",  label: "30 × 40",     w: 30,   h: 40,   hint: "3:4" },
+  { id: "40x50",  label: "40 × 50",     w: 40,   h: 50,   hint: "4:5" },
+  { id: "50x70",  label: "50 × 70",     w: 50,   h: 70,   hint: "5:7" },
+  { id: "60x80",  label: "60 × 80",     w: 60,   h: 80,   hint: "3:4" },
+  { id: "60x90",  label: "60 × 90",     w: 60,   h: 90,   hint: "2:3" },
+  { id: "70x100", label: "70 × 100",    w: 70,   h: 100,  hint: "7:10" },
+  { id: "sq30",   label: "30 × 30",     w: 30,   h: 30,   hint: "Square" },
+  { id: "sq50",   label: "50 × 50",     w: 50,   h: 50,   hint: "Square" },
+];
+---
+<BaseLayout
+  title="Crop visualiser · Free print crop preview · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-12 pb-8 md:pt-16 md:pb-10">
+      <p class="text-[12.5px] text-muted">
+        <a href="/tools" class="hover:text-ink hover:underline underline-offset-2">Tools</a>
+        <span class="px-1.5 text-subtle" aria-hidden="true">›</span>
+        <span class="text-ink">Crop visualiser</span>
+      </p>
+      <div class="mt-5 max-w-[820px]">
+        <Eyebrow>Free tool</Eyebrow>
+        <h1 class="mt-4 font-serif text-[clamp(2rem,4.5vw,2.7rem)] font-medium leading-[1.1] text-ink">
+          What gets cropped at this print size?
+        </h1>
+        <p class="mt-5 max-w-[680px] text-[16px] leading-relaxed text-subtle">
+          Phone photos are usually 4:3 or 3:2. Common fine art prints are 5:7,
+          4:5, or square. Drop your image, pick a print size, and see exactly
+          what stays in frame. Drag the crop box to reposition. Nothing leaves
+          your browser.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tool -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pb-16">
+      <div class="crop-vis" data-crop-vis>
+        <!-- Initial state: dropzone -->
+        <label class="crop-vis__drop" data-drop>
+          <input
+            type="file"
+            accept="image/jpeg,image/png"
+            class="sr-only"
+            data-file-input
+          />
+          <div class="crop-vis__drop-content">
+            <svg
+              class="crop-vis__drop-icon"
+              width="48"
+              height="48"
+              viewBox="0 0 48 48"
+              fill="none"
+              aria-hidden="true"
+            >
+              <path
+                d="M14 30v6a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4v-6M24 8v22m0-22l-7 7m7-7l7 7"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <p class="crop-vis__drop-title">
+              Drop your image here, or
+              <span class="crop-vis__drop-link">click to browse</span>.
+            </p>
+            <p class="crop-vis__drop-hint">JPG or PNG, up to 100 MB</p>
+          </div>
+        </label>
+
+        <p class="crop-vis__error" data-error hidden></p>
+
+        <!-- Result state -->
+        <div class="crop-vis__result" data-result hidden>
+          <div class="crop-vis__layout">
+            <!-- Stage: image with crop overlay -->
+            <div class="crop-vis__stage" data-stage>
+              <img alt="" data-preview />
+              <div class="crop-vis__mask" data-mask>
+                <div class="crop-vis__crop" data-crop>
+                  <span class="crop-vis__crop-edge crop-vis__crop-edge--n"></span>
+                  <span class="crop-vis__crop-edge crop-vis__crop-edge--s"></span>
+                  <span class="crop-vis__crop-edge crop-vis__crop-edge--e"></span>
+                  <span class="crop-vis__crop-edge crop-vis__crop-edge--w"></span>
+                </div>
+              </div>
+              <p class="crop-vis__stage-hint" data-stage-hint>
+                Drag the highlighted area to reposition the crop.
+              </p>
+            </div>
+
+            <!-- Controls -->
+            <div class="crop-vis__controls">
+              <p class="crop-vis__group-title">Print size</p>
+              <div class="crop-vis__presets" role="radiogroup" aria-label="Print size preset">
+                {presets.map((p) => (
+                  <label class="crop-vis__preset" title={p.hint}>
+                    <input type="radio" name="crop-preset" value={p.id} data-preset />
+                    <span>
+                      <strong>{p.label}</strong>
+                      <em>{p.hint}</em>
+                    </span>
+                  </label>
+                ))}
+                <label class="crop-vis__preset crop-vis__preset--custom">
+                  <input type="radio" name="crop-preset" value="custom" data-preset />
+                  <span>
+                    <strong>Custom</strong>
+                    <em>Enter below</em>
+                  </span>
+                </label>
+              </div>
+
+              <div class="crop-vis__custom" data-custom hidden>
+                <label class="crop-vis__field">
+                  <span>Width</span>
+                  <input
+                    type="number"
+                    inputmode="decimal"
+                    min="1"
+                    step="0.1"
+                    value="50"
+                    data-custom-w
+                  />
+                </label>
+                <span class="crop-vis__by" aria-hidden="true">×</span>
+                <label class="crop-vis__field">
+                  <span>Height</span>
+                  <input
+                    type="number"
+                    inputmode="decimal"
+                    min="1"
+                    step="0.1"
+                    value="70"
+                    data-custom-h
+                  />
+                </label>
+                <div class="crop-vis__units" role="radiogroup" aria-label="Units">
+                  <label>
+                    <input type="radio" name="cv-units" value="cm" checked data-units />
+                    <span>cm</span>
+                  </label>
+                  <label>
+                    <input type="radio" name="cv-units" value="in" data-units />
+                    <span>in</span>
+                  </label>
+                </div>
+              </div>
+
+              <p class="crop-vis__group-title crop-vis__group-title--space">Orientation</p>
+              <div class="crop-vis__orient" role="radiogroup" aria-label="Orientation">
+                <label>
+                  <input type="radio" name="cv-orient" value="portrait" checked data-orient />
+                  <span>Portrait</span>
+                </label>
+                <label>
+                  <input type="radio" name="cv-orient" value="landscape" data-orient />
+                  <span>Landscape</span>
+                </label>
+              </div>
+
+              <dl class="crop-vis__readout">
+                <div>
+                  <dt>Image aspect</dt>
+                  <dd data-image-aspect>—</dd>
+                </div>
+                <div>
+                  <dt>Print aspect</dt>
+                  <dd data-print-aspect>—</dd>
+                </div>
+                <div>
+                  <dt>Cropped away</dt>
+                  <dd data-cropped>—</dd>
+                </div>
+              </dl>
+
+              <p class="crop-vis__hint" data-fit-hint></p>
+            </div>
+          </div>
+
+          <div class="crop-vis__actions">
+            <button type="button" class="crop-vis__reset" data-reset>
+              Try a different image
+            </button>
+            <a
+              href={waLink}
+              target="_blank"
+              rel="noopener"
+              class="crop-vis__cta"
+            >
+              <WhatsAppIcon size={16} />
+              <span>Send this to us on WhatsApp</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Explanation -->
+  <section class="border-t border-border-soft bg-[#FAF7F1]">
+    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>Why crops happen</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">Different shapes, different prints.</DisplayHeading>
+          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+            Your image and the print paper rarely have the same proportions.
+            When they don't match, something has to give: either you crop
+            into the image, or you accept white borders on the long edges.
+          </p>
+        </div>
+        <ol class="md:col-span-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <li class="rounded-card border border-border-soft bg-white p-5">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">3:2</p>
+            <p class="mt-2 font-serif text-[18px] font-medium text-ink">DSLR / mirrorless cameras</p>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+              The default for most full-frame and APS-C cameras. Pairs
+              naturally with 60×90, 40×60, or A-series prints (close to 1:√2).
+            </p>
+          </li>
+          <li class="rounded-card border border-border-soft bg-white p-5">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">4:3</p>
+            <p class="mt-2 font-serif text-[18px] font-medium text-ink">Phones, micro four thirds</p>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+              Most iPhone and Android default photos. Crops cleanly to 30×40,
+              60×80. Loses a bit on the edges for 5:7 or 4:5.
+            </p>
+          </li>
+          <li class="rounded-card border border-border-soft bg-white p-5">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">1:1</p>
+            <p class="mt-2 font-serif text-[18px] font-medium text-ink">Instagram, square crops</p>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+              Square photos pair with square prints. If you want them on a
+              tall print, expect borders or a deliberate crop into your subject.
+            </p>
+          </li>
+          <li class="rounded-card border border-border-soft bg-white p-5">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">Tip</p>
+            <p class="mt-2 font-serif text-[18px] font-medium text-ink">Borders are free.</p>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+              If a tight crop is cutting off something important, ask us
+              about printing the image at its original aspect with a clean
+              white border on a larger sheet.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <DarkCTA />
+</BaseLayout>
+
+<style>
+  .crop-vis {
+    display: grid;
+    gap: 24px;
+  }
+
+  /* Dropzone (matches image-analyser visually) */
+  .crop-vis__drop {
+    display: block;
+    border: 2px dashed rgba(0, 0, 0, 0.18);
+    border-radius: 16px;
+    padding: 56px 24px;
+    background: #fff;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 150ms ease-out, background 150ms ease-out;
+  }
+  .crop-vis__drop:hover,
+  .crop-vis__drop:focus-within {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.02);
+  }
+  .crop-vis__drop.is-dragover {
+    border-color: var(--color-petrol);
+    background: rgba(26, 53, 80, 0.05);
+  }
+  .crop-vis__drop-content {
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+  }
+  .crop-vis__drop-icon { color: var(--color-muted); }
+  .crop-vis__drop-title {
+    font-family: var(--font-serif);
+    font-size: 19px;
+    font-weight: 500;
+    color: var(--color-ink);
+    margin: 0;
+  }
+  .crop-vis__drop-link {
+    color: var(--color-petrol);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .crop-vis__drop-hint {
+    font-size: 13px;
+    color: var(--color-subtle);
+    margin: 0;
+  }
+
+  .crop-vis__error {
+    margin: 0;
+    padding: 14px 18px;
+    border-radius: 10px;
+    background: rgba(220, 38, 38, 0.06);
+    color: #b1271f;
+    font-size: 14px;
+  }
+
+  /* Result */
+  .crop-vis__result {
+    display: grid;
+    gap: 24px;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 16px;
+    padding: 24px;
+    background: #fff;
+  }
+  @media (max-width: 640px) {
+    .crop-vis__result { padding: 16px; border-radius: 12px; }
+  }
+
+  .crop-vis__layout {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 880px) {
+    .crop-vis__layout {
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, 360px);
+      align-items: start;
+    }
+  }
+
+  /* Stage: contains the image and the dimming mask + crop window */
+  .crop-vis__stage {
+    position: relative;
+    background: #1a1a1a;
+    border-radius: 12px;
+    overflow: hidden;
+    user-select: none;
+    touch-action: none;
+    aspect-ratio: 4 / 3;
+    display: grid;
+    place-items: center;
+  }
+  .crop-vis__stage img {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+  }
+  /* Mask: full overlay with semi-transparent black, except inside .crop-vis__crop. */
+  .crop-vis__mask {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .crop-vis__crop {
+    position: absolute;
+    box-shadow:
+      0 0 0 9999px rgba(0, 0, 0, 0.55),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.85);
+    cursor: grab;
+    pointer-events: auto;
+  }
+  .crop-vis__crop:active { cursor: grabbing; }
+  .crop-vis__crop-edge {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.85);
+  }
+  .crop-vis__crop-edge--n { top: 0; left: 0; right: 0; height: 1px; }
+  .crop-vis__crop-edge--s { bottom: 0; left: 0; right: 0; height: 1px; }
+  .crop-vis__crop-edge--e { top: 0; right: 0; bottom: 0; width: 1px; }
+  .crop-vis__crop-edge--w { top: 0; left: 0; bottom: 0; width: 1px; }
+  .crop-vis__stage-hint {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.55);
+    color: #fff;
+    font-size: 11.5px;
+    pointer-events: none;
+  }
+
+  /* Controls */
+  .crop-vis__controls {
+    display: grid;
+    gap: 14px;
+  }
+  .crop-vis__group-title {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--color-ink);
+    margin: 0;
+  }
+  .crop-vis__group-title--space { margin-top: 6px; }
+  .crop-vis__presets {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .crop-vis__preset {
+    cursor: pointer;
+  }
+  .crop-vis__preset input { position: absolute; opacity: 0; pointer-events: none; }
+  .crop-vis__preset span {
+    display: block;
+    padding: 9px 11px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    background: #fff;
+    transition: background 120ms, border-color 120ms;
+  }
+  .crop-vis__preset span strong {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--color-ink);
+    line-height: 1.15;
+  }
+  .crop-vis__preset span em {
+    display: block;
+    font-style: normal;
+    font-size: 11.5px;
+    color: var(--color-muted);
+    margin-top: 2px;
+  }
+  .crop-vis__preset:hover span {
+    border-color: rgba(0, 0, 0, 0.3);
+  }
+  .crop-vis__preset input:checked + span {
+    background: var(--color-selected);
+    border-color: var(--color-selected);
+    color: #fff;
+  }
+  .crop-vis__preset input:checked + span strong { color: #fff; }
+  .crop-vis__preset input:checked + span em { color: rgba(255, 255, 255, 0.78); }
+  .crop-vis__preset--custom { grid-column: span 2; }
+
+  .crop-vis__custom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 10px;
+    background: #FAF7F1;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+  }
+  .crop-vis__field {
+    display: grid;
+    gap: 5px;
+    font-size: 12px;
+    color: var(--color-muted);
+  }
+  .crop-vis__field input {
+    padding: 9px 11px;
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.15));
+    border-radius: 8px;
+    font-size: 15px;
+    width: 92px;
+    font-variant-numeric: tabular-nums;
+    background: #fff;
+    color: var(--color-ink);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .crop-vis__field input:focus {
+    outline: 2px solid var(--color-petrol);
+    outline-offset: 0;
+    border-color: var(--color-petrol);
+  }
+  .crop-vis__by {
+    align-self: end;
+    padding-bottom: 11px;
+    color: var(--color-subtle);
+  }
+  .crop-vis__units,
+  .crop-vis__orient {
+    display: inline-flex;
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.15));
+    border-radius: 999px;
+    padding: 3px;
+    background: #fff;
+    align-self: end;
+  }
+  .crop-vis__units label,
+  .crop-vis__orient label { cursor: pointer; }
+  .crop-vis__units input,
+  .crop-vis__orient input { position: absolute; opacity: 0; pointer-events: none; }
+  .crop-vis__units span,
+  .crop-vis__orient span {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+  .crop-vis__units label:has(input:checked) span,
+  .crop-vis__orient label:has(input:checked) span {
+    background: var(--color-selected);
+    color: #fff;
+  }
+
+  .crop-vis__readout {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px 16px;
+    margin: 6px 0 0;
+    padding: 14px 16px;
+    border-radius: 10px;
+    background: #FAF7F1;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+  }
+  .crop-vis__readout dt {
+    font-size: 11px;
+    color: var(--color-muted);
+    margin-bottom: 2px;
+  }
+  .crop-vis__readout dd {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 14.5px;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .crop-vis__hint {
+    margin: 0;
+    font-size: 12.5px;
+    color: var(--color-subtle);
+  }
+
+  /* Actions */
+  .crop-vis__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    padding-top: 18px;
+  }
+  .crop-vis__reset {
+    appearance: none;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    background: #fff;
+    color: var(--color-ink);
+    border-radius: 999px;
+    padding: 10px 18px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 150ms ease-out;
+  }
+  .crop-vis__reset:hover { background: rgba(0, 0, 0, 0.04); }
+  .crop-vis__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    background: #25D366;
+    color: #fff;
+    transition: background 150ms ease-out;
+  }
+  .crop-vis__cta:hover { background: #1ebe5b; }
+  @media (max-width: 640px) {
+    .crop-vis__actions .crop-vis__reset,
+    .crop-vis__actions .crop-vis__cta {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+  }
+</style>
+
+<script>
+  // Crop visualiser. Pure browser-side: image is rendered in an <img>,
+  // a positioned crop box overlays it. Centre-defaulted, draggable.
+
+  const MAX_BYTES = 100 * 1024 * 1024;
+  const ALLOWED_TYPES = new Set(["image/jpeg", "image/png"]);
+
+  const PRESETS: Record<string, { w: number; h: number }> = {
+    a4:     { w: 21,   h: 29.7 },
+    a3:     { w: 29.7, h: 42 },
+    a2:     { w: 42,   h: 59.4 },
+    a1:     { w: 59.4, h: 84.1 },
+    "30x40":{ w: 30,   h: 40 },
+    "40x50":{ w: 40,   h: 50 },
+    "50x70":{ w: 50,   h: 70 },
+    "60x80":{ w: 60,   h: 80 },
+    "60x90":{ w: 60,   h: 90 },
+    "70x100":{ w: 70,  h: 100 },
+    sq30:   { w: 30,   h: 30 },
+    sq50:   { w: 50,   h: 50 },
+  };
+
+  const root = document.querySelector<HTMLElement>("[data-crop-vis]");
+  if (root) initCropVis(root);
+
+  function initCropVis(root: HTMLElement) {
+    const drop = root.querySelector<HTMLLabelElement>("[data-drop]")!;
+    const fileInput = root.querySelector<HTMLInputElement>("[data-file-input]")!;
+    const errorEl = root.querySelector<HTMLElement>("[data-error]")!;
+    const result = root.querySelector<HTMLElement>("[data-result]")!;
+    const stage = root.querySelector<HTMLElement>("[data-stage]")!;
+    const previewImg = root.querySelector<HTMLImageElement>("[data-preview]")!;
+    const cropEl = root.querySelector<HTMLElement>("[data-crop]")!;
+    const customWrap = root.querySelector<HTMLElement>("[data-custom]")!;
+    const customW = root.querySelector<HTMLInputElement>("[data-custom-w]")!;
+    const customH = root.querySelector<HTMLInputElement>("[data-custom-h]")!;
+    const presetInputs = Array.from(root.querySelectorAll<HTMLInputElement>("[data-preset]"));
+    const orientInputs = Array.from(root.querySelectorAll<HTMLInputElement>("[data-orient]"));
+    const unitInputs = Array.from(root.querySelectorAll<HTMLInputElement>("[data-units]"));
+    const imageAspectEl = root.querySelector<HTMLElement>("[data-image-aspect]")!;
+    const printAspectEl = root.querySelector<HTMLElement>("[data-print-aspect]")!;
+    const croppedEl = root.querySelector<HTMLElement>("[data-cropped]")!;
+    const fitHintEl = root.querySelector<HTMLElement>("[data-fit-hint]")!;
+    const resetBtn = root.querySelector<HTMLButtonElement>("[data-reset]")!;
+
+    let imgPxW = 0;
+    let imgPxH = 0;
+    let lastObjectUrl: string | null = null;
+    // Crop offset within the displayed image, in px relative to the
+    // displayed image's top-left. Recalculated on drag.
+    let cropOffsetX = 0;
+    let cropOffsetY = 0;
+
+    function showError(msg: string) {
+      errorEl.textContent = msg;
+      errorEl.hidden = false;
+    }
+    function clearError() {
+      errorEl.textContent = "";
+      errorEl.hidden = true;
+    }
+
+    function readDimensions(file: File): Promise<{ w: number; h: number; url: string }> {
+      return new Promise((resolve, reject) => {
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => resolve({ w: img.naturalWidth, h: img.naturalHeight, url });
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          reject(new Error("Could not read this image. Try a different file."));
+        };
+        img.src = url;
+      });
+    }
+
+    function selectedPreset(): string {
+      return presetInputs.find((i) => i.checked)?.value ?? "50x70";
+    }
+
+    function selectedOrient(): "portrait" | "landscape" {
+      return (orientInputs.find((i) => i.checked)?.value as "portrait" | "landscape") ?? "portrait";
+    }
+
+    function selectedUnit(): "cm" | "in" {
+      return (unitInputs.find((i) => i.checked)?.value as "cm" | "in") ?? "cm";
+    }
+
+    /** Print dimensions in the user's selected unit, oriented per orient. */
+    function printDims(): { w: number; h: number; aspect: number } {
+      const id = selectedPreset();
+      let pw = 0, ph = 0;
+      if (id === "custom") {
+        pw = parseFloat(customW.value) || 0;
+        ph = parseFloat(customH.value) || 0;
+      } else {
+        const p = PRESETS[id];
+        if (p) { pw = p.w; ph = p.h; }
+      }
+      // Presets are stored as "shorter × longer" but the user picks
+      // orientation. Sort then re-orient so portrait = h>w.
+      const lo = Math.min(pw, ph);
+      const hi = Math.max(pw, ph);
+      const orient = selectedOrient();
+      if (orient === "portrait") { pw = lo; ph = hi; }
+      else { pw = hi; ph = lo; }
+      return { w: pw, h: ph, aspect: pw / ph };
+    }
+
+    /** Format an aspect ratio like "3:2" if it's a clean ratio, else "1.50". */
+    function fmtAspect(w: number, h: number): string {
+      if (!w || !h) return "—";
+      const ratio = w / h;
+      // Try a handful of common ratios
+      const candidates: [number, number][] = [
+        [1, 1], [2, 1], [1, 2], [3, 2], [2, 3], [4, 3], [3, 4],
+        [4, 5], [5, 4], [5, 7], [7, 5], [16, 9], [9, 16],
+        [16, 10], [10, 16], [3, 5], [5, 3], [7, 10], [10, 7],
+      ];
+      for (const [a, b] of candidates) {
+        if (Math.abs(ratio - a / b) < 0.005) return `${a}:${b}`;
+      }
+      return ratio.toFixed(2);
+    }
+
+    /**
+     * Compute the crop rectangle in original-image pixels, given the
+     * current print aspect and the user-controlled offset (in displayed
+     * pixels). The crop is the largest rectangle of the print's aspect
+     * that fits inside the image.
+     */
+    function computeCropPx(): { x: number; y: number; w: number; h: number } | null {
+      if (!imgPxW || !imgPxH) return null;
+      const { aspect } = printDims();
+      if (!Number.isFinite(aspect) || aspect <= 0) return null;
+      const imgAspect = imgPxW / imgPxH;
+      let cw: number, ch: number;
+      if (aspect > imgAspect) {
+        // Print is wider than image — full width, cropped height.
+        cw = imgPxW;
+        ch = imgPxW / aspect;
+      } else {
+        // Print is taller than image — full height, cropped width.
+        ch = imgPxH;
+        cw = imgPxH * aspect;
+      }
+      const maxOffX = Math.max(0, imgPxW - cw);
+      const maxOffY = Math.max(0, imgPxH - ch);
+      const x = Math.max(0, Math.min(maxOffX, cropOffsetX));
+      const y = Math.max(0, Math.min(maxOffY, cropOffsetY));
+      return { x, y, w: cw, h: ch };
+    }
+
+    /** Get the displayed image rect inside the stage (object-fit: contain). */
+    function getDisplayedImageRect(): { left: number; top: number; w: number; h: number } | null {
+      if (!imgPxW || !imgPxH) return null;
+      const stageRect = stage.getBoundingClientRect();
+      const imgAspect = imgPxW / imgPxH;
+      const stageAspect = stageRect.width / stageRect.height;
+      let dw: number, dh: number;
+      if (imgAspect > stageAspect) {
+        dw = stageRect.width;
+        dh = stageRect.width / imgAspect;
+      } else {
+        dh = stageRect.height;
+        dw = stageRect.height * imgAspect;
+      }
+      const left = (stageRect.width - dw) / 2;
+      const top = (stageRect.height - dh) / 2;
+      return { left, top, w: dw, h: dh };
+    }
+
+    function render() {
+      const crop = computeCropPx();
+      const disp = getDisplayedImageRect();
+      if (!crop || !disp) {
+        cropEl.style.display = "none";
+        imageAspectEl.textContent = "—";
+        printAspectEl.textContent = "—";
+        croppedEl.textContent = "—";
+        fitHintEl.textContent = "";
+        return;
+      }
+      // Map original-image px to displayed px.
+      const scale = disp.w / imgPxW;
+      cropEl.style.display = "block";
+      cropEl.style.left = `${disp.left + crop.x * scale}px`;
+      cropEl.style.top = `${disp.top + crop.y * scale}px`;
+      cropEl.style.width = `${crop.w * scale}px`;
+      cropEl.style.height = `${crop.h * scale}px`;
+
+      // Readouts.
+      const printD = printDims();
+      imageAspectEl.textContent = fmtAspect(imgPxW, imgPxH);
+      printAspectEl.textContent = fmtAspect(printD.w, printD.h);
+      const keptArea = (crop.w * crop.h) / (imgPxW * imgPxH);
+      const cropped = Math.round((1 - keptArea) * 100);
+      croppedEl.textContent = cropped <= 0 ? "None" : `${cropped}%`;
+
+      // Fit hint: which dimension is being trimmed?
+      const imgAspect = imgPxW / imgPxH;
+      if (Math.abs(imgAspect - printD.aspect) < 0.005) {
+        fitHintEl.textContent = "Perfect fit. No cropping needed.";
+      } else if (printD.aspect > imgAspect) {
+        fitHintEl.textContent = "Print is wider — top and bottom of the image are cropped. Drag up or down to adjust.";
+      } else {
+        fitHintEl.textContent = "Print is taller — left and right edges are cropped. Drag left or right to adjust.";
+      }
+    }
+
+    async function handleFile(file: File) {
+      clearError();
+      if (!ALLOWED_TYPES.has(file.type)) {
+        showError("That file isn't a JPG or PNG. Try one of those formats.");
+        return;
+      }
+      if (file.size > MAX_BYTES) {
+        showError(`That file is over 100 MB. Try a smaller version.`);
+        return;
+      }
+
+      try {
+        const { w, h, url } = await readDimensions(file);
+        if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+        lastObjectUrl = url;
+        imgPxW = w;
+        imgPxH = h;
+        previewImg.src = url;
+        previewImg.alt = file.name;
+
+        // Default preset: 50×70 portrait, with crop centred.
+        const defaultPreset = presetInputs.find((i) => i.value === "50x70");
+        if (defaultPreset) defaultPreset.checked = true;
+        // Default orientation matches image orientation so the initial
+        // crop loses as little as possible.
+        const portraitOrient = orientInputs.find((i) => i.value === "portrait");
+        const landscapeOrient = orientInputs.find((i) => i.value === "landscape");
+        if (h >= w) { if (portraitOrient) portraitOrient.checked = true; }
+        else { if (landscapeOrient) landscapeOrient.checked = true; }
+        customWrap.hidden = true;
+        centreCrop();
+
+        drop.hidden = true;
+        result.hidden = false;
+        // Wait for layout, then render.
+        requestAnimationFrame(() => render());
+        result.scrollIntoView({ behavior: "smooth", block: "start" });
+      } catch (err) {
+        showError(err instanceof Error ? err.message : "Could not read this image.");
+      }
+    }
+
+    function centreCrop() {
+      const crop = computeCropPx();
+      if (!crop) return;
+      cropOffsetX = (imgPxW - crop.w) / 2;
+      cropOffsetY = (imgPxH - crop.h) / 2;
+    }
+
+    // --- Drag handling on the crop box ---
+
+    let dragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+    let dragStartOffX = 0;
+    let dragStartOffY = 0;
+
+    cropEl.addEventListener("pointerdown", (e: PointerEvent) => {
+      if (!imgPxW || !imgPxH) return;
+      dragging = true;
+      cropEl.setPointerCapture(e.pointerId);
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+      dragStartOffX = cropOffsetX;
+      dragStartOffY = cropOffsetY;
+    });
+
+    cropEl.addEventListener("pointermove", (e: PointerEvent) => {
+      if (!dragging) return;
+      const disp = getDisplayedImageRect();
+      if (!disp) return;
+      const scale = disp.w / imgPxW;
+      const dx = (e.clientX - dragStartX) / scale;
+      const dy = (e.clientY - dragStartY) / scale;
+      cropOffsetX = dragStartOffX + dx;
+      cropOffsetY = dragStartOffY + dy;
+      render();
+    });
+
+    const endDrag = (e: PointerEvent) => {
+      if (!dragging) return;
+      dragging = false;
+      try { cropEl.releasePointerCapture(e.pointerId); } catch {}
+    };
+    cropEl.addEventListener("pointerup", endDrag);
+    cropEl.addEventListener("pointercancel", endDrag);
+
+    // --- Wire up file input + dropzone ---
+
+    fileInput.addEventListener("change", () => {
+      const f = fileInput.files?.[0];
+      if (f) handleFile(f);
+    });
+    ["dragenter", "dragover"].forEach((ev) =>
+      drop.addEventListener(ev, (e) => {
+        e.preventDefault();
+        drop.classList.add("is-dragover");
+      }),
+    );
+    ["dragleave", "dragend"].forEach((ev) =>
+      drop.addEventListener(ev, () => drop.classList.remove("is-dragover")),
+    );
+    drop.addEventListener("drop", (e) => {
+      e.preventDefault();
+      drop.classList.remove("is-dragover");
+      const f = (e as DragEvent).dataTransfer?.files?.[0];
+      if (f) handleFile(f);
+    });
+
+    // --- Wire up controls ---
+
+    presetInputs.forEach((p) =>
+      p.addEventListener("change", () => {
+        customWrap.hidden = p.value !== "custom";
+        centreCrop();
+        render();
+      }),
+    );
+    orientInputs.forEach((o) =>
+      o.addEventListener("change", () => {
+        centreCrop();
+        render();
+      }),
+    );
+    unitInputs.forEach((u) =>
+      u.addEventListener("change", () => {
+        // Convert custom inputs to the new unit so the user keeps the
+        // physical print size they set.
+        const next = (u.value as "cm" | "in");
+        // We don't know the previous unit just from this listener, so
+        // tag the dataset with the last selected unit.
+        const prev = (root.dataset.lastUnit as "cm" | "in") ?? "cm";
+        if (prev === next) return;
+        const w = parseFloat(customW.value);
+        const h = parseFloat(customH.value);
+        if (Number.isFinite(w) && w > 0) {
+          customW.value = (next === "in" ? w / 2.54 : w * 2.54).toFixed(1);
+        }
+        if (Number.isFinite(h) && h > 0) {
+          customH.value = (next === "in" ? h / 2.54 : h * 2.54).toFixed(1);
+        }
+        root.dataset.lastUnit = next;
+        if (selectedPreset() === "custom") render();
+      }),
+    );
+    root.dataset.lastUnit = selectedUnit();
+
+    [customW, customH].forEach((inp) =>
+      inp.addEventListener("input", () => {
+        if (selectedPreset() === "custom") {
+          centreCrop();
+          render();
+        }
+      }),
+    );
+
+    // Re-render on resize because the displayed image size changes.
+    let resizeRaf = 0;
+    window.addEventListener("resize", () => {
+      cancelAnimationFrame(resizeRaf);
+      resizeRaf = requestAnimationFrame(() => {
+        if (imgPxW && imgPxH) render();
+      });
+    });
+
+    resetBtn.addEventListener("click", () => {
+      if (lastObjectUrl) URL.revokeObjectURL(lastObjectUrl);
+      lastObjectUrl = null;
+      imgPxW = 0;
+      imgPxH = 0;
+      cropOffsetX = 0;
+      cropOffsetY = 0;
+      previewImg.removeAttribute("src");
+      cropEl.style.display = "none";
+      imageAspectEl.textContent = "—";
+      printAspectEl.textContent = "—";
+      croppedEl.textContent = "—";
+      fitHintEl.textContent = "";
+      fileInput.value = "";
+      result.hidden = true;
+      drop.hidden = false;
+      clearError();
+    });
+  }
+</script>
