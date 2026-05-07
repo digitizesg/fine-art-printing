@@ -604,32 +604,43 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 
       if (ww <= 0 || wh <= 0) return null;
 
-      // Step 1 — target combined width from the coverage slider, capped
-      // by the side-gap minimum.
-      let comboW = Math.min(ww * cov, ww - 2 * SIDE_GAP_MIN_CM);
+      // Available envelope. The art's bottom edge can't sit below the
+      // top of furniture (+ breathing gap) or below 75 cm AFF on empty
+      // walls; the top edge can't go past wall_height - ceiling gap.
+      const ceilingY = wh - CEILING_GAP_CM;
+      const minBottomAff = hasFurn && fh > 0 ? fh + FURN_GAP_CM : 75;
+      const availableH = Math.max(0, ceilingY - minBottomAff);
+      const maxComboW = ww - 2 * SIDE_GAP_MIN_CM;
 
-      // Step 2 — derive each piece's W from cols, then H from the
-      // per-piece aspect, then combo H from rows + spacing. The combo's
-      // shape emerges from count × per-piece shape — no separate combo
-      // aspect involved.
+      // Target combo *area* (not just width). This is the fix for
+      // multi-piece arrangements: dividing a width-only target into N
+      // columns made each piece short, leaving most of the wall empty
+      // above the art. Solving for piece dimensions from area means a
+      // 3-piece arrangement scales up to fill the available wall
+      // similarly to a 1-piece arrangement.
+      const availArea = maxComboW * availableH;
+      const targetArea = availArea * cov;
+
       const spacingX = SPACING_CM * (cols - 1);
       const spacingY = SPACING_CM * (rows - 1);
-      let pieceW = (comboW - spacingX) / cols;
-      let pieceH = pieceW / aspect;
+
+      // Approximate pieceH ignoring spacing (small relative to pieces).
+      // combo_area ≈ (cols × aspect × pieceH) × (rows × pieceH)
+      //           = cols × rows × aspect × pieceH²
+      let pieceH = Math.sqrt(targetArea / (cols * rows * aspect));
+      let pieceW = pieceH * aspect;
+      let comboW = pieceW * cols + spacingX;
       let comboH = pieceH * rows + spacingY;
 
-      // Step 3 — vertical placement.
-      const ceilingY = wh - CEILING_GAP_CM;
-      let bottomAff: number;
-      if (fh > 0) {
-        bottomAff = fh + FURN_GAP_CM;
-      } else {
-        bottomAff = EYE_LEVEL_CM - comboH / 2;
+      // Cap to wall envelope. Cap whichever dimension is overshooting,
+      // shrinking proportionally to keep the per-piece aspect honest.
+      if (comboW > maxComboW) {
+        const scale = maxComboW / comboW;
+        pieceW *= scale;
+        pieceH = pieceW / aspect;
+        comboW = pieceW * cols + spacingX;
+        comboH = pieceH * rows + spacingY;
       }
-
-      // Step 4 — if the combo doesn't fit vertically, scale everything
-      // proportionally so each piece keeps its target aspect.
-      const availableH = ceilingY - bottomAff;
       if (comboH > availableH && availableH > 0) {
         const scale = availableH / comboH;
         pieceH *= scale;
@@ -638,13 +649,20 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
         comboH = pieceH * rows + spacingY;
       }
 
-      // Re-centre on eye level for empty walls now that comboH is
-      // settled, then clamp inside the wall.
-      if (fh <= 0) {
+      // Vertical placement. With furniture, anchor ≥ furniture-top + gap;
+      // if the combo is small (e.g. 3 landscape pieces in a row), lift
+      // it so the centre sits at eye level rather than hugging the
+      // sofa with empty wall above.
+      let bottomAff: number;
+      if (hasFurn && fh > 0) {
+        const eyeBottom = EYE_LEVEL_CM - comboH / 2;
+        bottomAff = Math.max(fh + FURN_GAP_CM, eyeBottom);
+      } else {
         bottomAff = EYE_LEVEL_CM - comboH / 2;
         bottomAff = Math.max(bottomAff, 75);
-        if (bottomAff + comboH > ceilingY) bottomAff = ceilingY - comboH;
       }
+      // Don't punch through the ceiling.
+      if (bottomAff + comboH > ceilingY) bottomAff = ceilingY - comboH;
 
       // Round per-piece to nearest 5 cm; combo follows.
       const pieceWR = r5(pieceW);
