@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { Resend } from "resend";
+import { verifyTurnstile } from "../../lib/turnstile";
 
 export const prerender = false;
 
@@ -30,34 +31,6 @@ function escapeHtml(s: string): string {
     .replace(/\n/g, "<br>");
 }
 
-async function verifyTurnstile(token: string, ip: string | null): Promise<boolean> {
-  const secret = import.meta.env.TURNSTILE_SECRET_KEY;
-  if (!secret) {
-    // No secret configured — skip the check, rely on honeypot only.
-    console.warn("[contact] TURNSTILE_SECRET_KEY not set, skipping captcha check");
-    return true;
-  }
-  if (!token) return false;
-  try {
-    const res = await fetch(
-      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-      {
-        method: "POST",
-        headers: { "content-type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          secret,
-          response: token,
-          ...(ip ? { remoteip: ip } : {}),
-        }),
-      },
-    );
-    const data = (await res.json()) as { success: boolean };
-    return !!data.success;
-  } catch (e) {
-    console.error("[contact] turnstile verify failed:", e);
-    return false;
-  }
-}
 
 export const POST: APIRoute = async ({ request, clientAddress }) => {
   const resendKey = import.meta.env.RESEND_API_KEY;
@@ -119,6 +92,7 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   const captchaOk = await verifyTurnstile(
     turnstileToken,
     clientAddress ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    "contact",
   );
   if (!captchaOk) {
     return bad("Captcha check failed. Please refresh the page and try again.");

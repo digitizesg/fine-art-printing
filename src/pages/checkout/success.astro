@@ -5,38 +5,33 @@ import Eyebrow from "../../components/Eyebrow.astro";
 import { business } from "../../data/business";
 import { createSupabaseAdminClient } from "../../lib/supabase-server";
 
+// Anyone with an order's stripe_session_id can hit this page. Session
+// IDs aren't auth tokens — they leak via referrers, browser history,
+// shared screenshots — so we only surface non-PII fields here:
+// reference + total + delivery-method label + kind. Customer name and
+// shipping address are NOT shown; the customer gets the full details
+// via the confirmation email.
 const sessionId = Astro.url.searchParams.get("session_id");
 let reference: string | null = null;
 let deliveryMethod: "self" | "local" | null = null;
-let customerName: string | null = null;
 let totalSGD: number | null = null;
 let kind: "shop" | "custom_payment" | "valuation" | null = null;
-type ShipAddr = {
-  line1?: string | null;
-  line2?: string | null;
-  city?: string | null;
-  postal_code?: string | null;
-} | null;
-let shippingAddress: ShipAddr = null;
 
 if (sessionId) {
   const supabase = createSupabaseAdminClient();
   if (supabase) {
     const { data } = await supabase
       .from("orders")
-      .select("reference, delivery_method, customer_name, total_sgd, shipping_address, kind")
+      .select("reference, delivery_method, total_sgd, kind")
       .eq("stripe_session_id", sessionId)
       .maybeSingle();
     reference = data?.reference ?? null;
     deliveryMethod = (data?.delivery_method as "self" | "local") ?? null;
-    customerName = data?.customer_name ?? null;
     totalSGD = data?.total_sgd != null ? Number(data.total_sgd) : null;
-    shippingAddress = (data?.shipping_address as ShipAddr) ?? null;
     kind = (data?.kind as typeof kind) ?? null;
   }
 }
 
-const firstName = customerName?.split(" ")[0] ?? null;
 const description = "Thanks for your order at Fine Art Printing.";
 ---
 <BaseLayout title="Order confirmed · Fine Art Printing" description={description}>
@@ -44,7 +39,7 @@ const description = "Thanks for your order at Fine Art Printing.";
     <div class="mx-auto max-w-[720px] px-6 pt-14 pb-20 md:pt-20 md:pb-28 text-center">
       <Eyebrow>Order confirmed</Eyebrow>
       <h1 class="mt-3 font-serif text-[clamp(1.85rem,3.5vw,2.4rem)] font-medium leading-[1.1] text-ink text-balance">
-        {firstName ? `Thank you, ${firstName}.` : "Thank you."}
+        Thank you.
       </h1>
       <p class="mt-6 mx-auto max-w-[560px] text-[15.5px] leading-relaxed text-subtle">
         {kind === "valuation"
@@ -65,25 +60,17 @@ const description = "Thanks for your order at Fine Art Printing.";
             </div>
           )}
           {kind !== "valuation" && deliveryMethod === "self" && (
-            <div class="mt-5 border-t border-border-soft pt-5">
-              <p class="text-[12px] font-semibold uppercase tracking-wide text-muted mb-2">Pickup</p>
-              <p class="text-[14px] leading-relaxed text-ink">{business.address.line2}<br/>{business.address.line3}<br/>{business.address.postcode}</p>
-              <p class="mt-3 text-[13px] text-subtle">
-                We'll WhatsApp or email you when your order is ready (typically 5-7 working days). Pickup is Mon-Fri plus Saturday mornings.
-              </p>
-            </div>
+            <p class="mt-3 text-[13px] text-subtle">
+              Self-collection from our studio. We'll WhatsApp or email you
+              when your order is ready (typically 5-7 working days).
+            </p>
           )}
-          {deliveryMethod === "local" && shippingAddress && (
-            <div class="mt-5 border-t border-border-soft pt-5">
-              <p class="text-[12px] font-semibold uppercase tracking-wide text-muted mb-2">Delivering to</p>
-              <p class="text-[14px] leading-relaxed text-ink">
-                {shippingAddress.line1}{shippingAddress.line2 ? <><br />{shippingAddress.line2}</> : null}<br/>
-                {shippingAddress.city ? `${shippingAddress.city} ` : ""}{shippingAddress.postal_code ?? ""}
-              </p>
-              <p class="mt-3 text-[13px] text-subtle">
-                We'll arrange courier once your order is ready (typically 5–7 working days). You'll get a tracking link when it ships.
-              </p>
-            </div>
+          {deliveryMethod === "local" && (
+            <p class="mt-3 text-[13px] text-subtle">
+              We'll arrange courier once your order is ready (typically 5-7
+              working days). The full delivery address and a tracking link
+              are in your confirmation email.
+            </p>
           )}
         </div>
       )}

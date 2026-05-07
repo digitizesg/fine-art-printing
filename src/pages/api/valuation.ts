@@ -21,6 +21,7 @@ import type { APIRoute } from "astro";
 import Stripe from "stripe";
 import { extname } from "node:path";
 import { createSupabaseAdminClient } from "../../lib/supabase-server";
+import { verifyTurnstile } from "../../lib/turnstile";
 
 export const prerender = false;
 
@@ -53,7 +54,7 @@ function safeFilename(name: string): string {
   return base.replace(/[^a-zA-Z0-9._ -]/g, "_").slice(0, 120);
 }
 
-export const POST: APIRoute = async ({ request, url }) => {
+export const POST: APIRoute = async ({ request, url, clientAddress }) => {
   const stripeKey = import.meta.env.STRIPE_SECRET_KEY;
   if (!stripeKey) {
     return bad("Payments aren't configured on this environment. Please WhatsApp us.", 503);
@@ -76,6 +77,19 @@ export const POST: APIRoute = async ({ request, url }) => {
       status: 200,
       headers: { "content-type": "application/json" },
     });
+  }
+
+  // Turnstile — guard the heavy upload + Stripe path against bots.
+  // Soft-fails open if TURNSTILE_SECRET_KEY isn't configured (matches
+  // contact form behaviour).
+  const turnstileToken = String(form.get("cf-turnstile-response") ?? "");
+  const captchaOk = await verifyTurnstile(
+    turnstileToken,
+    clientAddress ?? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    "valuation",
+  );
+  if (!captchaOk) {
+    return bad("Captcha check failed. Please refresh and try again.");
   }
 
   const quantityRaw = String(form.get("quantity") ?? "").trim();

@@ -5,6 +5,7 @@ import Eyebrow from "../../components/Eyebrow.astro";
 
 const description =
   "Submit between 1 and 6 artworks for online valuation at S$80 per artwork. Pay securely via Stripe and we'll review within 2-3 working days.";
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
 ---
 <BaseLayout
   title="Online valuation submission · Fine Art Printing"
@@ -111,6 +112,10 @@ const description =
           </span>
         </label>
 
+        {turnstileSiteKey && (
+          <div class="valuation-form__turnstile cf-turnstile" data-sitekey={turnstileSiteKey}></div>
+        )}
+
         <p class="valuation-form__error" data-error hidden></p>
 
         <div class="valuation-form__submit">
@@ -124,6 +129,14 @@ const description =
       </form>
     </div>
   </section>
+
+  {turnstileSiteKey && (
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+      async
+      defer
+    ></script>
+  )}
 </BaseLayout>
 
 <style is:global>
@@ -232,6 +245,7 @@ const description =
     color: var(--color-subtle);
     line-height: 1.5;
   }
+  .valuation-form__turnstile { margin-top: 4px; }
   .valuation-form__error {
     margin: 0;
     padding: 10px 14px;
@@ -312,6 +326,9 @@ const description =
           errEl.hidden = false;
           submitBtn.disabled = false;
           submitBtn.textContent = original;
+          // Reset Turnstile if present so they can retry.
+          const ts = (window as any).turnstile;
+          if (ts && typeof ts.reset === "function") ts.reset();
           return;
         }
         window.location.href = data.url;
@@ -320,6 +337,8 @@ const description =
         errEl.hidden = false;
         submitBtn.disabled = false;
         submitBtn.textContent = original;
+        const ts = (window as any).turnstile;
+        if (ts && typeof ts.reset === "function") ts.reset();
       }
     });
   }
