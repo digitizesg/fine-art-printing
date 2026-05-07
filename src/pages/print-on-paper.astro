@@ -221,11 +221,14 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
       <div class="mt-10 hidden md:block">
         <div class="rounded-card border border-border-soft bg-white overflow-hidden">
           <table class="w-full text-left">
-            <thead class="bg-white text-[12px] font-semibold uppercase tracking-wide text-muted border-b border-border-soft">
+            <thead class="bg-white border-b-2 border-ink/15">
               <tr>
-                <th class="px-5 py-4">Paper</th>
+                <th class="px-5 py-4 text-[11.5px] font-semibold uppercase tracking-wide text-muted">Paper</th>
                 {COMMON_SIZES.map((s) => (
-                  <th class="px-5 py-4 text-right tabular-nums">{s.label}</th>
+                  <th class="px-5 py-4 text-right">
+                    <span class="block text-[10px] font-semibold uppercase tracking-wide text-muted">Size</span>
+                    <span class="mt-1 block font-serif text-[16px] font-medium text-ink tabular-nums">{s.label}</span>
+                  </th>
                 ))}
               </tr>
             </thead>
