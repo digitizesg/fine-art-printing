@@ -813,6 +813,9 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       // Convert AFF (above floor) to SVG Y (top-down).
       const yFromAff = (aff: number) => wallY + (wh - aff);
 
+      const wall = selectedWallColour();
+      const onDark = wall.dark;
+
       const pieces: string[] = [];
       const startX = wallX + (ww - comboW) / 2;
       const topY = yFromAff(bottomAff + comboH);
@@ -827,9 +830,6 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
           );
         }
       }
-
-      const wall = selectedWallColour();
-      const onDark = wall.dark;
 
       const furniture = hasFurn && fh > 0
         ? `<rect x="${wallX}" y="${yFromAff(fh)}" width="${ww}" height="${fh}" fill="${onDark ? "#5a4a38" : "#cdb89a"}" opacity="${onDark ? 0.85 : 0.6}" />`
