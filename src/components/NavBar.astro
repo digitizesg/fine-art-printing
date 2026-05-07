@@ -48,11 +48,10 @@ const services = [
 ];
 
 const navLinks = [
-  { href: "/shop", label: "Shop" },
-  { href: "/gallery", label: "Gallery" },
-  { href: "/articles", label: "Articles" },
   { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
+  { href: "/gallery", label: "Our work" },
+  { href: "/tools", label: "Tools" },
+  { href: "/shop", label: "Shop" },
 ];
 
 const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'd like a quick quote.")}`;
@@ -113,15 +112,6 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
           <circle cx="15" cy="17" r="1.1" fill="currentColor"/>
         </svg>
         <span class="nav-cart__count" data-nav-cart-count hidden>0</span>
-      </a>
-      <a
-        href={waHref}
-        target="_blank"
-        rel="noopener"
-        aria-label="Chat with us on WhatsApp"
-        class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-[#25D366] text-white transition-colors hover:bg-[#1ebe5b]"
-      >
-        <WhatsAppIcon size={16} />
       </a>
       <Button href="/contact" variant="secondary" class="!py-2 !px-4 !text-[15.5px]">
         Get in touch <span aria-hidden="true">→</span>
