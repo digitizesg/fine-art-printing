@@ -1,0 +1,785 @@
+---
+export const prerender = true;
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Eyebrow from "../../components/Eyebrow.astro";
+import DisplayHeading from "../../components/DisplayHeading.astro";
+import DarkCTA from "../../components/DarkCTA.astro";
+import WhatsAppIcon from "../../components/icons/WhatsAppIcon.astro";
+import { business } from "../../data/business";
+
+const description =
+  "Free wall planner. Enter your wall dimensions and we'll suggest a combined size for one to four pieces that fills the space well. Includes hanging heights and a to-scale preview.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Wall planner",
+  applicationCategory: "DesignApplication",
+  operatingSystem: "Any (web browser)",
+  url: "https://fineartprinting.com.sg/tools/wall-visualiser",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "SGD",
+  },
+};
+
+const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I just used the wall planner and would like to discuss prints for my wall.")}`;
+---
+<BaseLayout
+  title="Wall planner · What size print fits my wall · Fine Art Printing"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-12 pb-8 md:pt-16 md:pb-10">
+      <p class="text-[12.5px] text-muted">
+        <a href="/tools" class="hover:text-ink hover:underline underline-offset-2">Tools</a>
+        <span class="px-1.5 text-subtle" aria-hidden="true">›</span>
+        <span class="text-ink">Wall planner</span>
+      </p>
+      <div class="mt-5 max-w-[820px]">
+        <Eyebrow>Free tool</Eyebrow>
+        <h1 class="mt-4 font-serif text-[clamp(2rem,4.5vw,2.7rem)] font-medium leading-[1.1] text-ink">
+          What size fills your wall well?
+        </h1>
+        <p class="mt-5 max-w-[680px] text-[16px] leading-relaxed text-subtle">
+          Enter your wall dimensions, optionally the height of any furniture
+          against it, and choose how many pieces you want. We'll suggest a
+          combined size that fills the space without overpowering it, plus
+          the hanging heights to write on the wall when it's time to install.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tool -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pb-16">
+      <div class="wall-vis" data-wall-vis>
+        <div class="wall-vis__layout">
+          <!-- Inputs -->
+          <aside class="wall-vis__inputs">
+            <p class="wall-vis__group-title">Your wall</p>
+            <div class="wall-vis__row">
+              <label class="wall-vis__field">
+                <span>Width</span>
+                <div class="wall-vis__field-input">
+                  <input type="number" inputmode="numeric" min="50" max="1500" step="1" value="350" data-wall-w />
+                  <em>cm</em>
+                </div>
+              </label>
+              <label class="wall-vis__field">
+                <span>Height</span>
+                <div class="wall-vis__field-input">
+                  <input type="number" inputmode="numeric" min="100" max="600" step="1" value="270" data-wall-h />
+                  <em>cm</em>
+                </div>
+              </label>
+            </div>
+
+            <p class="wall-vis__group-title wall-vis__group-title--space">Furniture against the wall <span class="wall-vis__optional">optional</span></p>
+            <label class="wall-vis__toggle">
+              <input type="checkbox" data-furn-toggle />
+              <span>There's something below where the art will go</span>
+            </label>
+            <div class="wall-vis__row" data-furn-fields hidden>
+              <label class="wall-vis__field">
+                <span>Furniture height</span>
+                <div class="wall-vis__field-input">
+                  <input type="number" inputmode="numeric" min="20" max="300" step="1" value="80" data-furn-h />
+                  <em>cm</em>
+                </div>
+              </label>
+              <p class="wall-vis__field-hint">
+                Sofa back ≈ 75-90 cm · console ≈ 75-95 cm · sideboard ≈ 80-95 cm · headboard varies.
+              </p>
+            </div>
+
+            <p class="wall-vis__group-title wall-vis__group-title--space">Number of pieces</p>
+            <div class="wall-vis__count" role="radiogroup" aria-label="Number of pieces">
+              {[1, 2, 3, 4].map((n) => (
+                <label class="wall-vis__count-opt">
+                  <input type="radio" name="wv-count" value={n} checked={n === 1} data-count />
+                  <span>{n}</span>
+                </label>
+              ))}
+            </div>
+
+            <p class="wall-vis__group-title wall-vis__group-title--space">Orientation</p>
+            <div class="wall-vis__orient" role="radiogroup" aria-label="Orientation">
+              <label>
+                <input type="radio" name="wv-orient" value="landscape" checked data-orient />
+                <span>Landscape</span>
+              </label>
+              <label>
+                <input type="radio" name="wv-orient" value="portrait" data-orient />
+                <span>Portrait</span>
+              </label>
+              <label>
+                <input type="radio" name="wv-orient" value="square" data-orient />
+                <span>Square</span>
+              </label>
+            </div>
+
+            <details class="wall-vis__advanced">
+              <summary>Fine-tune size</summary>
+              <div class="wall-vis__advanced-body">
+                <label class="wall-vis__field wall-vis__field--full">
+                  <span>Wall coverage <em data-coverage-readout>65%</em></span>
+                  <input type="range" min="40" max="80" step="1" value="65" data-coverage />
+                </label>
+                <p class="wall-vis__field-hint">
+                  Designers tend to land between 50% and 75% of wall width.
+                  Larger reads bolder, smaller leaves more breathing room.
+                </p>
+              </div>
+            </details>
+          </aside>
+
+          <!-- Visual + readout -->
+          <div class="wall-vis__output">
+            <div class="wall-vis__stage" data-stage>
+              <svg
+                class="wall-vis__svg"
+                data-svg
+                xmlns="http://www.w3.org/2000/svg"
+                preserveAspectRatio="xMidYMid meet"
+                aria-label="Wall preview to scale"
+              ></svg>
+            </div>
+
+            <div class="wall-vis__readout">
+              <div class="wall-vis__readout-grid">
+                <div>
+                  <dt>Each piece</dt>
+                  <dd data-each>—</dd>
+                </div>
+                <div>
+                  <dt>Combined width</dt>
+                  <dd data-combo-w>—</dd>
+                </div>
+                <div>
+                  <dt>Centre of art</dt>
+                  <dd data-centre-aff>—</dd>
+                </div>
+                <div>
+                  <dt>Bottom of art</dt>
+                  <dd data-bottom-aff>—</dd>
+                </div>
+              </div>
+              <p class="wall-vis__readout-note" data-readout-note></p>
+            </div>
+
+            <div class="wall-vis__actions">
+              <a
+                href={waLink}
+                target="_blank"
+                rel="noopener"
+                class="wall-vis__cta"
+              >
+                <WhatsAppIcon size={16} />
+                <span>Send these sizes to us on WhatsApp</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Education -->
+  <section class="border-t border-border-soft bg-[#FAF7F1]">
+    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>Rules of thumb</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">How designers size art to a wall.</DisplayHeading>
+          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+            These aren't strict laws, but they're the conventions that make a
+            wall look intentional rather than accidental.
+          </p>
+        </div>
+        <ol class="md:col-span-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <li class="rounded-card border border-border-soft bg-white p-5">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">⅔ rule</p>
+            <p class="mt-2 font-serif text-[18px] font-medium text-ink">Two-thirds of the wall.</p>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+              For a single feature piece, aim for about 65 to 75% of the wall
+              width. For art above furniture, the same fraction of the
+              furniture's width tends to read best.
+            </p>
+          </li>
+          <li class="rounded-card border border-border-soft bg-white p-5">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">Eye level</p>
+            <p class="mt-2 font-serif text-[18px] font-medium text-ink">Centre at 145–155 cm.</p>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+              Galleries hang the centre of a piece at roughly 152 cm above
+              the floor. It works because most people's natural sight line
+              lands close to that height.
+            </p>
+          </li>
+          <li class="rounded-card border border-border-soft bg-white p-5">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">Above the sofa</p>
+            <p class="mt-2 font-serif text-[18px] font-medium text-ink">15–25 cm gap.</p>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+              Leave a small breathing space between the top of furniture and
+              the bottom of the art. Closer reads cramped, farther reads
+              disconnected.
+            </p>
+          </li>
+          <li class="rounded-card border border-border-soft bg-white p-5">
+            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">Multiples</p>
+            <p class="mt-2 font-serif text-[18px] font-medium text-ink">5 cm between pieces.</p>
+            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+              When hanging two or more works as a set, treat the whole group
+              as one composition and keep gaps around 5 cm. Tighter looks
+              modern, wider feels more salon-style.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <DarkCTA />
+</BaseLayout>
+
+<style>
+  .wall-vis {
+    display: grid;
+    gap: 24px;
+  }
+
+  .wall-vis__layout {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 880px) {
+    .wall-vis__layout {
+      grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  /* Inputs panel */
+  .wall-vis__inputs {
+    display: grid;
+    gap: 14px;
+    padding: 22px;
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 16px;
+    background: #FAF7F1;
+    align-self: start;
+  }
+  .wall-vis__group-title {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--color-ink);
+    margin: 0;
+  }
+  .wall-vis__group-title--space { margin-top: 4px; }
+  .wall-vis__optional {
+    margin-left: 8px;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--color-muted);
+    text-transform: lowercase;
+    letter-spacing: 0;
+  }
+  .wall-vis__row {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .wall-vis__field {
+    display: grid;
+    gap: 5px;
+    font-size: 12.5px;
+    color: var(--color-muted);
+  }
+  .wall-vis__field--full { grid-column: 1 / -1; }
+  .wall-vis__field-input {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .wall-vis__field-input input[type="number"] {
+    width: 100%;
+    padding: 10px 38px 10px 12px;
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.15));
+    border-radius: 8px;
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+    background: #fff;
+    color: var(--color-ink);
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .wall-vis__field-input input:focus {
+    outline: 2px solid var(--color-petrol);
+    outline-offset: 0;
+    border-color: var(--color-petrol);
+  }
+  .wall-vis__field-input em {
+    position: absolute;
+    right: 12px;
+    font-style: normal;
+    font-size: 12px;
+    color: var(--color-muted);
+    pointer-events: none;
+  }
+  .wall-vis__field-hint {
+    grid-column: 1 / -1;
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: var(--color-subtle);
+    line-height: 1.5;
+  }
+  .wall-vis__toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    cursor: pointer;
+    font-size: 13.5px;
+    color: var(--color-ink);
+    user-select: none;
+  }
+  .wall-vis__toggle input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-petrol);
+  }
+
+  .wall-vis__count {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .wall-vis__count-opt { cursor: pointer; }
+  .wall-vis__count-opt input { position: absolute; opacity: 0; pointer-events: none; }
+  .wall-vis__count-opt span {
+    display: block;
+    padding: 11px 0;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    background: #fff;
+    text-align: center;
+    font-family: var(--font-serif);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-ink);
+    transition: background 120ms, border-color 120ms, color 120ms;
+  }
+  .wall-vis__count-opt:hover span { border-color: rgba(0, 0, 0, 0.3); }
+  .wall-vis__count-opt input:checked + span {
+    background: var(--color-selected);
+    border-color: var(--color-selected);
+    color: #fff;
+  }
+
+  .wall-vis__orient {
+    display: inline-flex;
+    border: 1px solid var(--color-border, rgba(0, 0, 0, 0.15));
+    border-radius: 999px;
+    padding: 3px;
+    background: #fff;
+  }
+  .wall-vis__orient label { cursor: pointer; }
+  .wall-vis__orient input { position: absolute; opacity: 0; pointer-events: none; }
+  .wall-vis__orient span {
+    display: inline-block;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+  .wall-vis__orient label:has(input:checked) span {
+    background: var(--color-selected);
+    color: #fff;
+  }
+
+  .wall-vis__advanced {
+    margin-top: 4px;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+  }
+  .wall-vis__advanced summary {
+    cursor: pointer;
+    list-style: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-petrol);
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .wall-vis__advanced summary::-webkit-details-marker { display: none; }
+  .wall-vis__advanced summary::after {
+    content: "▾";
+    font-size: 10px;
+    color: var(--color-muted);
+    transition: transform 120ms ease-out;
+  }
+  .wall-vis__advanced[open] summary::after { transform: rotate(180deg); }
+  .wall-vis__advanced-body { padding-top: 12px; display: grid; gap: 8px; }
+  .wall-vis__advanced-body input[type="range"] {
+    width: 100%;
+    accent-color: var(--color-petrol);
+  }
+  .wall-vis__advanced-body em {
+    font-style: normal;
+    color: var(--color-ink);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Output */
+  .wall-vis__output {
+    display: grid;
+    gap: 18px;
+  }
+  .wall-vis__stage {
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 16px;
+    padding: 24px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .wall-vis__svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+  }
+
+  .wall-vis__readout {
+    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    border-radius: 14px;
+    padding: 18px 20px;
+    background: #FAF7F1;
+  }
+  .wall-vis__readout-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 22px;
+    margin: 0;
+  }
+  @media (min-width: 640px) {
+    .wall-vis__readout-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+  .wall-vis__readout-grid dt {
+    font-size: 11.5px;
+    color: var(--color-muted);
+    margin-bottom: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .wall-vis__readout-grid dd {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.2;
+  }
+  .wall-vis__readout-note {
+    margin: 12px 0 0;
+    font-size: 12.5px;
+    color: var(--color-subtle);
+    line-height: 1.55;
+  }
+
+  .wall-vis__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .wall-vis__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 11px 18px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    background: #25D366;
+    color: #fff;
+    transition: background 150ms ease-out;
+  }
+  .wall-vis__cta:hover { background: #1ebe5b; }
+  @media (max-width: 640px) {
+    .wall-vis__cta { flex: 1 1 auto; justify-content: center; }
+  }
+</style>
+
+<script>
+  // Wall planner. Pure browser-side: take wall + furniture inputs,
+  // compute a recommended combined size for N pieces, render an SVG
+  // wall preview to scale.
+
+  type Orient = "landscape" | "portrait" | "square";
+
+  // Aspect ratio H/W per orientation. These are average choices that
+  // read well as a single piece or in a row of multiples — we do *not*
+  // pick a specific print catalog size because the tool is about wall
+  // presence first and print-size matching second.
+  const ASPECT: Record<Orient, number> = {
+    landscape: 0.75, // 4:3
+    portrait: 1.4,   // 5:7
+    square: 1,
+  };
+
+  const SPACING_CM = 5;        // gap between pieces in a row
+  const FURN_GAP_CM = 20;      // gap between top of furniture and bottom of art
+  const CEILING_GAP_CM = 25;   // minimum margin from top of art to ceiling
+  const EYE_LEVEL_CM = 152;    // centre of art on an empty wall
+  const SIDE_GAP_MIN_CM = 15;  // visual breathing space on the long edges
+
+  const root = document.querySelector<HTMLElement>("[data-wall-vis]");
+  if (root) initWallVis(root);
+
+  function initWallVis(root: HTMLElement) {
+    const wallW = root.querySelector<HTMLInputElement>("[data-wall-w]")!;
+    const wallH = root.querySelector<HTMLInputElement>("[data-wall-h]")!;
+    const furnToggle = root.querySelector<HTMLInputElement>("[data-furn-toggle]")!;
+    const furnFields = root.querySelector<HTMLElement>("[data-furn-fields]")!;
+    const furnH = root.querySelector<HTMLInputElement>("[data-furn-h]")!;
+    const countInputs = Array.from(root.querySelectorAll<HTMLInputElement>("[data-count]"));
+    const orientInputs = Array.from(root.querySelectorAll<HTMLInputElement>("[data-orient]"));
+    const coverage = root.querySelector<HTMLInputElement>("[data-coverage]")!;
+    const coverageReadout = root.querySelector<HTMLElement>("[data-coverage-readout]")!;
+    const svg = root.querySelector<SVGSVGElement>("[data-svg]")!;
+    const eachEl = root.querySelector<HTMLElement>("[data-each]")!;
+    const comboEl = root.querySelector<HTMLElement>("[data-combo-w]")!;
+    const centreEl = root.querySelector<HTMLElement>("[data-centre-aff]")!;
+    const bottomEl = root.querySelector<HTMLElement>("[data-bottom-aff]")!;
+    const noteEl = root.querySelector<HTMLElement>("[data-readout-note]")!;
+
+    function selectedCount(): number {
+      const sel = countInputs.find((i) => i.checked);
+      return parseInt(sel?.value ?? "1", 10);
+    }
+    function selectedOrient(): Orient {
+      const sel = orientInputs.find((i) => i.checked);
+      return (sel?.value as Orient) ?? "landscape";
+    }
+
+    /** Round to nearest 5 cm — produces realistic "you can actually buy
+     *  this print" sizes rather than 47.3 × 35.5. */
+    function r5(v: number): number {
+      return Math.max(5, Math.round(v / 5) * 5);
+    }
+
+    function compute() {
+      const ww = parseFloat(wallW.value) || 0;
+      const wh = parseFloat(wallH.value) || 0;
+      const hasFurn = furnToggle.checked;
+      const fh = hasFurn ? parseFloat(furnH.value) || 0 : 0;
+      const count = selectedCount();
+      const orient = selectedOrient();
+      const cov = parseFloat(coverage.value) / 100;
+      const aspect = ASPECT[orient];
+
+      if (ww <= 0 || wh <= 0) return null;
+
+      // Target combined width.
+      let comboW = ww * cov;
+      // Cap to leave a side gap of at least SIDE_GAP_MIN_CM each side.
+      comboW = Math.min(comboW, ww - 2 * SIDE_GAP_MIN_CM);
+
+      // Each piece width.
+      const totalSpacing = SPACING_CM * (count - 1);
+      let pieceW = (comboW - totalSpacing) / count;
+      let pieceH = pieceW * aspect;
+
+      // Vertical bounds.
+      // bottomAff: floor → bottom-of-art
+      // topAff: floor → top-of-art (= bottomAff + pieceH)
+      // ceiling clearance: wh - topAff ≥ CEILING_GAP_CM
+      const bottomFromFurn = fh > 0 ? fh + FURN_GAP_CM : null;
+      const maxTop = wh - CEILING_GAP_CM;
+      let bottomAff: number;
+      if (bottomFromFurn != null) {
+        bottomAff = bottomFromFurn;
+      } else {
+        // Centre at eye level by default.
+        bottomAff = EYE_LEVEL_CM - pieceH / 2;
+      }
+
+      // If the piece is too tall for the available space, scale it down
+      // (keeping the aspect) and recompute width.
+      const availableH = maxTop - bottomAff;
+      if (pieceH > availableH && availableH > 0) {
+        pieceH = availableH;
+        pieceW = pieceH / aspect;
+        comboW = pieceW * count + totalSpacing;
+      }
+
+      // If the piece is shorter than the available space, lift it so
+      // it occupies a visually pleasing position above furniture
+      // (small lift) without going past eye-level rules.
+      if (bottomFromFurn == null) {
+        // Re-centre on eye level after any adjustments.
+        bottomAff = EYE_LEVEL_CM - pieceH / 2;
+        // Don't let the bottom drop below 75 cm AFF (art needs room
+        // to breathe over a low surface, and below 75 is hard to read).
+        bottomAff = Math.max(bottomAff, 75);
+        // And don't go above the ceiling clearance.
+        if (bottomAff + pieceH > maxTop) bottomAff = maxTop - pieceH;
+      }
+
+      // Round to nearest 5 cm for display.
+      const pieceWR = r5(pieceW);
+      const pieceHR = r5(pieceH);
+      const spacingTotal = SPACING_CM * (count - 1);
+      const comboWR = pieceWR * count + spacingTotal;
+      const bottomAffR = Math.round(bottomAff);
+      const centreAffR = Math.round(bottomAffR + pieceHR / 2);
+
+      return {
+        ww,
+        wh,
+        fh,
+        hasFurn,
+        count,
+        orient,
+        pieceW: pieceWR,
+        pieceH: pieceHR,
+        comboW: comboWR,
+        bottomAff: bottomAffR,
+        centreAff: centreAffR,
+        topAff: bottomAffR + pieceHR,
+        spacing: SPACING_CM,
+      };
+    }
+
+    function renderSVG(r: ReturnType<typeof compute>) {
+      if (!r) return;
+      const { ww, wh, fh, hasFurn, count, pieceW, pieceH, comboW, bottomAff, spacing } = r;
+      // Pad the viewBox a bit so labels at the edges don't get clipped.
+      const padX = ww * 0.04;
+      const padY = wh * 0.04;
+      const vbW = ww + padX * 2;
+      const vbH = wh + padY * 2 + 14; // extra room for floor label
+      svg.setAttribute("viewBox", `0 0 ${vbW} ${vbH}`);
+
+      const wallX = padX;
+      const wallY = padY;
+
+      // Convert AFF (above floor) to SVG Y (top-down).
+      const yFromAff = (aff: number) => wallY + (wh - aff);
+
+      const pieces: string[] = [];
+      const startX = wallX + (ww - comboW) / 2;
+      for (let i = 0; i < count; i++) {
+        const x = startX + i * (pieceW + spacing);
+        const y = yFromAff(bottomAff + pieceH);
+        pieces.push(
+          `<rect x="${x}" y="${y}" width="${pieceW}" height="${pieceH}" fill="#fff" stroke="#1a1a1a" stroke-width="1" rx="0.6" />` +
+          `<rect x="${x + 1}" y="${y + 1}" width="${pieceW - 2}" height="${pieceH - 2}" fill="none" stroke="rgba(0,0,0,0.06)" />`
+        );
+      }
+
+      const furniture = hasFurn && fh > 0
+        ? `<rect x="${wallX}" y="${yFromAff(fh)}" width="${ww}" height="${fh}" fill="#cdb89a" opacity="0.55" />`
+        : "";
+
+      // Floor line.
+      const floorY = yFromAff(0);
+      // Ceiling guide (subtle dashed).
+      const ceilingY = yFromAff(wh);
+
+      // Wall background.
+      const bg = `<rect x="${wallX}" y="${wallY}" width="${ww}" height="${wh}" fill="#f7f1e7" stroke="rgba(0,0,0,0.18)" stroke-width="0.6" />`;
+      const floorLine = `<line x1="${wallX - padX * 0.4}" y1="${floorY}" x2="${wallX + ww + padX * 0.4}" y2="${floorY}" stroke="#1a1a1a" stroke-width="1" />`;
+      const floorHatch = `<line x1="${wallX - padX * 0.4}" y1="${floorY + 4}" x2="${wallX + ww + padX * 0.4}" y2="${floorY + 4}" stroke="rgba(0,0,0,0.4)" stroke-width="0.4" stroke-dasharray="3 3" />`;
+
+      // Reference person silhouette (1.7 m tall) on the right side of
+      // the wall to give a sense of human scale. Skip if the wall is
+      // very narrow (<200 cm) since it eats space.
+      const personHeight = 170;
+      const showPerson = ww >= 200;
+      const person = showPerson
+        ? (() => {
+            const px = wallX + ww + padX * 0.05;
+            const py = floorY - personHeight;
+            const headR = 11;
+            const bodyW = 22;
+            const bodyH = personHeight - headR * 2 - 2;
+            return (
+              `<g opacity="0.35">
+                <circle cx="${px + bodyW / 2}" cy="${py + headR}" r="${headR}" fill="#1a1a1a" />
+                <rect x="${px}" y="${py + headR * 2}" width="${bodyW}" height="${bodyH}" rx="6" fill="#1a1a1a" />
+              </g>`
+            );
+          })()
+        : "";
+
+      // Hanging line at centre of art (subtle).
+      const centreLine = `<line x1="${wallX}" y1="${yFromAff(r.centreAff)}" x2="${wallX + ww}" y2="${yFromAff(r.centreAff)}" stroke="rgba(26,53,80,0.25)" stroke-width="0.6" stroke-dasharray="6 6" />`;
+
+      // Labels — keep these minimal so the visual stays calm.
+      const labelStyle = `font-family: var(--font-sans, sans-serif); font-size: 12px; fill: rgba(0,0,0,0.55);`;
+      const floorLabel = `<text x="${wallX + ww / 2}" y="${floorY + 13}" text-anchor="middle" style="${labelStyle}">Floor</text>`;
+
+      svg.innerHTML = `${bg}${furniture}${centreLine}${pieces.join("")}${floorLine}${floorHatch}${person}${floorLabel}`;
+    }
+
+    function renderReadout(r: ReturnType<typeof compute>) {
+      if (!r) {
+        eachEl.textContent = "—";
+        comboEl.textContent = "—";
+        centreEl.textContent = "—";
+        bottomEl.textContent = "—";
+        noteEl.textContent = "Enter your wall width and height to see a recommendation.";
+        return;
+      }
+      eachEl.textContent = `${r.pieceW} × ${r.pieceH} cm`;
+      comboEl.textContent = r.count === 1
+        ? `${r.pieceW} cm`
+        : `${r.comboW} cm (incl. ${r.spacing} cm gaps)`;
+      centreEl.textContent = `${r.centreAff} cm from floor`;
+      bottomEl.textContent = `${r.bottomAff} cm from floor`;
+
+      const cov = Math.round((r.comboW / r.ww) * 100);
+      const note: string[] = [];
+      note.push(`The combined art covers about ${cov}% of the wall width.`);
+      if (r.hasFurn && r.fh > 0) {
+        note.push(`Bottom of art sits ${FURN_GAP_CM} cm above the furniture.`);
+      } else {
+        note.push(`Centred at ${EYE_LEVEL_CM} cm — gallery eye-level.`);
+      }
+      noteEl.textContent = note.join(" ");
+    }
+
+    function update() {
+      coverageReadout.textContent = `${coverage.value}%`;
+      const r = compute();
+      renderSVG(r);
+      renderReadout(r);
+    }
+
+    // Wire up.
+    [wallW, wallH, furnH, coverage].forEach((el) =>
+      el.addEventListener("input", update),
+    );
+    [...countInputs, ...orientInputs].forEach((el) =>
+      el.addEventListener("change", update),
+    );
+    furnToggle.addEventListener("change", () => {
+      furnFields.hidden = !furnToggle.checked;
+      update();
+    });
+
+    update();
+  }
+</script>
