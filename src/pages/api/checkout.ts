@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import Stripe from "stripe";
 import { createSupabaseAdminClient } from "../../lib/supabase-server";
+import { idempotencyKey } from "../../lib/stripe-idem";
 import { listPapers } from "../../lib/papers";
 import { listCanvases } from "../../lib/canvases";
 import { listFloatFrames } from "../../lib/float-frames";
@@ -231,21 +232,29 @@ export const POST: APIRoute = async ({ request, url }) => {
   const stripe = new Stripe(stripeKey);
   const origin = url.origin;
 
+  // Idempotency key derived from the priced cart + delivery so a
+  // double-clicked "checkout" button returns the same Stripe session
+  // instead of creating duplicate pending orders.
+  const idemKey = idempotencyKey("shop", { priced, delivery: body.delivery });
+
   let session: Stripe.Checkout.Session;
   try {
-    session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      line_items: stripeLineItems,
-      shipping_address_collection:
-        body.delivery === "local"
-          ? { allowed_countries: ["SG"] }
-          : undefined,
-      success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/cart`,
-      metadata: {
-        delivery: body.delivery,
+    session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        line_items: stripeLineItems,
+        shipping_address_collection:
+          body.delivery === "local"
+            ? { allowed_countries: ["SG"] }
+            : undefined,
+        success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${origin}/cart`,
+        metadata: {
+          delivery: body.delivery,
+        },
       },
-    });
+      { idempotencyKey: idemKey },
+    );
   } catch (e: any) {
     return bad(`Stripe error: ${e?.message ?? String(e)}`, 502);
   }

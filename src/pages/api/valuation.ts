@@ -22,6 +22,7 @@ import Stripe from "stripe";
 import { extname } from "node:path";
 import { createSupabaseAdminClient } from "../../lib/supabase-server";
 import { verifyTurnstile } from "../../lib/turnstile";
+import { idempotencyKey } from "../../lib/stripe-idem";
 
 export const prerender = false;
 
@@ -169,33 +170,39 @@ export const POST: APIRoute = async ({ request, url, clientAddress }) => {
   const total = quantity * PRICE_PER_ARTWORK_SGD;
   const customerName = `${firstName} ${lastName}`.trim();
 
-  // Create Stripe Checkout session.
+  // Create Stripe Checkout session. uploadGroupId is per-submission so
+  // it doubles as the idempotency key — a double-clicked submit returns
+  // the same Stripe session instead of double-charging.
   const stripe = new Stripe(stripeKey);
+  const idemKey = idempotencyKey("valuation", { uploadGroupId });
   let session: Stripe.Checkout.Session;
   try {
-    session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      customer_email: email,
-      line_items: [
-        {
-          quantity,
-          price_data: {
-            currency: "sgd",
-            unit_amount: PRICE_PER_ARTWORK_SGD * 100,
-            product_data: {
-              name: "Art valuation",
-              description: `Online art valuation · S$${PRICE_PER_ARTWORK_SGD} per artwork`,
+    session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        customer_email: email,
+        line_items: [
+          {
+            quantity,
+            price_data: {
+              currency: "sgd",
+              unit_amount: PRICE_PER_ARTWORK_SGD * 100,
+              product_data: {
+                name: "Art valuation",
+                description: `Online art valuation · S$${PRICE_PER_ARTWORK_SGD} per artwork`,
+              },
             },
           },
+        ],
+        success_url: `${url.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${url.origin}/art-valuation`,
+        metadata: {
+          kind: "valuation",
+          quantity: String(quantity),
         },
-      ],
-      success_url: `${url.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${url.origin}/art-valuation`,
-      metadata: {
-        kind: "valuation",
-        quantity: String(quantity),
       },
-    });
+      { idempotencyKey: idemKey },
+    );
   } catch (e: any) {
     return bad(`Stripe error: ${e?.message ?? String(e)}`, 502);
   }

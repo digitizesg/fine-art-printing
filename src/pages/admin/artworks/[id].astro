@@ -94,10 +94,27 @@ if (Astro.request.method === "POST") {
   }
 
   // Gallery: which existing paths to keep + any new uploads to add.
+  // Load the prior gallery up-front so we can constrain `kept` to
+  // paths that were actually in the previous gallery — without this
+  // an admin could submit arbitrary storage paths in the JSON and
+  // they'd survive into gallery_images.
+  const { data: existingGalleryRow } = await supabase
+    .from("artworks")
+    .select("gallery_images")
+    .eq("id", id)
+    .single();
+  const prevGallery: string[] = Array.isArray(existingGalleryRow?.gallery_images)
+    ? (existingGalleryRow!.gallery_images as string[])
+    : [];
+
   let kept: string[] = [];
   try {
     const raw = JSON.parse(String(form.get("kept_gallery") ?? "[]"));
-    if (Array.isArray(raw)) kept = raw.filter((s) => typeof s === "string");
+    if (Array.isArray(raw)) {
+      kept = raw.filter(
+        (s): s is string => typeof s === "string" && prevGallery.includes(s),
+      );
+    }
   } catch {
     kept = [];
   }
@@ -129,16 +146,7 @@ if (Astro.request.method === "POST") {
   if (!error) {
     update.gallery_images = [...kept, ...uploadedGallery];
 
-    // Look up the previous gallery so we can delete the storage objects the
-    // admin removed.
-    const { data: existing } = await supabase
-      .from("artworks")
-      .select("gallery_images")
-      .eq("id", id)
-      .single();
-    const prevGallery: string[] = Array.isArray(existing?.gallery_images)
-      ? (existing!.gallery_images as string[])
-      : [];
+    // Storage objects the admin removed (in prev gallery, not in kept).
     const removed = prevGallery.filter((p) => !kept.includes(p));
 
     const { error: updErr } = await supabase

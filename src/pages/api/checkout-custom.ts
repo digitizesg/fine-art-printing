@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 import Stripe from "stripe";
 import { createSupabaseAdminClient } from "../../lib/supabase-server";
+import { idempotencyKey } from "../../lib/stripe-idem";
 
 export const prerender = false;
 
@@ -60,30 +61,34 @@ export const POST: APIRoute = async ({ request, url }) => {
     reference || `Custom payment from ${name}`;
 
   const stripe = new Stripe(stripeKey);
+  const idemKey = idempotencyKey("custom", { email, unitCents, reference });
   let session: Stripe.Checkout.Session;
   try {
-    session = await stripe.checkout.sessions.create({
-      mode: "payment",
-      customer_email: email,
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: "sgd",
-            unit_amount: unitCents,
-            product_data: {
-              name: "Payment to Fine Art Printing",
-              description,
+    session = await stripe.checkout.sessions.create(
+      {
+        mode: "payment",
+        customer_email: email,
+        line_items: [
+          {
+            quantity: 1,
+            price_data: {
+              currency: "sgd",
+              unit_amount: unitCents,
+              product_data: {
+                name: "Payment to Fine Art Printing",
+                description,
+              },
             },
           },
+        ],
+        success_url: `${url.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${url.origin}/make-payment`,
+        metadata: {
+          kind: "custom_payment",
         },
-      ],
-      success_url: `${url.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${url.origin}/make-payment`,
-      metadata: {
-        kind: "custom_payment",
       },
-    });
+      { idempotencyKey: idemKey },
+    );
   } catch (e: any) {
     return bad(`Stripe error: ${e?.message ?? String(e)}`, 502);
   }
