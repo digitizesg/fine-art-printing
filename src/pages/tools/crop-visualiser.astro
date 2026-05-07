@@ -115,17 +115,16 @@ const presets = [
           <div class="crop-vis__layout">
             <!-- Stage: image with crop overlay -->
             <div class="crop-vis__stage" data-stage>
-              <img alt="" data-preview />
-              <div class="crop-vis__mask" data-mask>
+              <div class="crop-vis__inner" data-inner>
+                <img alt="" data-preview />
                 <div class="crop-vis__crop" data-crop>
-                  <span class="crop-vis__crop-edge crop-vis__crop-edge--n"></span>
-                  <span class="crop-vis__crop-edge crop-vis__crop-edge--s"></span>
-                  <span class="crop-vis__crop-edge crop-vis__crop-edge--e"></span>
-                  <span class="crop-vis__crop-edge crop-vis__crop-edge--w"></span>
+                  <svg class="crop-vis__crop-grip" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true">
+                    <path d="M11 3v16M3 11h16M7 7l-4 4 4 4M15 7l4 4-4 4M7 7l4-4 4 4M7 15l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+                  </svg>
                 </div>
               </div>
               <p class="crop-vis__stage-hint" data-stage-hint>
-                Drag the highlighted area to reposition the crop.
+                Drag the highlighted area to reposition.
               </p>
             </div>
 
@@ -376,60 +375,63 @@ const presets = [
     }
   }
 
-  /* Stage: contains the image and the dimming mask + crop window */
+  /* Stage: a wrapper with inner box that tightly hugs the image so we
+     don't letterbox portrait/landscape images into a fixed-aspect frame. */
   .crop-vis__stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .crop-vis__inner {
     position: relative;
-    background: #1a1a1a;
+    display: inline-block;
+    max-width: 100%;
+    background: #f4efe7;
     border-radius: 12px;
     overflow: hidden;
+    line-height: 0;
     user-select: none;
     touch-action: none;
-    aspect-ratio: 4 / 3;
-    display: grid;
-    place-items: center;
   }
-  .crop-vis__stage img {
+  .crop-vis__inner img {
     display: block;
     max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    pointer-events: none;
-  }
-  /* Mask: full overlay with semi-transparent black, except inside .crop-vis__crop. */
-  .crop-vis__mask {
-    position: absolute;
-    inset: 0;
+    max-height: 70vh;
+    width: auto;
+    height: auto;
     pointer-events: none;
   }
   .crop-vis__crop {
     position: absolute;
     box-shadow:
       0 0 0 9999px rgba(0, 0, 0, 0.55),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.85);
-    cursor: grab;
-    pointer-events: auto;
+      inset 0 0 0 1px rgba(255, 255, 255, 0.92);
+    cursor: move;
+    touch-action: none;
+    display: grid;
+    place-items: center;
   }
   .crop-vis__crop:active { cursor: grabbing; }
-  .crop-vis__crop-edge {
-    position: absolute;
-    background: rgba(255, 255, 255, 0.85);
-  }
-  .crop-vis__crop-edge--n { top: 0; left: 0; right: 0; height: 1px; }
-  .crop-vis__crop-edge--s { bottom: 0; left: 0; right: 0; height: 1px; }
-  .crop-vis__crop-edge--e { top: 0; right: 0; bottom: 0; width: 1px; }
-  .crop-vis__crop-edge--w { top: 0; left: 0; bottom: 0; width: 1px; }
-  .crop-vis__stage-hint {
-    position: absolute;
-    bottom: 8px;
-    left: 50%;
-    transform: translateX(-50%);
-    margin: 0;
-    padding: 5px 11px;
+  .crop-vis__crop-grip {
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(0, 0, 0, 0.4);
     border-radius: 999px;
-    background: rgba(0, 0, 0, 0.55);
-    color: #fff;
-    font-size: 11.5px;
+    padding: 6px;
+    width: 34px;
+    height: 34px;
     pointer-events: none;
+    transition: opacity 150ms ease-out;
+  }
+  .crop-vis__crop:hover .crop-vis__crop-grip,
+  .crop-vis__crop:active .crop-vis__crop-grip {
+    opacity: 0.5;
+  }
+  .crop-vis__stage-hint {
+    margin: 0;
+    font-size: 12px;
+    color: var(--color-muted);
+    text-align: center;
   }
 
   /* Controls */
@@ -659,7 +661,7 @@ const presets = [
     const fileInput = root.querySelector<HTMLInputElement>("[data-file-input]")!;
     const errorEl = root.querySelector<HTMLElement>("[data-error]")!;
     const result = root.querySelector<HTMLElement>("[data-result]")!;
-    const stage = root.querySelector<HTMLElement>("[data-stage]")!;
+    const innerEl = root.querySelector<HTMLElement>("[data-inner]")!;
     const previewImg = root.querySelector<HTMLImageElement>("[data-preview]")!;
     const cropEl = root.querySelector<HTMLElement>("[data-crop]")!;
     const customWrap = root.querySelector<HTMLElement>("[data-custom]")!;
@@ -781,23 +783,11 @@ const presets = [
       return { x, y, w: cw, h: ch };
     }
 
-    /** Get the displayed image rect inside the stage (object-fit: contain). */
+    /** Inner box wraps the image tightly (no letterboxing), so the
+     *  displayed image rect equals the inner's offset rect. */
     function getDisplayedImageRect(): { left: number; top: number; w: number; h: number } | null {
       if (!imgPxW || !imgPxH) return null;
-      const stageRect = stage.getBoundingClientRect();
-      const imgAspect = imgPxW / imgPxH;
-      const stageAspect = stageRect.width / stageRect.height;
-      let dw: number, dh: number;
-      if (imgAspect > stageAspect) {
-        dw = stageRect.width;
-        dh = stageRect.width / imgAspect;
-      } else {
-        dh = stageRect.height;
-        dw = stageRect.height * imgAspect;
-      }
-      const left = (stageRect.width - dw) / 2;
-      const top = (stageRect.height - dh) / 2;
-      return { left, top, w: dw, h: dh };
+      return { left: 0, top: 0, w: innerEl.offsetWidth, h: innerEl.offsetHeight };
     }
 
     function render() {
