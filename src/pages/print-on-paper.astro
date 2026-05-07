@@ -30,7 +30,18 @@ const COMMON_SIZES = [
   { label: "A1", w: 59.4, h: 84.1 },
 ] as const;
 
-const priceTablePapers = papers.filter((p) => p.featured).slice(0, 3);
+// Hand-picked spread across our papers — Photo Rag (everyday flagship),
+// German Etching (textured), Photo Rag Metallic (premium), Datajet
+// Cotton Rag (value). Order matters; rendered top-to-bottom.
+const PRICE_TABLE_SLUGS = [
+  "hahnemuhle-photo-rag",
+  "hahnemuhle-german-etching",
+  "hahnemuhle-metallic-rag",
+  "datajet-100-cotton-rag",
+] as const;
+const priceTablePapers = PRICE_TABLE_SLUGS
+  .map((slug) => papers.find((p) => p.slug === slug))
+  .filter((p): p is NonNullable<typeof p> => p != null);
 
 const priceTable = priceTablePapers.map((p) => ({
   slug: p.slug,
