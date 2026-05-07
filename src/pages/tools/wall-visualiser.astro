@@ -584,6 +584,14 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       return Math.max(5, Math.round(v / 5) * 5);
     }
 
+    /** Pick a layout (cols × rows) per count. 4 pieces = 2×2 grid
+     *  rather than a 1×4 row, because 2×2 is the conventional gallery
+     *  wall for four works and reads better on most walls. */
+    function layoutFor(count: number): { cols: number; rows: number } {
+      if (count === 4) return { cols: 2, rows: 2 };
+      return { cols: count, rows: 1 };
+    }
+
     function compute() {
       const ww = parseFloat(wallW.value) || 0;
       const wh = parseFloat(wallH.value) || 0;
@@ -593,6 +601,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       const orient = selectedOrient();
       const cov = parseFloat(coverage.value) / 100;
       const comboAspect = COMBO_ASPECT[orient]; // W / H
+      const { cols, rows } = layoutFor(count);
 
       if (ww <= 0 || wh <= 0) return null;
 
@@ -600,16 +609,12 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       // by the side-gap minimum.
       let comboW = Math.min(ww * cov, ww - 2 * SIDE_GAP_MIN_CM);
 
-      // Step 2 — combined height derived from the orientation. This is
-      // the key change vs the older heuristic: we size the *combo*
-      // footprint, then split the width into N pieces. A row of 4
-      // pieces inside a "wide" combo therefore stays at full combo
-      // height, instead of each piece being short and stubby.
+      // Step 2 — combined height derived from the orientation. We size
+      // the *combo* footprint first, then divide into a (cols × rows)
+      // grid of pieces.
       let comboH = comboW / comboAspect;
 
-      // Step 3 — vertical placement. Bottom is fixed if there's
-      // furniture; otherwise we centre the combo at eye level and clamp
-      // to the wall's ceiling/floor budget afterwards.
+      // Step 3 — vertical placement.
       const ceilingY = wh - CEILING_GAP_CM;
       let bottomAff: number;
       if (fh > 0) {
@@ -634,17 +639,19 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
         if (bottomAff + comboH > ceilingY) bottomAff = ceilingY - comboH;
       }
 
-      // Step 5 — derive per-piece dims from the combo width / count.
-      const totalSpacing = SPACING_CM * (count - 1);
-      const pieceW = (comboW - totalSpacing) / count;
-      const pieceH = comboH;
+      // Step 5 — derive per-piece dims from the combo / grid layout.
+      const spacingX = SPACING_CM * (cols - 1);
+      const spacingY = SPACING_CM * (rows - 1);
+      const pieceW = (comboW - spacingX) / cols;
+      const pieceH = (comboH - spacingY) / rows;
 
       // Round per-piece to nearest 5 cm; combo follows.
       const pieceWR = r5(pieceW);
       const pieceHR = r5(pieceH);
-      const comboWR = pieceWR * count + totalSpacing;
+      const comboWR = pieceWR * cols + spacingX;
+      const comboHR = pieceHR * rows + spacingY;
       const bottomAffR = Math.round(bottomAff);
-      const centreAffR = Math.round(bottomAffR + pieceHR / 2);
+      const centreAffR = Math.round(bottomAffR + comboHR / 2);
 
       return {
         ww,
@@ -653,19 +660,22 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
         hasFurn,
         count,
         orient,
+        cols,
+        rows,
         pieceW: pieceWR,
         pieceH: pieceHR,
         comboW: comboWR,
+        comboH: comboHR,
         bottomAff: bottomAffR,
         centreAff: centreAffR,
-        topAff: bottomAffR + pieceHR,
+        topAff: bottomAffR + comboHR,
         spacing: SPACING_CM,
       };
     }
 
     function renderSVG(r: ReturnType<typeof compute>) {
       if (!r) return;
-      const { ww, wh, fh, hasFurn, count, pieceW, pieceH, comboW, bottomAff, spacing } = r;
+      const { ww, wh, fh, hasFurn, cols, rows, pieceW, pieceH, comboW, comboH, bottomAff, spacing } = r;
       // Pad the viewBox a bit so labels at the edges don't get clipped.
       const padX = ww * 0.04;
       const padY = wh * 0.04;
@@ -681,13 +691,16 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 
       const pieces: string[] = [];
       const startX = wallX + (ww - comboW) / 2;
-      for (let i = 0; i < count; i++) {
-        const x = startX + i * (pieceW + spacing);
-        const y = yFromAff(bottomAff + pieceH);
-        pieces.push(
-          `<rect x="${x}" y="${y}" width="${pieceW}" height="${pieceH}" fill="#fff" stroke="#1a1a1a" stroke-width="1" rx="0.6" />` +
-          `<rect x="${x + 1}" y="${y + 1}" width="${pieceW - 2}" height="${pieceH - 2}" fill="none" stroke="rgba(0,0,0,0.06)" />`
-        );
+      const topY = yFromAff(bottomAff + comboH);
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const x = startX + col * (pieceW + spacing);
+          const y = topY + row * (pieceH + spacing);
+          pieces.push(
+            `<rect x="${x}" y="${y}" width="${pieceW}" height="${pieceH}" fill="#fff" stroke="#1a1a1a" stroke-width="1" rx="0.6" />` +
+            `<rect x="${x + 1}" y="${y + 1}" width="${pieceW - 2}" height="${pieceH - 2}" fill="none" stroke="rgba(0,0,0,0.06)" />`
+          );
+        }
       }
 
       const furniture = hasFurn && fh > 0
@@ -745,15 +758,23 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
         return;
       }
       eachEl.textContent = `${r.pieceW} × ${r.pieceH} cm`;
-      comboEl.textContent = r.count === 1
-        ? `${r.pieceW} cm`
-        : `${r.comboW} cm (incl. ${r.spacing} cm gaps)`;
+      const layoutLabel = r.count === 1
+        ? `${r.comboW} cm wide`
+        : r.rows > 1
+          ? `${r.comboW} × ${r.comboH} cm (${r.cols}×${r.rows} grid)`
+          : `${r.comboW} cm (${r.count} pieces in a row)`;
+      comboEl.textContent = layoutLabel;
       centreEl.textContent = `${r.centreAff} cm from floor`;
       bottomEl.textContent = `${r.bottomAff} cm from floor`;
 
       const cov = Math.round((r.comboW / r.ww) * 100);
       const note: string[] = [];
-      note.push(`The combined art covers about ${cov}% of the wall width.`);
+      note.push(`The arrangement covers about ${cov}% of the wall width.`);
+      if (r.count === 4) {
+        note.push(`Four pieces are arranged as a 2×2 grid with ${r.spacing} cm gaps.`);
+      } else if (r.count > 1) {
+        note.push(`Pieces sit in a row with ${r.spacing} cm gaps.`);
+      }
       if (r.hasFurn && r.fh > 0) {
         note.push(`Bottom of art sits ${FURN_GAP_CM} cm above the furniture.`);
       } else {
