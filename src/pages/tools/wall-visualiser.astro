@@ -123,7 +123,8 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
               </label>
             </div>
             <p class="wall-vis__field-hint" data-orient-hint>
-              The shape of the combined arrangement on your wall.
+              The shape of each individual piece. The arrangement's shape
+              follows from the count.
             </p>
 
             <details class="wall-vis__advanced">
@@ -531,15 +532,14 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 
   type Orient = "landscape" | "portrait" | "square";
 
-  // Combined-footprint W/H ratio per orientation. We size the *combo*
-  // first (so a row of 4 reads as a wide horizontal block), then derive
-  // each piece by dividing the width. This is the right model because
-  // a row of N landscape-shaped pieces is itself a wide block, and the
-  // user's intuition is "this should look wide on my wall", not "each
-  // piece should be wider than tall".
-  const COMBO_ASPECT: Record<Orient, number> = {
-    landscape: 1.6,  // wider than tall, ~5:3
-    portrait: 0.7,   // taller than wide, ~7:10
+  // Per-piece W/H aspect. Each piece's shape is fixed by the
+  // orientation; the combined footprint emerges from the count + layout.
+  // This is the natural model: "portrait" produces actual portrait
+  // pieces regardless of count, and a triptych of portraits is a row of
+  // three portrait pieces — not three thin strips inside a portrait box.
+  const PIECE_ASPECT: Record<Orient, number> = {
+    landscape: 1.5,   // 3:2
+    portrait: 0.75,   // 4:5 ≈ 3:4
     square: 1,
   };
 
@@ -584,9 +584,8 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       return Math.max(5, Math.round(v / 5) * 5);
     }
 
-    /** Pick a layout (cols × rows) per count. 4 pieces = 2×2 grid
-     *  rather than a 1×4 row, because 2×2 is the conventional gallery
-     *  wall for four works and reads better on most walls. */
+    /** Pick a layout (cols × rows) per count. 4 pieces = 2×2 grid;
+     *  2 or 3 pieces sit in a row regardless of orientation. */
     function layoutFor(count: number): { cols: number; rows: number } {
       if (count === 4) return { cols: 2, rows: 2 };
       return { cols: count, rows: 1 };
@@ -600,7 +599,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       const count = selectedCount();
       const orient = selectedOrient();
       const cov = parseFloat(coverage.value) / 100;
-      const comboAspect = COMBO_ASPECT[orient]; // W / H
+      const aspect = PIECE_ASPECT[orient]; // W / H per piece
       const { cols, rows } = layoutFor(count);
 
       if (ww <= 0 || wh <= 0) return null;
@@ -609,10 +608,15 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       // by the side-gap minimum.
       let comboW = Math.min(ww * cov, ww - 2 * SIDE_GAP_MIN_CM);
 
-      // Step 2 — combined height derived from the orientation. We size
-      // the *combo* footprint first, then divide into a (cols × rows)
-      // grid of pieces.
-      let comboH = comboW / comboAspect;
+      // Step 2 — derive each piece's W from cols, then H from the
+      // per-piece aspect, then combo H from rows + spacing. The combo's
+      // shape emerges from count × per-piece shape — no separate combo
+      // aspect involved.
+      const spacingX = SPACING_CM * (cols - 1);
+      const spacingY = SPACING_CM * (rows - 1);
+      let pieceW = (comboW - spacingX) / cols;
+      let pieceH = pieceW / aspect;
+      let comboH = pieceH * rows + spacingY;
 
       // Step 3 — vertical placement.
       const ceilingY = wh - CEILING_GAP_CM;
@@ -623,12 +627,15 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
         bottomAff = EYE_LEVEL_CM - comboH / 2;
       }
 
-      // Step 4 — if the combo doesn't fit vertically, shrink it
-      // (preserving the orientation) and recompute the width.
+      // Step 4 — if the combo doesn't fit vertically, scale everything
+      // proportionally so each piece keeps its target aspect.
       const availableH = ceilingY - bottomAff;
       if (comboH > availableH && availableH > 0) {
-        comboH = availableH;
-        comboW = comboH * comboAspect;
+        const scale = availableH / comboH;
+        pieceH *= scale;
+        pieceW = pieceH * aspect;
+        comboW = pieceW * cols + spacingX;
+        comboH = pieceH * rows + spacingY;
       }
 
       // Re-centre on eye level for empty walls now that comboH is
@@ -638,12 +645,6 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
         bottomAff = Math.max(bottomAff, 75);
         if (bottomAff + comboH > ceilingY) bottomAff = ceilingY - comboH;
       }
-
-      // Step 5 — derive per-piece dims from the combo / grid layout.
-      const spacingX = SPACING_CM * (cols - 1);
-      const spacingY = SPACING_CM * (rows - 1);
-      const pieceW = (comboW - spacingX) / cols;
-      const pieceH = (comboH - spacingY) / rows;
 
       // Round per-piece to nearest 5 cm; combo follows.
       const pieceWR = r5(pieceW);
