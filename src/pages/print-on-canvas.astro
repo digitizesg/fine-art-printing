@@ -14,56 +14,8 @@ import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
 import { listCanvases } from "../lib/canvases";
 import { business } from "../data/business";
 import reviewsData from "../data/reviews.json";
-import { quoteCanvasPrint } from "../data/pricing/canvas";
 
 const canvases = await listCanvases();
-
-// Indicative price table — common canvas sizes × four popular canvases.
-// Baseline configuration is print + 1" gallery-wrap stretching on
-// solid pine bars (no float frame, self-collection). The on-page note
-// makes the inclusions explicit so customers know they're seeing a
-// finished, ready-to-hang price rather than just a print.
-const CANVAS_TABLE_SIZES = [
-  { label: "30 × 40", w: 30, h: 40 },
-  { label: "40 × 60", w: 40, h: 60 },
-  { label: "50 × 70", w: 50, h: 70 },
-  { label: "60 × 90", w: 60, h: 90 },
-  { label: "80 × 120", w: 80, h: 120 },
-] as const;
-
-const CANVAS_TABLE_SLUGS = [
-  "hahnemuhle-photo-canvas",
-  "hahnemuhle-artist-canvas",
-  "hahnemuhle-metallic-canvas",
-  "datajet-polycotton-canvas",
-] as const;
-
-const canvasPriceTablePapers = CANVAS_TABLE_SLUGS
-  .map((slug) => canvases.find((c) => c.slug === slug))
-  .filter((c): c is NonNullable<typeof c> => c != null);
-
-const canvasPriceTable = canvasPriceTablePapers.map((c) => ({
-  slug: c.slug,
-  brand: c.brand,
-  shortName: c.shortName,
-  prices: CANVAS_TABLE_SIZES.map((size) => {
-    const result = quoteCanvasPrint({
-      canvas: {
-        id: c.slug,
-        name: c.name,
-        sellPricePerSqm: c.sellPricePerSqm,
-        maxPrintWidthCm: c.maxPrintWidthCm,
-        maxPrintLengthCm: c.maxPrintLengthCm,
-      },
-      widthCm: size.w,
-      heightCm: size.h,
-      stretching: "1in",
-      floatFrame: null,
-      delivery: "self",
-    });
-    return result.ok ? Math.round(result.grandTotal) : null;
-  }),
-}));
 
 const { rating, userRatingsTotal } = reviewsData;
 const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'd like a quote for printing on canvas.")}`;
@@ -205,100 +157,6 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
               Hahnemühle Metallic Canvas
             </figcaption>
           </figure>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Indicative pricing -->
-  <section id="prices" class="border-t border-border-soft bg-[#FAF7F1] scroll-mt-6">
-    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
-      <div class="max-w-[680px]">
-        <Eyebrow>Indicative prices</Eyebrow>
-        <DisplayHeading level={2} class="mt-3">
-          Pricing in plain sight.
-        </DisplayHeading>
-        <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
-          We make canvas prints to custom sizes and our quote tool below can give
-          you the exact price for your needs, but if you just want a quick idea,
-          then here's a quick look up table of common sizes. These prices include
-          canvas printing and stretching, a product that is ready to hang on your wall.
-        </p>
-      </div>
-
-      {/* Desktop table */}
-      <div class="mt-10 hidden md:block">
-        <div class="rounded-card border border-border-soft bg-white overflow-hidden">
-          <table class="w-full text-left">
-            <thead class="bg-white border-b-2 border-ink/15">
-              <tr>
-                <th class="px-5 py-4 text-[11.5px] font-semibold uppercase tracking-wide text-muted">Canvas</th>
-                {CANVAS_TABLE_SIZES.map((s) => (
-                  <th class="px-5 py-4 text-right">
-                    <span class="block text-[10px] font-semibold uppercase tracking-wide text-muted">Size</span>
-                    <span class="mt-1 block font-serif text-[16px] font-medium text-ink tabular-nums">{s.label}</span>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {canvasPriceTable.map((row) => (
-                <tr class="border-t border-border-soft">
-                  <td class="px-5 py-4">
-                    <p class="font-serif text-[16px] font-medium text-ink">{row.shortName}</p>
-                    <p class="text-[12px] text-subtle">{row.brand}</p>
-                  </td>
-                  {row.prices.map((price) => (
-                    <td class="px-5 py-4 text-right font-serif text-[16px] font-medium text-ink tabular-nums">
-                      {price != null ? `S$${price}` : "—"}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Mobile cards */}
-      <div class="mt-10 grid gap-4 md:hidden">
-        {canvasPriceTable.map((row) => (
-          <div class="rounded-card border border-border-soft bg-white p-5">
-            <p class="font-serif text-[17px] font-medium text-ink">{row.shortName}</p>
-            <p class="text-[12.5px] text-subtle mt-0.5">{row.brand}</p>
-            <dl class="mt-4 grid grid-cols-2 gap-y-2.5 gap-x-4 text-[14px]">
-              {CANVAS_TABLE_SIZES.map((s, i) => (
-                <Fragment>
-                  <dt class="text-subtle">{s.label}</dt>
-                  <dd class="text-right font-serif font-medium text-ink tabular-nums">
-                    {row.prices[i] != null ? `S$${row.prices[i]}` : "—"}
-                  </dd>
-                </Fragment>
-              ))}
-            </dl>
-          </div>
-        ))}
-      </div>
-
-      {/* What's included */}
-      <div class="mt-10 grid gap-6 md:grid-cols-12">
-        <div class="md:col-span-7 rounded-card bg-white border border-border-soft p-6 md:p-7">
-          <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">Every piece includes</p>
-          <ul class="mt-4 grid gap-2.5 text-[14.5px] text-ink">
-            <li class="flex gap-2.5"><span class="text-petrol" aria-hidden="true">·</span><span>Hahnemühle Gold-certified printing process</span></li>
-            <li class="flex gap-2.5"><span class="text-petrol" aria-hidden="true">·</span><span>12-colour Canon Pro-566 with original Canon inks</span></li>
-            <li class="flex gap-2.5"><span class="text-petrol" aria-hidden="true">·</span><span>Premium Hahnemühle varnish coat</span></li>
-            <li class="flex gap-2.5"><span class="text-petrol" aria-hidden="true">·</span><span>1" gallery-wrap stretching on solid pine bars</span></li>
-            <li class="flex gap-2.5"><span class="text-petrol" aria-hidden="true">·</span><span>Wire and hooks for wall mounting</span></li>
-          </ul>
-        </div>
-        <div class="md:col-span-5 rounded-card bg-white border border-border-soft p-6 md:p-7">
-          <p class="text-[12px] font-semibold uppercase tracking-wide text-muted">The fine print</p>
-          <ul class="mt-4 grid gap-2.5 text-[13.5px] text-subtle leading-relaxed">
-            <li>Indicative single-piece prices, includes 1" stretching, no float frame.</li>
-            <li>Self-collection from our studio is free. Delivery will incur extra fees.</li>
-            <li>For other sizes, deep 1.5" stretching, or float frames, the <a href="#calculator" class="font-semibold text-petrol hover:underline underline-offset-2">calculator below</a> covers the full range.</li>
-          </ul>
         </div>
       </div>
     </div>
