@@ -9,6 +9,7 @@
  * webhook response, so Stripe doesn't retry on a transient email blip.
  */
 import { Resend } from "resend";
+import { business } from "../data/business";
 
 interface OrderEmailLine {
   artworkTitle: string;
@@ -151,7 +152,7 @@ export async function sendCustomerOrderConfirmation(ctx: OrderEmailContext): Pro
   const heading = "Order confirmed.";
   const intro = `Thanks${ctx.customerName ? `, ${escapeHtml(ctx.customerName.split(" ")[0] ?? "")}` : ""}. We've received your order and the studio is queueing it up. We'll be in touch with a production ETA within one business day.`;
   const footer =
-    "Questions about your order? Reply to this email or message us on WhatsApp at +65 8123 4567. " +
+    `Questions about your order? Reply to this email or message us on WhatsApp at ${business.whatsapp}. ` +
     "Fine Art Printing — Hahnemühle Gold-certified studio in Singapore.";
 
   try {

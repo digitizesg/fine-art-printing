@@ -134,6 +134,7 @@ export async function getPaperBySlug(slug: string): Promise<Paper | null> {
     .from("papers")
     .select("*")
     .eq("slug", slug)
+    .eq("published", true)
     .maybeSingle();
   if (error || !data) return null;
   return rowToPaper(data as DbRow);

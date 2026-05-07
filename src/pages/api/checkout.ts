@@ -5,6 +5,7 @@ import { listPapers } from "../../lib/papers";
 import { listCanvases } from "../../lib/canvases";
 import { listFloatFrames } from "../../lib/float-frames";
 import { quotePaperPrint } from "../../data/pricing/paper";
+import { SHOP_ARTWORK_BASE_SGD } from "../../data/pricing/shop";
 import {
   quoteCanvasPrint,
   type FloatFrameColour,
@@ -120,7 +121,10 @@ export const POST: APIRoute = async ({ request, url }) => {
         quantity: 1,
       });
       if (!result.ok) return bad(`${line.artworkTitle}: ${result.message}`);
-      unitSGD = result.grandTotal;
+      // Match the shop-page calculation: engine total + flat artwork
+      // base fee. Without this the cart shows S$X but Stripe charges
+      // S$X-10 per print — direct revenue loss.
+      unitSGD = result.grandTotal + SHOP_ARTWORK_BASE_SGD;
       descriptionParts.push(`${line.widthCm} × ${line.heightCm} cm`, paper.name);
       if (border > 0) descriptionParts.push(`${border}cm border`);
       config.paperSlug = paper.slug;
@@ -160,7 +164,7 @@ export const POST: APIRoute = async ({ request, url }) => {
         delivery: "self",
       });
       if (!result.ok) return bad(`${line.artworkTitle}: ${result.message}`);
-      unitSGD = result.grandTotal;
+      unitSGD = result.grandTotal + SHOP_ARTWORK_BASE_SGD;
       descriptionParts.push(`${line.widthCm} × ${line.heightCm} cm`, canvas.name);
       if (finishing === "1in") descriptionParts.push('1" stretching');
       else if (finishing === "1.5in") descriptionParts.push('1.5" stretching');

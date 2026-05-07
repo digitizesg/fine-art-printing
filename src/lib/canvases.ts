@@ -115,6 +115,7 @@ export async function getCanvasBySlug(slug: string): Promise<Canvas | null> {
     .from("canvases")
     .select("*")
     .eq("slug", slug)
+    .eq("published", true)
     .maybeSingle();
   if (error || !data) return null;
   return rowToCanvas(data as DbRow);

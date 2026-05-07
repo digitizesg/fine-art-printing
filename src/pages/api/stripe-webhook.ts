@@ -126,14 +126,25 @@ export const POST: APIRoute = async ({ request }) => {
         status: "paid",
         paid_at: new Date().toISOString(),
         stripe_payment_intent_id: paymentIntentId,
-        customer_email: customerEmail,
-        customer_name: customerName,
-        customer_phone: customerPhone,
-        shipping_address: shippingAddress,
+        // Form-collected values can be more complete than what Stripe
+        // captured (Stripe sometimes hands back nulls). Only overwrite
+        // when we actually have a non-empty value to write.
+        ...(customerEmail ? { customer_email: customerEmail } : {}),
+        ...(customerName ? { customer_name: customerName } : {}),
+        ...(customerPhone ? { customer_phone: customerPhone } : {}),
+        ...(shippingAddress ? { shipping_address: shippingAddress } : {}),
       })
       .eq("id", existing.id);
     if (updErr) {
+      // Don't send confirmation emails if we couldn't even mark the
+      // order paid — return 5xx so Stripe retries the webhook. The
+      // already-paid guard above will short-circuit duplicate sends
+      // once the update eventually succeeds.
       console.error("[stripe-webhook] order update failed:", updErr.message);
+      return new Response(
+        JSON.stringify({ error: "db update failed", detail: updErr.message }),
+        { status: 500, headers: { "content-type": "application/json" } },
+      );
     }
   } else {
     // Pending row was never written (e.g. checkout endpoint had a
