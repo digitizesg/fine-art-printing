@@ -27,13 +27,13 @@ const floatFramesJson = JSON.stringify(
     <legend class="canvas-quote__legend">Print size</legend>
     <div class="canvas-quote__dims">
       <label class="canvas-quote__field">
-        <span>Width</span>
-        <input type="number" name="width" inputmode="decimal" min="1" step="0.1" value="60" />
+        <span>Height</span>
+        <input type="number" name="height" inputmode="decimal" min="1" step="0.1" value="40" />
       </label>
       <span class="canvas-quote__by" aria-hidden="true">×</span>
       <label class="canvas-quote__field">
-        <span>Height</span>
-        <input type="number" name="height" inputmode="decimal" min="1" step="0.1" value="40" />
+        <span>Width</span>
+        <input type="number" name="width" inputmode="decimal" min="1" step="0.1" value="60" />
       </label>
       <div class="canvas-quote__units" role="radiogroup" aria-label="Units">
         <label>
@@ -352,6 +352,7 @@ const floatFramesJson = JSON.stringify(
     type CanvasSubstrate,
     type FloatFrameColour,
   } from "../data/pricing/canvas";
+  import { attachDecimalSnap } from "../lib/decimal-input";
   import { business } from "../data/business";
 
   const framesEl = document.querySelector<HTMLScriptElement>("[data-float-frames]");
@@ -548,6 +549,9 @@ const floatFramesJson = JSON.stringify(
         const update = () => render(form);
         form.addEventListener("input", update);
         form.addEventListener("change", update);
+        form.querySelectorAll<HTMLInputElement>(
+          "input[name='width'], input[name='height']",
+        ).forEach((el) => attachDecimalSnap(el, { onChange: update }));
         update();
       });
   }

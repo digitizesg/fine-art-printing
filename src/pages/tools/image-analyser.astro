@@ -124,17 +124,6 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 
             <div class="image-analyser__bench-row">
               <label class="image-analyser__field">
-                <span>Width</span>
-                <input
-                  type="number"
-                  inputmode="decimal"
-                  min="1"
-                  step="0.1"
-                  data-target-width
-                />
-              </label>
-              <span class="image-analyser__by" aria-hidden="true">×</span>
-              <label class="image-analyser__field">
                 <span>Height</span>
                 <input
                   type="number"
@@ -142,6 +131,17 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
                   min="1"
                   step="0.1"
                   data-target-height
+                />
+              </label>
+              <span class="image-analyser__by" aria-hidden="true">×</span>
+              <label class="image-analyser__field">
+                <span>Width</span>
+                <input
+                  type="number"
+                  inputmode="decimal"
+                  min="1"
+                  step="0.1"
+                  data-target-width
                 />
               </label>
               <div class="image-analyser__units" role="radiogroup" aria-label="Units">
@@ -586,6 +586,8 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 </style>
 
 <script>
+  import { attachDecimalSnap } from "../../lib/decimal-input";
+
   type Level = "great" | "good" | "borderline" | "poor";
 
   const MAX_BYTES = 100 * 1024 * 1024; // 100 MB
@@ -801,6 +803,12 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     heightInput.addEventListener("input", () => {
       applyAspectFromHeight();
       recalc();
+    });
+    attachDecimalSnap(widthInput, {
+      onChange: () => { applyAspectFromWidth(); recalc(); },
+    });
+    attachDecimalSnap(heightInput, {
+      onChange: () => { applyAspectFromHeight(); recalc(); },
     });
     lockInput.addEventListener("change", () => {
       // Re-snap height to width when re-locked.

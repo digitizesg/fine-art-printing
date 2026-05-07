@@ -24,13 +24,13 @@ const papersJson = JSON.stringify(
     <legend class="paper-quote__legend">Print size</legend>
     <div class="paper-quote__dims">
       <label class="paper-quote__field">
-        <span>Width</span>
-        <input type="number" name="width" inputmode="decimal" min="1" step="0.1" value="50" />
+        <span>Height</span>
+        <input type="number" name="height" inputmode="decimal" min="1" step="0.1" value="50" />
       </label>
       <span class="paper-quote__by" aria-hidden="true">×</span>
       <label class="paper-quote__field">
-        <span>Height</span>
-        <input type="number" name="height" inputmode="decimal" min="1" step="0.1" value="50" />
+        <span>Width</span>
+        <input type="number" name="width" inputmode="decimal" min="1" step="0.1" value="50" />
       </label>
       <div class="paper-quote__units" role="radiogroup" aria-label="Units">
         <label>
@@ -481,6 +481,7 @@ const papersJson = JSON.stringify(
     type PaperFamily,
   } from "../data/pricing/paper";
   import { business } from "../data/business";
+  import { attachDecimalSnap } from "../lib/decimal-input";
 
   const papersEl = document.querySelector<HTMLScriptElement>("[data-papers]");
   const PAPERS: PaperFamily[] = papersEl
@@ -581,6 +582,9 @@ const papersJson = JSON.stringify(
         const update = () => render(form);
         form.addEventListener("input", update);
         form.addEventListener("change", update);
+        form.querySelectorAll<HTMLInputElement>(
+          "input[name='width'], input[name='height']",
+        ).forEach((el) => attachDecimalSnap(el, { onChange: update }));
         update();
       });
   }

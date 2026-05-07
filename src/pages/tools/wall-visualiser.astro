@@ -64,16 +64,16 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
             <p class="wall-vis__group-title">Your wall</p>
             <div class="wall-vis__row">
               <label class="wall-vis__field">
-                <span>Width</span>
+                <span>Height</span>
                 <div class="wall-vis__field-input">
-                  <input type="number" inputmode="numeric" min="50" max="1500" step="1" value="350" data-wall-w />
+                  <input type="number" inputmode="numeric" min="100" max="600" step="1" value="270" data-wall-h />
                   <em>cm</em>
                 </div>
               </label>
               <label class="wall-vis__field">
-                <span>Height</span>
+                <span>Width</span>
                 <div class="wall-vis__field-input">
-                  <input type="number" inputmode="numeric" min="100" max="600" step="1" value="270" data-wall-h />
+                  <input type="number" inputmode="numeric" min="50" max="1500" step="1" value="350" data-wall-w />
                   <em>cm</em>
                 </div>
               </label>
@@ -634,6 +634,8 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 </style>
 
 <script>
+  import { attachDecimalSnap } from "../../lib/decimal-input";
+
   // Wall planner. Pure browser-side: take wall + furniture inputs,
   // compute a recommended combined size for N pieces, render an SVG
   // wall preview to scale.
@@ -933,6 +935,9 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     }
 
     // Wire up.
+    [wallW, wallH, furnH].forEach((el) =>
+      attachDecimalSnap(el, { step: 1, onChange: update }),
+    );
     [wallW, wallH, furnH, coverage].forEach((el) =>
       el.addEventListener("input", update),
     );

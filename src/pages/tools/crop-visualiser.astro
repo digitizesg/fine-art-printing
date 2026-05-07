@@ -152,18 +152,6 @@ const presets = [
 
               <div class="crop-vis__custom" data-custom hidden>
                 <label class="crop-vis__field">
-                  <span>Width</span>
-                  <input
-                    type="number"
-                    inputmode="decimal"
-                    min="1"
-                    step="0.1"
-                    value="50"
-                    data-custom-w
-                  />
-                </label>
-                <span class="crop-vis__by" aria-hidden="true">×</span>
-                <label class="crop-vis__field">
                   <span>Height</span>
                   <input
                     type="number"
@@ -172,6 +160,18 @@ const presets = [
                     step="0.1"
                     value="70"
                     data-custom-h
+                  />
+                </label>
+                <span class="crop-vis__by" aria-hidden="true">×</span>
+                <label class="crop-vis__field">
+                  <span>Width</span>
+                  <input
+                    type="number"
+                    inputmode="decimal"
+                    min="1"
+                    step="0.1"
+                    value="50"
+                    data-custom-w
                   />
                 </label>
                 <div class="crop-vis__units" role="radiogroup" aria-label="Units">
@@ -632,6 +632,8 @@ const presets = [
 </style>
 
 <script>
+  import { attachDecimalSnap } from "../../lib/decimal-input";
+
   // Crop visualiser. Pure browser-side: image is rendered in an <img>,
   // a positioned crop box overlays it. Centre-defaulted, draggable.
 
@@ -975,14 +977,22 @@ const presets = [
     );
     root.dataset.lastUnit = selectedUnit();
 
-    [customW, customH].forEach((inp) =>
+    [customW, customH].forEach((inp) => {
       inp.addEventListener("input", () => {
         if (selectedPreset() === "custom") {
           centreCrop();
           render();
         }
-      }),
-    );
+      });
+      attachDecimalSnap(inp, {
+        onChange: () => {
+          if (selectedPreset() === "custom") {
+            centreCrop();
+            render();
+          }
+        },
+      });
+    });
 
     // Re-render on resize because the displayed image size changes.
     let resizeRaf = 0;
