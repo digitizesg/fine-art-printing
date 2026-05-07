@@ -155,23 +155,37 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
             </div>
 
             <div class="wall-vis__readout">
-              <div class="wall-vis__readout-grid">
-                <div>
-                  <dt>Each piece</dt>
-                  <dd data-each>—</dd>
-                </div>
-                <div>
-                  <dt>Combined width</dt>
-                  <dd data-combo-w>—</dd>
-                </div>
-                <div>
-                  <dt>Centre of art</dt>
-                  <dd data-centre-aff>—</dd>
-                </div>
-                <div>
-                  <dt>Bottom of art</dt>
-                  <dd data-bottom-aff>—</dd>
-                </div>
+              <div class="wall-vis__readout-cols">
+                <section class="wall-vis__readout-section">
+                  <h3>Sizes</h3>
+                  <dl>
+                    <div>
+                      <dt>Each piece</dt>
+                      <dd data-each>—</dd>
+                    </div>
+                    <div>
+                      <dt>Arrangement</dt>
+                      <dd data-arrangement>—</dd>
+                    </div>
+                  </dl>
+                </section>
+                <section class="wall-vis__readout-section">
+                  <h3>Hanging heights <span>cm from floor</span></h3>
+                  <dl>
+                    <div>
+                      <dt>Bottom</dt>
+                      <dd data-bottom-aff>—</dd>
+                    </div>
+                    <div>
+                      <dt>Centre</dt>
+                      <dd data-centre-aff>—</dd>
+                    </div>
+                    <div>
+                      <dt>Top</dt>
+                      <dd data-top-aff>—</dd>
+                    </div>
+                  </dl>
+                </section>
               </div>
               <p class="wall-vis__readout-note" data-readout-note></p>
             </div>
@@ -470,33 +484,64 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     padding: 18px 20px;
     background: #FAF7F1;
   }
-  .wall-vis__readout-grid {
+  .wall-vis__readout-cols {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px 22px;
-    margin: 0;
+    grid-template-columns: 1fr;
+    gap: 18px;
   }
-  @media (min-width: 640px) {
-    .wall-vis__readout-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (min-width: 720px) {
+    .wall-vis__readout-cols {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 28px;
+    }
   }
-  .wall-vis__readout-grid dt {
+  .wall-vis__readout-section h3 {
+    margin: 0 0 10px;
+    font-family: var(--font-sans);
+    font-weight: 600;
     font-size: 11.5px;
-    color: var(--color-muted);
-    margin-bottom: 3px;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
   }
-  .wall-vis__readout-grid dd {
+  .wall-vis__readout-section h3 span {
+    text-transform: none;
+    letter-spacing: 0;
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--color-subtle);
+  }
+  .wall-vis__readout-section dl {
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .wall-vis__readout-section dl > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .wall-vis__readout-section dt {
+    font-size: 13px;
+    color: var(--color-subtle);
+  }
+  .wall-vis__readout-section dd {
     margin: 0;
     font-family: var(--font-serif);
     font-weight: 500;
-    font-size: 17px;
+    font-size: 16px;
     color: var(--color-ink);
     font-variant-numeric: tabular-nums;
-    line-height: 1.2;
+    text-align: right;
   }
   .wall-vis__readout-note {
-    margin: 12px 0 0;
+    margin: 14px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
     font-size: 12.5px;
     color: var(--color-subtle);
     line-height: 1.55;
@@ -565,9 +610,10 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     const coverageReadout = root.querySelector<HTMLElement>("[data-coverage-readout]")!;
     const svg = root.querySelector<SVGSVGElement>("[data-svg]")!;
     const eachEl = root.querySelector<HTMLElement>("[data-each]")!;
-    const comboEl = root.querySelector<HTMLElement>("[data-combo-w]")!;
+    const arrangementEl = root.querySelector<HTMLElement>("[data-arrangement]")!;
     const centreEl = root.querySelector<HTMLElement>("[data-centre-aff]")!;
     const bottomEl = root.querySelector<HTMLElement>("[data-bottom-aff]")!;
+    const topEl = root.querySelector<HTMLElement>("[data-top-aff]")!;
     const noteEl = root.querySelector<HTMLElement>("[data-readout-note]")!;
 
     function selectedCount(): number {
@@ -771,36 +817,36 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     function renderReadout(r: ReturnType<typeof compute>) {
       if (!r) {
         eachEl.textContent = "—";
-        comboEl.textContent = "—";
+        arrangementEl.textContent = "—";
         centreEl.textContent = "—";
         bottomEl.textContent = "—";
+        topEl.textContent = "—";
         noteEl.textContent = "Enter your wall width and height to see a recommendation.";
         return;
       }
       eachEl.textContent = `${r.pieceW} × ${r.pieceH} cm`;
       const layoutLabel = r.count === 1
-        ? `${r.comboW} cm wide`
+        ? "single piece"
         : r.rows > 1
-          ? `${r.comboW} × ${r.comboH} cm (${r.cols}×${r.rows} grid)`
-          : `${r.comboW} cm (${r.count} pieces in a row)`;
-      comboEl.textContent = layoutLabel;
-      centreEl.textContent = `${r.centreAff} cm from floor`;
-      bottomEl.textContent = `${r.bottomAff} cm from floor`;
+          ? `${r.cols}×${r.rows} grid`
+          : `${r.count} in a row`;
+      arrangementEl.innerHTML = r.count === 1
+        ? `${r.comboW} × ${r.comboH} cm`
+        : `${r.comboW} × ${r.comboH} cm <small style="display:block;font-size:12px;color:var(--color-subtle);font-family:var(--font-sans);font-weight:400;margin-top:2px;">${layoutLabel} · ${r.spacing} cm gaps</small>`;
+      bottomEl.textContent = `${r.bottomAff} cm`;
+      centreEl.textContent = `${r.centreAff} cm`;
+      topEl.textContent = `${r.topAff} cm`;
 
       const cov = Math.round((r.comboW / r.ww) * 100);
-      const note: string[] = [];
-      note.push(`The arrangement covers about ${cov}% of the wall width.`);
-      if (r.count === 4) {
-        note.push(`Four pieces are arranged as a 2×2 grid with ${r.spacing} cm gaps.`);
-      } else if (r.count > 1) {
-        note.push(`Pieces sit in a row with ${r.spacing} cm gaps.`);
-      }
-      if (r.hasFurn && r.fh > 0) {
-        note.push(`Bottom of art sits ${FURN_GAP_CM} cm above the furniture.`);
+      const noteParts: string[] = [`Covers ${cov}% of the wall width.`];
+      if (r.hasFurn && r.fh > 0 && r.bottomAff === r.fh + FURN_GAP_CM) {
+        noteParts.push(`Bottom sits ${FURN_GAP_CM} cm above the furniture.`);
+      } else if (!r.hasFurn) {
+        noteParts.push(`Centred near ${EYE_LEVEL_CM} cm — gallery eye-level.`);
       } else {
-        note.push(`Centred at ${EYE_LEVEL_CM} cm — gallery eye-level.`);
+        noteParts.push(`Lifted to centre near eye level.`);
       }
-      noteEl.textContent = note.join(" ");
+      noteEl.textContent = noteParts.join(" ");
     }
 
     function update() {
