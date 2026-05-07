@@ -303,11 +303,17 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     gap: 24px;
     grid-template-columns: 1fr;
   }
+  /* On mobile, show the SVG above the inputs so changes are visible
+     while editing. Reverts to inputs-left, output-right on desktop. */
+  .wall-vis__output { order: 1; }
+  .wall-vis__inputs { order: 2; }
   @media (min-width: 880px) {
     .wall-vis__layout {
       grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
       align-items: start;
     }
+    .wall-vis__inputs { order: 1; }
+    .wall-vis__output { order: 2; }
   }
 
   /* Inputs panel */
@@ -319,6 +325,9 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     border-radius: 16px;
     background: #FAF7F1;
     align-self: start;
+  }
+  @media (max-width: 640px) {
+    .wall-vis__inputs { padding: 16px; gap: 12px; }
   }
   .wall-vis__group-title {
     font-family: var(--font-serif);
@@ -520,6 +529,9 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     padding: 24px;
     background: #fff;
     overflow: hidden;
+  }
+  @media (max-width: 640px) {
+    .wall-vis__stage { padding: 14px; border-radius: 12px; }
   }
   .wall-vis__svg {
     display: block;
