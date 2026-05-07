@@ -122,6 +122,9 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
                 <span>Square</span>
               </label>
             </div>
+            <p class="wall-vis__field-hint" data-orient-hint>
+              The shape of the combined arrangement on your wall.
+            </p>
 
             <details class="wall-vis__advanced">
               <summary>Fine-tune size</summary>
@@ -528,13 +531,15 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 
   type Orient = "landscape" | "portrait" | "square";
 
-  // Aspect ratio H/W per orientation. These are average choices that
-  // read well as a single piece or in a row of multiples — we do *not*
-  // pick a specific print catalog size because the tool is about wall
-  // presence first and print-size matching second.
-  const ASPECT: Record<Orient, number> = {
-    landscape: 0.75, // 4:3
-    portrait: 1.4,   // 5:7
+  // Combined-footprint W/H ratio per orientation. We size the *combo*
+  // first (so a row of 4 reads as a wide horizontal block), then derive
+  // each piece by dividing the width. This is the right model because
+  // a row of N landscape-shaped pieces is itself a wide block, and the
+  // user's intuition is "this should look wide on my wall", not "each
+  // piece should be wider than tall".
+  const COMBO_ASPECT: Record<Orient, number> = {
+    landscape: 1.6,  // wider than tall, ~5:3
+    portrait: 0.7,   // taller than wide, ~7:10
     square: 1,
   };
 
@@ -587,61 +592,57 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       const count = selectedCount();
       const orient = selectedOrient();
       const cov = parseFloat(coverage.value) / 100;
-      const aspect = ASPECT[orient];
+      const comboAspect = COMBO_ASPECT[orient]; // W / H
 
       if (ww <= 0 || wh <= 0) return null;
 
-      // Target combined width.
-      let comboW = ww * cov;
-      // Cap to leave a side gap of at least SIDE_GAP_MIN_CM each side.
-      comboW = Math.min(comboW, ww - 2 * SIDE_GAP_MIN_CM);
+      // Step 1 — target combined width from the coverage slider, capped
+      // by the side-gap minimum.
+      let comboW = Math.min(ww * cov, ww - 2 * SIDE_GAP_MIN_CM);
 
-      // Each piece width.
-      const totalSpacing = SPACING_CM * (count - 1);
-      let pieceW = (comboW - totalSpacing) / count;
-      let pieceH = pieceW * aspect;
+      // Step 2 — combined height derived from the orientation. This is
+      // the key change vs the older heuristic: we size the *combo*
+      // footprint, then split the width into N pieces. A row of 4
+      // pieces inside a "wide" combo therefore stays at full combo
+      // height, instead of each piece being short and stubby.
+      let comboH = comboW / comboAspect;
 
-      // Vertical bounds.
-      // bottomAff: floor → bottom-of-art
-      // topAff: floor → top-of-art (= bottomAff + pieceH)
-      // ceiling clearance: wh - topAff ≥ CEILING_GAP_CM
-      const bottomFromFurn = fh > 0 ? fh + FURN_GAP_CM : null;
-      const maxTop = wh - CEILING_GAP_CM;
+      // Step 3 — vertical placement. Bottom is fixed if there's
+      // furniture; otherwise we centre the combo at eye level and clamp
+      // to the wall's ceiling/floor budget afterwards.
+      const ceilingY = wh - CEILING_GAP_CM;
       let bottomAff: number;
-      if (bottomFromFurn != null) {
-        bottomAff = bottomFromFurn;
+      if (fh > 0) {
+        bottomAff = fh + FURN_GAP_CM;
       } else {
-        // Centre at eye level by default.
-        bottomAff = EYE_LEVEL_CM - pieceH / 2;
+        bottomAff = EYE_LEVEL_CM - comboH / 2;
       }
 
-      // If the piece is too tall for the available space, scale it down
-      // (keeping the aspect) and recompute width.
-      const availableH = maxTop - bottomAff;
-      if (pieceH > availableH && availableH > 0) {
-        pieceH = availableH;
-        pieceW = pieceH / aspect;
-        comboW = pieceW * count + totalSpacing;
+      // Step 4 — if the combo doesn't fit vertically, shrink it
+      // (preserving the orientation) and recompute the width.
+      const availableH = ceilingY - bottomAff;
+      if (comboH > availableH && availableH > 0) {
+        comboH = availableH;
+        comboW = comboH * comboAspect;
       }
 
-      // If the piece is shorter than the available space, lift it so
-      // it occupies a visually pleasing position above furniture
-      // (small lift) without going past eye-level rules.
-      if (bottomFromFurn == null) {
-        // Re-centre on eye level after any adjustments.
-        bottomAff = EYE_LEVEL_CM - pieceH / 2;
-        // Don't let the bottom drop below 75 cm AFF (art needs room
-        // to breathe over a low surface, and below 75 is hard to read).
+      // Re-centre on eye level for empty walls now that comboH is
+      // settled, then clamp inside the wall.
+      if (fh <= 0) {
+        bottomAff = EYE_LEVEL_CM - comboH / 2;
         bottomAff = Math.max(bottomAff, 75);
-        // And don't go above the ceiling clearance.
-        if (bottomAff + pieceH > maxTop) bottomAff = maxTop - pieceH;
+        if (bottomAff + comboH > ceilingY) bottomAff = ceilingY - comboH;
       }
 
-      // Round to nearest 5 cm for display.
+      // Step 5 — derive per-piece dims from the combo width / count.
+      const totalSpacing = SPACING_CM * (count - 1);
+      const pieceW = (comboW - totalSpacing) / count;
+      const pieceH = comboH;
+
+      // Round per-piece to nearest 5 cm; combo follows.
       const pieceWR = r5(pieceW);
       const pieceHR = r5(pieceH);
-      const spacingTotal = SPACING_CM * (count - 1);
-      const comboWR = pieceWR * count + spacingTotal;
+      const comboWR = pieceWR * count + totalSpacing;
       const bottomAffR = Math.round(bottomAff);
       const centreAffR = Math.round(bottomAffR + pieceHR / 2);
 
