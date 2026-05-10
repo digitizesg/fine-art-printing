@@ -64,7 +64,7 @@ const artworkJson = JSON.stringify({
 });
 
 const description =
-  artwork.description ?? `${artwork.title}${artwork.artistName ? ` by ${artwork.artistName}` : ""} — printed to order on archival paper or canvas at Fine Art Printing.`;
+  artwork.description ?? `${artwork.title}${artwork.artistName ? ` by ${artwork.artistName}` : ""}, printed to order on archival paper or canvas at Fine Art Printing.`;
 
 // Build one Offer per (substrate × size) so Google Merchant / rich
 // results can extract granular variants. Each variant is priced against
@@ -258,7 +258,7 @@ const jsonLd = [
                   class="aspect-square overflow-hidden rounded-md bg-[#f4efe7] border border-border-soft cursor-zoom-in transition-shadow hover:shadow-md focus:outline focus:outline-2 focus:outline-petrol focus:outline-offset-2"
                   data-frame-zoom
                   data-frame-image={img.url}
-                  data-frame-name={`${artwork.title} — view ${i + 2}`}
+                  data-frame-name={`${artwork.title}, view ${i + 2}`}
                   aria-label={`Open larger view ${i + 2}`}
                 >
                   <Image
@@ -352,7 +352,7 @@ const jsonLd = [
             <fieldset class="artwork-config__group">
               <legend>Size</legend>
               {artwork.availableSizes.length === 0 ? (
-                <p class="artwork-config__hint">No sizes configured for this artwork yet — message us for a custom size.</p>
+                <p class="artwork-config__hint">No sizes configured for this artwork yet, message us for a custom size.</p>
               ) : (
                 <div class="artwork-config__chips" role="radiogroup" aria-label="Size">
                   {artwork.availableSizes.map((size, i) => (
@@ -505,9 +505,9 @@ const jsonLd = [
               <details class="artwork-config__help">
                 <summary>What's the difference?</summary>
                 <div class="artwork-config__help-body">
-                  <p><strong>Mirror</strong> — the edges of the image are mirrored onto the wrap, so the design continues smoothly around the sides.</p>
-                  <p><strong>Gallery</strong> — the image itself wraps around the sides, so part of the picture is visible on the side faces.</p>
-                  <p><strong>Solid colour</strong> — the wrap is filled with a flat colour you choose (typically black or white). We'll confirm the colour with you before printing.</p>
+                  <p><strong>Mirror.</strong> The edges of the image are mirrored onto the wrap, so the design continues smoothly around the sides.</p>
+                  <p><strong>Gallery.</strong> The image itself wraps around the sides, so part of the picture is visible on the side faces.</p>
+                  <p><strong>Solid colour.</strong> The wrap is filled with a flat colour you choose (typically black or white). We'll confirm the colour with you before printing.</p>
                 </div>
               </details>
             </fieldset>
@@ -898,7 +898,7 @@ const jsonLd = [
         const unitPrice = result.grandTotal + SHOP_ARTWORK_BASE_SGD;
         priceEl.textContent = `S$${unitPrice.toLocaleString("en-SG")}`;
         noteEl.textContent = border > 0
-          ? `Includes ${border} cm border — paper printed at ${w + border * 2} × ${h + border * 2} cm.`
+          ? `Includes ${border} cm border, paper printed at ${w + border * 2} × ${h + border * 2} cm.`
           : "";
         setCartEnabled({
           artworkId: artwork.id,
@@ -963,7 +963,7 @@ const jsonLd = [
         if (marginCm > 0) {
           const effW = (w + marginCm * 2).toFixed(1);
           const effH = (h + marginCm * 2).toFixed(1);
-          noteEl.textContent = `Includes 1.5" stretching margin — canvas printed at ${effW} × ${effH} cm.`;
+          noteEl.textContent = `Includes 1.5" stretching margin, canvas printed at ${effW} × ${effH} cm.`;
         } else {
           noteEl.textContent = "";
         }

@@ -556,7 +556,7 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
           out.push({
             paperId: "hahnemuhle-photo-rag",
             reason:
-              "Classic smooth matt cotton — quieter alternative if you prefer subtle blacks.",
+              "Classic smooth matt cotton, quieter alternative if you prefer subtle blacks.",
           });
           out.push({
             paperId: "hahnemuhle-german-etching",
@@ -571,12 +571,12 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
           out.push({
             paperId: "hahnemuhle-photo-rag-matt-baryta",
             reason:
-              "Baryta-coated Photo Rag adds tonal depth — a punchier alternative for warm B&W.",
+              "Baryta-coated Photo Rag adds tonal depth, a punchier alternative for warm B&W.",
           });
           out.push({
             paperId: "hahnemuhle-photo-rag",
             reason:
-              "Smooth matt cotton — neutral alternative with the cleanest tonal range.",
+              "Smooth matt cotton, neutral alternative with the cleanest tonal range.",
           });
         } else {
           out.push({
@@ -587,7 +587,7 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
           out.push({
             paperId: "hahnemuhle-photo-rag-matt-baryta",
             reason:
-              "Baryta-coated alternative — slightly deeper blacks and enhanced tonal range than plain Photo Rag.",
+              "Baryta-coated alternative, slightly deeper blacks and enhanced tonal range than plain Photo Rag.",
           });
           if (contrast === "low") {
             out.push({
@@ -599,12 +599,12 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
             out.push({
               paperId: "datajet-100-cotton-rag",
               reason:
-                "Photo Rag character at a more accessible price — same matt cotton feel.",
+                "Photo Rag character at a more accessible price, same matt cotton feel.",
             });
           }
         }
       } else if (saturation === "high") {
-        // Matt + vivid is a tradeoff — be honest in reasons.
+        // Matt + vivid is a tradeoff, be honest in reasons.
         if (warmth === "warm") {
           out.push({
             paperId: "hahnemuhle-bamboo",
@@ -615,32 +615,32 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
           out.push({
             paperId: "hahnemuhle-photo-rag",
             reason:
-              "Smooth matt cotton — the calmest, no-glare choice, accepting that vivid colour will read more muted.",
+              "Smooth matt cotton, the calmest, no-glare choice, accepting that vivid colour will read more muted.",
           });
         }
         if (contrast === "high") {
           out.push({
             paperId: "hahnemuhle-german-etching",
             reason:
-              "Strong texture and deeper blacks compensate for matt's dampening — a hand-crafted feel.",
+              "Strong texture and deeper blacks compensate for matt's dampening, a hand-crafted feel.",
           });
         } else {
           out.push({
             paperId: "hahnemuhle-bamboo",
             reason:
-              "Warm bamboo matt — softer take that still pulls warm colour through.",
+              "Warm bamboo matt, softer take that still pulls warm colour through.",
           });
         }
         out.push({
           paperId: "datajet-100-cotton-rag",
           reason:
-            "Photo Rag character at a value price — same matt cotton character.",
+            "Photo Rag character at a value price, same matt cotton character.",
         });
       } else if (saturation === "medium") {
         out.push({
           paperId: "hahnemuhle-photo-rag",
           reason:
-            "Smooth matt cotton — clean colour and tonal range with no surface sheen.",
+            "Smooth matt cotton, clean colour and tonal range with no surface sheen.",
         });
         if (warmth === "warm") {
           out.push({
@@ -652,7 +652,7 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
           out.push({
             paperId: "hahnemuhle-hemp",
             reason:
-              "Lightly textured hemp — subtle character without disturbing balanced colour.",
+              "Lightly textured hemp, subtle character without disturbing balanced colour.",
           });
         }
         if (contrast === "high") {
@@ -672,7 +672,7 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
         out.push({
           paperId: "hahnemuhle-photo-rag",
           reason:
-            "Soft, muted images sit beautifully on smooth matt cotton — no surface shimmer to compete.",
+            "Soft, muted images sit beautifully on smooth matt cotton, no surface shimmer to compete.",
         });
         if (warmth === "warm") {
           out.push({
@@ -689,7 +689,7 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
           out.push({
             paperId: "datajet-100-cotton-rag",
             reason:
-              "Photo Rag character at a more accessible price — smooth matt cotton, archival.",
+              "Photo Rag character at a more accessible price, smooth matt cotton, archival.",
           });
         }
         if (contrast === "high") {
@@ -722,13 +722,13 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
           out.push({
             paperId: "hahnemuhle-fineart-pearl",
             reason:
-              "Pearl satin — gentle sheen that adds depth without distracting from B&W tonal range.",
+              "Pearl satin, gentle sheen that adds depth without distracting from B&W tonal range.",
           });
         } else {
           out.push({
             paperId: "hahnemuhle-fineart-pearl",
             reason:
-              "Pearl satin — subtle sheen suits B&W with mid-range tones.",
+              "Pearl satin, subtle sheen suits B&W with mid-range tones.",
           });
           out.push({
             paperId: "hahnemuhle-metallic-rag",
@@ -741,30 +741,30 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
           paperId: "hahnemuhle-bamboo-gloss",
           reason:
             warmth === "warm"
-              ? "Vivid warm-toned colour comes alive on glossy bamboo baryta — the warm-white base reinforces it."
-              : "Gloss baryta keeps saturated colour cinematic — the natural choice for vivid work.",
+              ? "Vivid warm-toned colour comes alive on glossy bamboo baryta, the warm-white base reinforces it."
+              : "Gloss baryta keeps saturated colour cinematic, the natural choice for vivid work.",
         });
         if (contrast === "high" || brightness === "dark") {
           out.push({
             paperId: "hahnemuhle-metallic-rag",
             reason:
-              "Bright colour against dark or high-contrast backdrops shines on the metallic surface — strong on architecture, night, high-impact work.",
+              "Bright colour against dark or high-contrast backdrops shines on the metallic surface, strong on architecture, night, high-impact work.",
           });
           out.push({
             paperId: "hahnemuhle-fineart-pearl",
             reason:
-              "Pearl satin — softer-sheen alternative that still carries saturated colour.",
+              "Pearl satin, softer-sheen alternative that still carries saturated colour.",
           });
         } else {
           out.push({
             paperId: "hahnemuhle-fineart-pearl",
             reason:
-              "Pearl satin carries saturation with a softer surface than full gloss — more contemplative.",
+              "Pearl satin carries saturation with a softer surface than full gloss, more contemplative.",
           });
           out.push({
             paperId: "hahnemuhle-photo-silk-baryta",
             reason:
-              "Silky-gloss alpha-cellulose at a more accessible price — strong on photo and poster work.",
+              "Silky-gloss alpha-cellulose at a more accessible price, strong on photo and poster work.",
           });
         }
       } else if (saturation === "medium") {
@@ -783,27 +783,27 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
           out.push({
             paperId: "hahnemuhle-photo-silk-baryta",
             reason:
-              "Silky-gloss alpha-cellulose — value alternative with a smoother sheen.",
+              "Silky-gloss alpha-cellulose, value alternative with a smoother sheen.",
           });
         }
         out.push({
           paperId: "hahnemuhle-bamboo-gloss",
           reason:
             warmth === "warm"
-              ? "Glossy bamboo baryta — warm-toned mid-saturation pops nicely."
-              : "Glossy bamboo baryta — a punchier sheen pick for balanced colour.",
+              ? "Glossy bamboo baryta, warm-toned mid-saturation pops nicely."
+              : "Glossy bamboo baryta, a punchier sheen pick for balanced colour.",
         });
       } else {
-        // low saturation + sheen — unusual but valid
+        // low saturation + sheen, unusual but valid
         out.push({
           paperId: "hahnemuhle-fineart-pearl",
           reason:
-            "Pearl satin adds gentle depth and refinement to muted palettes — soft sheen, not glossy.",
+            "Pearl satin adds gentle depth and refinement to muted palettes, soft sheen, not glossy.",
         });
         out.push({
           paperId: "hahnemuhle-photo-silk-baryta",
           reason:
-            "Silky-gloss surface — softer than full gloss, accessible price.",
+            "Silky-gloss surface, softer than full gloss, accessible price.",
         });
       }
       return dedupe(out);
@@ -838,7 +838,7 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
         return "Heads up: matt papers will mute vivid colour. If colour punch matters more than no-glare, switch to Glossy.";
       }
       if (pref === "sheen" && t.saturation === "low") {
-        return "Note: sheen finishes are less common for muted, soft images — most studios reach for matt instead.";
+        return "Note: sheen finishes are less common for muted, soft images, most studios reach for matt instead.";
       }
       return null;
     }

@@ -1,5 +1,5 @@
 ---
-title: "Shifted Perspectives — A Collaboration by Airwallex, Lando Norris & Michael Murphy"
+title: "Shifted Perspectives, A Collaboration by Airwallex, Lando Norris & Michael Murphy"
 date: 2024-09-18
 slug: shifted-perspectives-airwallex
 excerpt: "Fine Art Printing supported the Shifted Perspectives exhibition, a collaboration between McLaren Racing's Lando Norris, Airwallex, and artist Michael Murphy."
@@ -7,7 +7,7 @@ hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles
 ---
 The _Shifted Perspectives_ exhibition, a unique collaboration between McLaren Racing’s Formula 1 driver Lando Norris, fintech company Airwallex, and world-renowned artist Michael Murphy, is a celebration of perspective, innovation, and the art of storytelling. The event, which ran from September 19-22, 2024, offered a once-in-a-lifetime opportunity to experience Norris through the lens of Murphy’s iconic multidimensional techniques.
 
-Known for his stunning 3D perception-shifting sculptures, Michael Murphy—whose portfolio includes works featuring Barack Obama and Nike Jordan—creates an immersive experience that challenges how we view art, technology, and human potential. The exhibition aims to inspire visitors by showing how shifting one’s perspective can unlock new opportunities and drive progress.
+Known for his stunning 3D perception-shifting sculptures, Michael Murphy, whose portfolio includes works featuring Barack Obama and Nike Jordan, creates an immersive experience that challenges how we view art, technology, and human potential. The exhibition aims to inspire visitors by showing how shifting one’s perspective can unlock new opportunities and drive progress.
 
 ![Shifted Perspectives Exhibition - Lando Norris](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/09/shifted-perspectives-lando-norris.jpg)
 

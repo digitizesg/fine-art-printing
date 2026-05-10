@@ -770,11 +770,11 @@ const presets = [
       const imgAspect = imgPxW / imgPxH;
       let cw: number, ch: number;
       if (aspect > imgAspect) {
-        // Print is wider than image — full width, cropped height.
+        // Print is wider than image, full width, cropped height.
         cw = imgPxW;
         ch = imgPxW / aspect;
       } else {
-        // Print is taller than image — full height, cropped width.
+        // Print is taller than image, full height, cropped width.
         ch = imgPxH;
         cw = imgPxH * aspect;
       }
@@ -824,9 +824,9 @@ const presets = [
       if (Math.abs(imgAspect - printD.aspect) < 0.005) {
         fitHintEl.textContent = "Perfect fit. No cropping needed.";
       } else if (printD.aspect > imgAspect) {
-        fitHintEl.textContent = "Print is wider — top and bottom of the image are cropped. Drag up or down to adjust.";
+        fitHintEl.textContent = "Print is wider, top and bottom of the image are cropped. Drag up or down to adjust.";
       } else {
-        fitHintEl.textContent = "Print is taller — left and right edges are cropped. Drag left or right to adjust.";
+        fitHintEl.textContent = "Print is taller, left and right edges are cropped. Drag left or right to adjust.";
       }
     }
 

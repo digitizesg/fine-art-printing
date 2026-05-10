@@ -35,7 +35,7 @@ const finishLabel =
 
 const description =
   canvas.description ||
-  `${canvas.name} — ${canvas.gsm}gsm ${finishLabel.toLowerCase()} canvas. Print fine art on ${canvas.shortName} at Fine Art Printing Singapore.`;
+  `${canvas.name}, ${canvas.gsm}gsm ${finishLabel.toLowerCase()} canvas. Print fine art on ${canvas.shortName} at Fine Art Printing Singapore.`;
 
 const heroImage = canvas.imageUrls[0];
 
@@ -104,7 +104,7 @@ const jsonLd = [
               class="block w-full p-0 border-0 bg-transparent cursor-zoom-in"
               data-frame-zoom
               data-frame-image={heroImage}
-              data-frame-name={`${canvas.name} — sample 1`}
+              data-frame-name={`${canvas.name}, sample 1`}
               data-frame-gallery={`canvas-${canvas.slug}`}
               aria-label={`View ${canvas.name} sample 1 larger`}
             >
@@ -126,7 +126,7 @@ const jsonLd = [
                   class="aspect-square overflow-hidden rounded-md bg-[#f4efe7] border border-border-soft transition-shadow hover:shadow-md cursor-zoom-in p-0"
                   data-frame-zoom
                   data-frame-image={url}
-                  data-frame-name={`${canvas.name} — sample ${i + 2}`}
+                  data-frame-name={`${canvas.name}, sample ${i + 2}`}
                   data-frame-gallery={`canvas-${canvas.slug}`}
                   aria-label={`View ${canvas.name} sample ${i + 2} larger`}
                 >

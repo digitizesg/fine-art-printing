@@ -11,7 +11,7 @@ const description =
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "Blog",
-  name: "Fine Art Printing — Articles",
+  name: "Fine Art Printing, Articles",
   url: "https://fineartprinting.com.sg/articles",
 };
 
@@ -55,7 +55,7 @@ const fmtDate = (d: Date) =>
       <ul class="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
         {articles.map((article, i) => {
           // First few cards are above-the-fold (3 across on desktop, 2
-          // on tablet, 1 on mobile) — eager-load them so the LCP image
+          // on tablet, 1 on mobile), eager-load them so the LCP image
           // isn't lazy-loaded.
           const isEager = i < 3;
           return (
@@ -104,7 +104,7 @@ const fmtDate = (d: Date) =>
     </div>
   </section>
 
-  <!-- Service jump-off — keeps article-driven traffic moving into the
+  <!-- Service jump-off, keeps article-driven traffic moving into the
        services pages where conversions happen. -->
   <section class="border-t border-border-soft bg-[#FAF7F1]">
     <div class="mx-auto max-w-[1180px] px-6 py-12 text-center">

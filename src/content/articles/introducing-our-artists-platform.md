@@ -1,5 +1,5 @@
 ---
-title: "Sell Prints Online — Introducing Our Artists Platform"
+title: "Sell Prints Online, Introducing Our Artists Platform"
 date: 2023-09-30
 slug: introducing-our-artists-platform
 excerpt: "New marketplace for artists to list and sell work internationally."

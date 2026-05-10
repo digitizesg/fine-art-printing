@@ -113,7 +113,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
           <label class="contact-form__field">
             <span>What can we help with?</span>
-            <textarea name="message" required rows="6" maxlength="3000" placeholder="Size, finishing preferences, deadline — anything that helps us quote accurately."></textarea>
+            <textarea name="message" required rows="6" maxlength="3000" placeholder="Size, finishing preferences, deadline, anything that helps us quote accurately."></textarea>
           </label>
 
           <div class="contact-form__field">
@@ -127,7 +127,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
             </label>
             <ul class="contact-form__files" data-contact-file-list></ul>
             <p class="contact-form__small">
-              <strong>Reference photos only.</strong> If you have a high-resolution print-ready file, mention it in your message and we'll send a secure upload link — please don't try to send it through this form.
+              <strong>Reference photos only.</strong> If you have a high-resolution print-ready file, mention it in your message and we'll send a secure upload link. Please don't try to send it through this form.
             </p>
           </div>
 
@@ -305,7 +305,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
   .contact-form__pref-opt:hover {
     border-color: rgba(0, 0, 0, 0.25);
   }
-  /* Hide the native radio circle — the card itself communicates state. */
+  /* Hide the native radio circle, the card itself communicates state. */
   .contact-form__pref-opt input {
     position: absolute;
     opacity: 0;
@@ -538,7 +538,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
       const err = validateFile(f);
       if (err) li.classList.add("is-error");
       const left = document.createElement("span");
-      left.textContent = err ? `${f.name} — ${err}` : `${f.name} · ${fmtBytes(f.size)}`;
+      left.textContent = err ? `${f.name}, ${err}` : `${f.name} · ${fmtBytes(f.size)}`;
       const remove = document.createElement("button");
       remove.type = "button";
       remove.textContent = "Remove";
@@ -633,7 +633,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
         return;
       }
 
-      // Success — swap the form for the thanks panel.
+      // Success, swap the form for the thanks panel.
       form.hidden = true;
       if (success) success.hidden = false;
       if (successDetail && data.attachmentCount > 0) {

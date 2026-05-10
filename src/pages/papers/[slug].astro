@@ -43,7 +43,7 @@ const finishLabel = paper.finish.replace("-", " ");
 
 const description =
   paper.description ||
-  `${paper.name} — ${paper.gsm}gsm ${finishLabel} archival paper. Print fine art on ${paper.shortName} at Fine Art Printing Singapore.`;
+  `${paper.name}, ${paper.gsm}gsm ${finishLabel} archival paper. Print fine art on ${paper.shortName} at Fine Art Printing Singapore.`;
 
 const heroImage = paper.imageUrls[0];
 
@@ -114,7 +114,7 @@ const jsonLd = [
               class="block w-full p-0 border-0 bg-transparent cursor-zoom-in"
               data-frame-zoom
               data-frame-image={heroImage}
-              data-frame-name={`${paper.name} — sample 1`}
+              data-frame-name={`${paper.name}, sample 1`}
               data-frame-gallery={`paper-${paper.slug}`}
               aria-label={`View ${paper.name} sample 1 larger`}
             >
@@ -136,7 +136,7 @@ const jsonLd = [
                   class="aspect-square overflow-hidden rounded-md bg-[#f4efe7] border border-border-soft transition-shadow hover:shadow-md cursor-zoom-in p-0"
                   data-frame-zoom
                   data-frame-image={url}
-                  data-frame-name={`${paper.name} — sample ${i + 2}`}
+                  data-frame-name={`${paper.name}, sample ${i + 2}`}
                   data-frame-gallery={`paper-${paper.slug}`}
                   aria-label={`View ${paper.name} sample ${i + 2} larger`}
                 >

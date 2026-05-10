@@ -646,7 +646,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
   // orientation; the combined footprint emerges from the count + layout.
   // This is the natural model: "portrait" produces actual portrait
   // pieces regardless of count, and a triptych of portraits is a row of
-  // three portrait pieces — not three thin strips inside a portrait box.
+  // three portrait pieces, not three thin strips inside a portrait box.
   const PIECE_ASPECT: Record<Orient, number> = {
     landscape: 1.5,   // 3:2
     portrait: 0.75,   // 4:5 ≈ 3:4
@@ -697,7 +697,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       };
     }
 
-    /** Round to nearest 5 cm — produces realistic "you can actually buy
+    /** Round to nearest 5 cm, produces realistic "you can actually buy
      *  this print" sizes rather than 47.3 × 35.5. */
     function r5(v: number): number {
       return Math.max(5, Math.round(v / 5) * 5);
@@ -885,7 +885,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
         : "rgba(26,53,80,0.25)";
       const centreLine = `<line x1="${wallX}" y1="${yFromAff(r.centreAff)}" x2="${wallX + ww}" y2="${yFromAff(r.centreAff)}" stroke="${centreLineStroke}" stroke-width="0.6" stroke-dasharray="6 6" />`;
 
-      // Labels — keep these minimal so the visual stays calm.
+      // Labels, keep these minimal so the visual stays calm.
       const labelStyle = `font-family: var(--font-sans, sans-serif); font-size: 12px; fill: rgba(0,0,0,0.55);`;
       const floorLabel = `<text x="${wallX + ww / 2}" y="${floorY + 13}" text-anchor="middle" style="${labelStyle}">Floor</text>`;
 
@@ -920,7 +920,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       if (r.hasFurn && r.fh > 0 && r.bottomAff === r.fh + FURN_GAP_CM) {
         noteParts.push(`Bottom sits ${FURN_GAP_CM} cm above the furniture.`);
       } else if (!r.hasFurn) {
-        noteParts.push(`Centred near ${EYE_LEVEL_CM} cm — gallery eye-level.`);
+        noteParts.push(`Centred near ${EYE_LEVEL_CM} cm, gallery eye-level.`);
       } else {
         noteParts.push(`Lifted to centre near eye level.`);
       }

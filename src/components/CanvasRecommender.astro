@@ -555,7 +555,7 @@ const lookup = canvases.reduce<Record<string, { brand: string; shortName: string
           out.push({
             canvasId: "hahnemuhle-daguerre-canvas",
             reason:
-              "Fine, even-textured matt — preserves tonal range and deep blacks for high-contrast B&W.",
+              "Fine, even-textured matt, preserves tonal range and deep blacks for high-contrast B&W.",
           });
           out.push({
             canvasId: "hahnemuhle-artist-canvas",
@@ -565,79 +565,79 @@ const lookup = canvases.reduce<Record<string, { brand: string; shortName: string
           out.push({
             canvasId: "hahnemuhle-photo-canvas",
             reason:
-              "Photo Canvas — fine matt at a more accessible price point, strong on photographic B&W.",
+              "Photo Canvas, fine matt at a more accessible price point, strong on photographic B&W.",
           });
         } else {
           out.push({
             canvasId: "hahnemuhle-daguerre-canvas",
             reason:
-              "Fine, uniform matt — the calmest surface for soft, contemplative B&W.",
+              "Fine, uniform matt, the calmest surface for soft, contemplative B&W.",
           });
           out.push({
             canvasId: "hahnemuhle-photo-canvas",
             reason:
-              "Photo Canvas — finer surface and lower price, a good middle-ground for B&W on canvas.",
+              "Photo Canvas, finer surface and lower price, a good middle-ground for B&W on canvas.",
           });
           out.push({
             canvasId: "datajet-polycotton-canvas",
             reason:
-              "Smooth, heavyweight value canvas — Daguerre-level output at the most accessible price.",
+              "Smooth, heavyweight value canvas, Daguerre-level output at the most accessible price.",
           });
         }
       } else if (saturation === "high") {
         out.push({
           canvasId: "hahnemuhle-daguerre-canvas",
           reason:
-            "Vivid colours, crisp detail on a clean, bright-white matt surface — the studio default for vibrant work on canvas.",
+            "Vivid colours, crisp detail on a clean, bright-white matt surface, the studio default for vibrant work on canvas.",
         });
         out.push({
           canvasId: "hahnemuhle-photo-canvas",
           reason:
-            "Photo Canvas — fine matt surface optimised for photographic prints, more accessible price.",
+            "Photo Canvas, fine matt surface optimised for photographic prints, more accessible price.",
         });
         out.push({
           canvasId: "datajet-polycotton-canvas",
           reason:
-            "Smooth, heavyweight value canvas — saturation-friendly matt at the most accessible price.",
+            "Smooth, heavyweight value canvas, saturation-friendly matt at the most accessible price.",
         });
       } else if (saturation === "medium") {
         out.push({
           canvasId: "hahnemuhle-daguerre-canvas",
           reason:
-            "All-rounder matt — fine even surface for balanced colour with vivid output.",
+            "All-rounder matt, fine even surface for balanced colour with vivid output.",
         });
         out.push({
           canvasId: "hahnemuhle-artist-canvas",
           reason:
-            "Coarse-weave matt — adds painterly character for artwork reproductions and balanced subjects.",
+            "Coarse-weave matt, adds painterly character for artwork reproductions and balanced subjects.",
         });
         out.push({
           canvasId: "hahnemuhle-photo-canvas",
           reason: "Photographic matt at a more accessible price point.",
         });
       } else {
-        // Low saturation — soft, muted
+        // Low saturation, soft, muted
         out.push({
           canvasId: "hahnemuhle-daguerre-canvas",
           reason:
-            "Fine, even-textured matt — keeps muted palettes calm without surface character competing.",
+            "Fine, even-textured matt, keeps muted palettes calm without surface character competing.",
         });
         out.push({
           canvasId: "hahnemuhle-photo-canvas",
           reason:
-            "Photo Canvas — finer surface for restrained, low-saturation work.",
+            "Photo Canvas, finer surface for restrained, low-saturation work.",
         });
         if (contrast === "high") {
           out.push({
             canvasId: "hahnemuhle-artist-canvas",
             reason:
-              "Coarse weave adds drama to high-contrast muted subjects — hand-crafted feel.",
+              "Coarse weave adds drama to high-contrast muted subjects, hand-crafted feel.",
           });
         } else {
           out.push({
             canvasId: "datajet-polycotton-canvas",
             reason:
-              "Smooth value canvas — Daguerre-level output, more accessible price.",
+              "Smooth value canvas, Daguerre-level output, more accessible price.",
           });
         }
       }
@@ -645,24 +645,24 @@ const lookup = canvases.reduce<Record<string, { brand: string; shortName: string
     }
 
     function sheenPicks(t: Traits): Pick[] {
-      // Only Metallic Canvas is glossy — reasoning varies by image traits.
+      // Only Metallic Canvas is glossy, reasoning varies by image traits.
       const { saturation, contrast, brightness } = t;
       let reason: string;
       if (saturation === "mono" && (contrast === "high" || brightness === "dark")) {
         reason =
-          "Architectural and night-scene B&W picks up dramatic depth on the silvery-shimmer surface — Metallic's natural niche.";
+          "Architectural and night-scene B&W picks up dramatic depth on the silvery-shimmer surface, Metallic's natural niche.";
       } else if (saturation === "high" && (contrast === "high" || brightness === "dark")) {
         reason =
-          "Bright vivid colour against dark or high-contrast backgrounds shines on the metallic surface — strong for high-impact work.";
+          "Bright vivid colour against dark or high-contrast backgrounds shines on the metallic surface, strong for high-impact work.";
       } else if (saturation === "high") {
         reason =
-          "Saturated colour gains a cinematic depth from the silvery shimmer — particularly suited to bright, eye-catching subjects.";
+          "Saturated colour gains a cinematic depth from the silvery shimmer, particularly suited to bright, eye-catching subjects.";
       } else if (saturation === "mono") {
         reason =
           "Silvery-shimmer surface adds dimensional drama to monochrome work.";
       } else {
         reason =
-          "High-gloss metallic surface — a specialty pick for images featuring reflective or atmospheric elements.";
+          "High-gloss metallic surface, a specialty pick for images featuring reflective or atmospheric elements.";
       }
       return [{ canvasId: "hahnemuhle-metallic-canvas", reason }];
     }
@@ -678,7 +678,7 @@ const lookup = canvases.reduce<Record<string, { brand: string; shortName: string
       if (saturation === "high" && (contrast === "high" || brightness === "dark")) {
         return dedupe([matt[0]!, metallic, matt[1]!]);
       }
-      // Otherwise lean matt — that's the studio's default for canvas.
+      // Otherwise lean matt, that's the studio's default for canvas.
       const out: Pick[] = [];
       if (matt[0]) out.push(matt[0]);
       if (matt[1]) out.push(matt[1]);
@@ -688,7 +688,7 @@ const lookup = canvases.reduce<Record<string, { brand: string; shortName: string
 
     function pickWarning(t: Traits, pref: Preference): string | null {
       if (pref === "sheen" && t.saturation !== "mono" && t.saturation !== "high") {
-        return "Heads up: Metallic Canvas is a specialty surface — it shines brightest on vivid colour, B&W, and architectural or night work. For balanced or muted images, the matt canvases are usually a better fit.";
+        return "Heads up: Metallic Canvas is a specialty surface, it shines brightest on vivid colour, B&W, and architectural or night work. For balanced or muted images, the matt canvases are usually a better fit.";
       }
       if (pref === "sheen" && t.contrast === "low" && t.brightness === "bright") {
         return "Heads up: Metallic Canvas can overpower bright, low-contrast images. Switch to Matt if the shimmer feels too much.";
