@@ -61,17 +61,19 @@ async function main() {
     fetchedAt: new Date().toISOString(),
     source: "google",
     placeId: PLACE_ID,
-    reviews: (data.reviews ?? []).map((r) => ({
-      author_name: r.authorAttribution?.displayName ?? "",
-      author_url: r.authorAttribution?.uri ?? null,
-      profile_photo_url: r.authorAttribution?.photoUri ?? null,
-      rating: typeof r.rating === "number" ? r.rating : 0,
-      relative_time_description: r.relativePublishTimeDescription ?? "",
-      text: r.text?.text ?? r.originalText?.text ?? "",
-      time: r.publishTime
-        ? Math.floor(new Date(r.publishTime).getTime() / 1000)
-        : 0,
-    })),
+    reviews: (data.reviews ?? [])
+      .map((r) => ({
+        author_name: r.authorAttribution?.displayName ?? "",
+        author_url: r.authorAttribution?.uri ?? null,
+        profile_photo_url: r.authorAttribution?.photoUri ?? null,
+        rating: typeof r.rating === "number" ? r.rating : 0,
+        relative_time_description: r.relativePublishTimeDescription ?? "",
+        text: r.text?.text ?? r.originalText?.text ?? "",
+        time: r.publishTime
+          ? Math.floor(new Date(r.publishTime).getTime() / 1000)
+          : 0,
+      }))
+      .sort((a, b) => b.time - a.time),
   };
 
   // Sanity check — if Google returns a 200 with empty data (e.g.

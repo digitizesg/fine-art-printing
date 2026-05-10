@@ -8,7 +8,9 @@ import reviewsData from "../data/reviews.json";
 import { business } from "../data/business";
 
 const { rating, userRatingsTotal, reviews } = reviewsData;
-const cardsToShow = reviews.slice(0, 5);
+// Aggregate stats (rating, userRatingsTotal) reflect every review on Google.
+// Cards only feature 5-star reviews to keep the testimonial wall on-brand.
+const cardsToShow = reviews.filter((r) => r.rating === 5).slice(0, 5);
 ---
 <section class="border-t border-border-soft bg-white">
   <div class="mx-auto max-w-[1180px] px-6 py-20">
