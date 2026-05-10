@@ -66,67 +66,109 @@ const artworkJson = JSON.stringify({
 const description =
   artwork.description ?? `${artwork.title}${artwork.artistName ? ` by ${artwork.artistName}` : ""} — printed to order on archival paper or canvas at Fine Art Printing.`;
 
-// Compute the cheapest configurable price so Google Merchant / rich
-// results have a real "from" number to surface. Use the smallest
-// available size + the lowest-per-sqm featured substrate the artwork
-// allows, plus the flat shop base fee.
-function lowestPriceForArtwork(): number | null {
-  const sizes = [...artwork.availableSizes].sort(
-    (a, b) => a.width_cm * a.height_cm - b.width_cm * b.height_cm,
-  );
-  const smallest = sizes[0];
-  if (!smallest) return null;
+// Build one Offer per (substrate × size) so Google Merchant / rich
+// results can extract granular variants. Each variant is priced against
+// the cheapest featured substrate of its type, plus the flat shop base
+// fee. Variants only appear when their substrate is allowed for the
+// artwork and the substrate's roll dimensions can fit the size.
+const cheapestPaper = artwork.allowPaper
+  ? [...featuredPapers].sort(
+      (a, b) => a.sellPricePerSqm - b.sellPricePerSqm,
+    )[0]
+  : null;
+const cheapestCanvas = artwork.allowCanvas
+  ? [...featuredCanvases].sort(
+      (a, b) => a.sellPricePerSqm - b.sellPricePerSqm,
+    )[0]
+  : null;
 
-  const candidates: number[] = [];
+type Substrate = "paper" | "canvas";
+type ShopVariant = {
+  substrate: Substrate;
+  width_cm: number;
+  height_cm: number;
+  price: number;
+};
 
-  if (artwork.allowPaper) {
-    const cheapPaper = [...featuredPapers]
-      .sort((a, b) => a.sellPricePerSqm - b.sellPricePerSqm)[0];
-    if (cheapPaper) {
+function buildVariants(): ShopVariant[] {
+  const out: ShopVariant[] = [];
+  for (const size of artwork.availableSizes) {
+    if (cheapestPaper) {
       const r = quotePaperPrint({
         paper: {
-          id: cheapPaper.slug,
-          name: cheapPaper.name,
-          sellPricePerSqm: cheapPaper.sellPricePerSqm,
-          maxPrintWidthCm: cheapPaper.maxPrintWidthCm,
-          maxPrintLengthCm: cheapPaper.maxPrintLengthCm,
+          id: cheapestPaper.slug,
+          name: cheapestPaper.name,
+          sellPricePerSqm: cheapestPaper.sellPricePerSqm,
+          maxPrintWidthCm: cheapestPaper.maxPrintWidthCm,
+          maxPrintLengthCm: cheapestPaper.maxPrintLengthCm,
         },
-        widthCm: smallest.width_cm,
-        heightCm: smallest.height_cm,
+        widthCm: size.width_cm,
+        heightCm: size.height_cm,
         quantity: 1,
       });
-      if (r.ok) candidates.push(r.grandTotal);
+      if (r.ok) {
+        out.push({
+          substrate: "paper",
+          width_cm: size.width_cm,
+          height_cm: size.height_cm,
+          price: r.grandTotal + SHOP_ARTWORK_BASE_SGD,
+        });
+      }
     }
-  }
-
-  if (artwork.allowCanvas) {
-    const cheapCanvas = [...featuredCanvases]
-      .sort((a, b) => a.sellPricePerSqm - b.sellPricePerSqm)[0];
-    if (cheapCanvas) {
+    if (cheapestCanvas) {
       const r = quoteCanvasPrint({
         canvas: {
-          id: cheapCanvas.slug,
-          name: cheapCanvas.name,
-          sellPricePerSqm: cheapCanvas.sellPricePerSqm,
-          maxPrintWidthCm: cheapCanvas.maxPrintWidthCm,
-          maxPrintLengthCm: cheapCanvas.maxPrintLengthCm,
+          id: cheapestCanvas.slug,
+          name: cheapestCanvas.name,
+          sellPricePerSqm: cheapestCanvas.sellPricePerSqm,
+          maxPrintWidthCm: cheapestCanvas.maxPrintWidthCm,
+          maxPrintLengthCm: cheapestCanvas.maxPrintLengthCm,
         },
-        widthCm: smallest.width_cm,
-        heightCm: smallest.height_cm,
+        widthCm: size.width_cm,
+        heightCm: size.height_cm,
         stretching: "none",
         floatFrame: null,
         delivery: "self",
       });
-      if (r.ok) candidates.push(r.grandTotal);
+      if (r.ok) {
+        out.push({
+          substrate: "canvas",
+          width_cm: size.width_cm,
+          height_cm: size.height_cm,
+          price: r.grandTotal + SHOP_ARTWORK_BASE_SGD,
+        });
+      }
     }
   }
-
-  if (candidates.length === 0) return null;
-  return Math.min(...candidates) + SHOP_ARTWORK_BASE_SGD;
+  return out;
 }
 
-const lowestPrice = lowestPriceForArtwork();
+const variants = buildVariants();
 const productUrl = `https://${business.domain}/shop/${artwork.slug}`;
+
+function variantSku(v: ShopVariant): string {
+  return `${artwork.slug}--${v.substrate}-${v.width_cm}x${v.height_cm}`;
+}
+
+function variantOffer(v: ShopVariant) {
+  const substrateLabel = v.substrate === "paper" ? "Paper" : "Canvas";
+  const sizeLabel = `${v.width_cm}×${v.height_cm} cm`;
+  const sku = variantSku(v);
+  return {
+    "@type": "Offer",
+    name: `${artwork.title} on ${substrateLabel.toLowerCase()}, ${sizeLabel}`,
+    sku,
+    mpn: sku,
+    price: v.price,
+    priceCurrency: "SGD",
+    availability: "https://schema.org/InStock",
+    itemCondition: "https://schema.org/NewCondition",
+    url: `${productUrl}?substrate=${v.substrate}&size=${v.width_cm}x${v.height_cm}`,
+    material: substrateLabel,
+    size: sizeLabel,
+    seller: { "@type": "Organization", name: "Fine Art Printing" },
+  };
+}
 
 const jsonLd = [
   {
@@ -143,18 +185,10 @@ const jsonLd = [
     ...(artwork.artistName
       ? { creator: { "@type": "Person", name: artwork.artistName } }
       : {}),
-    ...(lowestPrice != null
+    ...(variants.length > 0
       ? {
-          offers: {
-            "@type": "AggregateOffer",
-            priceCurrency: "SGD",
-            lowPrice: lowestPrice,
-            offerCount: artwork.availableSizes.length,
-            availability: "https://schema.org/InStock",
-            itemCondition: "https://schema.org/NewCondition",
-            url: productUrl,
-            seller: { "@type": "Organization", name: "Fine Art Printing" },
-          },
+          inProductGroupWithID: artwork.slug,
+          offers: variants.map(variantOffer),
         }
       : {}),
   },
