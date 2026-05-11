@@ -19,13 +19,22 @@ const ALT_ADDR = {
   state: null,
 } as const;
 
+type FixtureAddr = {
+  city: string | null;
+  country: string;
+  line1: string;
+  line2: string | null;
+  postal_code: string;
+  state: string | null;
+};
+
 // Helper: build a minimally-typed Checkout.Session with whichever
 // shipping fields we want populated. We only care about the fields
 // extractShippingAddress reads.
 function makeSession(opts: {
-  collected?: typeof ADDR;
-  legacy?: typeof ADDR;
-  billing?: typeof ADDR;
+  collected?: FixtureAddr;
+  legacy?: FixtureAddr;
+  billing?: FixtureAddr;
 }) {
   return {
     collected_information: opts.collected

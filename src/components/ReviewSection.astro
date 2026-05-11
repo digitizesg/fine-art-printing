@@ -5,12 +5,23 @@ import LiveFromGooglePill from "./LiveFromGooglePill.astro";
 import ReviewCard from "./ReviewCard.astro";
 import Stars from "./Stars.astro";
 import reviewsData from "../data/reviews.json";
+import featuredData from "../data/featured-reviews.json";
 import { business } from "../data/business";
 
-const { rating, userRatingsTotal, reviews } = reviewsData;
-// Aggregate stats (rating, userRatingsTotal) reflect every review on Google.
-// Cards only feature 5-star reviews to keep the testimonial wall on-brand.
-const cardsToShow = reviews.filter((r) => r.rating === 5).slice(0, 5);
+// Aggregate stats (rating, userRatingsTotal) reflect every review on Google
+// and refresh on every deploy via scripts/refresh-reviews.mjs.
+// Featured cards are curated in src/data/featured-reviews.json so we can
+// surface the strongest, most recent reviews rather than whatever Google's
+// relevance ranking happens to return (Places API doesn't sort by date).
+const { rating, userRatingsTotal } = reviewsData;
+const cardsToShow = [...featuredData.reviews]
+  .map((r) => ({
+    ...r,
+    profile_photo_url: r.profile_photo_url ?? null,
+    time: Math.floor(new Date(r.date).getTime() / 1000),
+  }))
+  .sort((a, b) => b.time - a.time)
+  .slice(0, 5);
 ---
 <section class="border-t border-border-soft bg-white">
   <div class="mx-auto max-w-[1180px] px-6 py-20">
@@ -24,9 +35,9 @@ const cardsToShow = reviews.filter((r) => r.rating === 5).slice(0, 5);
         Real reviews. From real customers.
       </DisplayHeading>
       <p class="mt-4 text-[15px] leading-relaxed text-subtle">
-        These reviews are pulled live from Google every day. We capture
-        reviews the slow and genuine way, not 50 uploaded in the same
-        week.
+        Featured reviews from real Singapore customers, with our live
+        Google rating below. We capture reviews the slow and genuine
+        way, not 50 uploaded in the same week.
       </p>
       <p class="mt-5 flex flex-wrap items-center gap-3 text-[16px] text-ink">
         <Stars rating={rating} size={22} ariaHidden />

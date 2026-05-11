@@ -130,7 +130,7 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       <svg class="mobile-menu__icon-open" width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
         <path d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
       </svg>
-      <svg class="mobile-menu__icon-close" width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true" hidden>
+      <svg class="mobile-menu__icon-close is-hidden" width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
         <path d="M5 5l12 12M17 5L5 17" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
       </svg>
     </button>
@@ -187,6 +187,9 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 </header>
 
 <style>
+  .is-hidden {
+    display: none !important;
+  }
   .services-menu {
     position: relative;
   }
@@ -392,8 +395,8 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     const setExpanded = (expanded: boolean) => {
       toggle.setAttribute("aria-expanded", String(expanded));
       panel.hidden = !expanded;
-      if (iconOpen) iconOpen.hidden = expanded;
-      if (iconClose) iconClose.hidden = !expanded;
+      iconOpen?.classList.toggle("is-hidden", expanded);
+      iconClose?.classList.toggle("is-hidden", !expanded);
     };
 
     toggle.addEventListener("click", (e) => {

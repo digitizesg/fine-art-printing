@@ -70,6 +70,7 @@ function detailFor(row: any): string {
     stretchingDepth: row.stretching_depth,
     canvasId: row.canvas_id,
     paperId: row.paper_id ?? null,
+    frameStyle: row.frame_style ?? null,
     displayOrder: row.display_order,
   }, floatFrames, canvases, papers);
 }

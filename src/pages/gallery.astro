@@ -432,7 +432,7 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
     }
 
     function syncChipCounts() {
-      filtersRoot
+      filtersRoot!
         .querySelectorAll<HTMLButtonElement>("[data-filter]")
         .forEach((chip) => {
           const n = countForChip(chip);
@@ -447,7 +447,7 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
         });
       // Hide a row entirely when every non-All chip in it is zero —
       // Paper / Frame style auto-collapse for canvas services.
-      filtersRoot
+      filtersRoot!
         .querySelectorAll<HTMLElement>(".gallery-filters__row")
         .forEach((row) => {
           const valueChips = row.querySelectorAll<HTMLButtonElement>(
@@ -472,7 +472,7 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
       if (countEl) {
         countEl.textContent = `Showing ${visible} of ${tiles.length}`;
       }
-      empty.hidden = visible !== 0;
+      empty!.hidden = visible !== 0;
       if (clearBtn) clearBtn.hidden = !isFiltering();
     }
 

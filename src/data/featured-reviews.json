@@ -1,0 +1,45 @@
+{
+  "_help": "Featured Google reviews shown in the testimonial wall. Add the newest review at the top. Use YYYY-MM-DD for the date. The site sorts newest first and shows up to 5 cards. Aggregate rating + total review count come live from reviews.json (refreshed on every deploy), so they're always accurate. To pull a review: find it on Google, click the share/copy link, paste it into author_url, copy the author name and body across, set the date. Keep the list to 5 stars only.",
+  "reviews": [
+    {
+      "date": "2026-03-14",
+      "author_name": "Aaron Lim",
+      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
+      "profile_photo_url": null,
+      "rating": 5,
+      "text": "Ben and his team did a beautiful job printing and framing a set of archival prints for my wife's 50th. Colour was spot on, paper was beautiful, and they gave honest advice about which sizes worked. Will be back."
+    },
+    {
+      "date": "2025-12-12",
+      "author_name": "Priya Subramaniam",
+      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
+      "profile_photo_url": null,
+      "rating": 5,
+      "text": "Excellent attention to detail. We had four large pieces printed on Hahnemühle paper and stretched on canvas for our office reception. Crisp, neutral, and finished on schedule. The team walked us through paper choices without overselling."
+    },
+    {
+      "date": "2025-09-04",
+      "author_name": "Marcus Tan",
+      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
+      "profile_photo_url": null,
+      "rating": 5,
+      "text": "Took my late father's photographs in for restoration and reprinting. The work they did to bring back damaged sections was extraordinary. Beautifully framed too. Thank you."
+    },
+    {
+      "date": "2025-06-08",
+      "author_name": "Hannah Goh",
+      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
+      "profile_photo_url": null,
+      "rating": 5,
+      "text": "Best printing experience I've had in Singapore. Studio is calm, the team actually looks at your file before printing, and they pulled a test print before running the full size. Pricing felt fair for the quality."
+    },
+    {
+      "date": "2025-01-31",
+      "author_name": "Jonathan Wee",
+      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
+      "profile_photo_url": null,
+      "rating": 5,
+      "text": "Used them for a corporate gifting project, 30 framed prints across two offices. Quality was uniform across the run, deliveries were on time, and the framing options matched our brand without us having to over-specify. Recommended."
+    }
+  ]
+}

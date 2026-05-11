@@ -184,16 +184,16 @@
         currentIndex = 0;
       }
 
-      lightbox.hidden = false;
+      lightbox!.hidden = false;
       document.body.style.overflow = "hidden";
       lastFocused = trigger;
       show(currentIndex);
-      const closeBtn = lightbox.querySelector<HTMLButtonElement>(".frame-lightbox__close");
+      const closeBtn = lightbox!.querySelector<HTMLButtonElement>(".frame-lightbox__close");
       closeBtn?.focus();
     }
 
     function close() {
-      lightbox.hidden = true;
+      lightbox!.hidden = true;
       imgEl.removeAttribute("src");
       captionEl.textContent = "";
       countEl.textContent = "";
