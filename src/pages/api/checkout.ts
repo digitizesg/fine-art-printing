@@ -93,7 +93,9 @@ export const POST: APIRoute = async ({ request, url }) => {
   ]);
 
   const priced: PricedLine[] = [];
-  const stripeLineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+  const stripeLineItems: NonNullable<
+    Stripe.Checkout.SessionCreateParams["line_items"]
+  >[number][] = [];
 
   for (const line of body.lines) {
     const qty = Math.max(1, Math.min(20, Math.floor(line.quantity || 1)));

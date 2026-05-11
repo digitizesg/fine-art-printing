@@ -71,7 +71,7 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
     </div>
   </div>
 
-  <script type="application/json" data-pr-lookup set:html={JSON.stringify(paperLookup)}></script>
+  <script is:inline type="application/json" data-pr-lookup set:html={JSON.stringify(paperLookup)}></script>
 </section>
 
 <style is:global>

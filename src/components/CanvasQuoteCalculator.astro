@@ -213,8 +213,8 @@ const floatFramesJson = JSON.stringify(
     </div>
   </fieldset>
 
-  <script type="application/json" data-canvases set:html={canvasesJson} />
-  <script type="application/json" data-float-frames set:html={floatFramesJson} />
+  <script is:inline type="application/json" data-canvases set:html={canvasesJson} />
+  <script is:inline type="application/json" data-float-frames set:html={floatFramesJson} />
 
   <div class="canvas-quote__output" data-canvas-quote-output></div>
 

@@ -69,7 +69,7 @@ const lookup = canvases.reduce<Record<string, { brand: string; shortName: string
     </div>
   </div>
 
-  <script type="application/json" data-cr-lookup set:html={JSON.stringify(lookup)}></script>
+  <script is:inline type="application/json" data-cr-lookup set:html={JSON.stringify(lookup)}></script>
 </section>
 
 <style is:global>

@@ -36,7 +36,7 @@ const catalogJson = JSON.stringify({
         </a>
       </div>
 
-      <script type="application/json" data-cart-catalog set:html={catalogJson} />
+      <script is:inline type="application/json" data-cart-catalog set:html={catalogJson} />
 
       <div class="cart" data-cart>
         <div class="cart__empty" data-cart-empty>
