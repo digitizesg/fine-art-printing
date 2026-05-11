@@ -1,0 +1,165 @@
+---
+import type { FeaturedReview } from "../../lib/featured-reviews";
+
+interface Props {
+  mode: "new" | "edit";
+  review?: FeaturedReview;
+  error?: string;
+  message?: string;
+}
+const { mode, review, error, message } = Astro.props;
+
+const action = mode === "new"
+  ? "/admin/featured-reviews/new"
+  : `/admin/featured-reviews/${review?.id}`;
+---
+<form class="admin-form featured-review-form" method="POST" action={action}>
+  {error && <p class="admin-note admin-note--err">{error}</p>}
+  {message && <p class="admin-note admin-note--ok">{message}</p>}
+
+  <section class="featured-review-form__panel">
+    <h3 class="featured-review-form__panel-title">Reviewer</h3>
+
+    <div class="admin-form__row">
+      <label>
+        <span>Author name</span>
+        <input
+          type="text"
+          name="author_name"
+          required
+          maxlength="120"
+          value={review?.authorName ?? ""}
+          placeholder="Jane Tan"
+        />
+      </label>
+      <label>
+        <span>Review date</span>
+        <input
+          type="date"
+          name="review_date"
+          required
+          value={review?.reviewDate ?? ""}
+        />
+      </label>
+    </div>
+
+    <label>
+      <span>Google review URL <em style="font-weight:400;color:#888;">(opens when readers click "View on Google")</em></span>
+      <input
+        type="url"
+        name="author_url"
+        required
+        maxlength="500"
+        value={review?.authorUrl ?? "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE"}
+        placeholder="https://search.google.com/local/reviews?placeid=..."
+      />
+    </label>
+
+    <label>
+      <span>Profile photo URL <em style="font-weight:400;color:#888;">(optional, falls back to initials)</em></span>
+      <input
+        type="url"
+        name="profile_photo_url"
+        maxlength="500"
+        value={review?.profilePhotoUrl ?? ""}
+        placeholder="https://..."
+      />
+    </label>
+  </section>
+
+  <section class="featured-review-form__panel">
+    <h3 class="featured-review-form__panel-title">Review</h3>
+
+    <div class="admin-form__row">
+      <label>
+        <span>Rating (1 to 5)</span>
+        <input
+          type="number"
+          name="rating"
+          min="1"
+          max="5"
+          step="1"
+          required
+          value={review?.rating ?? 5}
+        />
+      </label>
+      <label>
+        <span>Display order <em style="font-weight:400;color:#888;">(lower = higher on the wall, default 100)</em></span>
+        <input
+          type="number"
+          name="display_order"
+          min="0"
+          step="1"
+          value={review?.displayOrder ?? 100}
+        />
+      </label>
+    </div>
+
+    <label>
+      <span>Body</span>
+      <textarea
+        name="body"
+        required
+        rows="6"
+        maxlength="2000"
+        placeholder="Ben and his team did a beautiful job..."
+      >{review?.body ?? ""}</textarea>
+    </label>
+
+    <label class="admin-form__check">
+      <input type="checkbox" name="published" value="1" checked={mode === "new" ? true : review?.published} />
+      <span>Published (visible on the site)</span>
+    </label>
+  </section>
+
+  <div class="admin-form__actions">
+    <button type="submit" class="admin-btn">
+      {mode === "new" ? "Create review" : "Save changes"}
+    </button>
+    <a href="/admin/featured-reviews" class="admin-btn admin-btn--ghost">Cancel</a>
+    {mode === "edit" && review && (
+      <button
+        type="submit"
+        formaction={`/admin/featured-reviews/${review.id}/delete`}
+        class="admin-btn admin-btn--danger"
+        data-confirm="Delete this featured review? This cannot be undone."
+        style="margin-left:auto;"
+      >
+        Delete
+      </button>
+    )}
+  </div>
+</form>
+
+<style is:global>
+  .featured-review-form {
+    display: grid;
+    gap: 18px;
+    max-width: 720px;
+  }
+  .featured-review-form__panel {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 22px;
+    display: grid;
+    gap: 14px;
+  }
+  .featured-review-form__panel-title {
+    margin: 0;
+    font-family: "Lora", Georgia, serif;
+    font-weight: 500;
+    font-size: 16px;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-confirm]").forEach((btn) => {
+    btn.addEventListener("click", (ev) => {
+      const msg = btn.getAttribute("data-confirm");
+      if (msg && !window.confirm(msg)) {
+        ev.preventDefault();
+      }
+    });
+  });
+</script>

@@ -1,0 +1,73 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+
+const supabase = createSupabaseServerClient(Astro);
+
+const { data: rows, error } = await supabase
+  .from("featured_reviews")
+  .select("*")
+  .order("display_order", { ascending: true })
+  .order("review_date", { ascending: false });
+
+function formatDate(d: string): string {
+  try {
+    return new Date(d).toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  } catch {
+    return d;
+  }
+}
+---
+<AdminLayout title="Featured reviews">
+  <div class="admin-page-head">
+    <div>
+      <h1>Featured reviews</h1>
+      <p>{rows?.length ?? 0} reviews · these populate the testimonial wall on every page. Newest first by default.</p>
+    </div>
+    <a href="/admin/featured-reviews/new" class="admin-btn">+ New review</a>
+  </div>
+
+  {error && <p class="admin-note admin-note--err">{error.message}</p>}
+  {rows && rows.length === 0 && (
+    <p class="admin-note">No featured reviews yet. Click <strong>New review</strong> to add one.</p>
+  )}
+
+  {rows && rows.length > 0 && (
+    <div class="admin-list">
+      <div class="admin-list__row admin-list__row--head" style="grid-template-columns:2fr 1fr 1fr 1fr 4fr;">
+        <span>Author</span>
+        <span>Date</span>
+        <span>Order</span>
+        <span>Status</span>
+        <span>Excerpt</span>
+      </div>
+      {rows.map((row) => (
+        <a
+          class="admin-list__row"
+          href={`/admin/featured-reviews/${row.id}`}
+          style="grid-template-columns:2fr 1fr 1fr 1fr 4fr;"
+        >
+          <span class="admin-list__cell">
+            <strong>{row.author_name}</strong>
+            <span style="display:block;font-size:11.5px;color:#888;">{"★".repeat(row.rating)}{"☆".repeat(5 - row.rating)}</span>
+          </span>
+          <span class="admin-list__cell admin-list__cell--muted">{formatDate(row.review_date)}</span>
+          <span class="admin-list__cell admin-list__cell--muted">{row.display_order}</span>
+          <span class="admin-list__cell">
+            <span class:list={["admin-list__pill", row.published ? "admin-list__pill--published" : "admin-list__pill--draft"]}>
+              {row.published ? "Published" : "Draft"}
+            </span>
+          </span>
+          <span class="admin-list__cell admin-list__cell--muted" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+            {row.body.slice(0, 120)}{row.body.length > 120 ? "…" : ""}
+          </span>
+        </a>
+      ))}
+    </div>
+  )}
+</AdminLayout>

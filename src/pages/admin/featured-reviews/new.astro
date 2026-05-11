@@ -1,0 +1,66 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import FeaturedReviewForm from "../../../components/admin/FeaturedReviewForm.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+
+let error: string | undefined;
+
+if (Astro.request.method === "POST") {
+  const supabase = createSupabaseServerClient(Astro);
+  const form = await Astro.request.formData();
+
+  const authorName = String(form.get("author_name") ?? "").trim();
+  const authorUrl = String(form.get("author_url") ?? "").trim();
+  const profilePhotoUrl = String(form.get("profile_photo_url") ?? "").trim() || null;
+  const rating = parseInt(String(form.get("rating") ?? ""), 10);
+  const body = String(form.get("body") ?? "").trim();
+  const reviewDate = String(form.get("review_date") ?? "").trim();
+  const displayOrder = parseInt(String(form.get("display_order") ?? "100"), 10);
+  const published = form.get("published") === "1";
+
+  if (!authorName) {
+    error = "Author name is required.";
+  } else if (!authorUrl) {
+    error = "Google review URL is required.";
+  } else if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
+    error = "Rating must be between 1 and 5.";
+  } else if (!body) {
+    error = "Body is required.";
+  } else if (!reviewDate) {
+    error = "Review date is required.";
+  }
+
+  if (!error) {
+    const { data, error: insErr } = await supabase
+      .from("featured_reviews")
+      .insert({
+        author_name: authorName,
+        author_url: authorUrl,
+        profile_photo_url: profilePhotoUrl,
+        rating,
+        body,
+        review_date: reviewDate,
+        display_order: Number.isFinite(displayOrder) ? displayOrder : 100,
+        published,
+      })
+      .select("id")
+      .single();
+    if (insErr) {
+      error = insErr.message;
+    } else {
+      return Astro.redirect(`/admin/featured-reviews/${data.id}?created=1`);
+    }
+  }
+}
+---
+<AdminLayout title="New featured review">
+  <div class="admin-page-head">
+    <div>
+      <h1>New featured review</h1>
+      <p>Add a customer review to the testimonial wall.</p>
+    </div>
+    <a href="/admin/featured-reviews" class="admin-btn admin-btn--ghost">← Back to list</a>
+  </div>
+  <FeaturedReviewForm mode="new" error={error} />
+</AdminLayout>

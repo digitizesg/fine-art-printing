@@ -5,22 +5,25 @@ import LiveFromGooglePill from "./LiveFromGooglePill.astro";
 import ReviewCard from "./ReviewCard.astro";
 import Stars from "./Stars.astro";
 import reviewsData from "../data/reviews.json";
-import featuredData from "../data/featured-reviews.json";
+import { listFeaturedReviews } from "../lib/featured-reviews";
 import { business } from "../data/business";
 
 // Aggregate stats (rating, userRatingsTotal) reflect every review on Google
 // and refresh on every deploy via scripts/refresh-reviews.mjs.
-// Featured cards are curated in src/data/featured-reviews.json so we can
-// surface the strongest, most recent reviews rather than whatever Google's
+// Featured cards are curated in /admin/featured-reviews so we can surface
+// the strongest, most recent reviews rather than whatever Google's
 // relevance ranking happens to return (Places API doesn't sort by date).
 const { rating, userRatingsTotal } = reviewsData;
-const cardsToShow = [...featuredData.reviews]
+const featured = await listFeaturedReviews();
+const cardsToShow = featured
   .map((r) => ({
-    ...r,
-    profile_photo_url: r.profile_photo_url ?? null,
-    time: Math.floor(new Date(r.date).getTime() / 1000),
+    author_name: r.authorName,
+    author_url: r.authorUrl,
+    profile_photo_url: r.profilePhotoUrl,
+    rating: r.rating,
+    text: r.body,
+    time: Math.floor(new Date(r.reviewDate).getTime() / 1000),
   }))
-  .sort((a, b) => b.time - a.time)
   .slice(0, 5);
 ---
 <section class="border-t border-border-soft bg-white">

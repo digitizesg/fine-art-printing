@@ -1,0 +1,95 @@
+---
+export const prerender = false;
+import AdminLayout from "../../../layouts/AdminLayout.astro";
+import FeaturedReviewForm from "../../../components/admin/FeaturedReviewForm.astro";
+import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import type { FeaturedReview } from "../../../lib/featured-reviews";
+
+const id = Astro.params.id;
+const supabase = createSupabaseServerClient(Astro);
+
+let error: string | undefined;
+let message: string | undefined;
+
+if (Astro.request.method === "POST" && id) {
+  const form = await Astro.request.formData();
+
+  const authorName = String(form.get("author_name") ?? "").trim();
+  const authorUrl = String(form.get("author_url") ?? "").trim();
+  const profilePhotoUrl = String(form.get("profile_photo_url") ?? "").trim() || null;
+  const rating = parseInt(String(form.get("rating") ?? ""), 10);
+  const body = String(form.get("body") ?? "").trim();
+  const reviewDate = String(form.get("review_date") ?? "").trim();
+  const displayOrder = parseInt(String(form.get("display_order") ?? "100"), 10);
+  const published = form.get("published") === "1";
+
+  if (!authorName) {
+    error = "Author name is required.";
+  } else if (!authorUrl) {
+    error = "Google review URL is required.";
+  } else if (!Number.isFinite(rating) || rating < 1 || rating > 5) {
+    error = "Rating must be between 1 and 5.";
+  } else if (!body) {
+    error = "Body is required.";
+  } else if (!reviewDate) {
+    error = "Review date is required.";
+  }
+
+  if (!error) {
+    const { error: updErr } = await supabase
+      .from("featured_reviews")
+      .update({
+        author_name: authorName,
+        author_url: authorUrl,
+        profile_photo_url: profilePhotoUrl,
+        rating,
+        body,
+        review_date: reviewDate,
+        display_order: Number.isFinite(displayOrder) ? displayOrder : 100,
+        published,
+      })
+      .eq("id", id);
+    if (updErr) {
+      error = updErr.message;
+    } else {
+      message = "Saved.";
+    }
+  }
+}
+
+const { data: row, error: loadErr } = await supabase
+  .from("featured_reviews")
+  .select("*")
+  .eq("id", id)
+  .single();
+
+if (loadErr || !row) {
+  return Astro.redirect("/admin/featured-reviews?error=not_found");
+}
+
+const review: FeaturedReview = {
+  id: row.id,
+  authorName: row.author_name,
+  authorUrl: row.author_url,
+  profilePhotoUrl: row.profile_photo_url,
+  rating: row.rating,
+  body: row.body,
+  reviewDate: row.review_date,
+  displayOrder: row.display_order,
+  published: row.published,
+};
+
+if (Astro.url.searchParams.get("created") === "1" && !message) {
+  message = "Created.";
+}
+---
+<AdminLayout title={`Edit review by ${review.authorName}`}>
+  <div class="admin-page-head">
+    <div>
+      <h1>{review.authorName}</h1>
+      <p style="font-size:12px;color:#888;">{review.reviewDate} · {review.rating}★</p>
+    </div>
+    <a href="/admin/featured-reviews" class="admin-btn admin-btn--ghost">← Back to list</a>
+  </div>
+  <FeaturedReviewForm mode="edit" review={review} error={error} message={message} />
+</AdminLayout>
