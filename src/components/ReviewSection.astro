@@ -5,26 +5,14 @@ import LiveFromGooglePill from "./LiveFromGooglePill.astro";
 import ReviewCard from "./ReviewCard.astro";
 import Stars from "./Stars.astro";
 import reviewsData from "../data/reviews.json";
-import { listFeaturedReviews } from "../lib/featured-reviews";
 import { business } from "../data/business";
 
 // Aggregate stats (rating, userRatingsTotal) reflect every review on Google
-// and refresh on every deploy via scripts/refresh-reviews.mjs.
-// Featured cards are curated in /admin/featured-reviews so we can surface
-// the strongest, most recent reviews rather than whatever Google's
-// relevance ranking happens to return (Places API doesn't sort by date).
-const { rating, userRatingsTotal } = reviewsData;
-const featured = await listFeaturedReviews();
-const cardsToShow = featured
-  .map((r) => ({
-    author_name: r.authorName,
-    author_url: r.authorUrl,
-    profile_photo_url: r.profilePhotoUrl,
-    rating: r.rating,
-    text: r.body,
-    time: Math.floor(new Date(r.reviewDate).getTime() / 1000),
-  }))
-  .slice(0, 5);
+// and refresh on every deploy via scripts/refresh-reviews.mjs. The card
+// grid shows the 5-star reviews returned by the Google Places API on the
+// most recent deploy.
+const { rating, userRatingsTotal, reviews } = reviewsData;
+const cardsToShow = reviews.filter((r) => r.rating === 5).slice(0, 5);
 ---
 <section class="border-t border-border-soft bg-white">
   <div class="mx-auto max-w-[1180px] px-6 py-20">
@@ -38,9 +26,8 @@ const cardsToShow = featured
         Real reviews. From real customers.
       </DisplayHeading>
       <p class="mt-4 text-[15px] leading-relaxed text-subtle">
-        Featured reviews from real Singapore customers, with our live
-        Google rating below. We capture reviews the slow and genuine
-        way, not 50 uploaded in the same week.
+        These reviews are pulled live from Google. We capture reviews
+        the slow and genuine way, not 50 uploaded in the same week.
       </p>
       <p class="mt-5 flex flex-wrap items-center gap-3 text-[16px] text-ink">
         <Stars rating={rating} size={22} ariaHidden />
