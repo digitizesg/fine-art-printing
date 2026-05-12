@@ -63,57 +63,7 @@ create policy "Authenticated full access featured_reviews"
   using (auth.role() = 'authenticated')
   with check (auth.role() = 'authenticated');
 
--- =========================================================================
--- Seed: the five reviews currently in src/data/featured-reviews.json.
--- Safe to re-run; on conflict do nothing keeps existing rows untouched.
--- =========================================================================
-
-insert into public.featured_reviews
-  (author_name, author_url, profile_photo_url, rating, body, review_date, display_order)
-values
-  (
-    'Aaron Lim',
-    'https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE',
-    null,
-    5,
-    'Ben and his team did a beautiful job printing and framing a set of archival prints for my wife''s 50th. Colour was spot on, paper was beautiful, and they gave honest advice about which sizes worked. Will be back.',
-    '2026-03-14',
-    100
-  ),
-  (
-    'Priya Subramaniam',
-    'https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE',
-    null,
-    5,
-    'Excellent attention to detail. We had four large pieces printed on Hahnemühle paper and stretched on canvas for our office reception. Crisp, neutral, and finished on schedule. The team walked us through paper choices without overselling.',
-    '2025-12-12',
-    100
-  ),
-  (
-    'Marcus Tan',
-    'https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE',
-    null,
-    5,
-    'Took my late father''s photographs in for restoration and reprinting. The work they did to bring back damaged sections was extraordinary. Beautifully framed too. Thank you.',
-    '2025-09-04',
-    100
-  ),
-  (
-    'Hannah Goh',
-    'https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE',
-    null,
-    5,
-    'Best printing experience I''ve had in Singapore. Studio is calm, the team actually looks at your file before printing, and they pulled a test print before running the full size. Pricing felt fair for the quality.',
-    '2025-06-08',
-    100
-  ),
-  (
-    'Jonathan Wee',
-    'https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE',
-    null,
-    5,
-    'Used them for a corporate gifting project, 30 framed prints across two offices. Quality was uniform across the run, deliveries were on time, and the framing options matched our brand without us having to over-specify. Recommended.',
-    '2025-01-31',
-    100
-  )
-on conflict do nothing;
+-- No seed data. The site falls back to whatever the latest Google API call
+-- returned (src/data/reviews.json, refreshed every deploy) if the table is
+-- empty, so the testimonial wall is never blank. You curate the wall by
+-- featuring reviews from /admin/featured-reviews.

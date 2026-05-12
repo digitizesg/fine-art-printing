@@ -2,42 +2,146 @@
 export const prerender = false;
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import reviewsData from "../../../data/reviews.json";
 
 const supabase = createSupabaseServerClient(Astro);
 
-const { data: rows, error } = await supabase
+const { data: featuredRows, error } = await supabase
   .from("featured_reviews")
   .select("*")
   .order("display_order", { ascending: true })
   .order("review_date", { ascending: false });
 
-function formatDate(d: string): string {
+// Build a lookup so we can mark which Google reviews are already featured.
+// Match by author name + first 80 chars of body, case-insensitive.
+function fingerprint(name: string, body: string): string {
+  return (
+    name.trim().toLowerCase() +
+    "|" +
+    body.trim().toLowerCase().slice(0, 80)
+  );
+}
+
+const featuredKey = new Map<string, string>(); // fingerprint -> row id
+for (const row of featuredRows ?? []) {
+  featuredKey.set(fingerprint(row.author_name, row.body), row.id);
+}
+
+const googleReviews = (reviewsData.reviews ?? []).map((r) => {
+  const id = featuredKey.get(fingerprint(r.author_name, r.text));
+  return {
+    author_name: r.author_name,
+    author_url: r.author_url,
+    rating: r.rating,
+    text: r.text,
+    time: r.time,
+    relative: r.relative_time_description,
+    isFeatured: Boolean(id),
+    featuredId: id ?? null,
+  };
+});
+
+function formatDate(d: string | number): string {
   try {
-    return new Date(d).toLocaleDateString("en-GB", {
+    const date = typeof d === "number" ? new Date(d * 1000) : new Date(d);
+    return date.toLocaleDateString("en-GB", {
       day: "numeric",
       month: "short",
       year: "numeric",
     });
   } catch {
-    return d;
+    return String(d);
   }
 }
+
+const justFeatured = Astro.url.searchParams.get("featured");
+const justUnfeatured = Astro.url.searchParams.get("unfeatured");
+const justDeleted = Astro.url.searchParams.get("deleted");
 ---
 <AdminLayout title="Featured reviews">
   <div class="admin-page-head">
     <div>
       <h1>Featured reviews</h1>
-      <p>{rows?.length ?? 0} reviews · these populate the testimonial wall on every page. Newest first by default.</p>
+      <p>
+        These reviews appear on the testimonial wall on every page.
+        Feature any of the latest Google reviews below in one click, or
+        add a review manually if it isn't in this list.
+      </p>
     </div>
-    <a href="/admin/featured-reviews/new" class="admin-btn">+ New review</a>
+    <a href="/admin/featured-reviews/new" class="admin-btn admin-btn--ghost">+ Manually add</a>
   </div>
 
   {error && <p class="admin-note admin-note--err">{error.message}</p>}
-  {rows && rows.length === 0 && (
-    <p class="admin-note">No featured reviews yet. Click <strong>New review</strong> to add one.</p>
+  {justFeatured && <p class="admin-note admin-note--ok">Featured. Hit Publish on the admin home to push to the live site.</p>}
+  {justUnfeatured && <p class="admin-note admin-note--ok">Removed from the wall. Hit Publish to push to the live site.</p>}
+  {justDeleted && <p class="admin-note admin-note--ok">Deleted. Hit Publish to push to the live site.</p>}
+
+  <h2 class="featured-section-title">From Google ({googleReviews.length})</h2>
+  <p class="featured-section-blurb">
+    Latest reviews pulled from the Google Places API on the most recent
+    deploy. Click "Feature" to add one to the wall. Google only returns
+    its top {googleReviews.length} most-relevant reviews, so if a newer
+    review isn't here yet, add it via "Manually add" above.
+  </p>
+
+  {googleReviews.length === 0 ? (
+    <p class="admin-note">
+      No Google reviews available. Make sure <code>GOOGLE_PLACES_API_KEY</code>
+      is set in Vercel and trigger a rebuild.
+    </p>
+  ) : (
+    <div class="featured-google-list">
+      {googleReviews.map((r) => (
+        <article class:list={["featured-google-card", r.isFeatured && "featured-google-card--featured"]}>
+          <header class="featured-google-card__head">
+            <div>
+              <strong>{r.author_name}</strong>
+              <span class="featured-google-card__meta">
+                {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)} · {r.relative || formatDate(r.time)}
+              </span>
+            </div>
+            {r.isFeatured ? (
+              <form method="POST" action={`/admin/featured-reviews/${r.featuredId}/delete`} style="margin:0;">
+                <button
+                  type="submit"
+                  class="admin-btn admin-btn--ghost"
+                  data-confirm="Remove this review from the testimonial wall?"
+                >
+                  Featured · remove
+                </button>
+              </form>
+            ) : (
+              <form method="POST" action="/admin/featured-reviews/feature" style="margin:0;">
+                <input type="hidden" name="author_name" value={r.author_name} />
+                <input type="hidden" name="author_url" value={r.author_url} />
+                <input type="hidden" name="rating" value={String(r.rating)} />
+                <input type="hidden" name="body" value={r.text} />
+                <input type="hidden" name="review_time" value={String(r.time)} />
+                <button type="submit" class="admin-btn">+ Feature</button>
+              </form>
+            )}
+          </header>
+          <p class="featured-google-card__body">{r.text}</p>
+        </article>
+      ))}
+    </div>
   )}
 
-  {rows && rows.length > 0 && (
+  <h2 class="featured-section-title">Currently featured ({featuredRows?.length ?? 0})</h2>
+  <p class="featured-section-blurb">
+    These are the reviews on the site right now. Click any row to edit
+    the wording, rating, or display order. Lower display-order numbers
+    sort higher on the wall.
+  </p>
+
+  {featuredRows && featuredRows.length === 0 && (
+    <p class="admin-note">
+      Nothing featured yet. The site will fall back to whatever Google's
+      Places API returns until you feature at least one review here.
+    </p>
+  )}
+
+  {featuredRows && featuredRows.length > 0 && (
     <div class="admin-list">
       <div class="admin-list__row admin-list__row--head" style="grid-template-columns:2fr 1fr 1fr 1fr 4fr;">
         <span>Author</span>
@@ -46,7 +150,7 @@ function formatDate(d: string): string {
         <span>Status</span>
         <span>Excerpt</span>
       </div>
-      {rows.map((row) => (
+      {featuredRows.map((row) => (
         <a
           class="admin-list__row"
           href={`/admin/featured-reviews/${row.id}`}
@@ -71,3 +175,63 @@ function formatDate(d: string): string {
     </div>
   )}
 </AdminLayout>
+
+<style is:global>
+  .featured-section-title {
+    margin: 36px 0 6px;
+    font-family: "Lora", Georgia, serif;
+    font-weight: 500;
+    font-size: 20px;
+  }
+  .featured-section-blurb {
+    margin: 0 0 16px;
+    font-size: 13px;
+    color: #888;
+    max-width: 70ch;
+  }
+  .featured-google-list {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .featured-google-card {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .featured-google-card--featured {
+    background: #f5f7f5;
+    border-color: rgba(72, 130, 80, 0.30);
+  }
+  .featured-google-card__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .featured-google-card__meta {
+    display: block;
+    font-size: 11.5px;
+    color: #888;
+    margin-top: 2px;
+  }
+  .featured-google-card__body {
+    margin: 0;
+    font-size: 13.5px;
+    color: #444;
+    line-height: 1.5;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>("[data-confirm]").forEach((btn) => {
+    btn.addEventListener("click", (ev) => {
+      const msg = btn.getAttribute("data-confirm");
+      if (msg && !window.confirm(msg)) {
+        ev.preventDefault();
+      }
+    });
+  });
+</script>

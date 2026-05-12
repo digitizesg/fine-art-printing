@@ -7,13 +7,14 @@
  * total review count are still pulled live from Google on every deploy via
  * scripts/refresh-reviews.mjs.
  *
- * If the Supabase table doesn't exist yet (e.g. before the migration has
- * been run on a given environment), the lib falls back to the seed JSON in
- * src/data/featured-reviews.json so the site still renders cards.
+ * If the featured_reviews table is empty (fresh environment, nothing
+ * curated yet) or unreachable, the lib falls back to whatever the latest
+ * Google API call returned (reviews.json, refreshed every deploy) so the
+ * wall is never blank.
  */
 import { supabasePublic } from "./supabase";
 import { buildMemo } from "./build-cache";
-import seedData from "../data/featured-reviews.json";
+import googleApiReviews from "../data/reviews.json";
 
 export interface FeaturedReview {
   id: string;
@@ -53,18 +54,22 @@ function rowToFeaturedReview(row: DbRow): FeaturedReview {
   };
 }
 
-function fallbackFromJson(): FeaturedReview[] {
-  return (seedData.reviews ?? []).map((r, i) => ({
-    id: `seed-${i}`,
-    authorName: r.author_name,
-    authorUrl: r.author_url,
-    profilePhotoUrl: r.profile_photo_url,
-    rating: r.rating,
-    body: r.text,
-    reviewDate: r.date,
-    displayOrder: 100,
-    published: true,
-  }));
+function fallbackFromGoogleApi(): FeaturedReview[] {
+  return (googleApiReviews.reviews ?? [])
+    .filter((r) => r.rating === 5)
+    .map((r, i) => ({
+      id: `google-${i}`,
+      authorName: r.author_name,
+      authorUrl: r.author_url,
+      profilePhotoUrl: r.profile_photo_url,
+      rating: r.rating,
+      body: r.text,
+      reviewDate: r.time
+        ? new Date(r.time * 1000).toISOString().slice(0, 10)
+        : new Date().toISOString().slice(0, 10),
+      displayOrder: 100,
+      published: true,
+    }));
 }
 
 export async function listFeaturedReviews(
@@ -85,16 +90,15 @@ export async function listFeaturedReviews(
       const { data, error } = await query;
       if (error) {
         console.warn(
-          "Failed to load featured_reviews, falling back to JSON seed:",
+          "Failed to load featured_reviews, falling back to Google API:",
           error.message,
         );
-        return fallbackFromJson();
+        return fallbackFromGoogleApi();
       }
       const rows = (data as DbRow[]).map(rowToFeaturedReview);
-      // If the table exists but has no rows yet (fresh environment, seed
-      // hasn't been inserted), still render the JSON seed so the wall
-      // isn't empty.
-      return rows.length > 0 ? rows : fallbackFromJson();
+      // Empty table (nothing curated yet) falls back to the latest Google
+      // API call so the wall is never blank.
+      return rows.length > 0 ? rows : fallbackFromGoogleApi();
     },
   );
 }
