@@ -36,6 +36,28 @@ You don't need to enable the (deprecated) "Google My Business API"
 explicitly. The v4 reviews endpoint we use is enabled by default for
 projects that have either of the above enabled.
 
+### Request access (Google gotcha)
+
+These APIs ship with a **default quota of zero**, so even after you
+enable them you'll get `HTTP 429 RESOURCE_EXHAUSTED` on every call
+until Google grants quota. You need to fill in their access request
+form:
+
+<https://developers.google.com/my-business/content/prereqs>
+
+Look for "Request access to the Business Profile APIs" on that page,
+which links to a Google support form. Fill in:
+
+- Project number (in your Cloud Console URL, or the 429 error response
+  body)
+- Business: Fine Art Printing
+- Use case: displaying our own Google reviews on our own marketing
+  site (one Business Profile owner, one website)
+
+Turnaround is typically 1-3 business days. You'll get an email when
+approval lands. Until then the OAuth setup below will complete cleanly
+but every API call returns 429.
+
 ## 2. Configure the consent screen (Google Auth Platform)
 
 Google has moved the old "OAuth consent screen" page into a new
@@ -181,6 +203,9 @@ section should now show every review on the listing.
 
 ## Troubleshooting
 
+- **429 RESOURCE_EXHAUSTED** with `quota_limit_value: "0"` → you haven't
+  been granted quota yet. Fill in the access request form, see "Request
+  access" under step 1.
 - **"invalid_grant"** when refreshing → the refresh token expired or was
   revoked. Redo step 4. Consider publishing the OAuth app so the token
   doesn't expire.
