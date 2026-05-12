@@ -2,17 +2,68 @@
 export const prerender = false;
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { createSupabaseServerClient } from "../../../lib/supabase-server";
+import { isBusinessProfileConfigured } from "../../../lib/google-business";
 import reviewsData from "../../../data/reviews.json";
 
 const supabase = createSupabaseServerClient(Astro);
 
-const { data: featuredRows, error } = await supabase
-  .from("featured_reviews")
-  .select("*")
-  .order("display_order", { ascending: true })
-  .order("review_date", { ascending: false });
+const [{ data: featuredRows, error: featuredErr }, { data: cacheRows, error: cacheErr }] =
+  await Promise.all([
+    supabase
+      .from("featured_reviews")
+      .select("*")
+      .order("display_order", { ascending: true })
+      .order("review_date", { ascending: false }),
+    supabase
+      .from("google_business_reviews")
+      .select("*")
+      .order("create_time", { ascending: false }),
+  ]);
 
-// Build a lookup so we can mark which Google reviews are already featured.
+// Pull a single fetched_at to display "last refreshed".
+const lastFetchedAt = (cacheRows ?? [])[0]?.fetched_at ?? null;
+const businessProfileReady = isBusinessProfileConfigured();
+const hasFullList = Boolean(cacheRows && cacheRows.length > 0);
+
+// Build list to display in the "From Google" section. Prefer the full
+// cached list; if empty (table not yet refreshed), fall back to the 5
+// from reviews.json so the admin isn't blank.
+type DisplayReview = {
+  source: "cache" | "places";
+  external_id: string | null;
+  author_name: string;
+  author_url: string | null;
+  profile_photo_url: string | null;
+  rating: number;
+  body: string;
+  create_time: string;
+};
+
+const googleReviewsRaw: DisplayReview[] = hasFullList
+  ? (cacheRows ?? []).map((r) => ({
+      source: "cache" as const,
+      external_id: r.review_id,
+      author_name: r.author_name,
+      author_url: null,
+      profile_photo_url: r.profile_photo_url,
+      rating: r.rating,
+      body: r.body,
+      create_time: r.create_time,
+    }))
+  : (reviewsData.reviews ?? []).map((r) => ({
+      source: "places" as const,
+      external_id: null,
+      author_name: r.author_name,
+      author_url: r.author_url,
+      profile_photo_url: r.profile_photo_url,
+      rating: r.rating,
+      body: r.text,
+      create_time: r.time
+        ? new Date(r.time * 1000).toISOString()
+        : new Date().toISOString(),
+    }));
+
+// Build a lookup so we can mark which reviews are already featured.
 // Match by author name + first 80 chars of body, case-insensitive.
 function fingerprint(name: string, body: string): string {
   return (
@@ -21,83 +72,129 @@ function fingerprint(name: string, body: string): string {
     body.trim().toLowerCase().slice(0, 80)
   );
 }
-
-const featuredKey = new Map<string, string>(); // fingerprint -> row id
+const featuredKey = new Map<string, string>(); // fingerprint -> featured row id
 for (const row of featuredRows ?? []) {
   featuredKey.set(fingerprint(row.author_name, row.body), row.id);
 }
 
-const googleReviews = (reviewsData.reviews ?? []).map((r) => {
-  const id = featuredKey.get(fingerprint(r.author_name, r.text));
-  return {
-    author_name: r.author_name,
-    author_url: r.author_url,
-    rating: r.rating,
-    text: r.text,
-    time: r.time,
-    relative: r.relative_time_description,
-    isFeatured: Boolean(id),
-    featuredId: id ?? null,
-  };
+const googleReviews = googleReviewsRaw.map((r) => {
+  const featuredId = featuredKey.get(fingerprint(r.author_name, r.body));
+  return { ...r, isFeatured: Boolean(featuredId), featuredId: featuredId ?? null };
 });
 
-function formatDate(d: string | number): string {
+// Optional rating filter from query string. Default: 5★ only, since
+// that's what we typically feature.
+const ratingFilter = Astro.url.searchParams.get("rating") ?? "5";
+const visibleGoogleReviews =
+  ratingFilter === "all"
+    ? googleReviews
+    : googleReviews.filter((r) => String(r.rating) === ratingFilter);
+
+function formatDate(d: string): string {
   try {
-    const date = typeof d === "number" ? new Date(d * 1000) : new Date(d);
-    return date.toLocaleDateString("en-GB", {
+    return new Date(d).toLocaleDateString("en-GB", {
       day: "numeric",
       month: "short",
       year: "numeric",
     });
   } catch {
-    return String(d);
+    return d;
   }
+}
+
+function relativeTime(d: string | null): string {
+  if (!d) return "never";
+  const then = new Date(d).getTime();
+  if (Number.isNaN(then)) return "never";
+  const seconds = Math.floor((Date.now() - then) / 1000);
+  if (seconds < 60) return `${seconds}s ago`;
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  return `${Math.floor(seconds / 86400)}d ago`;
 }
 
 const justFeatured = Astro.url.searchParams.get("featured");
 const justUnfeatured = Astro.url.searchParams.get("unfeatured");
 const justDeleted = Astro.url.searchParams.get("deleted");
+const refreshed = Astro.url.searchParams.get("refreshed");
+const refreshError = Astro.url.searchParams.get("refresh_error");
+const refreshEmpty = Astro.url.searchParams.get("refresh_empty");
 ---
 <AdminLayout title="Featured reviews">
   <div class="admin-page-head">
     <div>
       <h1>Featured reviews</h1>
       <p>
-        These reviews appear on the testimonial wall on every page.
-        Feature any of the latest Google reviews below in one click, or
-        add a review manually if it isn't in this list.
+        Curate which Google reviews appear on the testimonial wall.
+        Pull the full list with "Refresh from Google", then "Feature"
+        any of them in one click.
       </p>
     </div>
-    <a href="/admin/featured-reviews/new" class="admin-btn admin-btn--ghost">+ Manually add</a>
+    {businessProfileReady ? (
+      <form method="POST" action="/admin/featured-reviews/refresh" style="margin:0;">
+        <button type="submit" class="admin-btn">↻ Refresh from Google</button>
+      </form>
+    ) : (
+      <a href="/admin/featured-reviews/new" class="admin-btn admin-btn--ghost">+ Manually add</a>
+    )}
   </div>
 
-  {error && <p class="admin-note admin-note--err">{error.message}</p>}
+  {featuredErr && <p class="admin-note admin-note--err">{featuredErr.message}</p>}
+  {cacheErr && <p class="admin-note admin-note--err">{cacheErr.message}</p>}
+  {refreshError && <p class="admin-note admin-note--err">Refresh failed: {refreshError}</p>}
+  {refreshEmpty && <p class="admin-note admin-note--err">Refresh returned no reviews. Check that the Account ID and Location ID env vars point at the right listing.</p>}
+  {refreshed && <p class="admin-note admin-note--ok">Loaded {refreshed} reviews from Google.</p>}
   {justFeatured && <p class="admin-note admin-note--ok">Featured. Hit Publish on the admin home to push to the live site.</p>}
   {justUnfeatured && <p class="admin-note admin-note--ok">Removed from the wall. Hit Publish to push to the live site.</p>}
   {justDeleted && <p class="admin-note admin-note--ok">Deleted. Hit Publish to push to the live site.</p>}
 
-  <h2 class="featured-section-title">From Google ({googleReviews.length})</h2>
-  <p class="featured-section-blurb">
-    Latest reviews pulled from the Google Places API on the most recent
-    deploy. Click "Feature" to add one to the wall. Google only returns
-    its top {googleReviews.length} most-relevant reviews, so if a newer
-    review isn't here yet, add it via "Manually add" above.
-  </p>
+  {!businessProfileReady && (
+    <div class="admin-note">
+      <strong>Google Business Profile is not connected yet.</strong> Showing
+      only the 5 most-relevant reviews from the public Places API. To pull
+      your full review list (e.g. ~70 reviews), follow the setup in
+      <code>docs/google-business-setup.md</code> and set the
+      <code>GOOGLE_BUSINESS_*</code> env vars in Vercel.
+    </div>
+  )}
 
-  {googleReviews.length === 0 ? (
-    <p class="admin-note">
-      No Google reviews available. Make sure <code>GOOGLE_PLACES_API_KEY</code>
-      is set in Vercel and trigger a rebuild.
-    </p>
+  <h2 class="featured-section-title">
+    From Google ({visibleGoogleReviews.length}{ratingFilter !== "all" ? ` of ${googleReviews.length}` : ""})
+  </h2>
+  <div class="featured-section-controls">
+    <div class="featured-section-blurb">
+      {hasFullList ? (
+        <>
+          Cached from Business Profile API · last refreshed {relativeTime(lastFetchedAt)}.
+        </>
+      ) : (
+        <>
+          Top 5 most-relevant reviews from the public Places API. Hit
+          "Refresh from Google" above to load the full list once OAuth is
+          configured.
+        </>
+      )}
+    </div>
+    <div class="featured-section-filter">
+      <span>Rating</span>
+      <a href="?rating=5" class:list={["filter-pill", ratingFilter === "5" && "is-active"]}>5★</a>
+      <a href="?rating=4" class:list={["filter-pill", ratingFilter === "4" && "is-active"]}>4★</a>
+      <a href="?rating=3" class:list={["filter-pill", ratingFilter === "3" && "is-active"]}>3★</a>
+      <a href="?rating=all" class:list={["filter-pill", ratingFilter === "all" && "is-active"]}>All</a>
+    </div>
+  </div>
+
+  {visibleGoogleReviews.length === 0 ? (
+    <p class="admin-note">No reviews at this rating.</p>
   ) : (
     <div class="featured-google-list">
-      {googleReviews.map((r) => (
+      {visibleGoogleReviews.map((r) => (
         <article class:list={["featured-google-card", r.isFeatured && "featured-google-card--featured"]}>
           <header class="featured-google-card__head">
             <div>
               <strong>{r.author_name}</strong>
               <span class="featured-google-card__meta">
-                {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)} · {r.relative || formatDate(r.time)}
+                {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)} · {formatDate(r.create_time)}
               </span>
             </div>
             {r.isFeatured ? (
@@ -113,15 +210,19 @@ const justDeleted = Astro.url.searchParams.get("deleted");
             ) : (
               <form method="POST" action="/admin/featured-reviews/feature" style="margin:0;">
                 <input type="hidden" name="author_name" value={r.author_name} />
-                <input type="hidden" name="author_url" value={r.author_url} />
+                <input type="hidden" name="author_url" value={r.author_url ?? ""} />
                 <input type="hidden" name="rating" value={String(r.rating)} />
-                <input type="hidden" name="body" value={r.text} />
-                <input type="hidden" name="review_time" value={String(r.time)} />
+                <input type="hidden" name="body" value={r.body} />
+                <input
+                  type="hidden"
+                  name="review_time"
+                  value={String(Math.floor(new Date(r.create_time).getTime() / 1000))}
+                />
                 <button type="submit" class="admin-btn">+ Feature</button>
               </form>
             )}
           </header>
-          <p class="featured-google-card__body">{r.text}</p>
+          <p class="featured-google-card__body">{r.body || <em style="color:#aaa;">(No comment.)</em>}</p>
         </article>
       ))}
     </div>
@@ -129,15 +230,14 @@ const justDeleted = Astro.url.searchParams.get("deleted");
 
   <h2 class="featured-section-title">Currently featured ({featuredRows?.length ?? 0})</h2>
   <p class="featured-section-blurb">
-    These are the reviews on the site right now. Click any row to edit
-    the wording, rating, or display order. Lower display-order numbers
-    sort higher on the wall.
+    On the testimonial wall right now. Click any row to edit the wording,
+    rating, or display order. Lower display-order numbers sort higher.
   </p>
 
   {featuredRows && featuredRows.length === 0 && (
     <p class="admin-note">
-      Nothing featured yet. The site will fall back to whatever Google's
-      Places API returns until you feature at least one review here.
+      Nothing featured yet. The site will fall back to the 5 reviews from
+      Google's Places API until you feature at least one here.
     </p>
   )}
 
@@ -174,6 +274,12 @@ const justDeleted = Astro.url.searchParams.get("deleted");
       ))}
     </div>
   )}
+
+  {businessProfileReady && (
+    <p style="margin-top:24px;font-size:12px;color:#888;">
+      Can't see the review you want? <a href="/admin/featured-reviews/new" style="color:#1B4D5A;">Add it manually</a>.
+    </p>
+  )}
 </AdminLayout>
 
 <style is:global>
@@ -184,10 +290,41 @@ const justDeleted = Astro.url.searchParams.get("deleted");
     font-size: 20px;
   }
   .featured-section-blurb {
-    margin: 0 0 16px;
+    margin: 0;
     font-size: 13px;
     color: #888;
     max-width: 70ch;
+  }
+  .featured-section-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .featured-section-filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    color: #888;
+  }
+  .featured-section-filter .filter-pill {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.04);
+    color: #555;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .featured-section-filter .filter-pill:hover {
+    background: rgba(0, 0, 0, 0.08);
+  }
+  .featured-section-filter .filter-pill.is-active {
+    background: #1B4D5A;
+    color: #fff;
   }
   .featured-google-list {
     display: grid;
@@ -222,6 +359,7 @@ const justDeleted = Astro.url.searchParams.get("deleted");
     font-size: 13.5px;
     color: #444;
     line-height: 1.5;
+    white-space: pre-wrap;
   }
 </style>
 
