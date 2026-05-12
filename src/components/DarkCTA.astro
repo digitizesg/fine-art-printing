@@ -34,31 +34,23 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
         </p>
       </div>
 
-      <!-- Visit column -->
+      <!-- Visit teaser -->
       <div class="dark-cta__visit">
-        <p class="dark-cta__eyebrow">Visit the studio</p>
+        <p class="dark-cta__eyebrow">Walk-ins welcome</p>
+        <p class="dark-cta__visit-line">
+          The studio is in <span class="dark-cta__visit-place">Lower Delta</span>,
+          10 minutes from Tiong Bahru MRT, with ample parking on-site.
+          Drop by during opening hours to see proofs, sample papers and
+          canvases, or pick a frame.
+        </p>
         <a
           href={mapsHref}
           target="_blank"
           rel="noopener"
-          class="dark-cta__address"
+          class="dark-cta__maps-link"
         >
-          <span>{business.address.line1}</span>
-          <span>{business.address.line2}, {business.address.line3}</span>
-          <span>{business.address.postcode}</span>
-          <span class="dark-cta__address-cta">Open in Google Maps →</span>
+          Open in Google Maps <span aria-hidden="true">→</span>
         </a>
-        <dl class="dark-cta__hours">
-          {business.hours.map((row) => (
-            <div>
-              <dt>{row.day}</dt>
-              <dd>{row.time}</dd>
-            </div>
-          ))}
-        </dl>
-        <p class="dark-cta__note">
-          10 min walk from Tiong Bahru MRT, ample parking on-site.
-        </p>
       </div>
     </div>
   </div>
@@ -169,53 +161,31 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
   .dark-cta__phone a:hover {
     border-color: var(--color-gold, #D9B36C);
   }
-  .dark-cta__address {
-    display: block;
-    margin: 14px 0 0;
-    color: #fff;
-    text-decoration: none;
-    font-size: 15.5px;
-    line-height: 1.65;
-  }
-  .dark-cta__address > span {
-    display: block;
-  }
-  .dark-cta__address-cta {
-    margin-top: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--color-gold, #D9B36C);
-    letter-spacing: 0.01em;
-    transition: opacity 150ms ease-out;
-  }
-  .dark-cta__address:hover .dark-cta__address-cta {
-    opacity: 0.78;
-  }
-  .dark-cta__hours {
-    margin: 26px 0 0;
-    padding: 16px 0 6px;
-    border-top: 1px solid rgba(255, 255, 255, 0.10);
-    display: grid;
-    gap: 8px;
-    font-size: 14px;
-  }
-  .dark-cta__hours > div {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .dark-cta__hours dt {
-    color: rgba(255, 255, 255, 0.62);
-  }
-  .dark-cta__hours dd {
-    margin: 0;
-    color: #fff;
-    font-variant-numeric: tabular-nums;
-  }
-  .dark-cta__note {
+  .dark-cta__visit-line {
     margin: 18px 0 0;
-    font-size: 12.5px;
-    color: rgba(255, 255, 255, 0.50);
-    line-height: 1.55;
+    max-width: 46ch;
+    font-size: 15px;
+    line-height: 1.65;
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .dark-cta__visit-place {
+    color: #fff;
+    font-weight: 500;
+  }
+  .dark-cta__maps-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 20px;
+    color: var(--color-gold, #D9B36C);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(217, 179, 108, 0.30);
+    padding-bottom: 2px;
+    transition: border-color 150ms ease-out;
+  }
+  .dark-cta__maps-link:hover {
+    border-color: var(--color-gold, #D9B36C);
   }
 </style>
