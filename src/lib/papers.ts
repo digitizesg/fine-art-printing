@@ -37,6 +37,8 @@ export interface Paper {
   description: string;
   longDescription: string;
   bestFor: PaperUseCase[];
+  /** Optional customer-facing notice (e.g. discontinuation, supply issues). */
+  notice: string | null;
   sellPricePerSqm: number;
   maxPrintWidthCm: number;
   maxPrintLengthCm: number;
@@ -62,6 +64,7 @@ interface DbRow {
   description: string;
   long_description: string;
   best_for: PaperUseCase[];
+  notice: string | null;
   sell_price_per_sqm: number | string;
   max_print_width_cm: number | string;
   max_print_length_cm: number | string;
@@ -98,6 +101,7 @@ function rowToPaper(row: DbRow): Paper {
     description: row.description,
     longDescription: row.long_description,
     bestFor: Array.isArray(row.best_for) ? row.best_for : [],
+    notice: row.notice && row.notice.trim().length > 0 ? row.notice : null,
     sellPricePerSqm: num(row.sell_price_per_sqm),
     maxPrintWidthCm: num(row.max_print_width_cm),
     maxPrintLengthCm: num(row.max_print_length_cm),

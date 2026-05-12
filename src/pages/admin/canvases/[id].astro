@@ -31,6 +31,7 @@ if (Astro.request.method === "POST" && id) {
   const blurb = String(form.get("blurb") ?? "").trim();
   const description = String(form.get("description") ?? "").trim();
   const longDescription = String(form.get("long_description") ?? "").trim();
+  const notice = String(form.get("notice") ?? "").trim() || null;
   const sellPricePerSqm = parseFloat(String(form.get("sell_price_per_sqm") ?? ""));
   const maxPrintWidthCm = parseFloat(String(form.get("max_print_width_cm") ?? ""));
   const maxPrintLengthCm = parseFloat(String(form.get("max_print_length_cm") ?? ""));
@@ -111,6 +112,7 @@ if (Astro.request.method === "POST" && id) {
       blurb,
       description,
       long_description: longDescription,
+      notice,
       sell_price_per_sqm: sellPricePerSqm,
       max_print_width_cm: maxPrintWidthCm,
       max_print_length_cm: maxPrintLengthCm,
@@ -160,6 +162,7 @@ const canvas: Canvas = {
   blurb: row.blurb,
   description: row.description,
   longDescription: row.long_description,
+  notice: row.notice && row.notice.trim().length > 0 ? row.notice : null,
   sellPricePerSqm: num(row.sell_price_per_sqm),
   maxPrintWidthCm: num(row.max_print_width_cm),
   maxPrintLengthCm: num(row.max_print_length_cm),

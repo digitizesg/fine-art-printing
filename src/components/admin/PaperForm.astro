@@ -163,6 +163,11 @@ const useCases: { value: PaperUseCase; label: string }[] = [
       <span>Long description (multi-paragraph showcase copy)</span>
       <textarea name="long_description" required maxlength="3000" rows="8">{paper?.longDescription ?? ""}</textarea>
     </label>
+    <label>
+      <span>Customer-facing notice <em style="font-weight:400;color:#888;">(optional, e.g. discontinuation or supply issue)</em></span>
+      <textarea name="notice" maxlength="500" rows="3" placeholder="Once our current stock is finished we will no longer carry this paper.">{paper?.notice ?? ""}</textarea>
+      <span style="font-size:12px;color:#888;display:block;margin-top:4px;">Renders as an amber banner on the substrate detail page. Leave blank to hide.</span>
+    </label>
   </section>
 
   <section class="paper-form__panel">

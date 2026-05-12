@@ -20,6 +20,8 @@ export interface Canvas {
   blurb: string;
   description: string;
   longDescription: string;
+  /** Optional customer-facing notice (e.g. discontinuation, supply issues). */
+  notice: string | null;
   sellPricePerSqm: number;
   maxPrintWidthCm: number;
   maxPrintLengthCm: number;
@@ -45,6 +47,7 @@ interface DbRow {
   blurb: string;
   description: string;
   long_description: string;
+  notice: string | null;
   sell_price_per_sqm: number | string;
   max_print_width_cm: number | string;
   max_print_length_cm: number | string;
@@ -79,6 +82,7 @@ function rowToCanvas(row: DbRow): Canvas {
     blurb: row.blurb,
     description: row.description,
     longDescription: row.long_description,
+    notice: row.notice && row.notice.trim().length > 0 ? row.notice : null,
     sellPricePerSqm: num(row.sell_price_per_sqm),
     maxPrintWidthCm: num(row.max_print_width_cm),
     maxPrintLengthCm: num(row.max_print_length_cm),
