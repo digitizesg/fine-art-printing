@@ -58,20 +58,6 @@ const coreServices = [
     image: "/photos/photo-rag-matt-baryta-4.jpg",
     imageAlt: "Restored archival photograph printed on Hahnemühle Photo Rag Matt Baryta",
   },
-  {
-    title: "Art scanning",
-    description: "Calibrated scans for reprints",
-    href: "/art-scanning",
-    image: "/photos/german-etching-1.jpg",
-    imageAlt: "Original artwork captured at high resolution for reprints",
-  },
-  {
-    title: "Art valuation",
-    description: "Insurance, estate, appraisals",
-    href: "/art-valuation",
-    image: "/photos/hahnemuhle-canvas-metallic-3.jpg",
-    imageAlt: "Artwork being assessed for valuation and appraisal",
-  },
 ];
 
 const differentiators = [
@@ -196,7 +182,7 @@ const localBusinessJsonLd = {
         <DisplayHeading level={2}>Services we offer.</DisplayHeading>
       </div>
 
-      <div class="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {coreServices.map((service) => (
           <ServiceTile {...service} />
         ))}
@@ -204,6 +190,8 @@ const localBusinessJsonLd = {
 
       <p class="mt-8 text-[13px] text-subtle">
         We also offer{" "}
+        <a href="/art-scanning" class="underline-offset-2 hover:text-ink hover:underline">art scanning</a>,{" "}
+        <a href="/art-valuation" class="underline-offset-2 hover:text-ink hover:underline">art valuation</a>, and{" "}
         <a
           href="https://matcraft.com.sg"
           target="_blank"
