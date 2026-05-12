@@ -1,9 +1,9 @@
 # Google Business Profile setup
 
 The public Places API only returns 5 reviews per request. To pull the
-full list of reviews (e.g. all ~70 of ours) into `/admin/featured-reviews`,
-we use the OAuth-authed Business Profile API. This guide is the one-time
-setup.
+full Fine Art Printing review list (e.g. all ~70 reviews) into
+`/admin/featured-reviews`, we use the OAuth-authed Business Profile API.
+This guide is the one-time setup.
 
 ## What you'll end up with
 
@@ -14,8 +14,8 @@ Five env vars in Vercel, all under the `GOOGLE_BUSINESS_*` prefix:
 | `GOOGLE_BUSINESS_CLIENT_ID` | Google Cloud Console |
 | `GOOGLE_BUSINESS_CLIENT_SECRET` | Google Cloud Console |
 | `GOOGLE_BUSINESS_REFRESH_TOKEN` | OAuth 2.0 Playground |
-| `GOOGLE_BUSINESS_ACCOUNT_ID` | Business Profile dashboard or API call |
-| `GOOGLE_BUSINESS_LOCATION_ID` | Business Profile dashboard or API call |
+| `GOOGLE_BUSINESS_ACCOUNT_ID` | Discovered via API call (see step 5) |
+| `GOOGLE_BUSINESS_LOCATION_ID` | Discovered via API call (see step 5) |
 
 Once these are set, the **"↻ Refresh from Google"** button in
 `/admin/featured-reviews` will populate the full review list.
@@ -23,8 +23,8 @@ Once these are set, the **"↻ Refresh from Google"** button in
 ## 1. Enable the API
 
 Open <https://console.cloud.google.com> in the Google account that owns
-the JCP listing (or that has been granted manager access). If you don't
-have a project yet, create one (e.g. "Fine Art Printing").
+the Fine Art Printing Business Profile listing (or has manager access).
+If you don't have a project yet, create one (e.g. `Fine Art Printing`).
 
 In the left-hand menu: **APIs & Services → Library**. Search for and
 enable:
@@ -33,96 +33,107 @@ enable:
 - **My Business Business Information API**
 
 You don't need to enable the (deprecated) "Google My Business API"
-explicitly — the v4 reviews endpoint we use is enabled by default for
+explicitly. The v4 reviews endpoint we use is enabled by default for
 projects that have either of the above enabled.
 
-## 2. Configure the OAuth consent screen
+## 2. Configure the consent screen (Google Auth Platform)
 
-**APIs & Services → OAuth consent screen.**
+Google has moved the old "OAuth consent screen" page into a new
+**Google Auth Platform** UI. From the left-hand menu, open it (or visit
+<https://console.cloud.google.com/auth/overview>). The four tabs you
+need:
 
-Choose **External** user type (unless you have Google Workspace, in
-which case **Internal** is simpler — see "Internal note" at the end).
-
-Fill in:
-
+**Branding**
 - App name: `Fine Art Printing admin`
 - User support email: your email
-- Developer contact: your email
-- Authorized domains: `fineartprinting.com.sg`
-- Save
+- Developer contact email: your email
+- Authorised domain: `fineartprinting.com.sg`
+- Save.
 
-On the **Scopes** step, click "Add or remove scopes" and add:
+**Audience**
+- User type: **External** (unless Fine Art Printing has Google
+  Workspace, in which case Internal is simpler, see "Internal note" at
+  the end).
+- Publishing status: stay on **Testing** for now.
+- Add your own Google account as a **Test user**.
+- Save.
 
-```
-https://www.googleapis.com/auth/business.manage
-```
+**Data Access**
+- Click **Add or remove scopes**.
+- In the manual entry box at the bottom, paste:
+  ```
+  https://www.googleapis.com/auth/business.manage
+  ```
+- Select it, save. You'll see a warning about sensitive scopes, fine
+  for testing-mode use.
 
-This is a sensitive scope, but for a single-user admin tool you don't
-need to submit for Google's verification process. Stay in **Testing**
-mode and add your own Google account as a "Test user" on the next step.
+**Clients** (the next step creates one)
 
-Save. You'll see a warning about sensitive scopes — that's fine for
-testing-mode use.
+## 3. Create the OAuth client
 
-## 3. Create OAuth credentials
-
-**APIs & Services → Credentials → + Create Credentials → OAuth client ID.**
+Still in Google Auth Platform, open the **Clients** tab and click
+**Create OAuth client** (or **+ Create credentials → OAuth client ID**
+under APIs & Services → Credentials, either path works).
 
 - Application type: **Web application**
 - Name: `Fine Art Printing admin`
-- Authorized redirect URIs: add `https://developers.google.com/oauthplayground`
+- Authorised redirect URIs: add `https://developers.google.com/oauthplayground`
+- Create.
 
-Click Create. Copy the **Client ID** and **Client Secret**. You'll set
-these as Vercel env vars in a moment.
+Copy the **Client ID** and **Client Secret** that appear. These go into
+the first two env vars later.
 
 ## 4. Get the refresh token (OAuth 2.0 Playground)
 
 Open <https://developers.google.com/oauthplayground>.
 
-In the top-right cog (⚙️) icon:
-
+Click the cog (⚙️) in the top-right:
 - Check **"Use your own OAuth credentials"**
 - Paste your Client ID and Client Secret
-- Close the settings
+- Close the settings.
 
-In the left pane, scroll to the **"Input your own scopes"** box at the
-bottom of the scope list and paste:
+In the left pane, scroll to **"Input your own scopes"** at the bottom of
+the scope list and paste:
 
 ```
 https://www.googleapis.com/auth/business.manage
 ```
 
-Click **Authorize APIs**. You'll see Google's account picker — choose
-the Google account that owns the JCP listing. Approve the consent
-screen (you may need to click "Advanced → Go to ... (unsafe)" because
-the app is in testing mode; that's expected).
+Click **Authorise APIs**. Pick the Google account that owns the Fine
+Art Printing listing. You'll see a warning ("Google hasn't verified
+this app") because the app is in testing mode, click **Advanced → Go to
+Fine Art Printing admin (unsafe)** to continue.
 
-Back in the Playground, click **Exchange authorization code for tokens**.
-Copy the long **Refresh token** value. This is what goes into
-`GOOGLE_BUSINESS_REFRESH_TOKEN`.
+Back in the Playground, click **Exchange authorisation code for tokens**.
+Copy the long **Refresh token** value. This is `GOOGLE_BUSINESS_REFRESH_TOKEN`.
 
 **Important:** refresh tokens issued by testing-mode OAuth apps expire
 after 7 days. If you want a permanent token, push the OAuth app to
-"In production" status (no verification needed for our use case if you
-only authorise yourself). If you start seeing "Refresh failed" errors in
-admin, you'll need to redo this step.
+**"In production"** status (Audience tab → Publish app). For a single-
+user admin tool no Google verification is needed if you only authorise
+yourself. If you start seeing "Refresh failed" errors in admin later,
+you'll need to redo this step.
 
 ## 5. Find the Account ID and Location ID
 
-Easiest path: use the OAuth Playground (still open) to query the API.
+Easiest path: use the same OAuth Playground (still open) to query the
+API.
 
-In the **"List APIs by"** dropdown at the bottom-left, type:
-`https://mybusinessaccountmanagement.googleapis.com/v1/accounts`
+In the left pane, switch to the **HTTP method** column, choose **GET**,
+and paste this in the **Request URI** box:
 
-Click the **GET** request button (or paste it as a custom URI request).
-You'll get a JSON response like:
+```
+https://mybusinessaccountmanagement.googleapis.com/v1/accounts
+```
+
+Click **Send the request**. You'll get a JSON response like:
 
 ```json
 {
   "accounts": [
     {
       "name": "accounts/1234567890123456789",
-      "accountName": "JCP Law",
+      "accountName": "Fine Art Printing",
       ...
     }
   ]
@@ -132,8 +143,11 @@ You'll get a JSON response like:
 `GOOGLE_BUSINESS_ACCOUNT_ID` is just the number (`1234567890123456789`),
 without the `accounts/` prefix.
 
-Then list locations for that account:
-`https://mybusinessbusinessinformation.googleapis.com/v1/accounts/{accountId}/locations?readMask=name,title`
+Then list locations for that account by sending a GET to:
+
+```
+https://mybusinessbusinessinformation.googleapis.com/v1/accounts/<ACCOUNT_ID>/locations?readMask=name,title
+```
 
 Response:
 
@@ -157,8 +171,7 @@ again without the `locations/` prefix.
 Project settings → Environment Variables. Add all five with the values
 above. Apply to Production, Preview, and Development as appropriate.
 
-Redeploy the site (or just trigger a build) so the env vars are picked
-up.
+Redeploy the site so the env vars are picked up.
 
 ## 7. Test it
 
@@ -169,19 +182,21 @@ section should now show every review on the listing.
 ## Troubleshooting
 
 - **"invalid_grant"** when refreshing → the refresh token expired or was
-  revoked. Redo step 4. Consider pushing the OAuth app to production
-  status so the token doesn't expire.
+  revoked. Redo step 4. Consider publishing the OAuth app so the token
+  doesn't expire.
 - **403 PERMISSION_DENIED** → the Google account that authorised doesn't
-  own or manage the listing. Reauthorise with the right account.
-- **404 NOT_FOUND** → the account or location ID is wrong, or formatted
-  with the `accounts/` / `locations/` prefix. Strip the prefix.
+  own or manage the Fine Art Printing listing. Reauthorise with the
+  right account.
+- **404 NOT_FOUND** → the account or location ID is wrong, or you
+  included the `accounts/` / `locations/` prefix. Strip the prefix.
 - **No reviews returned** but no error → check that you're using the
-  account/location IDs for the JCP listing specifically and not a
-  different business under the same account.
+  account/location IDs for the Fine Art Printing listing specifically,
+  not a different business under the same account.
 
 ## Internal note (Google Workspace only)
 
-If JCP has Google Workspace, the OAuth consent screen can be set to
-**Internal** user type. Refresh tokens for Internal apps don't expire,
-and there's no verification required. This is the recommended setup if
-you have Workspace.
+If Fine Art Printing has Google Workspace, set the Audience tab to
+**Internal**. Refresh tokens for Internal apps don't expire and there's
+no verification required, which is the smoother long-term setup. If
+not, stay External and either accept the 7-day expiry or publish the
+app once you've verified it works.
