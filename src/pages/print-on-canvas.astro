@@ -221,6 +221,14 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
               <div class="paper-showcase__body">
                 <p class="paper-showcase__brand">{canvas.brand}</p>
                 <h3 class="paper-showcase__name">{canvas.shortName}</h3>
+
+                {canvas.notice && (
+                  <div class="paper-showcase__notice">
+                    <p class="paper-showcase__notice-label">Heads up</p>
+                    <p>{canvas.notice}</p>
+                  </div>
+                )}
+
                 <p class="paper-showcase__copy">{canvas.longDescription}</p>
 
                 <dl class="paper-showcase__specs">
