@@ -1,21 +1,222 @@
 ---
 import Button from "./Button.astro";
-import Eyebrow from "./Eyebrow.astro";
+import { business } from "../data/business";
+
+const mapsHref = `https://www.google.com/maps/place/?q=place_id:${business.placeId}`;
+const telHref = `tel:${business.phone.replace(/\s+/g, "")}`;
+const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'd like a quick quote.")}`;
 ---
-<section class="bg-petrol text-white">
-  <div class="mx-auto max-w-[1180px] px-6 py-20 text-center">
-    <Eyebrow class="!text-white/70">Ready when you are</Eyebrow>
-    <h2 class="mt-3 font-serif text-[clamp(2rem,4vw,2.5rem)] font-medium leading-tight">
-      Send us your file,
-      <span class="block italic text-gold">or come visit.</span>
-    </h2>
-    <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
-      <Button href="/contact" variant="white">
-        Get a quote <span aria-hidden="true">→</span>
-      </Button>
-      <Button href="https://wa.me/6591234567" variant="outlineLight">
-        WhatsApp us
-      </Button>
+<section class="dark-cta">
+  <div class="dark-cta__inner">
+    <div class="dark-cta__grid">
+      <!-- Action column -->
+      <div class="dark-cta__action">
+        <p class="dark-cta__eyebrow">Ready when you are</p>
+        <h2 class="dark-cta__title">
+          Send us your file,
+          <span class="dark-cta__title-em">or come visit.</span>
+        </h2>
+        <p class="dark-cta__sub">
+          We'll file-check, confirm the price in writing, and get back
+          to you the same working day.
+        </p>
+        <div class="dark-cta__buttons">
+          <Button href="/contact" variant="white">
+            Get a quote <span aria-hidden="true">→</span>
+          </Button>
+          <Button href={waHref} variant="outlineLight">
+            WhatsApp us
+          </Button>
+        </div>
+        <p class="dark-cta__phone">
+          Prefer to call?
+          <a href={telHref}>{business.phone}</a>
+        </p>
+      </div>
+
+      <!-- Visit column -->
+      <div class="dark-cta__visit">
+        <p class="dark-cta__eyebrow">Visit the studio</p>
+        <a
+          href={mapsHref}
+          target="_blank"
+          rel="noopener"
+          class="dark-cta__address"
+        >
+          <span>{business.address.line1}</span>
+          <span>{business.address.line2}, {business.address.line3}</span>
+          <span>{business.address.postcode}</span>
+          <span class="dark-cta__address-cta">Open in Google Maps →</span>
+        </a>
+        <dl class="dark-cta__hours">
+          {business.hours.map((row) => (
+            <div>
+              <dt>{row.day}</dt>
+              <dd>{row.time}</dd>
+            </div>
+          ))}
+        </dl>
+        <p class="dark-cta__note">
+          10 min walk from Tiong Bahru MRT, ample parking on-site.
+        </p>
+      </div>
     </div>
   </div>
 </section>
+
+<style>
+  .dark-cta {
+    position: relative;
+    overflow: hidden;
+    color: #fff;
+    background:
+      radial-gradient(60% 80% at 100% 0%, rgba(217, 179, 108, 0.10), transparent 60%),
+      radial-gradient(50% 80% at 0% 100%, rgba(217, 179, 108, 0.06), transparent 60%),
+      var(--color-petrol);
+  }
+  .dark-cta::before,
+  .dark-cta::after {
+    content: "";
+    position: absolute;
+    background: rgba(217, 179, 108, 0.35);
+    pointer-events: none;
+  }
+  /* Hairline at the top of the section, gold accent */
+  .dark-cta::before {
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(140px, 30%);
+    height: 1px;
+  }
+  /* Small gold corner mark, bottom-right */
+  .dark-cta::after {
+    bottom: 28px;
+    right: 28px;
+    width: 28px;
+    height: 1px;
+  }
+  .dark-cta__inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: clamp(48px, 7vw, 88px) 24px;
+  }
+  .dark-cta__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  @media (min-width: 820px) {
+    .dark-cta__grid {
+      grid-template-columns: 1.05fr 1px 0.95fr;
+      gap: 56px;
+      align-items: start;
+    }
+    .dark-cta__grid::before {
+      content: "";
+      grid-column: 2;
+      align-self: stretch;
+      background: rgba(255, 255, 255, 0.10);
+    }
+  }
+  .dark-cta__eyebrow {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+  }
+  .dark-cta__title {
+    margin: 14px 0 0;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    line-height: 1.1;
+  }
+  .dark-cta__title-em {
+    display: block;
+    color: var(--color-gold, #D9B36C);
+    font-style: italic;
+    font-weight: 400;
+  }
+  .dark-cta__sub {
+    margin: 18px 0 0;
+    max-width: 44ch;
+    font-size: 15px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.72);
+  }
+  .dark-cta__buttons {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .dark-cta__phone {
+    margin: 22px 0 0;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.55);
+  }
+  .dark-cta__phone a {
+    margin-left: 6px;
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    padding-bottom: 1px;
+    transition: border-color 150ms ease-out;
+  }
+  .dark-cta__phone a:hover {
+    border-color: var(--color-gold, #D9B36C);
+  }
+  .dark-cta__address {
+    display: block;
+    margin: 14px 0 0;
+    color: #fff;
+    text-decoration: none;
+    font-size: 15.5px;
+    line-height: 1.65;
+  }
+  .dark-cta__address > span {
+    display: block;
+  }
+  .dark-cta__address-cta {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-gold, #D9B36C);
+    letter-spacing: 0.01em;
+    transition: opacity 150ms ease-out;
+  }
+  .dark-cta__address:hover .dark-cta__address-cta {
+    opacity: 0.78;
+  }
+  .dark-cta__hours {
+    margin: 26px 0 0;
+    padding: 16px 0 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    display: grid;
+    gap: 8px;
+    font-size: 14px;
+  }
+  .dark-cta__hours > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .dark-cta__hours dt {
+    color: rgba(255, 255, 255, 0.62);
+  }
+  .dark-cta__hours dd {
+    margin: 0;
+    color: #fff;
+    font-variant-numeric: tabular-nums;
+  }
+  .dark-cta__note {
+    margin: 18px 0 0;
+    font-size: 12.5px;
+    color: rgba(255, 255, 255, 0.50);
+    line-height: 1.55;
+  }
+</style>
