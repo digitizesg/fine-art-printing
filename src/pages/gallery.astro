@@ -25,11 +25,33 @@ const examples = await listExamples();
 const floatFrames = await listFloatFrames();
 const canvases = await listCanvases();
 const papers = await listPapers();
-// Only show paper chips for papers that actually appear on at least one example.
+
+// Combined "media" list (papers + canvases) for the filter row. Only
+// include substrates that actually appear on at least one example.
+// Sorted by descending example count so the popular ones surface first.
 const paperIdsInUse = new Set(
   examples.map((e) => e.paperId).filter(Boolean) as string[],
 );
-const papersInUse = papers.filter((p) => paperIdsInUse.has(p.slug));
+const canvasIdsInUse = new Set(
+  examples.map((e) => e.canvasId).filter(Boolean) as string[],
+);
+const mediaInUse = [
+  ...papers
+    .filter((p) => paperIdsInUse.has(p.slug))
+    .map((p) => ({
+      slug: p.slug,
+      shortName: p.shortName,
+      count: examples.filter((e) => e.paperId === p.slug).length,
+    })),
+  ...canvases
+    .filter((c) => canvasIdsInUse.has(c.slug))
+    .map((c) => ({
+      slug: c.slug,
+      shortName: c.shortName,
+      count: examples.filter((e) => e.canvasId === c.slug).length,
+    })),
+].sort((a, b) => b.count - a.count || a.shortName.localeCompare(b.shortName));
+const MEDIA_VISIBLE_LIMIT = 6;
 
 const description =
   "A growing gallery of finished work in Singapore: custom framing, canvas printing, and canvas stretching. Filter by service or subject to find an example close to what you have in mind.";
@@ -104,20 +126,32 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
             );
           })}
         </div>
-        {papersInUse.length > 0 && (
-          <div class="gallery-filters__row">
-            <span class="gallery-filters__label">Paper</span>
-            <button type="button" class="gallery-filter-chip is-active" data-filter="paper" data-value="all">
+        {mediaInUse.length > 0 && (
+          <div class="gallery-filters__row" data-media-row>
+            <span class="gallery-filters__label">Media</span>
+            <button type="button" class="gallery-filter-chip is-active" data-filter="media" data-value="all">
               All <span class="gallery-filter-chip__count" data-chip-count>{examples.length}</span>
             </button>
-            {papersInUse.map((p) => {
-              const c = examples.filter((e) => e.paperId === p.slug).length;
-              return (
-                <button type="button" class="gallery-filter-chip" data-filter="paper" data-value={p.slug}>
-                  {p.shortName} <span class="gallery-filter-chip__count" data-chip-count>{c}</span>
-                </button>
-              );
-            })}
+            {mediaInUse.map((m, i) => (
+              <button
+                type="button"
+                class:list={["gallery-filter-chip", i >= MEDIA_VISIBLE_LIMIT && "is-collapsed"]}
+                data-filter="media"
+                data-value={m.slug}
+              >
+                {m.shortName} <span class="gallery-filter-chip__count" data-chip-count>{m.count}</span>
+              </button>
+            ))}
+            {mediaInUse.length > MEDIA_VISIBLE_LIMIT && (
+              <button
+                type="button"
+                class="gallery-filter-chip gallery-filter-chip--more"
+                data-media-toggle
+                data-more-count={mediaInUse.length - MEDIA_VISIBLE_LIMIT}
+              >
+                + {mediaInUse.length - MEDIA_VISIBLE_LIMIT} more
+              </button>
+            )}
           </div>
         )}
         {frameStylesInUse.length > 0 && (
@@ -164,7 +198,7 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
               class="gallery-tile"
               data-service={ex.service}
               data-subject={ex.subject}
-              data-paper={ex.paperId ?? ""}
+              data-media={ex.paperId ?? ex.canvasId ?? ""}
               data-frame-style={ex.frameStyle ?? ""}
               data-frame-zoom
               data-frame-image={ex.imageUrl}
@@ -258,6 +292,22 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
     opacity: 0.4;
     cursor: not-allowed;
     pointer-events: none;
+  }
+  /* Media row: hide overflow pills by default, reveal when expanded. */
+  .gallery-filter-chip.is-collapsed {
+    display: none;
+  }
+  .gallery-filters__row.is-expanded .gallery-filter-chip.is-collapsed {
+    display: inline-flex;
+  }
+  .gallery-filter-chip--more {
+    color: var(--color-petrol);
+    border-color: rgba(26, 53, 80, 0.30);
+    background: transparent;
+  }
+  .gallery-filter-chip--more:hover {
+    background: rgba(26, 53, 80, 0.05);
+    border-color: var(--color-petrol);
   }
   .gallery-filter-chip__count {
     display: inline-block;
@@ -383,17 +433,17 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
       grid.querySelectorAll<HTMLElement>(".gallery-tile"),
     );
 
-    type FilterKey = "service" | "subject" | "paper" | "frame_style";
+    type FilterKey = "service" | "subject" | "media" | "frame_style";
     const state: Record<FilterKey, string> = {
       service: "all",
       subject: "all",
-      paper: "all",
+      media: "all",
       frame_style: "all",
     };
     const tileDatasetKey: Record<FilterKey, keyof DOMStringMap> = {
       service: "service",
       subject: "subject",
-      paper: "paper",
+      media: "media",
       frame_style: "frameStyle",
     };
 
@@ -478,7 +528,7 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
 
     filtersRoot.querySelectorAll<HTMLButtonElement>("[data-filter]").forEach((chip) => {
       chip.addEventListener("click", () => {
-        const filter = chip.dataset.filter as "service" | "subject" | "paper" | "frame_style";
+        const filter = chip.dataset.filter as "service" | "subject" | "media" | "frame_style";
         const value = chip.dataset.value!;
         state[filter] = value;
         // Toggle active across this filter group
@@ -493,7 +543,7 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
       clearBtn.addEventListener("click", () => {
         state.service = "all";
         state.subject = "all";
-        state.paper = "all";
+        state.media = "all";
         state.frame_style = "all";
         filtersRoot
           .querySelectorAll<HTMLButtonElement>(".gallery-filter-chip")
@@ -501,6 +551,21 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
             c.classList.toggle("is-active", c.dataset.value === "all");
           });
         apply();
+      });
+    }
+
+    // Media filter: 'Show more / Show less' toggle for the long-tail pills.
+    const mediaToggle = filtersRoot.querySelector<HTMLButtonElement>("[data-media-toggle]");
+    const mediaRow = filtersRoot.querySelector<HTMLElement>("[data-media-row]");
+    if (mediaToggle && mediaRow) {
+      mediaToggle.addEventListener("click", () => {
+        const expanded = mediaRow.classList.toggle("is-expanded");
+        if (expanded) {
+          mediaToggle.textContent = "Show less";
+        } else {
+          const n = mediaToggle.dataset.moreCount ?? "0";
+          mediaToggle.textContent = `+ ${n} more`;
+        }
       });
     }
 
