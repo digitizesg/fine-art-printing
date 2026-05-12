@@ -108,15 +108,14 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
   }
   @media (min-width: 820px) {
     .dark-cta__grid {
-      grid-template-columns: 1.05fr 1px 0.95fr;
-      gap: 56px;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 0;
       align-items: start;
     }
-    .dark-cta__grid::before {
-      content: "";
-      grid-column: 2;
-      align-self: stretch;
-      background: rgba(255, 255, 255, 0.10);
+    .dark-cta__visit {
+      padding-left: 56px;
+      margin-left: 56px;
+      border-left: 1px solid rgba(255, 255, 255, 0.10);
     }
   }
   .dark-cta__eyebrow {
