@@ -1,6 +1,6 @@
 export const business = {
   name: "Fine Art Printing",
-  legalName: "Fine Art Printing Pte Ltd",
+  legalName: "Art Framing Group Pte Ltd",
   domain: "fineartprinting.com.sg",
   contactEmail: "hello@fineartprinting.com.sg",
   // Two different numbers on purpose. Don't swap them:
