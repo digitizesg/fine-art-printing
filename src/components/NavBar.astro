@@ -1,51 +1,31 @@
 ---
 import Button from "./Button.astro";
 import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
-import { Image } from "astro:assets";
 import { business } from "../data/business";
 
-const services = [
+const serviceGroups = [
   {
-    href: "/print-on-paper",
-    label: "Print on paper",
-    image: "/photos/print-on-paper.jpg",
+    heading: "Printing & framing",
+    items: [
+      { href: "/print-on-paper", label: "Print on paper" },
+      { href: "/print-on-canvas", label: "Print on canvas" },
+      { href: "/canvas-stretching", label: "Stretch existing canvas" },
+      { href: "/custom-framing", label: "Custom framing" },
+    ],
   },
   {
-    href: "/print-on-canvas",
-    label: "Print on canvas",
-    image: "/photos/hahnemuhle-daguerre-canvas-1.jpg",
-  },
-  {
-    href: "/canvas-stretching",
-    label: "Stretch existing canvas",
-    image: "/photos/canvas-stretching-framing.jpg",
-  },
-  {
-    href: "/custom-framing",
-    label: "Custom framing",
-    image: "https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/frame-examples/2.5cm-classic-champagne-1.jpg",
-  },
-  {
-    href: "/art-restoration",
-    label: "Art restoration",
-    image: "/photos/hahnemuhle-canvas-artist-1.jpg",
-  },
-  {
-    href: "/scanning-restoration",
-    label: "Photo restoration",
-    image: "/photos/photo-rag-matt-baryta-4.jpg",
-  },
-  {
-    href: "/art-scanning",
-    label: "Art scanning",
-    image: "/photos/german-etching-1.jpg",
-  },
-  {
-    href: "/art-valuation",
-    label: "Art valuation",
-    image: "/photos/hahnemuhle-canvas-metallic-3.jpg",
+    heading: "Restoration & more",
+    items: [
+      { href: "/art-restoration", label: "Art restoration" },
+      { href: "/scanning-restoration", label: "Photo restoration" },
+      { href: "/art-scanning", label: "Art scanning" },
+      { href: "/art-valuation", label: "Art valuation" },
+    ],
   },
 ];
+
+// Flat list for the mobile menu, which doesn't need the grouping.
+const services = serviceGroups.flatMap((g) => g.items);
 
 const navLinks = [
   { href: "/about", label: "About" },
@@ -74,20 +54,17 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
         </summary>
         <div class="services-menu__panel">
           <div class="services-menu__grid">
-            {services.map((s) => (
-              <a href={s.href} class="services-menu__card">
-                <div class="services-menu__card-image">
-                  <Image
-                    src={s.image}
-                    alt=""
-                    width={320}
-                    height={240}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </div>
-                <span class="services-menu__card-title">{s.label}</span>
-              </a>
+            {serviceGroups.map((group) => (
+              <div class="services-menu__column">
+                <p class="services-menu__heading">{group.heading}</p>
+                <ul class="services-menu__list">
+                  {group.items.map((item) => (
+                    <li>
+                      <a href={item.href} class="services-menu__link">{item.label}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
           </div>
         </div>
@@ -215,13 +192,13 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     top: calc(100% + 10px);
     left: 50%;
     transform: translateX(-50%);
-    width: 720px;
+    width: 440px;
     max-width: calc(100vw - 32px);
     background: #fff;
     border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
-    border-radius: 16px;
+    border-radius: 14px;
     box-shadow: 0 20px 48px -16px rgba(0, 0, 0, 0.20);
-    padding: 14px;
+    padding: 18px 20px;
     z-index: 50;
   }
   /* Invisible bridge so the cursor can travel from trigger to panel
@@ -234,48 +211,40 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
   }
   .services-menu__grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 6px;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 32px;
   }
-  .services-menu__card {
+  .services-menu__heading {
+    margin: 0 0 10px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .services-menu__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    padding: 8px 8px 12px;
-    border-radius: 10px;
-    text-decoration: none;
-    transition: background 150ms ease-out;
+    gap: 2px;
   }
-  .services-menu__card:hover {
-    background: rgba(0, 0, 0, 0.035);
-  }
-  .services-menu__card-image {
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    border-radius: 8px;
-    background: #f4efe7;
-    margin-bottom: 10px;
-  }
-  .services-menu__card-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 400ms ease-out;
-  }
-  .services-menu__card:hover .services-menu__card-image img {
-    transform: scale(1.04);
-  }
-  .services-menu__card-title {
+  .services-menu__link {
+    display: block;
+    padding: 7px 8px;
+    margin: 0 -8px;
+    border-radius: 6px;
     font-family: var(--font-serif);
     font-size: 15px;
     font-weight: 500;
     color: var(--color-ink);
-    line-height: 1.25;
+    text-decoration: none;
+    transition: background 120ms ease-out, color 120ms ease-out;
   }
-  .services-menu__card-sub {
-    font-size: 12.5px;
-    color: var(--color-subtle);
-    margin-top: 3px;
-    line-height: 1.4;
+  .services-menu__link:hover {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--color-petrol);
   }
   .brand {
     display: inline-grid;
