@@ -3,7 +3,7 @@ export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
-import DarkCTA from "../components/DarkCTA.astro";
+import VisitSection from "../components/VisitSection.astro";
 import FrameLightbox from "../components/FrameLightbox.astro";
 import { Image } from "astro:assets";
 import {
@@ -233,7 +233,7 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
     </div>
   </section>
 
-  <DarkCTA />
+  <VisitSection />
   <FrameLightbox />
 </BaseLayout>
 

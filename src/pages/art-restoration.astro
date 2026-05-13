@@ -4,7 +4,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
-import DarkCTA from "../components/DarkCTA.astro";
+import VisitSection from "../components/VisitSection.astro";
 import GoogleReviewsBadge from "../components/GoogleReviewsBadge.astro";
 import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
 import { business } from "../data/business";
@@ -233,5 +233,5 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
     </div>
   </section>
 
-  <DarkCTA />
+  <VisitSection />
 </BaseLayout>

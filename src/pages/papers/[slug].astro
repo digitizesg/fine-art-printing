@@ -2,7 +2,7 @@
 export const prerender = true;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Eyebrow from "../../components/Eyebrow.astro";
-import DarkCTA from "../../components/DarkCTA.astro";
+import VisitSection from "../../components/VisitSection.astro";
 import FrameLightbox from "../../components/FrameLightbox.astro";
 import { listPapers, getPaperBySlug, type Paper } from "../../lib/papers";
 import { breadcrumbSchema } from "../../lib/schema";
@@ -278,6 +278,6 @@ const jsonLd = [
     </section>
   )}
 
-  <DarkCTA />
+  <VisitSection />
   <FrameLightbox />
 </BaseLayout>

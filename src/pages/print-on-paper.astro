@@ -4,7 +4,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
-import DarkCTA from "../components/DarkCTA.astro";
+import VisitSection from "../components/VisitSection.astro";
 import PaperRecommender from "../components/PaperRecommender.astro";
 import PaperQuoteCalculator from "../components/PaperQuoteCalculator.astro";
 import ReviewSection from "../components/ReviewSection.astro";
@@ -106,8 +106,8 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
       <div class="grid gap-10 md:grid-cols-12 md:items-center md:gap-14">
         <div class="md:col-span-6">
           <Eyebrow>Print on paper</Eyebrow>
-          <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
-            Archival prints,<br />made to your size.
+          <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink text-balance">
+            High Quality Giclee Printing Singapore.
           </h1>
           <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
             Hahnemühle Gold-certified, 12-colour Canon Pro-566, original Canon
@@ -348,7 +348,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
       <div class="max-w-[640px]">
         <Eyebrow>Still not sure?</Eyebrow>
         <DisplayHeading level={2} class="mt-3">
-          Try the recommender.
+          Try the paper recommender.
         </DisplayHeading>
         <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
           Drop in a reference image and we'll suggest a few papers we'd
@@ -512,7 +512,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
   <ReviewSection />
 
   <!-- Closing CTA -->
-  <DarkCTA />
+  <VisitSection />
 </BaseLayout>
 
 

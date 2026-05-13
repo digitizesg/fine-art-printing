@@ -2,7 +2,7 @@
 export const prerender = true;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Eyebrow from "../../components/Eyebrow.astro";
-import DarkCTA from "../../components/DarkCTA.astro";
+import VisitSection from "../../components/VisitSection.astro";
 import { Image } from "astro:assets";
 import { getCollection, render } from "astro:content";
 import { breadcrumbSchema } from "../../lib/schema";
@@ -105,7 +105,7 @@ const jsonLd = [
             Get a quote <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
           </span>
         </a>
-        <a href="/print-on-canvas" class="group block rounded-card border border-border-soft bg-white p-5 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]">
+        <a href="/canvas-printing" class="group block rounded-card border border-border-soft bg-white p-5 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]">
           <p class="font-serif text-[17px] font-medium text-ink">Print on canvas</p>
           <span class="mt-3 inline-flex items-center gap-1.5 text-[13px] font-semibold text-petrol">
             Get a quote <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
@@ -127,7 +127,7 @@ const jsonLd = [
     </div>
   </section>
 
-  <DarkCTA />
+  <VisitSection />
 </BaseLayout>
 
 <style is:global>

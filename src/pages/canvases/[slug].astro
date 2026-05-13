@@ -2,7 +2,7 @@
 export const prerender = true;
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Eyebrow from "../../components/Eyebrow.astro";
-import DarkCTA from "../../components/DarkCTA.astro";
+import VisitSection from "../../components/VisitSection.astro";
 import FrameLightbox from "../../components/FrameLightbox.astro";
 import { listCanvases, type Canvas } from "../../lib/canvases";
 import { breadcrumbSchema } from "../../lib/schema";
@@ -76,7 +76,7 @@ const jsonLd = [
   },
   breadcrumbSchema([
     { name: "Home", url: "/" },
-    { name: "Print on canvas", url: "/print-on-canvas" },
+    { name: "Print on canvas", url: "/canvas-printing" },
     { name: canvas.name },
   ]),
 ];
@@ -91,7 +91,7 @@ const jsonLd = [
   <section class="bg-white">
     <div class="mx-auto max-w-[1180px] px-6 pt-10 pb-8 md:pt-14 md:pb-10">
       <p class="text-[13px] text-muted">
-        <a href="/print-on-canvas" class="hover:text-ink hover:underline underline-offset-2">Canvases</a>
+        <a href="/canvas-printing" class="hover:text-ink hover:underline underline-offset-2">Canvases</a>
         <span class="px-1.5 text-subtle" aria-hidden="true">›</span>
         <span class="text-ink">{canvas.shortName}</span>
       </p>
@@ -188,7 +188,7 @@ const jsonLd = [
 
           <div class="mt-10 flex flex-wrap gap-3">
             <a
-              href="/print-on-canvas#calculator"
+              href="/canvas-printing#calculator"
               class="inline-flex items-center justify-center rounded-pill bg-petrol px-6 py-3 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
             >
               Get a price for {canvas.shortName} <span aria-hidden="true">→</span>
@@ -247,6 +247,6 @@ const jsonLd = [
     </section>
   )}
 
-  <DarkCTA />
+  <VisitSection />
   <FrameLightbox />
 </BaseLayout>

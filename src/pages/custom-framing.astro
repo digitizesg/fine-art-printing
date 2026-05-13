@@ -4,7 +4,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
 import DisplayHeading from "../components/DisplayHeading.astro";
-import DarkCTA from "../components/DarkCTA.astro";
+import VisitSection from "../components/VisitSection.astro";
 import ReviewSection from "../components/ReviewSection.astro";
 import FrameLightbox from "../components/FrameLightbox.astro";
 import FeaturedExamples from "../components/FeaturedExamples.astro";
@@ -288,7 +288,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
   />
 
   <ReviewSection />
-  <DarkCTA />
+  <VisitSection />
   <FrameLightbox />
 </BaseLayout>
 

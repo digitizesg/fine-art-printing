@@ -1,7 +1,7 @@
 {
   "redirects": [
     { "source": "/fine-art-printing",                       "destination": "/print-on-paper",          "permanent": true },
-    { "source": "/canvas-printing",                         "destination": "/print-on-canvas",         "permanent": true },
+    { "source": "/print-on-canvas",                         "destination": "/canvas-printing",         "permanent": true },
     { "source": "/canvas-stretching-framing",               "destination": "/canvas-stretching",       "permanent": true },
     { "source": "/about-us",                                "destination": "/about",                   "permanent": true },
     { "source": "/contact-us",                              "destination": "/contact",                 "permanent": true },
