@@ -5,9 +5,6 @@ import reviewsData from "../data/reviews.json";
 
 const { rating, userRatingsTotal } = reviewsData;
 const year = new Date().getFullYear();
-const telHref = `tel:${business.phone.replace(/\s+/g, "")}`;
-const mailHref = `mailto:${business.contactEmail}`;
-const mapsHref = `https://www.google.com/maps/place/?q=place_id:${business.placeId}`;
 ---
 <footer class="footer">
   <div class="footer__inner">
@@ -67,33 +64,6 @@ const mapsHref = `https://www.google.com/maps/place/?q=place_id:${business.place
         </ul>
       </div>
 
-      <!-- Visit & contact -->
-      <div class="footer__col">
-        <p class="footer__heading">Visit & contact</p>
-        <a
-          href={mapsHref}
-          target="_blank"
-          rel="noopener"
-          class="footer__address"
-        >
-          <span>{business.address.line1}</span>
-          <span>{business.address.line2}, {business.address.line3}</span>
-          <span>{business.address.postcode}</span>
-        </a>
-        <ul class="footer__contact-list">
-          <li><a href={telHref}>{business.phone}</a></li>
-          <li><a href={mailHref}>{business.contactEmail}</a></li>
-        </ul>
-        <p class="footer__hours-label">Studio hours</p>
-        <dl class="footer__hours">
-          {business.hours.map((row) => (
-            <div>
-              <dt>{row.day}</dt>
-              <dd>{row.time}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
     </div>
 
     <div class="footer__bottom">
@@ -129,7 +99,7 @@ const mapsHref = `https://www.google.com/maps/place/?q=place_id:${business.place
   }
   @media (min-width: 720px) {
     .footer__grid {
-      grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
+      grid-template-columns: 1.4fr 1fr 1fr;
       gap: 48px;
     }
   }
@@ -199,65 +169,22 @@ const mapsHref = `https://www.google.com/maps/place/?q=place_id:${business.place
     text-transform: uppercase;
     color: var(--color-muted);
   }
-  .footer__list,
-  .footer__contact-list {
+  .footer__list {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
     gap: 8px;
   }
-  .footer__list a,
-  .footer__contact-list a,
-  .footer__address {
+  .footer__list a {
     color: var(--color-subtle);
     text-decoration: none;
     font-size: 13.5px;
     line-height: 1.5;
     transition: color 120ms ease-out;
   }
-  .footer__list a:hover,
-  .footer__contact-list a:hover,
-  .footer__address:hover {
+  .footer__list a:hover {
     color: var(--color-ink);
-  }
-  .footer__address {
-    display: block;
-  }
-  .footer__address > span {
-    display: block;
-  }
-  .footer__contact-list {
-    margin-top: 16px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(0, 0, 0, 0.06);
-  }
-  .footer__hours-label {
-    margin: 16px 0 6px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-  }
-  .footer__hours {
-    margin: 0;
-    display: grid;
-    gap: 4px;
-    font-size: 13px;
-  }
-  .footer__hours > div {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-  }
-  .footer__hours dt {
-    color: var(--color-subtle);
-  }
-  .footer__hours dd {
-    margin: 0;
-    color: var(--color-ink);
-    font-variant-numeric: tabular-nums;
   }
 
   .footer__bottom {
