@@ -8,8 +8,7 @@ import YouTubeEmbed from "../components/YouTubeEmbed.astro";
 import ReviewSection from "../components/ReviewSection.astro";
 import ServiceTile from "../components/ServiceTile.astro";
 import TrustedBy from "../components/TrustedBy.astro";
-import LocationCard from "../components/LocationCard.astro";
-import DarkCTA from "../components/DarkCTA.astro";
+import VisitSection from "../components/VisitSection.astro";
 import { business } from "../data/business";
 import reviewsData from "../data/reviews.json";
 
@@ -256,17 +255,5 @@ const localBusinessJsonLd = {
     </div>
   </section>
 
-  <section class="border-t border-border-soft bg-white">
-    <div class="mx-auto max-w-[1180px] px-6 py-20">
-      <div class="flex flex-col items-start gap-3">
-        <Eyebrow>Visit us</Eyebrow>
-        <DisplayHeading level={2}>Where to find us.</DisplayHeading>
-      </div>
-      <div class="mt-10">
-        <LocationCard />
-      </div>
-    </div>
-  </section>
-
-  <DarkCTA />
+  <VisitSection />
 </BaseLayout>

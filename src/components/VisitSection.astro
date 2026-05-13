@@ -1,0 +1,527 @@
+---
+import { business } from "../data/business";
+import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
+
+const mapsEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(
+  `${business.address.line1}, ${business.address.line2}, ${business.address.postcode}`,
+)}&output=embed&z=15`;
+const mapsHref = `https://www.google.com/maps/place/?q=place_id:${business.placeId}`;
+const telHref = `tel:${business.phone.replace(/\s+/g, "")}`;
+const waHref = `${business.whatsappLink}?text=${encodeURIComponent(
+  "Hi Fine Art Printing, I'd like a quick quote.",
+)}`;
+const mailHref = `mailto:${business.contactEmail}`;
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
+---
+<section class="visit-section">
+  <div class="visit-section__inner">
+    <div class="visit-section__head">
+      <p class="visit-section__eyebrow">Visit & contact</p>
+      <h2 class="visit-section__title">
+        Find us in Lower Delta,
+        <span class="visit-section__title-em">or drop us a message.</span>
+      </h2>
+    </div>
+
+    <div class="visit-section__grid">
+      <!-- LEFT: Map + studio info -->
+      <div class="visit-section__map-col">
+        <div class="visit-section__map">
+          <iframe
+            src={mapsEmbed}
+            title="Fine Art Printing studio location"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+
+        <div class="visit-section__info">
+          <div class="visit-section__info-block">
+            <p class="visit-section__info-label">Studio</p>
+            <a class="visit-section__address" href={mapsHref} target="_blank" rel="noopener">
+              <span>{business.address.line1}</span>
+              <span>{business.address.line2}, {business.address.line3}</span>
+              <span>{business.address.postcode}</span>
+              <span class="visit-section__address-cta">Open in Google Maps →</span>
+            </a>
+            <p class="visit-section__note">
+              10 min walk from Tiong Bahru MRT, ample parking on-site.
+            </p>
+          </div>
+
+          <div class="visit-section__info-block">
+            <p class="visit-section__info-label">Hours</p>
+            <dl class="visit-section__hours">
+              {business.hours.map((row) => (
+                <div>
+                  <dt>{row.day}</dt>
+                  <dd>{row.time}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+
+          <div class="visit-section__info-block">
+            <p class="visit-section__info-label">Other ways to reach us</p>
+            <ul class="visit-section__contact">
+              <li>
+                <a href={waHref} target="_blank" rel="noopener" class="visit-section__contact-row">
+                  <WhatsAppIcon size={16} />
+                  <span>WhatsApp <strong>{business.whatsapp}</strong></span>
+                </a>
+              </li>
+              <li>
+                <a href={telHref} class="visit-section__contact-row">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <path d="M3.5 2.5h2.6l1.1 3-1.7 1a8 8 0 0 0 3.5 3.5l1-1.7 3 1.1v2.6a1 1 0 0 1-1 1A11 11 0 0 1 2.5 3.5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>Call <strong>{business.phone}</strong></span>
+                </a>
+              </li>
+              <li>
+                <a href={mailHref} class="visit-section__contact-row">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                    <rect x="2" y="3.5" width="12" height="9" rx="1.2" stroke="currentColor" stroke-width="1.4"/>
+                    <path d="M2.5 4.5l5.5 4 5.5-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>{business.contactEmail}</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Quick contact form -->
+      <div class="visit-section__form-col">
+        <form class="visit-form" data-visit-form>
+          <p class="visit-form__intro">
+            Tell us what you're looking to print or frame and we'll come
+            back the same working day.
+          </p>
+
+          {/* Honeypot — bots fill it, humans don't. */}
+          <input
+            type="text"
+            name="website"
+            tabindex="-1"
+            autocomplete="off"
+            aria-hidden="true"
+            class="visit-form__honeypot"
+          />
+          {/* Hidden field: this homepage form always uses email as the reply channel. */}
+          <input type="hidden" name="preferred_contact" value="email" />
+
+          <label class="visit-form__field">
+            <span class="visit-form__label">Your name</span>
+            <input type="text" name="name" required maxlength="200" autocomplete="name" />
+          </label>
+
+          <label class="visit-form__field">
+            <span class="visit-form__label">Email</span>
+            <input type="email" name="email" required maxlength="254" autocomplete="email" />
+          </label>
+
+          <label class="visit-form__field">
+            <span class="visit-form__label">Phone <em>(optional)</em></span>
+            <input type="tel" name="phone" maxlength="40" autocomplete="tel" />
+          </label>
+
+          <label class="visit-form__field">
+            <span class="visit-form__label">How can we help?</span>
+            <textarea
+              name="message"
+              required
+              rows="4"
+              maxlength="2000"
+              placeholder="A few lines about what you'd like to print or frame."
+            ></textarea>
+          </label>
+
+          {turnstileSiteKey && (
+            <div class="visit-form__turnstile cf-turnstile" data-sitekey={turnstileSiteKey}></div>
+          )}
+
+          <button type="submit" class="visit-form__submit" data-visit-form-submit>
+            Send message <span aria-hidden="true">→</span>
+          </button>
+          <p class="visit-form__error" data-visit-form-error hidden></p>
+
+          <p class="visit-form__footnote">
+            Need to attach files or pick a different reply channel?
+            <a href="/contact">Use the full contact form →</a>
+          </p>
+        </form>
+
+        <div class="visit-form__success" data-visit-form-success hidden>
+          <div class="visit-form__success-icon" aria-hidden="true">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none">
+              <circle cx="18" cy="18" r="17" stroke="currentColor" stroke-width="1.4"/>
+              <path d="M11 18.5l5 5 9-11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <p class="visit-form__success-title">Thanks, message received.</p>
+          <p class="visit-form__success-body">
+            We'll reply by email the same working day. If it's urgent,
+            give us a WhatsApp on {business.whatsapp}.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{turnstileSiteKey && (
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
+)}
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("[data-visit-form]");
+  const errorEl = document.querySelector<HTMLElement>("[data-visit-form-error]");
+  const successEl = document.querySelector<HTMLElement>("[data-visit-form-success]");
+  const submit = document.querySelector<HTMLButtonElement>("[data-visit-form-submit]");
+
+  if (form && errorEl && successEl && submit) {
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errorEl.hidden = true;
+      submit.disabled = true;
+      const originalLabel = submit.innerHTML;
+      submit.textContent = "Sending…";
+
+      try {
+        const fd = new FormData(form);
+        const res = await fetch("/api/contact", { method: "POST", body: fd });
+        if (!res.ok) {
+          const data = (await res.json().catch(() => ({}))) as { error?: string };
+          throw new Error(
+            data.error || "Sorry, something went wrong. Please try again.",
+          );
+        }
+        form.hidden = true;
+        successEl.hidden = false;
+        successEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      } catch (err) {
+        errorEl.textContent =
+          err instanceof Error
+            ? err.message
+            : "Sorry, something went wrong. Please try again.";
+        errorEl.hidden = false;
+        submit.disabled = false;
+        submit.innerHTML = originalLabel;
+        const ts = (window as { turnstile?: { reset: (el: Element) => void } }).turnstile;
+        const widget = form.querySelector(".cf-turnstile");
+        if (ts && widget) {
+          try {
+            ts.reset(widget);
+          } catch {
+            // no-op
+          }
+        }
+      }
+    });
+  }
+</script>
+
+<style is:global>
+  .visit-section {
+    border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    background: #FBFAF7;
+  }
+  .visit-section__inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: clamp(56px, 7vw, 88px) 24px;
+  }
+  .visit-section__head {
+    margin-bottom: clamp(28px, 4vw, 44px);
+  }
+  .visit-section__eyebrow {
+    margin: 0;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .visit-section__title {
+    margin: 12px 0 0;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: clamp(2rem, 4vw, 2.5rem);
+    line-height: 1.1;
+    color: var(--color-ink);
+    max-width: 24ch;
+  }
+  .visit-section__title-em {
+    display: block;
+    color: var(--color-petrol);
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  .visit-section__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  @media (min-width: 880px) {
+    .visit-section__grid {
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 56px;
+      align-items: start;
+    }
+  }
+
+  /* LEFT column */
+  .visit-section__map {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    background: #f4efe7;
+    box-shadow: 0 14px 40px -20px rgba(0, 0, 0, 0.18);
+  }
+  .visit-section__map iframe {
+    border: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  .visit-section__info {
+    margin-top: 24px;
+    display: grid;
+    gap: 18px;
+  }
+  @media (min-width: 600px) {
+    .visit-section__info {
+      grid-template-columns: 1fr 1fr;
+      gap: 24px 32px;
+    }
+    .visit-section__info-block:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+  .visit-section__info-label {
+    margin: 0 0 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+  .visit-section__address {
+    display: block;
+    color: var(--color-ink);
+    text-decoration: none;
+    font-size: 14.5px;
+    line-height: 1.55;
+  }
+  .visit-section__address > span {
+    display: block;
+  }
+  .visit-section__address-cta {
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-petrol);
+    transition: opacity 150ms ease-out;
+  }
+  .visit-section__address:hover .visit-section__address-cta {
+    opacity: 0.75;
+  }
+  .visit-section__note {
+    margin: 10px 0 0;
+    font-size: 12.5px;
+    color: var(--color-muted);
+    line-height: 1.5;
+  }
+  .visit-section__hours {
+    margin: 0;
+    display: grid;
+    gap: 6px;
+    font-size: 14px;
+  }
+  .visit-section__hours > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .visit-section__hours dt {
+    color: var(--color-subtle);
+  }
+  .visit-section__hours dd {
+    margin: 0;
+    color: var(--color-ink);
+    font-variant-numeric: tabular-nums;
+  }
+  .visit-section__contact {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 4px;
+  }
+  .visit-section__contact-row {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    font-size: 14px;
+    color: var(--color-ink);
+    text-decoration: none;
+  }
+  .visit-section__contact-row svg {
+    color: var(--color-petrol);
+    flex: 0 0 auto;
+  }
+  .visit-section__contact-row strong {
+    font-weight: 600;
+  }
+  .visit-section__contact-row:hover {
+    color: var(--color-petrol);
+  }
+
+  /* RIGHT column / form */
+  .visit-form {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    padding: clamp(20px, 3vw, 28px);
+    box-shadow: 0 14px 40px -20px rgba(0, 0, 0, 0.18);
+  }
+  .visit-form__intro {
+    margin: 0 0 18px;
+    font-size: 14.5px;
+    color: var(--color-subtle);
+    line-height: 1.55;
+  }
+  .visit-form__honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .visit-form__field {
+    display: block;
+    margin-bottom: 14px;
+  }
+  .visit-form__label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-muted);
+    letter-spacing: 0.02em;
+  }
+  .visit-form__label em {
+    font-style: normal;
+    font-weight: 400;
+    color: var(--color-subtle);
+  }
+  .visit-form input[type="text"],
+  .visit-form input[type="email"],
+  .visit-form input[type="tel"],
+  .visit-form textarea {
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    border-radius: 9px;
+    padding: 10px 12px;
+    font-size: 14.5px;
+    font-family: inherit;
+    color: var(--color-ink);
+    background: #fff;
+    transition: border-color 150ms ease-out, box-shadow 150ms ease-out;
+  }
+  .visit-form input:focus,
+  .visit-form textarea:focus {
+    outline: none;
+    border-color: var(--color-petrol);
+    box-shadow: 0 0 0 3px rgba(26, 53, 80, 0.10);
+  }
+  .visit-form textarea {
+    resize: vertical;
+    min-height: 100px;
+    line-height: 1.5;
+  }
+  .visit-form__turnstile {
+    margin: 4px 0 14px;
+  }
+  .visit-form__submit {
+    appearance: none;
+    border: 0;
+    background: var(--color-petrol);
+    color: #fff;
+    font-weight: 600;
+    font-size: 14.5px;
+    padding: 12px 22px;
+    border-radius: 999px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 150ms ease-out;
+  }
+  .visit-form__submit:hover {
+    background: #142a40;
+  }
+  .visit-form__submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .visit-form__error {
+    margin: 12px 0 0;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: rgba(220, 38, 38, 0.06);
+    color: #b1271f;
+    font-size: 13.5px;
+    line-height: 1.45;
+  }
+  .visit-form__footnote {
+    margin: 22px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    font-size: 12.5px;
+    color: var(--color-muted);
+    line-height: 1.5;
+  }
+  .visit-form__footnote a {
+    color: var(--color-petrol);
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 4px;
+  }
+  .visit-form__footnote a:hover {
+    text-decoration: underline;
+  }
+  .visit-form__success {
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    padding: 32px 28px;
+    text-align: center;
+    box-shadow: 0 14px 40px -20px rgba(0, 0, 0, 0.18);
+  }
+  .visit-form__success-icon {
+    color: var(--color-petrol);
+    margin: 0 auto 14px;
+  }
+  .visit-form__success-title {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--color-ink);
+  }
+  .visit-form__success-body {
+    margin: 8px auto 0;
+    max-width: 36ch;
+    font-size: 14px;
+    color: var(--color-subtle);
+    line-height: 1.55;
+  }
+</style>
