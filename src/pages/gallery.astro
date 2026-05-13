@@ -267,6 +267,20 @@ const frameStylesInUse = (Object.keys(FRAME_STYLE_LABELS) as FrameStyle[]).filte
     flex: 0 0 auto;
     min-width: 64px;
   }
+  /* On phones the label competes for space with the pills and pushes
+     them into awkward wraps. Force the label onto its own row by
+     letting it consume the full flex line; pills wrap onto subsequent
+     lines naturally. */
+  @media (max-width: 540px) {
+    .gallery-filters {
+      padding: 14px 16px;
+    }
+    .gallery-filters__row:not(.gallery-filters__row--meta) > .gallery-filters__label {
+      flex-basis: 100%;
+      min-width: 0;
+      margin: 0 0 -2px;
+    }
+  }
   .gallery-filter-chip {
     appearance: none;
     border: 1px solid rgba(0, 0, 0, 0.15);

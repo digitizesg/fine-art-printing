@@ -338,6 +338,22 @@ const papersJson = JSON.stringify(
   }
   .paper-quote__field--qty input { width: 90px; }
 
+  /* On narrow screens, drop the × separator and let the two size
+     inputs stack full-width so the layout doesn't have a 'lonely ×' in
+     the gap between Height and Width. */
+  @media (max-width: 540px) {
+    .paper-quote__dims {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+      padding: 16px;
+    }
+    .paper-quote__by { display: none; }
+    .paper-quote__field input { width: 100%; }
+    .paper-quote__field--qty input { width: 100%; }
+    .paper-quote__units { align-self: flex-start; }
+  }
+
   .paper-quote__units {
     display: inline-flex;
     border: 1px solid var(--color-border, rgba(0,0,0,0.15));

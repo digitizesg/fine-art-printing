@@ -319,12 +319,15 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
   }
   .paper-recommender__pick-brand {
     margin: 0;
-    font-size: 11.5px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
     color: var(--color-muted);
     line-height: 1.2;
   }
   .paper-recommender__pick-name {
-    margin: 0;
+    margin: 2px 0 0;
     font-family: var(--font-serif);
     font-weight: 500;
     font-size: 15.5px;
@@ -361,11 +364,14 @@ const paperLookup = papers.reduce<Record<string, { brand: string; shortName: str
         "thumb body"
         "reason reason"
         "cta cta";
+      align-items: start;
+      gap: 12px;
+      padding: 12px;
     }
     .paper-recommender__pick-thumb { grid-area: thumb; }
-    .paper-recommender__pick-body { grid-area: body; }
-    .paper-recommender__pick-reason { grid-area: reason; margin-top: 6px; }
-    .paper-recommender__pick-cta { grid-area: cta; justify-self: start; padding-left: 0; }
+    .paper-recommender__pick-body { grid-area: body; align-self: start; }
+    .paper-recommender__pick-reason { grid-area: reason; margin-top: 4px; }
+    .paper-recommender__pick-cta { grid-area: cta; justify-self: start; padding: 4px 0 0; }
   }
 
   .paper-recommender__caveat {

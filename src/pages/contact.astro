@@ -122,7 +122,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
               <input type="file" name="files" accept="image/jpeg,image/png,image/heic,application/pdf" multiple data-contact-files hidden />
               <div class="contact-form__dropzone-prompt">
                 <strong>Click to browse</strong> or drag files here
-                <span>JPG, PNG, HEIC, or PDF · 10 MB each, 5 max</span>
+                <span>JPG, PNG, HEIC, or PDF · 3 MB each, 5 max</span>
               </div>
             </label>
             <ul class="contact-form__files" data-contact-file-list></ul>
@@ -461,7 +461,11 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
 <script>
   const MAX_FILES = 5;
-  const MAX_BYTES = 10 * 1024 * 1024;
+  // 3 MB per file, 4 MB total — kept under Vercel's serverless body
+  // size cap (~4.5 MB). Reference photos only; high-res files go via
+  // the upload link we send back.
+  const MAX_BYTES = 3 * 1024 * 1024;
+  const MAX_TOTAL_BYTES = 4 * 1024 * 1024;
   const ALLOWED = new Set(["image/jpeg", "image/png", "image/heic", "application/pdf"]);
 
   const form = document.querySelector<HTMLFormElement>("[data-contact-form]");
@@ -526,7 +530,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     if (!ALLOWED.has(f.type) && !/\.(jpe?g|png|heic|pdf)$/i.test(f.name)) {
       return "Unsupported file type";
     }
-    if (f.size > MAX_BYTES) return "Over 10 MB";
+    if (f.size > MAX_BYTES) return "Over 3 MB - send only as reference";
     return null;
   }
 
@@ -607,6 +611,13 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     for (const f of selectedFiles) {
       const err = validateFile(f);
       if (err) return setHint(`${f.name}: ${err}`, true);
+    }
+    const totalBytes = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+    if (totalBytes > MAX_TOTAL_BYTES) {
+      return setHint(
+        "Combined attachments are over 4 MB. Please remove or shrink some, or send fewer photos. We can take large files on a secure upload link, just mention it in your message.",
+        true,
+      );
     }
 
     // Replace the file input contents with our accumulated list, so the

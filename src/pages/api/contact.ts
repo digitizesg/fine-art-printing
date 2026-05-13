@@ -5,7 +5,12 @@ import { verifyTurnstile } from "../../lib/turnstile";
 export const prerender = false;
 
 const MAX_FILES = 5;
-const MAX_BYTES = 10 * 1024 * 1024;
+// Per-file cap: 3 MB. Total request body has to stay under Vercel's
+// serverless function body limit (~4.5 MB), so the practical envelope is
+// roughly one large-ish photo or several small ones. Anyone with a
+// real print master should use the secure upload link instead.
+const MAX_BYTES = 3 * 1024 * 1024;
+const MAX_TOTAL_BYTES = 4 * 1024 * 1024;
 const ALLOWED_MIME = new Set([
   "image/jpeg",
   "image/png",
@@ -108,13 +113,13 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
   let totalBytes = 0;
   const attachments: { filename: string; content: Buffer }[] = [];
   for (const f of fileEntries) {
-    if (f.size > MAX_BYTES) return bad(`"${f.name}" is over 10 MB.`);
+    if (f.size > MAX_BYTES) return bad(`"${f.name}" is over 3 MB. Reference photos only - for high-resolution print files, message us and we'll send a secure upload link.`);
     if (!ALLOWED_MIME.has(f.type) && !ALLOWED_EXT.test(f.name)) {
       return bad(`"${f.name}" is not a supported file type.`);
     }
     totalBytes += f.size;
-    if (totalBytes > MAX_TOTAL_ATTACHMENT_BYTES) {
-      return bad("Combined attachment size is too large to email. Please reduce file sizes.");
+    if (totalBytes > MAX_TOTAL_BYTES) {
+      return bad("Combined attachment size is too large. Please reduce file sizes or send fewer photos.");
     }
     attachments.push({
       filename: f.name,

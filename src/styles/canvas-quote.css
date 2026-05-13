@@ -95,6 +95,24 @@
   font-weight: 600;
   color: var(--color-muted);
 }
+
+@media (max-width: 540px) {
+  .canvas-quote__dims {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px;
+  }
+  .canvas-quote__by {
+    display: none;
+  }
+  .canvas-quote__field input {
+    width: 100%;
+  }
+  .canvas-quote__units {
+    align-self: flex-start;
+  }
+}
 .canvas-quote__units label:has(input:checked) span {
   background: var(--color-selected);
   color: #fff;
