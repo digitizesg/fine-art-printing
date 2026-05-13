@@ -152,9 +152,15 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
         </form>
 
         <div class="contact-form__success" data-contact-success hidden>
+          <div class="contact-form__success-icon" aria-hidden="true">
+            <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+              <circle cx="22" cy="22" r="21" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M13 22.5l6 6 12-13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
           <h2>Message sent.</h2>
           <p>
-            Thanks. We've got it and we'll come back to you as soon as we can.
+            Thanks, we've got it and we'll come back to you as soon as we can.
             We aim to respond the same day during studio hours; weekends roll
             into Monday.
           </p>
@@ -434,28 +440,42 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
   .contact-form__hint--err { color: #8a1414; }
 
   .contact-form__success {
-    padding: 28px 32px;
-    border-radius: 12px;
-    background: #FAF7F1;
-    border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
+    padding: 36px 32px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #F0F8F2 0%, #E7F3EC 100%);
+    border: 1px solid rgba(46, 124, 78, 0.30);
+    box-shadow: 0 1px 0 rgba(46, 124, 78, 0.04) inset;
+    text-align: center;
+  }
+  .contact-form__success-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: rgba(46, 124, 78, 0.12);
+    color: #2E7C4E;
   }
   .contact-form__success h2 {
-    margin: 0 0 12px;
+    margin: 0 0 10px;
     font-family: var(--font-serif);
     font-weight: 500;
-    font-size: 22px;
-    color: var(--color-ink);
+    font-size: 24px;
+    color: #163E25;
   }
   .contact-form__success p {
-    margin: 0 0 8px;
+    margin: 0 auto 8px;
+    max-width: 42ch;
     font-size: 15px;
-    color: var(--color-subtle);
+    color: #2E5638;
     line-height: 1.6;
   }
   .contact-form__success p:last-child { margin-bottom: 0; }
   .contact-form__success-detail {
     font-size: 13px !important;
-    color: var(--color-muted) !important;
+    color: #4C7158 !important;
   }
 </style>
 
