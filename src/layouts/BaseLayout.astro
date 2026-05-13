@@ -5,6 +5,7 @@ import Footer from "../components/Footer.astro";
 import SEO from "../components/SEO.astro";
 import FloatingWhatsApp from "../components/FloatingWhatsApp.astro";
 import CartToast from "../components/CartToast.astro";
+import Analytics from "../components/Analytics.astro";
 import { organizationSchema } from "../lib/schema";
 
 interface Props {
@@ -37,7 +38,7 @@ const combinedJsonLd: Record<string, unknown>[] = [
       type="application/ld+json"
       set:html={JSON.stringify(combinedJsonLd)}
     />
-
+    <Analytics />
   </head>
   <body class="bg-white text-ink antialiased">
     <a
