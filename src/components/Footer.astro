@@ -1,82 +1,30 @@
 ---
-import Stars from "./Stars.astro";
 import { business } from "../data/business";
-import reviewsData from "../data/reviews.json";
-
-const { rating, userRatingsTotal } = reviewsData;
 const year = new Date().getFullYear();
 ---
 <footer class="footer">
   <div class="footer__inner">
-    <div class="footer__grid">
-      <!-- Brand block -->
-      <div class="footer__brand">
-        <a href="/" class="footer__brand-link" aria-label="Fine Art Printing home">
-          <span class="footer__brand-name">Fine Art Printing</span>
-          <span class="footer__brand-sub">Print · Stretch · Frame</span>
-        </a>
-        <p class="footer__tagline">
-          Singapore's print and framing studio.
-        </p>
-        <a
-          href={business.googleReviewsUrl}
-          target="_blank"
-          rel="noopener"
-          class="footer__reviews"
-        >
-          <Stars rating={rating} size={14} ariaHidden />
-          <span class="footer__reviews-meta">
-            <span class="footer__reviews-num">{rating.toFixed(1)}</span> from {userRatingsTotal} Google reviews
-          </span>
-        </a>
-        <p class="footer__credentials">
-          Hahnemühle Gold-certified studio · Canon Pro-566
-        </p>
-      </div>
+    <div class="footer__row">
+      <a href="/" class="footer__brand-link" aria-label="Fine Art Printing home">
+        <span class="footer__brand-name">Fine Art Printing</span>
+        <span class="footer__brand-sub">Print · Stretch · Frame</span>
+      </a>
 
-      <!-- Services -->
-      <div class="footer__col">
-        <p class="footer__heading">Services</p>
-        <ul class="footer__list">
-          <li><a href="/print-on-paper">Print on paper</a></li>
-          <li><a href="/canvas-printing">Print on canvas</a></li>
-          <li><a href="/canvas-stretching">Canvas stretching & framing</a></li>
-          <li><a href="/custom-framing">Custom framing</a></li>
-          <li><a href="/art-restoration">Art restoration</a></li>
-          <li><a href="/scanning-restoration">Photo restoration</a></li>
-          <li><a href="/art-scanning">Art scanning</a></li>
-          <li><a href="/art-valuation">Art valuation</a></li>
-        </ul>
-      </div>
-
-      <!-- Site -->
-      <div class="footer__col">
-        <p class="footer__heading">Site</p>
-        <ul class="footer__list">
-          <li><a href="/">Home</a></li>
-          <li><a href="/about">About</a></li>
-          <li><a href="/gallery">Our work</a></li>
-          <li><a href="/shop">Shop</a></li>
-          <li><a href="/articles">Articles</a></li>
-          <li><a href="/tools">Tools</a></li>
-          <li><a href="/contact">Contact</a></li>
-          <li><a href="/make-payment">Make a payment</a></li>
-        </ul>
-      </div>
-
+      <nav class="footer__nav" aria-label="Footer">
+        <a href="/about">About</a>
+        <a href="/gallery">Our work</a>
+        <a href="/articles">Articles</a>
+        <a href="/tools">Tools</a>
+        <a href="/contact">Contact</a>
+        <a href={business.googleReviewsUrl} target="_blank" rel="noopener">Reviews</a>
+      </nav>
     </div>
 
     <div class="footer__bottom">
       <p>© {year} {business.legalName}</p>
-      <ul class="footer__bottom-links">
-        <li><a href="/about">About</a></li>
-        <li><a href="/contact">Contact</a></li>
-        <li>
-          <a href={business.googleReviewsUrl} target="_blank" rel="noopener">
-            Google reviews
-          </a>
-        </li>
-      </ul>
+      <p class="footer__credentials">
+        Hahnemühle Gold-certified · Canon Pro-566
+      </p>
     </div>
   </div>
 </footer>
@@ -90,18 +38,14 @@ const year = new Date().getFullYear();
   .footer__inner {
     max-width: 1180px;
     margin: 0 auto;
-    padding: 56px 24px 28px;
+    padding: 28px 24px 22px;
   }
-  .footer__grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 36px;
-  }
-  @media (min-width: 720px) {
-    .footer__grid {
-      grid-template-columns: 1.4fr 1fr 1fr;
-      gap: 48px;
-    }
+  .footer__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 32px;
   }
   .footer__brand-link {
     display: inline-flex;
@@ -112,111 +56,49 @@ const year = new Date().getFullYear();
   }
   .footer__brand-name {
     font-family: var(--font-serif);
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 500;
     color: var(--color-ink);
     letter-spacing: -0.01em;
   }
   .footer__brand-sub {
     font-family: var(--font-sans);
-    font-size: 10.5px;
+    font-size: 9.5px;
     font-weight: 600;
     color: rgba(26, 53, 80, 0.88);
     letter-spacing: 0.22em;
-    margin-top: 4px;
+    margin-top: 3px;
   }
-  .footer__tagline {
-    margin: 16px 0 0;
-    font-size: 13.5px;
-    color: var(--color-subtle);
-    line-height: 1.55;
-    max-width: 30ch;
+  .footer__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 22px;
+    font-size: 13px;
   }
-  .footer__reviews {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 14px;
-    text-decoration: none;
-    color: var(--color-ink);
-    transition: opacity 150ms ease-out;
-  }
-  .footer__reviews:hover {
-    opacity: 0.7;
-  }
-  .footer__reviews-meta {
-    font-size: 12.5px;
-    color: var(--color-muted);
-  }
-  .footer__reviews-num {
-    font-weight: 600;
-    color: var(--color-ink);
-  }
-  .footer__credentials {
-    margin: 18px 0 0;
-    padding-top: 14px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
-    max-width: 30ch;
-    font-size: 11.5px;
-    color: var(--color-muted);
-    line-height: 1.55;
-  }
-  .footer__heading {
-    margin: 0 0 14px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-muted);
-  }
-  .footer__list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    gap: 8px;
-  }
-  .footer__list a {
+  .footer__nav a {
     color: var(--color-subtle);
     text-decoration: none;
-    font-size: 13.5px;
-    line-height: 1.5;
     transition: color 120ms ease-out;
   }
-  .footer__list a:hover {
+  .footer__nav a:hover {
     color: var(--color-ink);
   }
-
   .footer__bottom {
-    margin-top: 40px;
-    padding-top: 18px;
-    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 12px 24px;
-    font-size: 12px;
+    gap: 6px 24px;
+    font-size: 11.5px;
     color: var(--color-muted);
   }
   .footer__bottom p {
     margin: 0;
   }
-  .footer__bottom-links {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 20px;
-  }
-  .footer__bottom-links a {
-    color: var(--color-muted);
-    text-decoration: none;
-    font-size: 12px;
-    transition: color 120ms ease-out;
-  }
-  .footer__bottom-links a:hover {
-    color: var(--color-ink);
+  .footer__credentials {
+    letter-spacing: 0.01em;
   }
 </style>
