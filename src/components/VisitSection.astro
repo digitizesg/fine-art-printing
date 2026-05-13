@@ -2,15 +2,21 @@
 import { business } from "../data/business";
 import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
 
-const mapsEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(
-  `${business.address.line1}, ${business.address.line2}, ${business.address.postcode}`,
-)}&output=embed&z=15`;
+// Prefer the official Maps Embed API (pinned to our GMB place_id) when
+// PUBLIC_GOOGLE_MAPS_EMBED_KEY is set in env. Fall back to a text search
+// scoped to the business name + address so it still pins close to the
+// GMB listing without a key.
+const mapsEmbedKey = import.meta.env.PUBLIC_GOOGLE_MAPS_EMBED_KEY ?? "";
+const mapsEmbed = mapsEmbedKey
+  ? `https://www.google.com/maps/embed/v1/place?key=${mapsEmbedKey}&q=place_id:${business.placeId}`
+  : `https://maps.google.com/maps?q=${encodeURIComponent(
+      `${business.name} ${business.address.line1} ${business.address.line2} Singapore`,
+    )}&output=embed&z=16`;
 const mapsHref = `https://www.google.com/maps/place/?q=place_id:${business.placeId}`;
 const telHref = `tel:${business.phone.replace(/\s+/g, "")}`;
 const waHref = `${business.whatsappLink}?text=${encodeURIComponent(
   "Hi Fine Art Printing, I'd like a quick quote.",
 )}`;
-const mailHref = `mailto:${business.contactEmail}`;
 const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
 ---
 <section class="visit-section">
@@ -18,8 +24,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     <div class="visit-section__head">
       <p class="visit-section__eyebrow">Visit & contact</p>
       <h2 class="visit-section__title">
-        Find us in Lower Delta,
-        <span class="visit-section__title-em">or drop us a message.</span>
+        Get in touch
+        <span class="visit-section__title-em">or come visit us.</span>
       </h2>
     </div>
 
@@ -76,15 +82,6 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
                     <path d="M3.5 2.5h2.6l1.1 3-1.7 1a8 8 0 0 0 3.5 3.5l1-1.7 3 1.1v2.6a1 1 0 0 1-1 1A11 11 0 0 1 2.5 3.5a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                   <span>Call <strong>{business.phone}</strong></span>
-                </a>
-              </li>
-              <li>
-                <a href={mailHref} class="visit-section__contact-row">
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-                    <rect x="2" y="3.5" width="12" height="9" rx="1.2" stroke="currentColor" stroke-width="1.4"/>
-                    <path d="M2.5 4.5l5.5 4 5.5-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  <span>{business.contactEmail}</span>
                 </a>
               </li>
             </ul>
