@@ -5,25 +5,59 @@
  * picks them all up.
  */
 import { business } from "../data/business";
+import reviewsData from "../data/reviews.json";
 
 const SITE_URL = `https://${business.domain}`;
 const ORG_ID = `${SITE_URL}#organization`;
 
 /**
- * Stable Organization graph node — referenced from page schemas via
- * `provider`, `brand`, `publisher` etc so Google links them together
- * into one entity in its knowledge graph.
+ * Stable LocalBusiness + Organization graph node. The dual @type is
+ * deliberate: LocalBusiness is what Google requires for the
+ * aggregateRating star snippet to surface in organic results, while
+ * Organization keeps the entity wired up across page references
+ * (`provider`, `brand`, `publisher`). Star display is best-effort —
+ * Google can choose to ignore aggregateRating — but we still
+ * publish it because our reviews are strong.
  */
+const aggregateRating =
+  reviewsData?.rating && reviewsData?.userRatingsTotal
+    ? {
+        "@type": "AggregateRating",
+        ratingValue: Number(reviewsData.rating).toFixed(1),
+        reviewCount: reviewsData.userRatingsTotal,
+        bestRating: "5",
+        worstRating: "1",
+      }
+    : undefined;
+
+// Map business.hours into Schema's OpeningHoursSpecification.
+const openingHoursSpecification = [
+  {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    opens: "10:00",
+    closes: "18:00",
+  },
+  {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: "Saturday",
+    opens: "10:00",
+    closes: "17:00",
+  },
+];
+
 export const organizationSchema = {
   "@context": "https://schema.org",
-  "@type": "Organization",
+  "@type": ["Organization", "LocalBusiness"],
   "@id": ORG_ID,
   name: business.name,
   legalName: business.legalName,
   url: SITE_URL,
   logo: `${SITE_URL}/og-default.jpg`,
+  image: `${SITE_URL}/og-default.jpg`,
   email: business.contactEmail,
   telephone: business.phone,
+  priceRange: "$$",
   address: {
     "@type": "PostalAddress",
     streetAddress: `${business.address.line2} ${business.address.line3}`,
@@ -31,9 +65,9 @@ export const organizationSchema = {
     postalCode: business.address.postcode.replace(/^Singapore\s*/, ""),
     addressCountry: "SG",
   },
-  sameAs: [
-    business.googleReviewsUrl,
-  ],
+  openingHoursSpecification,
+  ...(aggregateRating ? { aggregateRating } : {}),
+  sameAs: [business.googleReviewsUrl],
 };
 
 export interface FaqEntry {

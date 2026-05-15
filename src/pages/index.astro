@@ -10,9 +10,6 @@ import ServiceTile from "../components/ServiceTile.astro";
 import TrustedBy from "../components/TrustedBy.astro";
 import VisitSection from "../components/VisitSection.astro";
 import { business } from "../data/business";
-import reviewsData from "../data/reviews.json";
-
-const { rating, userRatingsTotal } = reviewsData;
 
 const coreServices = [
   {
@@ -84,34 +81,10 @@ const differentiators = [
 
 const description =
   "Singapore's only Hahnemühle Gold-certified printing studio. Archival fine art prints, canvas, stretching and framing for businesses and homes in Singapore.";
-
-const localBusinessJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "LocalBusiness",
-  name: business.name,
-  url: `https://${business.domain}`,
-  email: business.contactEmail,
-  telephone: business.phone,
-  image: `https://${business.domain}/og-default.jpg`,
-  address: {
-    "@type": "PostalAddress",
-    streetAddress: `${business.address.line2} ${business.address.line3}`,
-    addressLocality: "Singapore",
-    postalCode: business.address.postcode.replace("Singapore ", ""),
-    addressCountry: "SG",
-  },
-  priceRange: "$$",
-  aggregateRating: {
-    "@type": "AggregateRating",
-    ratingValue: rating,
-    reviewCount: userRatingsTotal,
-  },
-};
 ---
 <BaseLayout
   title="Photo and Art Printing in Singapore | Fine Art Printing"
   description={description}
-  jsonLd={localBusinessJsonLd}
 >
   <section class="bg-white">
     <div class="mx-auto max-w-[1180px] px-6 pt-16 pb-10 md:pt-24 md:pb-14">
