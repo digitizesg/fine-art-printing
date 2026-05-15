@@ -52,9 +52,18 @@ function renderItem(args: {
   artworkDescription: string | null;
   artistName: string | null;
   heroImageUrl: string;
+  additionalImageUrls: string[];
   variant: ShopVariant;
 }): string {
-  const { artworkSlug, artworkTitle, artworkDescription, artistName, heroImageUrl, variant } = args;
+  const {
+    artworkSlug,
+    artworkTitle,
+    artworkDescription,
+    artistName,
+    heroImageUrl,
+    additionalImageUrls,
+    variant,
+  } = args;
   const sku = variantSku(artworkSlug, variant);
   const title = variantTitle(artworkTitle, variant);
   const description =
@@ -63,13 +72,25 @@ function renderItem(args: {
   const link = variantUrl(SITE_ORIGIN, artworkSlug, variant);
   const priceStr = `${variant.price.toFixed(2)} SGD`;
 
-  return [
+  // Google Merchant accepts up to 10 additional_image_link entries.
+  // Skip any URL that duplicates the hero image so we don't waste a
+  // slot.
+  const extraImages = additionalImageUrls
+    .filter((u) => u && u !== heroImageUrl)
+    .slice(0, 10);
+
+  const lines = [
     "    <item>",
     `      <g:id>${escapeXml(sku)}</g:id>`,
     `      <g:title>${cdata(title)}</g:title>`,
     `      <g:description>${cdata(description)}</g:description>`,
     `      <g:link>${escapeXml(link)}</g:link>`,
     `      <g:image_link>${escapeXml(heroImageUrl)}</g:image_link>`,
+  ];
+  for (const url of extraImages) {
+    lines.push(`      <g:additional_image_link>${escapeXml(url)}</g:additional_image_link>`);
+  }
+  lines.push(
     "      <g:availability>in_stock</g:availability>",
     `      <g:price>${escapeXml(priceStr)}</g:price>`,
     `      <g:brand>${escapeXml(business.name)}</g:brand>`,
@@ -85,7 +106,8 @@ function renderItem(args: {
     "        <g:country>SG</g:country>",
     "      </g:shipping>",
     "    </item>",
-  ].join("\n");
+  );
+  return lines.join("\n");
 }
 
 export const GET: APIRoute = async () => {
@@ -115,6 +137,7 @@ export const GET: APIRoute = async () => {
       featuredPapers,
       featuredCanvases,
     });
+    const additionalImageUrls = artwork.galleryImages.map((g) => g.url);
     for (const variant of variants) {
       lines.push(
         renderItem({
@@ -123,6 +146,7 @@ export const GET: APIRoute = async () => {
           artworkDescription: artwork.description,
           artistName: artwork.artistName,
           heroImageUrl: artwork.heroImageUrl,
+          additionalImageUrls,
           variant,
         }),
       );
