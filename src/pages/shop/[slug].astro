@@ -10,10 +10,16 @@ import { listFloatFrames } from "../../lib/float-frames";
 import { listCanvases } from "../../lib/canvases";
 import { listPapers } from "../../lib/papers";
 import { quotePaperPrint } from "../../data/pricing/paper";
-import { quoteCanvasPrint } from "../../data/pricing/canvas";
 import { SHOP_ARTWORK_BASE_SGD } from "../../data/pricing/shop";
 import { business } from "../../data/business";
 import { breadcrumbSchema } from "../../lib/schema";
+import {
+  buildShopVariants,
+  variantSku as buildVariantSku,
+  variantTitle as buildVariantTitle,
+  variantUrl as buildVariantUrl,
+  type ShopVariant,
+} from "../../lib/shop-variants";
 import "../../styles/canvas-quote.css";
 
 export async function getStaticPaths() {
@@ -66,88 +72,18 @@ const artworkJson = JSON.stringify({
 const description =
   artwork.description ?? `${artwork.title}${artwork.artistName ? ` by ${artwork.artistName}` : ""}, printed to order on archival paper or canvas at Fine Art Printing.`;
 
-// Build one Offer per (substrate × size) so Google Merchant / rich
-// results can extract granular variants. Each variant is priced against
-// the cheapest featured substrate of its type, plus the flat shop base
-// fee. Variants only appear when their substrate is allowed for the
-// artwork and the substrate's roll dimensions can fit the size.
-const cheapestPaper = artwork.allowPaper
-  ? [...featuredPapers].sort(
-      (a, b) => a.sellPricePerSqm - b.sellPricePerSqm,
-    )[0]
-  : null;
-const cheapestCanvas = artwork.allowCanvas
-  ? [...featuredCanvases].sort(
-      (a, b) => a.sellPricePerSqm - b.sellPricePerSqm,
-    )[0]
-  : null;
-
-type Substrate = "paper" | "canvas";
-type ShopVariant = {
-  substrate: Substrate;
-  width_cm: number;
-  height_cm: number;
-  price: number;
-};
-
-function buildVariants(): ShopVariant[] {
-  const out: ShopVariant[] = [];
-  for (const size of artwork.availableSizes) {
-    if (cheapestPaper) {
-      const r = quotePaperPrint({
-        paper: {
-          id: cheapestPaper.slug,
-          name: cheapestPaper.name,
-          sellPricePerSqm: cheapestPaper.sellPricePerSqm,
-          maxPrintWidthCm: cheapestPaper.maxPrintWidthCm,
-          maxPrintLengthCm: cheapestPaper.maxPrintLengthCm,
-        },
-        widthCm: size.width_cm,
-        heightCm: size.height_cm,
-        quantity: 1,
-      });
-      if (r.ok) {
-        out.push({
-          substrate: "paper",
-          width_cm: size.width_cm,
-          height_cm: size.height_cm,
-          price: r.grandTotal + SHOP_ARTWORK_BASE_SGD,
-        });
-      }
-    }
-    if (cheapestCanvas) {
-      const r = quoteCanvasPrint({
-        canvas: {
-          id: cheapestCanvas.slug,
-          name: cheapestCanvas.name,
-          sellPricePerSqm: cheapestCanvas.sellPricePerSqm,
-          maxPrintWidthCm: cheapestCanvas.maxPrintWidthCm,
-          maxPrintLengthCm: cheapestCanvas.maxPrintLengthCm,
-        },
-        widthCm: size.width_cm,
-        heightCm: size.height_cm,
-        stretching: "none",
-        floatFrame: null,
-        delivery: "self",
-      });
-      if (r.ok) {
-        out.push({
-          substrate: "canvas",
-          width_cm: size.width_cm,
-          height_cm: size.height_cm,
-          price: r.grandTotal + SHOP_ARTWORK_BASE_SGD,
-        });
-      }
-    }
-  }
-  return out;
-}
-
-const variants = buildVariants();
-const productUrl = `https://${business.domain}/shop/${artwork.slug}`;
+// Variants live in src/lib/shop-variants.ts so /products.xml (the
+// Google Merchant feed) computes them the same way.
+const variants = buildShopVariants({
+  artwork,
+  featuredPapers,
+  featuredCanvases,
+});
+const siteOrigin = `https://${business.domain}`;
+const productUrl = `${siteOrigin}/shop/${artwork.slug}`;
 
 function variantSku(v: ShopVariant): string {
-  return `${artwork.slug}--${v.substrate}-${v.width_cm}x${v.height_cm}`;
+  return buildVariantSku(artwork.slug, v);
 }
 
 function variantOffer(v: ShopVariant) {
@@ -156,14 +92,14 @@ function variantOffer(v: ShopVariant) {
   const sku = variantSku(v);
   return {
     "@type": "Offer",
-    name: `${artwork.title} on ${substrateLabel.toLowerCase()}, ${sizeLabel}`,
+    name: buildVariantTitle(artwork.title, v),
     sku,
     mpn: sku,
     price: v.price,
     priceCurrency: "SGD",
     availability: "https://schema.org/InStock",
     itemCondition: "https://schema.org/NewCondition",
-    url: `${productUrl}?substrate=${v.substrate}&size=${v.width_cm}x${v.height_cm}`,
+    url: buildVariantUrl(siteOrigin, artwork.slug, v),
     material: substrateLabel,
     size: sizeLabel,
     seller: { "@type": "Organization", name: "Fine Art Printing" },
@@ -523,7 +459,7 @@ const jsonLd = [
             </button>
 
             <p class="artwork-config__small">
-              Self-collection from our studio is free. Local Singapore delivery is S$30, picked at checkout.
+              Self-collection from our Singapore studio is free. Local delivery within Singapore is S$30, picked at checkout. Shipping overseas? <a href="/contact" class="underline">Contact us</a> for rates before ordering.
             </p>
           </div>
         </div>
