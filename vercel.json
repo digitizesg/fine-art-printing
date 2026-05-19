@@ -1,4 +1,5 @@
 {
+  "trailingSlash": false,
   "redirects": [
     { "source": "/fine-art-printing",                       "destination": "/print-on-paper",          "permanent": true },
     { "source": "/print-on-canvas",                         "destination": "/canvas-printing",         "permanent": true },
