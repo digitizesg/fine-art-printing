@@ -60,6 +60,19 @@ export const POST: APIRoute = async ({ request }) => {
 
   const session = event.data.object as Stripe.Checkout.Session;
 
+  // FAP shares a Stripe account with other sites (e.g. matcraft). Stripe
+  // fires checkout.session.completed for every session in the account,
+  // so we'd otherwise email the customer + insert an orphan FAP order
+  // row for every matcraft purchase. Sessions created by other sites
+  // tag themselves via metadata.source — drop them here. Untagged
+  // sessions (e.g. legacy FAP checkouts created before this guard) fall
+  // through so we don't strand in-flight orders.
+  const sessionSource = session.metadata?.source;
+  const KNOWN_OTHER_SITES = new Set(["matcraft"]);
+  if (sessionSource && KNOWN_OTHER_SITES.has(sessionSource)) {
+    return new Response("not-our-session", { status: 200 });
+  }
+
   // Pull the full session including line items + customer details so we
   // can populate the customer-facing email even if the customer typed a
   // different email at the Stripe page than we had on file.

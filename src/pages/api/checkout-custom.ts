@@ -84,6 +84,7 @@ export const POST: APIRoute = async ({ request, url }) => {
         success_url: `${url.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${url.origin}/make-payment`,
         metadata: {
+          source: "fineartprinting",
           kind: "custom_payment",
         },
       },
