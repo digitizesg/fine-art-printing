@@ -45,6 +45,7 @@ export interface Paper {
   images: string[];
   imageUrls: string[];
   featured: boolean;
+  popular: boolean;
   published: boolean;
   displayOrder: number;
 }
@@ -70,6 +71,7 @@ interface DbRow {
   max_print_length_cm: number | string;
   images: string[];
   featured: boolean;
+  popular: boolean;
   published: boolean;
   display_order: number;
 }
@@ -108,6 +110,7 @@ function rowToPaper(row: DbRow): Paper {
     images,
     imageUrls: images.map(paperImageUrl),
     featured: row.featured,
+    popular: row.popular ?? false,
     published: row.published,
     displayOrder: row.display_order,
   };

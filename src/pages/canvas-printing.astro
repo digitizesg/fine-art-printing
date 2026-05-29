@@ -194,6 +194,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
                 <span class="paper-pick__thumb paper-pick__thumb--placeholder" aria-hidden="true"></span>
               )}
               <span class="paper-pick__name">{c.shortName}</span>
+              {c.popular && <span class="popular-badge popular-badge--corner" aria-label="Popular choice">Popular</span>}
             </button>
           ))}
         </div>
@@ -220,7 +221,10 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
               </div>
               <div class="paper-showcase__body">
                 <p class="paper-showcase__brand">{canvas.brand}</p>
-                <h3 class="paper-showcase__name">{canvas.shortName}</h3>
+                <h3 class="paper-showcase__name">
+                  {canvas.shortName}
+                  {canvas.popular && <span class="popular-badge popular-badge--inline">Popular</span>}
+                </h3>
 
                 {canvas.notice && (
                   <div class="paper-showcase__notice">
@@ -314,6 +318,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
                   <div class="text-[12px] text-muted">{c.brand}</div>
                   <div class="font-serif text-[15px] font-medium text-ink">
                     {c.shortName}
+                    {c.popular && <span class="popular-badge popular-badge--inline">Popular</span>}
                   </div>
                 </td>
                 <td class="py-4 px-3 tabular-nums text-ink">{c.gsm}gsm</td>

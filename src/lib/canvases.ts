@@ -30,6 +30,7 @@ export interface Canvas {
   /** Resolved public URLs in display order. */
   imageUrls: string[];
   featured: boolean;
+  popular: boolean;
   published: boolean;
   displayOrder: number;
 }
@@ -53,6 +54,7 @@ interface DbRow {
   max_print_length_cm: number | string;
   images: string[];
   featured: boolean;
+  popular: boolean;
   published: boolean;
   display_order: number;
 }
@@ -89,6 +91,7 @@ function rowToCanvas(row: DbRow): Canvas {
     images,
     imageUrls: images.map(canvasImageUrl),
     featured: row.featured,
+    popular: row.popular ?? false,
     published: row.published,
     displayOrder: row.display_order,
   };

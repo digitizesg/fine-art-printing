@@ -128,6 +128,10 @@ const useCases: { value: PaperUseCase; label: string }[] = [
           <input type="checkbox" name="featured" value="1" checked={paper?.featured ?? false} />
           <span>Featured (calculator picker)</span>
         </label>
+        <label class="admin-form__check">
+          <input type="checkbox" name="popular" value="1" checked={paper?.popular ?? false} />
+          <span>Popular (badge on print-on-paper)</span>
+        </label>
       </div>
     </div>
 

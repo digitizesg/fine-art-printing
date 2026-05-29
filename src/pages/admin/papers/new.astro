@@ -46,6 +46,7 @@ if (Astro.request.method === "POST") {
   const displayOrder = parseInt(String(form.get("display_order") ?? "100"), 10);
   const published = form.get("published") === "1";
   const featured = form.get("featured") === "1";
+  const popular = form.get("popular") === "1";
   const bestFor = form.getAll("best_for")
     .map((v) => String(v))
     .filter((v) => USE_CASES.has(v));
@@ -116,6 +117,7 @@ if (Astro.request.method === "POST") {
       max_print_length_cm: maxPrintLengthCm,
       images: uploaded,
       featured,
+      popular,
       published,
       display_order: Number.isFinite(displayOrder) ? displayOrder : 100,
     };

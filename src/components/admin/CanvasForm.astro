@@ -109,6 +109,10 @@ const finishes: { value: Canvas["finish"]; label: string }[] = [
         <input type="checkbox" name="featured" value="1" checked={canvas?.featured ?? false} />
         <span>Featured (shown in calculator picker)</span>
       </label>
+      <label class="admin-form__check">
+        <input type="checkbox" name="popular" value="1" checked={canvas?.popular ?? false} />
+        <span>Popular (badge on canvas-printing)</span>
+      </label>
     </div>
   </section>
 
