@@ -40,7 +40,7 @@ const { mode, example, error, message } = Astro.props;
 
 const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.id}`;
 ---
-<form class="admin-form admin-form--wide" method="POST" enctype="multipart/form-data" action={action}>
+<form class="admin-form admin-form--wide" method="POST" enctype="multipart/form-data" action={action} data-resize-images>
   <div class="admin-form__photo">
     {example?.image_url ? (
       <img src={example.image_url} alt={example.caption ?? ""} />
@@ -171,6 +171,8 @@ const action = mode === "new" ? "/admin/examples" : `/admin/examples/${example?.
 </form>
 
 <script>
+  import "../../scripts/admin-image-resize";
+
   document.querySelectorAll<HTMLButtonElement>("button[data-confirm]").forEach((b) => {
     b.addEventListener("click", (e) => {
       if (!confirm(b.dataset.confirm ?? "Are you sure?")) e.preventDefault();

@@ -36,7 +36,7 @@ const useCases: { value: PaperUseCase; label: string }[] = [
   { value: "illustration", label: "Illustration" },
 ];
 ---
-<form class="admin-form paper-form" method="POST" enctype="multipart/form-data" action={action}>
+<form class="admin-form paper-form" method="POST" enctype="multipart/form-data" action={action} data-resize-images>
   {error && <p class="admin-note admin-note--err">{error}</p>}
   {message && <p class="admin-note admin-note--ok">{message}</p>}
 
@@ -338,6 +338,8 @@ const useCases: { value: PaperUseCase; label: string }[] = [
 </style>
 
 <script>
+  import "../../scripts/admin-image-resize";
+
   document.querySelectorAll<HTMLButtonElement>("[data-confirm]").forEach((btn) => {
     btn.addEventListener("click", (ev) => {
       const msg = btn.getAttribute("data-confirm");

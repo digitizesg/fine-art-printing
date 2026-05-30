@@ -20,6 +20,9 @@ pnpm-debug.log*
 .env.*
 !.env.example
 
+# local backup of originals from the one-off image optimisation
+image-backup/
+
 # macOS-specific files
 .DS_Store
 

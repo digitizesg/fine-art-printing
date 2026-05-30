@@ -28,7 +28,7 @@ const galleryJson = JSON.stringify(
   (artwork?.gallery_images ?? []).map((g) => g.path),
 );
 ---
-<form class="artwork-form" method="POST" enctype="multipart/form-data" action={action}>
+<form class="artwork-form" method="POST" enctype="multipart/form-data" action={action} data-resize-images>
   <!-- Image card -->
   <section class="artwork-form__panel">
     <h2 class="artwork-form__panel-title">Hero image</h2>
@@ -537,6 +537,10 @@ const galleryJson = JSON.stringify(
     align-items: center;
   }
 </style>
+
+<script>
+  import "../../scripts/admin-image-resize";
+</script>
 
 <script is:inline define:vars={{ initialSizesJson: sizesJson }}>
   (function () {
