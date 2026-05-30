@@ -374,9 +374,11 @@ const jsonLd = [
                       class="sr-only"
                     />
                     {colour.imageUrl ? (
-                      <img
+                      <Image
                         class="frame-colour__swatch"
                         src={colour.imageUrl}
+                        width={300}
+                        height={200}
                         alt=""
                         loading="lazy"
                         aria-hidden="true"

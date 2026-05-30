@@ -1,5 +1,6 @@
 ---
 export const prerender = true;
+import { Image } from "astro:assets";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Eyebrow from "../../components/Eyebrow.astro";
 import { listArtworks } from "../../lib/artworks";
@@ -63,12 +64,28 @@ const jsonLd = {
               class="group block rounded-card border border-border-soft bg-white overflow-hidden transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
             >
               <div class="aspect-[4/3] w-full bg-[#f4efe7] overflow-hidden">
-                <img
-                  src={art.heroImageUrl}
-                  alt={art.title}
-                  loading="lazy"
-                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
-                />
+                {art.imageWidth && art.imageHeight ? (
+                  <Image
+                    src={art.heroImageUrl}
+                    alt={art.title}
+                    width={art.imageWidth}
+                    height={art.imageHeight}
+                    widths={[320, 480, 640]}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 370px"
+                    loading="lazy"
+                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                  />
+                ) : (
+                  <Image
+                    src={art.heroImageUrl}
+                    alt={art.title}
+                    inferSize
+                    widths={[320, 480, 640]}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 370px"
+                    loading="lazy"
+                    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                  />
+                )}
               </div>
               <div class="p-5">
                 <h2 class="font-serif text-[18px] font-medium text-ink leading-snug">

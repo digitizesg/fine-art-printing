@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import { listFloatFrames } from "../lib/float-frames";
 import WhatsAppIcon from "./icons/WhatsAppIcon.astro";
 import FrameLightbox from "./FrameLightbox.astro";
@@ -96,9 +97,11 @@ const floatFramesJson = JSON.stringify(
             class="sr-only"
           />
           {colour.imageUrl ? (
-            <img
+            <Image
               class="frame-colour__swatch"
               src={colour.imageUrl}
+              width={300}
+              height={200}
               alt=""
               loading="lazy"
               aria-hidden="true"

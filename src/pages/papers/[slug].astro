@@ -1,5 +1,6 @@
 ---
 export const prerender = true;
+import { Image } from "astro:assets";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Eyebrow from "../../components/Eyebrow.astro";
 import VisitSection from "../../components/VisitSection.astro";
@@ -118,11 +119,15 @@ const jsonLd = [
               data-frame-gallery={`paper-${paper.slug}`}
               aria-label={`View ${paper.name} sample 1 larger`}
             >
-              <img
+              <Image
                 src={heroImage}
                 alt={`Sample print on ${paper.name}`}
+                inferSize
+                widths={[480, 720, 1080]}
+                sizes="(max-width: 900px) 96vw, 540px"
                 class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)]"
                 loading="eager"
+                fetchpriority="high"
               />
             </button>
           ) : (
@@ -140,7 +145,7 @@ const jsonLd = [
                   data-frame-gallery={`paper-${paper.slug}`}
                   aria-label={`View ${paper.name} sample ${i + 2} larger`}
                 >
-                  <img src={url} alt="" loading="lazy" class="w-full h-full object-cover" />
+                  <Image src={url} alt="" width={320} height={320} loading="lazy" class="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -258,7 +263,7 @@ const jsonLd = [
               <a href={`/papers/${r.slug}`} class="group block rounded-card border border-border-soft bg-white overflow-hidden transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]">
                 {r.imageUrls[0] && (
                   <div class="aspect-[4/3] w-full bg-[#f4efe7] overflow-hidden">
-                    <img src={r.imageUrls[0]} alt={r.name} loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
+                    <Image src={r.imageUrls[0]} alt={r.name} width={600} height={450} widths={[320, 480, 600]} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 370px" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
                   </div>
                 )}
                 <div class="p-5">

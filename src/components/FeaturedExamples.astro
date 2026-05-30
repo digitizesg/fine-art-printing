@@ -1,4 +1,5 @@
 ---
+import { Image } from "astro:assets";
 import {
   featuredFor,
   detailLabelFor,
@@ -57,9 +58,12 @@ const papers = await listPapers();
               data-frame-image={ex.imageUrl}
               data-frame-name={lightboxName}
             >
-              <img
+              <Image
                 src={ex.imageUrl}
                 alt={ex.caption ?? lightboxName}
+                inferSize
+                widths={[320, 480, 640]}
+                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 360px"
                 loading="lazy"
               />
               {detail && (
