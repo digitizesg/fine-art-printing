@@ -31,6 +31,7 @@ export { formatSGD, formatSGDWhole, formatSGDCeil };
 
 const CM_TO_INCH = 0.393701;
 const INCH_PER_FOOT = 12;
+const FT_TO_M = 0.3048;
 
 /* ----------------------------------------------------------------------------
  * Canvas substrates — the canonical list of canvases now lives in Supabase
@@ -103,13 +104,16 @@ export const LABOUR_MARKUP = 2;
 export interface FloatFrameColour {
   id: string;
   label: string;
-  /** Wholesale moulding cost in SGD per foot. Drives the per-frame material line. */
-  costPerFoot: number;
+  /** Customer sell price in SGD per metre of perimeter. Drives the per-frame
+   *  material line directly — no markup/wastage applied. Set in admin. */
+  sellPerM: number;
 }
 
 export const FLOAT_FRAME_ADD_CM = 1.2;
+// Wastage is still applied to the float-frame fitting labour (kept identical to
+// before so labour charges are unchanged). The moulding material is now priced
+// straight from the per-metre sell price, so no material markup remains.
 export const FLOAT_FRAME_WASTAGE = 1.2;
-export const FLOAT_FRAME_MARKUP = 10;
 
 /* ----------------------------------------------------------------------------
  * Wire/hooks + delivery
@@ -341,13 +345,14 @@ export function quoteCanvasPrint(input: CanvasQuoteInput): CanvasQuoteResult {
   }
 
   // Float frame cost — added ON TOP of the stretching above.
+  // Moulding is priced straight from the per-metre sell price; the fitting
+  // labour stays as its own (unchanged) component.
   if (frameForCalc) {
-    const materialCost = perimeterFt * frameForCalc.costPerFoot;
+    const material = round2(perimeterFt * FT_TO_M * frameForCalc.sellPerM);
     const labour = lookupLabour(perimeterFt);
 
     const frameSell = round2(
-      round2(materialCost) * FLOAT_FRAME_WASTAGE * FLOAT_FRAME_MARKUP +
-        round2(labour) * FLOAT_FRAME_WASTAGE * LABOUR_MARKUP,
+      material + round2(labour) * FLOAT_FRAME_WASTAGE * LABOUR_MARKUP,
     );
     lines.push({
       label: `Float frame (${frameForCalc.label})`,
@@ -481,11 +486,10 @@ export function quoteCanvasStretching(
   });
 
   if (frameColour) {
-    const frameMaterialCost = perimeterFt * frameColour.costPerFoot;
+    const frameMaterial = round2(perimeterFt * FT_TO_M * frameColour.sellPerM);
     const frameLabour = lookupLabour(perimeterFt);
     const frameSell = round2(
-      round2(frameMaterialCost) * FLOAT_FRAME_WASTAGE * FLOAT_FRAME_MARKUP +
-        round2(frameLabour) * FLOAT_FRAME_WASTAGE * LABOUR_MARKUP,
+      frameMaterial + round2(frameLabour) * FLOAT_FRAME_WASTAGE * LABOUR_MARKUP,
     );
     lines.push({
       label: `Float frame (${frameColour.label})`,

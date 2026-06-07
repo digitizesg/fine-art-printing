@@ -18,7 +18,7 @@ const polycotton: CanvasSubstrate = {
 const smoothWhite: FloatFrameColour = {
   id: "smooth-white",
   label: "Smooth White",
-  costPerFoot: 0.77,
+  sellPerM: 30,
 };
 
 describe("quoteCanvasPrint", () => {

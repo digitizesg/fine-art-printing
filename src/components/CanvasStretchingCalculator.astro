@@ -7,7 +7,7 @@ import "../styles/canvas-quote.css";
 
 const floatFrames = await listFloatFrames();
 const floatFramesJson = JSON.stringify(
-  floatFrames.map((f) => ({ id: f.slug, label: f.label, costPerFoot: f.costPerFoot })),
+  floatFrames.map((f) => ({ id: f.slug, label: f.label, sellPerM: f.sellPerM })),
 );
 ---
 <form class="canvas-quote" data-stretching-form novalidate>

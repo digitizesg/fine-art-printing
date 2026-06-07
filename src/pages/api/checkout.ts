@@ -147,7 +147,7 @@ export const POST: APIRoute = async ({ request, url }) => {
         stretching = "1in";
         const ff = floatFrames.find((f) => f.slug === line.floatFrameSlug);
         if (!ff) return bad(`Float frame not found: ${line.floatFrameSlug}`);
-        floatFrame = { id: ff.slug, label: ff.label, costPerFoot: ff.costPerFoot };
+        floatFrame = { id: ff.slug, label: ff.label, sellPerM: ff.sellPerM };
         config.floatFrameSlug = ff.slug;
         config.floatFrameLabel = ff.label;
       }

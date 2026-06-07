@@ -47,14 +47,14 @@ const action = mode === "new"
 
     <div class="admin-form__row">
       <label>
-        <span>Cost per foot (SGD wholesale)</span>
+        <span>Sell price per metre (SGD)</span>
         <input
           type="number"
-          name="cost_per_foot"
+          name="sell_per_m"
           min="0"
-          step="0.001"
+          step="0.01"
           required
-          value={frame?.costPerFoot ?? "0.770"}
+          value={frame?.sellPerM ?? ""}
         />
       </label>
       <label>

@@ -26,7 +26,7 @@ if (Astro.request.method === "POST") {
 
   const label = String(form.get("label") ?? "").trim();
   let slug = String(form.get("slug") ?? "").trim().toLowerCase();
-  const costPerFoot = parseFloat(String(form.get("cost_per_foot") ?? ""));
+  const sellPerM = parseFloat(String(form.get("sell_per_m") ?? ""));
   const displayOrder = parseInt(String(form.get("display_order") ?? "100"), 10);
   const published = form.get("published") === "1";
   const file = form.get("image");
@@ -37,8 +37,8 @@ if (Astro.request.method === "POST") {
     if (!slug) slug = slugify(label);
     if (!/^[a-z0-9-]+$/.test(slug)) {
       error = "Slug must be letters, numbers, and hyphens only.";
-    } else if (!Number.isFinite(costPerFoot) || costPerFoot < 0) {
-      error = "Cost per foot must be a non-negative number.";
+    } else if (!Number.isFinite(sellPerM) || sellPerM < 0) {
+      error = "Sell price per metre must be a non-negative number.";
     } else if (file instanceof File && file.size > 0) {
       if (!ALLOWED_TYPES.has(file.type)) {
         error = "Image must be JPG or PNG.";
@@ -67,7 +67,7 @@ if (Astro.request.method === "POST") {
       const row = {
         slug,
         label,
-        cost_per_foot: costPerFoot,
+        sell_per_m: sellPerM,
         image_path: imagePath,
         published,
         display_order: Number.isFinite(displayOrder) ? displayOrder : 100,

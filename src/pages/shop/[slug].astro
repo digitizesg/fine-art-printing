@@ -41,7 +41,7 @@ const featuredCanvases = canvases.filter((c) => c.featured);
 // Engine-shape projections serialised into the page so the configurator
 // can resolve selected slugs at quote time.
 const floatFramesJson = JSON.stringify(
-  floatFrames.map((f) => ({ id: f.slug, label: f.label, costPerFoot: f.costPerFoot })),
+  floatFrames.map((f) => ({ id: f.slug, label: f.label, sellPerM: f.sellPerM })),
 );
 const canvasesJson = JSON.stringify(
   featuredCanvases.map((c) => ({

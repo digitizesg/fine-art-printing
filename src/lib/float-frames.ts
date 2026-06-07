@@ -10,7 +10,7 @@ export interface FloatFrame {
   id: string;
   slug: string;
   label: string;
-  costPerFoot: number;
+  sellPerM: number;
   imagePath: string | null;
   imageUrl: string | null;
   published: boolean;
@@ -21,7 +21,7 @@ interface DbRow {
   id: string;
   slug: string;
   label: string;
-  cost_per_foot: number | string;
+  sell_per_m: number | string | null;
   image_path: string | null;
   published: boolean;
   display_order: number;
@@ -40,9 +40,12 @@ function rowToFloatFrame(row: DbRow): FloatFrame {
     id: row.id,
     slug: row.slug,
     label: row.label,
-    costPerFoot: typeof row.cost_per_foot === "string"
-      ? parseFloat(row.cost_per_foot)
-      : row.cost_per_foot,
+    sellPerM:
+      row.sell_per_m == null
+        ? 0
+        : typeof row.sell_per_m === "string"
+          ? parseFloat(row.sell_per_m)
+          : row.sell_per_m,
     imagePath: row.image_path,
     imageUrl: floatFrameImageUrl(row.image_path),
     published: row.published,
