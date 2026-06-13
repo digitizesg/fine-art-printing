@@ -43,6 +43,10 @@ const papersJson = JSON.stringify(
           <span>in</span>
         </label>
       </div>
+      <label class="paper-quote__field paper-quote__field--qty">
+        <span>Quantity</span>
+        <input type="number" name="quantity" inputmode="numeric" min="1" step="1" value="1" />
+      </label>
     </div>
   </fieldset>
 
@@ -511,6 +515,7 @@ const papersJson = JSON.stringify(
     paperId: string;
     width: number;
     height: number;
+    quantity: number;
     units: "cm" | "in";
   };
 
@@ -520,6 +525,7 @@ const papersJson = JSON.stringify(
       paperId: String(data.get("paperId") ?? PAPERS[0]?.id ?? ""),
       width: parseFloat(String(data.get("width") ?? "0")),
       height: parseFloat(String(data.get("height") ?? "0")),
+      quantity: Math.max(1, Math.floor(parseFloat(String(data.get("quantity") ?? "1")) || 1)),
       units: (data.get("units") as "cm" | "in") ?? "cm",
     };
   }
@@ -535,6 +541,7 @@ const papersJson = JSON.stringify(
       "",
       `Paper: ${paper?.name ?? state.paperId}`,
       `Size: ${state.width} × ${state.height} ${state.units}`,
+      `Quantity: ${state.quantity}`,
       `Estimated total: ${totalText}`,
     ].join("\n");
   }
@@ -555,7 +562,7 @@ const papersJson = JSON.stringify(
       paper,
       widthCm,
       heightCm,
-      quantity: 1,
+      quantity: state.quantity,
     });
 
     const output = form.querySelector<HTMLElement>("[data-quote-output]")!;
@@ -571,10 +578,15 @@ const papersJson = JSON.stringify(
       return;
     }
 
+    const each =
+      state.quantity > 1
+        ? `<div class="quote-result__sub">${formatSGDWhole(result.grandTotal / state.quantity)} each, ${state.quantity} prints</div>`
+        : "";
     output.innerHTML = `
       <div class="quote-result" aria-live="polite">
         <div class="quote-result__label">Estimated total, all-in</div>
         <div class="quote-result__amount">${formatSGDWhole(result.grandTotal)}</div>
+        ${each}
       </div>
     `;
 
