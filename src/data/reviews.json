@@ -1,53 +1,54 @@
 {
-  "rating": 5.0,
-  "userRatingsTotal": 70,
-  "fetchedAt": "2026-05-15T00:00:00.000Z",
-  "source": "manual",
+  "rating": 5,
+  "userRatingsTotal": 73,
+  "fetchedAt": "2026-06-16T07:17:34.562Z",
+  "source": "google",
+  "placeId": "ChIJke7_b1gZ2jERBZIUs8hiUJE",
   "reviews": [
     {
-      "author_name": "Aaron Lim",
-      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
-      "profile_photo_url": null,
+      "author_name": "Charlie Smedley",
+      "author_url": "https://www.google.com/maps/contrib/111410402917138561089/reviews",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjUarxw_QtvS5W4egzP1Bh1cM3xh9fQJb4S23YaDiH3N0L-YxvJV=s128-c0x00000000-cc-rp-mo",
       "rating": 5,
-      "relative_time_description": "2 months ago",
-      "text": "Ben and his team did a beautiful job printing and framing a set of archival prints for my wife's 50th. Colour was spot on, paper was beautiful, and they gave honest advice about which sizes worked. Will be back.",
-      "time": 1738281600
+      "relative_time_description": "a week ago",
+      "text": "Exceptional service from start to finish.\n\nWe worked remotely on a project in Singapore from London printing and framing 400+ works and the team were exceptional. I could not recommend them highly enough.\n\nThank you 🙏",
+      "time": 1780668473
     },
     {
-      "author_name": "Priya Subramaniam",
-      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
-      "profile_photo_url": null,
+      "author_name": "Dhaka Yeah",
+      "author_url": "https://www.google.com/maps/contrib/109881736817949917210/reviews",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocII0w1jpLW-qJJFTCbXNNl3OwfZVhx416aFCtSbqBNozlC0eg=s128-c0x00000000-cc-rp-mo",
+      "rating": 5,
+      "relative_time_description": "a month ago",
+      "text": "Absolutely blown away by the experience at Art Printing Works. We did some fine art printing for DhakaYeah while visiting Singapore, and the entire process was incredible from start to finish.\n\nThe lovely lady who assisted us patiently walked us through the different printing and paper options, explained the process in detail, and genuinely tried to understand what would work best for our artwork and brand instead of simply pushing the most expensive option available. That honesty and care really stood out, they really care about their customers.\n\nThe print quality was exceptional, the turnaround was surprisingly quick and efficient, and you can truly feel the level of craftsmanship and attention that goes into their work.\n\nCouldn’t recommend them more to other illustrators be it professional or anyone looking for high quality art printing in Singapore.",
+      "time": 1778240590
+    },
+    {
+      "author_name": "Raji Sundaresan",
+      "author_url": "https://www.google.com/maps/contrib/109505930434387471430/reviews",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjU7tdPZu1D6K3yB7KHdRPpNoLDMaCfNJTPgDyH5xdAAMTKUPJPM=s128-c0x00000000-cc-rp-mo",
+      "rating": 5,
+      "relative_time_description": "3 months ago",
+      "text": "Great service from beginning to end. They even fast tracked delivery so that I can receive the paintings before my birthday. Quality of pruning and framing is excellent too. As this is specialised printing cost was on the higher side compared to what I expected",
+      "time": 1771461987
+    },
+    {
+      "author_name": "Geraldine",
+      "author_url": "https://www.google.com/maps/contrib/103078552303504435726/reviews",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a/ACg8ocI5ZAo0_PiqIhHGn3c9HM64_O42YpXj-FTQOCl8U-lVIrUnSQ=s128-c0x00000000-cc-rp-mo",
       "rating": 5,
       "relative_time_description": "5 months ago",
-      "text": "Excellent attention to detail. We had four large pieces printed on Hahnemühle paper and stretched on canvas for our office reception. Crisp, neutral, and finished on schedule. The team walked us through paper choices without overselling.",
-      "time": 1730419200
+      "text": "Outstanding service from start to finish. The team at Fine Art Printing really knows what they’re doing. The canvas quality was excellent and the colours came out beautifully. They took the time to check everything before printing and the final result exceeded expectations. Highly recommended if you care about quality.",
+      "time": 1767160426
     },
     {
-      "author_name": "Marcus Tan",
-      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
-      "profile_photo_url": null,
-      "rating": 5,
-      "relative_time_description": "8 months ago",
-      "text": "Took my late father's photographs in for restoration and reprinting. The work they did to bring back damaged sections was extraordinary. Beautifully framed too. Thank you.",
-      "time": 1722470400
-    },
-    {
-      "author_name": "Hannah Goh",
-      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
-      "profile_photo_url": null,
-      "rating": 5,
-      "relative_time_description": "11 months ago",
-      "text": "Best printing experience I've had in Singapore. Studio is calm, the team actually looks at your file before printing, and they pulled a test print before running the full size. Pricing felt fair for the quality.",
-      "time": 1714521600
-    },
-    {
-      "author_name": "Jonathan Wee",
-      "author_url": "https://search.google.com/local/reviews?placeid=ChIJke7_b1gZ2jERBZIUs8hiUJE",
-      "profile_photo_url": null,
+      "author_name": "Melvin Ong",
+      "author_url": "https://www.google.com/maps/contrib/115640556718558587047/reviews",
+      "profile_photo_url": "https://lh3.googleusercontent.com/a-/ALV-UjUqlPOeMbKD6FhTnJAzSgYqRgE3XpyR53Ut8qHo-Nbq2R5wg61O=s128-c0x00000000-cc-rp-mo-ba2",
       "rating": 5,
       "relative_time_description": "a year ago",
-      "text": "Used them for a corporate gifting project, 30 framed prints across two offices. Quality was uniform across the run, deliveries were on time, and the framing options matched our brand without us having to over-specify. Recommended.",
-      "time": 1706659200
+      "text": "Reasonably priced printer with amazing paper!\n\nPrinted mine on Hahnemühle artist canvas with the intention to repurpose an old canvas frame\nI got lying around. Was quite nervous how my print would turn out but when I collected it and saw the quality, I was blown away by how accurate the colors representation were and the texture of the paper.\n\nI think I found my go to printer already for future projects.\n\nBig thanks to the team for making my little project come alive. Really appreciate it!",
+      "time": 1743070985
     }
   ]
 }
