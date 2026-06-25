@@ -1,25 +1,50 @@
 ---
-// Google Analytics 4 — measurement ID G-STWP6D4WXE.
-// Stream ID for reference (Measurement Protocol / BigQuery export only,
-// not needed for client-side gtag.js): 4870150484.
-//
-// Only loads on production builds so localhost / preview / dev traffic
-// doesn't pollute analytics.
-const GA_MEASUREMENT_ID = "G-STWP6D4WXE";
+/**
+ * Google Tag Manager (container GTM-WRHWRQV).
+ *
+ * All tags — Google Analytics (property G-STWP6D4WXE, configured inside the
+ * container as "GA4 Main Tag"), conversion tracking, etc. — are managed in
+ * the GTM container, not in this codebase. This renders the GTM <head>
+ * snippet; the matching <noscript> fallback lives right after <body> in
+ * BaseLayout.astro (GTM needs both parts).
+ *
+ * Consent Mode v2 default is set BEFORE GTM loads so its tags respect it:
+ * analytics/functionality/security granted, advertising categories denied.
+ * No cookie banner is shown. (If we later want Google Ads remarketing /
+ * enhanced conversions, switch the ad_* categories to 'granted'.)
+ *
+ * Only loads on production builds so localhost / dev traffic doesn't pollute
+ * analytics. Loaded from BaseLayout only, so the admin area is untracked.
+ */
+const GTM_ID = "GTM-WRHWRQV";
 const isProd = import.meta.env.PROD;
 ---
 {isProd && (
   <>
-    <script
-      is:inline
-      async
-      src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-    ></script>
-    <script is:inline define:vars={{ GA_MEASUREMENT_ID }}>
+    <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag() { window.dataLayer.push(arguments); }
-      gtag('js', new Date());
-      gtag('config', GA_MEASUREMENT_ID);
+      window.gtag = gtag;
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'granted',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+      });
+    </script>
+    <script is:inline define:vars={{ GTM_ID }}>
+      (function (w, d, s, l, i) {
+        w[l] = w[l] || [];
+        w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+        var f = d.getElementsByTagName(s)[0],
+          j = d.createElement(s),
+          dl = l != 'dataLayer' ? '&l=' + l : '';
+        j.async = true;
+        j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+        f.parentNode.insertBefore(j, f);
+      })(window, document, 'script', 'dataLayer', GTM_ID);
     </script>
   </>
 )}

@@ -86,6 +86,46 @@ const description = "Thanks for your order at Fine Art Printing.";
       </div>
     </div>
   </section>
+
+  {sessionId && reference && (
+    <script is:inline define:vars={{ kind, reference, totalSGD }}>
+      // Conversion event for GTM/GA4. Fires only on a real completed payment
+      // (Stripe redirects here with a session_id that resolves to a paid
+      // order), once per order — the sessionStorage guard stops a refresh
+      // re-counting it. Values come from the order row (server-side), so
+      // revenue is accurate.
+      window.dataLayer = window.dataLayer || []
+      var fire = true
+      try {
+        var guardKey = 'fap_conv_' + reference
+        if (sessionStorage.getItem(guardKey)) fire = false
+        else sessionStorage.setItem(guardKey, '1')
+      } catch (e) {}
+      if (fire) {
+        if (kind === 'shop') {
+          window.dataLayer.push({ ecommerce: null }) // clear any prior ecommerce object
+          window.dataLayer.push({
+            event: 'purchase',
+            ecommerce: { transaction_id: reference, value: totalSGD, currency: 'SGD' },
+          })
+        } else if (kind === 'valuation') {
+          window.dataLayer.push({
+            event: 'valuation_submit',
+            transaction_id: reference,
+            value: totalSGD,
+            currency: 'SGD',
+          })
+        } else if (kind === 'custom_payment') {
+          window.dataLayer.push({
+            event: 'custom_payment',
+            transaction_id: reference,
+            value: totalSGD,
+            currency: 'SGD',
+          })
+        }
+      }
+    </script>
+  )}
 </BaseLayout>
 
 <script>

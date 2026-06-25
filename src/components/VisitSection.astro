@@ -192,6 +192,10 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
             data.error || "Sorry, something went wrong. Please try again.",
           );
         }
+        // Conversion event for GTM/GA4 — fires once, only on confirmed success.
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({ event: "contact_form_submit", form_location: "visit_section" });
+
         form.hidden = true;
         successEl.hidden = false;
         successEl.scrollIntoView({ behavior: "smooth", block: "nearest" });

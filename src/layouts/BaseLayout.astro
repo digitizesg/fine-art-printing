@@ -41,6 +41,16 @@ const combinedJsonLd: Record<string, unknown>[] = [
     <Analytics />
   </head>
   <body class="bg-white text-ink antialiased">
+    {/* Google Tag Manager (noscript) — pairs with the GTM <head> snippet in Analytics.astro; prod-only to match it */}
+    {import.meta.env.PROD && (
+      <noscript>
+        <iframe
+          src="https://www.googletagmanager.com/ns.html?id=GTM-WRHWRQV"
+          height="0"
+          width="0"
+          style="display:none;visibility:hidden"></iframe>
+      </noscript>
+    )}
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-petrol focus:px-3 focus:py-2 focus:text-white"

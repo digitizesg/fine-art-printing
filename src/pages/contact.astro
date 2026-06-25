@@ -664,6 +664,10 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
         return;
       }
 
+      // Conversion event for GTM/GA4 — fires once, only on confirmed success.
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: "contact_form_submit", form_location: "contact_page" });
+
       // Success, swap the form for the thanks panel.
       form.hidden = true;
       if (success) success.hidden = false;
