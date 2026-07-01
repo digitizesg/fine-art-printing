@@ -9,9 +9,9 @@
  * BaseLayout.astro (GTM needs both parts).
  *
  * Consent Mode v2 default is set BEFORE GTM loads so its tags respect it:
- * analytics/functionality/security granted, advertising categories denied.
- * No cookie banner is shown. (If we later want Google Ads remarketing /
- * enhanced conversions, switch the ad_* categories to 'granted'.)
+ * analytics/functionality/security and the advertising categories are all
+ * granted, so Google Ads conversion tracking can attribute conversions.
+ * No cookie banner is shown.
  *
  * Only loads on production builds so localhost / dev traffic doesn't pollute
  * analytics. Loaded from BaseLayout only, so the admin area is untracked.
@@ -26,9 +26,9 @@ const isProd = import.meta.env.PROD;
       function gtag() { window.dataLayer.push(arguments); }
       window.gtag = gtag;
       gtag('consent', 'default', {
-        ad_storage: 'denied',
-        ad_user_data: 'denied',
-        ad_personalization: 'denied',
+        ad_storage: 'granted',
+        ad_user_data: 'granted',
+        ad_personalization: 'granted',
         analytics_storage: 'granted',
         functionality_storage: 'granted',
         security_storage: 'granted',
