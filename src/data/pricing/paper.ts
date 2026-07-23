@@ -82,9 +82,12 @@ export type QuoteResult =
       areaCm2: number;
       paper: PaperFamily;
       perPrintLines: QuoteLine[];
+      /** Raw per-print price (2dp), the sum of the breakdown lines. */
       perPrintTotal: number;
+      /** Per-print price rounded up to a whole dollar — what the customer pays each. */
+      perPrintCharged: number;
       quantity: number;
-      /** perPrintTotal × quantity, before the minimum-job floor. */
+      /** perPrintCharged × quantity, before the minimum-job floor. */
       subtotal: number;
       /** Amount added to bring subtotal up to PAPER_PRICING.minJobSell, or 0. */
       minTopUp: number;
@@ -162,13 +165,13 @@ export function quotePaperPrint(input: QuoteInput): QuoteResult {
 
   const perPrintTotal =
     Math.round(perPrintLines.reduce((s, l) => s + l.amount, 0) * 100) / 100;
-  const subtotal = Math.round(perPrintTotal * quantity * 100) / 100;
-  const minTopUp = Math.max(
-    0,
-    Math.round((PAPER_PRICING.minJobSell - subtotal) * 100) / 100,
-  );
-  // House rule: round the grand total UP to the nearest dollar.
-  const grandTotal = Math.ceil(subtotal + minTopUp);
+  // House rule: each print is rounded UP to a whole dollar, then multiplied by
+  // the quantity, so the unit price and the total always reconcile (e.g. two
+  // $28.50 prints show as $29 each for a $58 total, not $29 each for $57).
+  const perPrintCharged = Math.ceil(perPrintTotal);
+  const subtotal = perPrintCharged * quantity;
+  const minTopUp = Math.max(0, PAPER_PRICING.minJobSell - subtotal);
+  const grandTotal = subtotal + minTopUp;
 
   return {
     ok: true,
@@ -177,6 +180,7 @@ export function quotePaperPrint(input: QuoteInput): QuoteResult {
     paper,
     perPrintLines,
     perPrintTotal,
+    perPrintCharged,
     quantity,
     subtotal,
     minTopUp,

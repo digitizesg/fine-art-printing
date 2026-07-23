@@ -578,14 +578,11 @@ const papersJson = JSON.stringify(
       return;
     }
 
-    // Derive the per-print figure from the displayed grand total so the two
-    // always reconcile (grandTotal is rounded up to a whole dollar, so a
-    // separately-rounded per-print price could show e.g. "$29 each × 2 = $58"
-    // against a $57 total). Show cents here since the total isn't always
-    // evenly divisible by the quantity.
+    // Each print is charged as a whole dollar, and the total is that × the
+    // quantity, so the two always reconcile (e.g. $29 each x 2 = $58).
     const each =
       state.quantity > 1
-        ? `<div class="quote-result__sub">${formatSGD(result.grandTotal / state.quantity)} each, ${state.quantity} prints</div>`
+        ? `<div class="quote-result__sub">${formatSGDWhole(result.perPrintCharged)} each, ${state.quantity} prints</div>`
         : "";
     output.innerHTML = `
       <div class="quote-result" aria-live="polite">
