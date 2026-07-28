@@ -1,0 +1,550 @@
+---
+export const prerender = true;
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Eyebrow from "../components/Eyebrow.astro";
+import DisplayHeading from "../components/DisplayHeading.astro";
+import { business } from "../data/business";
+import { CAREER_ROLES, OPEN_APPLICATION_VALUE } from "../data/careers";
+
+const description =
+  "Join the Fine Art Printing team in Singapore. We're always looking for a Delivery Driver, Print Specialist, and Workshop Assistant. Apply online in a couple of minutes.";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: "Careers at Fine Art Printing",
+  url: `https://${business.domain}/careers`,
+  about: {
+    "@type": "Organization",
+    name: business.legalName,
+    url: `https://${business.domain}`,
+  },
+};
+
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
+const emailHref = "mailto:ben@fineartprinting.com.sg?subject=Careers%20at%20Fine%20Art%20Printing";
+---
+<BaseLayout
+  title="Careers | Fine Art Printing Singapore"
+  description={description}
+  jsonLd={jsonLd}
+>
+  <!-- Hero -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pt-14 pb-10 md:pt-20 md:pb-12">
+      <div class="max-w-[820px]">
+        <Eyebrow>Careers</Eyebrow>
+        <h1 class="mt-4 font-serif text-[clamp(2.2rem,5vw,3rem)] font-medium leading-[1.08] text-ink">
+          Join the team
+        </h1>
+        <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
+          We're a small, hands-on studio in Tiong Bahru that prints, stretches,
+          and frames fine art to a high standard. We're always keen to hear from
+          careful, reliable people who take pride in their work. These are the
+          roles we hire for most often.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Roles -->
+  <section class="bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 pb-16 md:pb-20">
+      <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {CAREER_ROLES.map((r) => (
+          <div class="flex h-full flex-col rounded-card border border-border-soft bg-white p-6">
+            <p class="font-serif text-[19px] font-medium text-ink">{r.title}</p>
+            <p class="mt-2 flex-1 text-[14px] leading-relaxed text-subtle">{r.blurb}</p>
+            <button
+              type="button"
+              class="careers-role-apply mt-5 inline-flex w-fit items-center gap-1.5 text-[14px] font-semibold text-petrol"
+              data-apply-role={r.value}
+            >
+              Apply for this role
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
+        ))}
+      </div>
+      <p class="mt-6 text-[14px] leading-relaxed text-subtle">
+        Don't see your role? We still like meeting good people. Choose
+        <strong>“Open application”</strong> in the form below and tell us what you do.
+      </p>
+    </div>
+  </section>
+
+  <!-- Application form -->
+  <section id="apply" class="border-t border-border-soft bg-[#FAF7F1]">
+    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+      <div class="max-w-[720px]">
+        <Eyebrow>Apply</Eyebrow>
+        <DisplayHeading level={2} class="mt-3">Send us your application.</DisplayHeading>
+        <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
+          Fill this in and it comes straight to us. Attach a CV if you have one,
+          it helps, but a few honest lines about yourself and your experience is
+          a perfectly good start.
+        </p>
+
+        <form class="careers-form mt-10" data-careers-form novalidate>
+          <label class="careers-form__field">
+            <span>Your name</span>
+            <input type="text" name="name" required maxlength="120" autocomplete="name" />
+          </label>
+
+          <label class="careers-form__field">
+            <span>Role you're applying for</span>
+            <select name="role" required data-careers-role>
+              <option value="" disabled selected>Select a role…</option>
+              {CAREER_ROLES.map((r) => (
+                <option value={r.value}>{r.title}</option>
+              ))}
+              <option value={OPEN_APPLICATION_VALUE}>{OPEN_APPLICATION_VALUE}</option>
+            </select>
+          </label>
+
+          <div class="careers-form__row">
+            <label class="careers-form__field">
+              <span>Email</span>
+              <input type="email" name="email" required maxlength="254" autocomplete="email" />
+            </label>
+            <label class="careers-form__field">
+              <span>Phone / WhatsApp</span>
+              <input type="tel" name="phone" required maxlength="40" autocomplete="tel" />
+            </label>
+          </div>
+
+          <label class="careers-form__field">
+            <span>A bit about you <em>(optional)</em></span>
+            <textarea name="message" rows="6" maxlength="3000" placeholder="Your experience, availability, and why this role. Anything that helps us get to know you."></textarea>
+          </label>
+
+          <div class="careers-form__field">
+            <span>CV / résumé <em>(optional, up to 3 files)</em></span>
+            <label class="careers-form__dropzone" data-careers-dropzone>
+              <input type="file" name="files" accept=".pdf,.doc,.docx,image/jpeg,image/png,image/heic" multiple data-careers-files hidden />
+              <div class="careers-form__dropzone-prompt">
+                <strong>Click to browse</strong> or drag files here
+                <span>PDF, DOC, or image · 3 MB each, 3 max</span>
+              </div>
+            </label>
+            <ul class="careers-form__files" data-careers-file-list></ul>
+          </div>
+
+          <!-- Honeypot. Real users never see or fill this; bots usually do. -->
+          <div class="careers-form__honeypot" aria-hidden="true">
+            <label>
+              Website
+              <input type="text" name="website" tabindex="-1" autocomplete="off" />
+            </label>
+          </div>
+
+          {turnstileSiteKey && (
+            <div class="careers-form__turnstile cf-turnstile" data-sitekey={turnstileSiteKey}></div>
+          )}
+
+          <div class="careers-form__actions">
+            <button type="submit" class="careers-form__submit" data-careers-submit>
+              Send application
+            </button>
+            <p class="careers-form__hint" data-careers-hint></p>
+          </div>
+        </form>
+
+        <div class="careers-form__success" data-careers-success hidden>
+          <div class="careers-form__success-icon" aria-hidden="true">
+            <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
+              <circle cx="22" cy="22" r="21" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M13 22.5l6 6 12-13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h2>Application received.</h2>
+          <p>
+            Thanks for your interest in joining us. We read every application and
+            will be in touch if there's a good fit. We aim to respond within a
+            week or so.
+          </p>
+          <p class="careers-form__success-detail" data-careers-success-detail></p>
+        </div>
+
+        <p class="mt-8 text-[13.5px] leading-relaxed text-subtle">
+          Prefer email? Write to
+          <a href={emailHref} class="font-semibold text-petrol">ben@fineartprinting.com.sg</a>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {turnstileSiteKey && (
+    <script
+      src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+      async
+      defer
+    ></script>
+  )}
+</BaseLayout>
+
+<style is:global>
+  .careers-form {
+    display: grid;
+    gap: 20px;
+  }
+  .careers-form__row {
+    display: grid;
+    gap: 20px;
+  }
+  @media (min-width: 640px) {
+    .careers-form__row { grid-template-columns: 1fr 1fr; }
+  }
+  .careers-form__field {
+    display: grid;
+    gap: 8px;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    min-width: 0;
+  }
+  .careers-form__field > span {
+    font-size: 15px;
+    color: var(--color-ink);
+    font-weight: 600;
+  }
+  .careers-form__field > span em {
+    font-style: normal;
+    color: var(--color-muted);
+    font-weight: 400;
+  }
+  .careers-form input[type="text"],
+  .careers-form input[type="email"],
+  .careers-form input[type="tel"],
+  .careers-form select,
+  .careers-form textarea {
+    padding: 14px 16px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    font: inherit;
+    font-size: 16.5px;
+    background: #fff;
+    color: var(--color-ink);
+  }
+  .careers-form select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 10 10' fill='none'%3E%3Cpath d='M2 4l3 3 3-3' stroke='%23555' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+  }
+  .careers-form input:focus,
+  .careers-form select:focus,
+  .careers-form textarea:focus {
+    outline: 2px solid var(--color-petrol);
+    outline-offset: 0;
+    border-color: var(--color-petrol);
+  }
+  .careers-form textarea { resize: vertical; min-height: 140px; }
+
+  .careers-form__honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .careers-form__dropzone {
+    display: block;
+    padding: 32px 20px;
+    border: 1.5px dashed rgba(0, 0, 0, 0.20);
+    border-radius: 12px;
+    background: #fff;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 150ms, background 150ms;
+  }
+  .careers-form__dropzone:hover { border-color: var(--color-petrol); background: rgba(26, 53, 80, 0.04); }
+  .careers-form__dropzone.is-dragover { border-color: var(--color-petrol); background: rgba(26, 53, 80, 0.06); }
+  .careers-form__dropzone-prompt {
+    display: grid;
+    gap: 6px;
+    font-size: 15px;
+    color: var(--color-subtle);
+  }
+  .careers-form__dropzone-prompt strong { color: var(--color-petrol); font-weight: 600; }
+  .careers-form__dropzone-prompt span { font-size: 13px; color: var(--color-muted); }
+  .careers-form__files {
+    list-style: none;
+    margin: 12px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+  .careers-form__files li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    font-size: 14px;
+    color: var(--color-ink);
+  }
+  .careers-form__files li button {
+    background: none;
+    border: 0;
+    color: var(--color-muted);
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 0;
+  }
+  .careers-form__files li button:hover { color: var(--color-ink); }
+  .careers-form__files li.is-error {
+    border-color: rgba(180, 30, 30, 0.30);
+    background: rgba(180, 30, 30, 0.04);
+    color: #8a1414;
+  }
+
+  .careers-form__turnstile { margin-top: 4px; }
+
+  .careers-form__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .careers-form__submit {
+    appearance: none;
+    border: 0;
+    background: var(--color-petrol);
+    color: #fff;
+    border-radius: 999px;
+    padding: 14px 28px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 150ms ease-out;
+  }
+  .careers-form__submit:hover { background: #142a40; }
+  .careers-form__submit:disabled { opacity: 0.55; cursor: not-allowed; }
+  .careers-form__hint { margin: 0; font-size: 14px; color: var(--color-subtle); }
+  .careers-form__hint--err { color: #8a1414; }
+
+  .careers-form__success {
+    margin-top: 10px;
+    padding: 36px 32px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #F0F8F2 0%, #E7F3EC 100%);
+    border: 1px solid rgba(46, 124, 78, 0.30);
+    text-align: center;
+  }
+  .careers-form__success-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: rgba(46, 124, 78, 0.12);
+    color: #2E7C4E;
+  }
+  .careers-form__success h2 {
+    margin: 0 0 10px;
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 24px;
+    color: #163E25;
+  }
+  .careers-form__success p {
+    margin: 0 auto 8px;
+    max-width: 46ch;
+    font-size: 15px;
+    color: #2E5638;
+    line-height: 1.6;
+  }
+  .careers-form__success p:last-child { margin-bottom: 0; }
+  .careers-form__success-detail { font-size: 13px !important; color: #4C7158 !important; }
+</style>
+
+<script>
+  const MAX_FILES = 3;
+  const MAX_BYTES = 3 * 1024 * 1024;
+  const MAX_TOTAL_BYTES = 4 * 1024 * 1024;
+  const ALLOWED = new Set([
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "image/jpeg",
+    "image/png",
+    "image/heic",
+  ]);
+
+  const form = document.querySelector<HTMLFormElement>("[data-careers-form]");
+  const roleSelect = document.querySelector<HTMLSelectElement>("[data-careers-role]");
+  const fileInput = document.querySelector<HTMLInputElement>("[data-careers-files]");
+  const dropzone = document.querySelector<HTMLLabelElement>("[data-careers-dropzone]");
+  const fileList = document.querySelector<HTMLUListElement>("[data-careers-file-list]");
+  const submitBtn = document.querySelector<HTMLButtonElement>("[data-careers-submit]");
+  const hint = document.querySelector<HTMLElement>("[data-careers-hint]");
+  const success = document.querySelector<HTMLElement>("[data-careers-success]");
+  const successDetail = document.querySelector<HTMLElement>("[data-careers-success-detail]");
+
+  // Preselect a role from the cards ("Apply for this role") or a ?role= param.
+  function selectRole(value: string) {
+    if (!roleSelect) return;
+    const match = Array.from(roleSelect.options).find((o) => o.value === value);
+    if (match) roleSelect.value = value;
+  }
+  const roleParam = new URLSearchParams(window.location.search).get("role");
+  if (roleParam) selectRole(roleParam);
+
+  document.querySelectorAll<HTMLButtonElement>(".careers-role-apply").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const role = btn.getAttribute("data-apply-role") ?? "";
+      selectRole(role);
+      document.getElementById("apply")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.setTimeout(() => {
+        form?.querySelector<HTMLInputElement>('input[name="name"]')?.focus();
+      }, 400);
+    });
+  });
+
+  const selectedFiles: File[] = [];
+
+  function fmtBytes(n: number): string {
+    if (n < 1024) return `${n} B`;
+    if (n < 1024 * 1024) return `${(n / 1024).toFixed(0)} KB`;
+    return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  function validateFile(f: File): string | null {
+    if (!ALLOWED.has(f.type) && !/\.(pdf|docx?|jpe?g|png|heic)$/i.test(f.name)) {
+      return "Unsupported file type";
+    }
+    if (f.size > MAX_BYTES) return "Over 3 MB";
+    return null;
+  }
+
+  function renderFiles() {
+    if (!fileList) return;
+    fileList.innerHTML = "";
+    selectedFiles.forEach((f, idx) => {
+      const li = document.createElement("li");
+      const err = validateFile(f);
+      if (err) li.classList.add("is-error");
+      const left = document.createElement("span");
+      left.textContent = err ? `${f.name}, ${err}` : `${f.name} · ${fmtBytes(f.size)}`;
+      const remove = document.createElement("button");
+      remove.type = "button";
+      remove.textContent = "Remove";
+      remove.addEventListener("click", () => {
+        selectedFiles.splice(idx, 1);
+        renderFiles();
+      });
+      li.append(left, remove);
+      fileList.appendChild(li);
+    });
+  }
+
+  function addFiles(files: FileList | File[]) {
+    for (const f of Array.from(files)) {
+      if (selectedFiles.length >= MAX_FILES) {
+        if (hint) {
+          hint.textContent = `Maximum ${MAX_FILES} files. Remove one to add more.`;
+          hint.className = "careers-form__hint careers-form__hint--err";
+        }
+        break;
+      }
+      selectedFiles.push(f);
+    }
+    renderFiles();
+  }
+
+  fileInput?.addEventListener("change", () => {
+    if (fileInput.files) addFiles(fileInput.files);
+    fileInput.value = "";
+  });
+
+  dropzone?.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropzone.classList.add("is-dragover");
+  });
+  dropzone?.addEventListener("dragleave", () => dropzone.classList.remove("is-dragover"));
+  dropzone?.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropzone.classList.remove("is-dragover");
+    if (e.dataTransfer?.files) addFiles(e.dataTransfer.files);
+  });
+
+  function setHint(msg: string, isError = false) {
+    if (!hint) return;
+    hint.textContent = msg;
+    hint.className = isError
+      ? "careers-form__hint careers-form__hint--err"
+      : "careers-form__hint";
+  }
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form || !submitBtn || !hint) return;
+
+    const fd = new FormData(form);
+    const name = String(fd.get("name") ?? "").trim();
+    const role = String(fd.get("role") ?? "").trim();
+    const email = String(fd.get("email") ?? "").trim();
+    const phone = String(fd.get("phone") ?? "").trim();
+
+    if (!name) return setHint("Please tell us your name.", true);
+    if (!role) return setHint("Please pick the role you're applying for.", true);
+    if (!email || !/.+@.+\..+/.test(email)) return setHint("Please enter a valid email.", true);
+    if (!phone || phone.replace(/\D/g, "").length < 6) {
+      return setHint("Please enter a phone number we can reach you on.", true);
+    }
+
+    for (const f of selectedFiles) {
+      const err = validateFile(f);
+      if (err) return setHint(`${f.name}: ${err}`, true);
+    }
+    const totalBytes = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+    if (totalBytes > MAX_TOTAL_BYTES) {
+      return setHint("Combined attachments are over 4 MB. Please remove or shrink some.", true);
+    }
+
+    const dt = new DataTransfer();
+    for (const f of selectedFiles) dt.items.add(f);
+    if (fileInput) fileInput.files = dt.files;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending…";
+    setHint("");
+
+    try {
+      const formData = new FormData(form);
+      const res = await fetch("/api/careers", { method: "POST", body: formData });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.ok) {
+        setHint(data?.error ?? `Could not send (${res.status}). Please try again or email us.`, true);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Send application";
+        const ts = (window as any).turnstile;
+        if (ts && typeof ts.reset === "function") ts.reset();
+        return;
+      }
+
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({ event: "careers_form_submit", role });
+
+      form.hidden = true;
+      if (success) success.hidden = false;
+      if (successDetail && data.attachmentCount > 0) {
+        successDetail.textContent = `${data.attachmentCount} file${data.attachmentCount === 1 ? "" : "s"} attached.`;
+      }
+      window.scrollTo({ top: form.offsetTop - 80, behavior: "smooth" });
+    } catch (err) {
+      setHint("Network error. Please try again or email us.", true);
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Send application";
+    }
+  });
+</script>
