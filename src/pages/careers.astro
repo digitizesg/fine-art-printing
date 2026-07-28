@@ -22,7 +22,6 @@ const jsonLd = {
 };
 
 const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
-const emailHref = "mailto:ben@fineartprinting.com.sg?subject=Careers%20at%20Fine%20Art%20Printing";
 ---
 <BaseLayout
   title="Careers | Fine Art Printing Singapore"
@@ -38,10 +37,11 @@ const emailHref = "mailto:ben@fineartprinting.com.sg?subject=Careers%20at%20Fine
           Join the team
         </h1>
         <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
-          We're a small, hands-on studio in Tiong Bahru that prints, stretches,
-          and frames fine art to a high standard. We're always keen to hear from
-          careful, reliable people who take pride in their work. These are the
-          roles we hire for most often.
+          We're constantly looking for good, reliable people to join our team.
+          Below are the roles we hire for most often at the moment and we'd
+          welcome any applications. Unfortunately we have limited quota
+          availability and thus roles are generally only available to
+          Singaporeans and Singapore PRs.
         </p>
       </div>
     </div>
@@ -165,11 +165,6 @@ const emailHref = "mailto:ben@fineartprinting.com.sg?subject=Careers%20at%20Fine
           </p>
           <p class="careers-form__success-detail" data-careers-success-detail></p>
         </div>
-
-        <p class="mt-8 text-[13.5px] leading-relaxed text-subtle">
-          Prefer email? Write to
-          <a href={emailHref} class="font-semibold text-petrol">ben@fineartprinting.com.sg</a>.
-        </p>
       </div>
     </div>
   </section>
