@@ -327,6 +327,12 @@
   font-size: 12.5px;
   color: var(--color-subtle);
 }
+.delivery-note {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--color-subtle);
+}
 
 /* Output */
 .canvas-quote__output {
@@ -376,6 +382,13 @@
   line-height: 1;
   color: var(--color-petrol);
   font-variant-numeric: tabular-nums;
+}
+
+.quote-result__note {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--color-subtle);
 }
 
 .canvas-quote__actions {

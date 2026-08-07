@@ -155,7 +155,7 @@ const stripeDashUrl = row.stripe_payment_intent_id
         <h3 class="order-panel__title">Delivery</h3>
         <dl class="order-dl">
           <dt>Method</dt>
-          <dd>{row.delivery_method === "local" ? "Local Singapore delivery (S$30)" : "Self-collection from studio"}</dd>
+          <dd>{row.delivery_method === "local" ? `Local Singapore delivery (${fmtSGD(row.delivery_sgd)} charged)` : "Self-collection from studio"}</dd>
           {row.delivery_method === "local" ? (
             <Fragment>
               <dt>Address</dt><dd>{fmtAddress(shipping)}</dd>

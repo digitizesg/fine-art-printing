@@ -151,7 +151,14 @@ export async function sendCustomerOrderConfirmation(ctx: OrderEmailContext): Pro
 
   const heading = "Order confirmed.";
   const intro = `Thanks${ctx.customerName ? `, ${escapeHtml(ctx.customerName.split(" ")[0] ?? "")}` : ""}. We've received your order and the studio is queueing it up. We'll be in touch with a production ETA within one business day.`;
+  // Local delivery is charged as a from-price, so flag that a bigger or more
+  // fragile piece may need a top-up we'll agree with the customer first.
+  const deliveryNote =
+    ctx.deliveryMethod === "local"
+      ? "Local delivery starts at S$30. If your piece needs a bigger vehicle or extra handling, we'll contact you to confirm the difference before we deliver. "
+      : "";
   const footer =
+    deliveryNote +
     `Questions about your order? Reply to this email or message us on WhatsApp at ${business.whatsapp}. ` +
     "Fine Art Printing — Hahnemühle Gold-certified studio in Singapore.";
 

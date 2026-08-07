@@ -63,8 +63,8 @@ const catalogJson = JSON.stringify({
             <label class="cart__delivery-opt">
               <input type="radio" name="delivery" value="local" />
               <span>
-                <strong>Local Singapore delivery · S$30</strong>
-                <em>Anywhere in Singapore. Address taken at checkout.</em>
+                <strong>Local Singapore delivery · from S$30</strong>
+                <em>Anywhere in Singapore. Address taken at checkout. S$30 covers most orders. Very large or fragile pieces can need a bigger vehicle, and we'll contact you to confirm any extra before we deliver.</em>
               </span>
             </label>
           </fieldset>
@@ -75,7 +75,7 @@ const catalogJson = JSON.stringify({
               <dd data-cart-subtotal>—</dd>
             </div>
             <div>
-              <dt>Delivery</dt>
+              <dt data-cart-delivery-label>Delivery</dt>
               <dd data-cart-delivery>—</dd>
             </div>
             <div class="cart__totals-grand">
@@ -516,6 +516,9 @@ const catalogJson = JSON.stringify({
     const grand = subtotal + deliveryAmt;
 
     document.querySelector<HTMLElement>("[data-cart-subtotal]")!.textContent = fmtSGD(subtotal);
+    // Local delivery is a from-price: oversized pieces may need more, confirmed after checkout.
+    document.querySelector<HTMLElement>("[data-cart-delivery-label]")!.textContent =
+      deliveryAmt === 0 ? "Delivery" : "Delivery (from)";
     document.querySelector<HTMLElement>("[data-cart-delivery]")!.textContent = deliveryAmt === 0 ? "Free" : fmtSGD(deliveryAmt);
     document.querySelector<HTMLElement>("[data-cart-grand]")!.textContent = fmtSGD(grand);
   }

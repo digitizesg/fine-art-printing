@@ -120,6 +120,8 @@ export const FLOAT_FRAME_WASTAGE = 1.2;
  * -------------------------------------------------------------------------- */
 
 export const WIRE_HOOKS_SELL = 5;
+// Base local delivery. Quoted as a "from" price everywhere it's shown: oversized,
+// heavy, or fragile pieces can need a bigger vehicle and are re-quoted by hand.
 export const DELIVERY_LOCAL_SELL = 30;
 
 /* ----------------------------------------------------------------------------

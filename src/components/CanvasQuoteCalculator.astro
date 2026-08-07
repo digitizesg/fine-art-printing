@@ -213,9 +213,14 @@ const floatFramesJson = JSON.stringify(
       <label class="delivery-card">
         <input type="radio" name="delivery" value="local" />
         <span class="delivery-card__title">Local delivery</span>
-        <span class="delivery-card__desc">Anywhere in Singapore, +S$30.</span>
+        <span class="delivery-card__desc">Anywhere in Singapore, from +S$30.</span>
       </label>
     </div>
+    <p class="delivery-note">
+      S$30 covers most pieces. Very large, heavy, or fragile work can need a
+      bigger vehicle or an extra pair of hands, so we'll confirm the exact
+      delivery cost with you before we book it.
+    </p>
   </fieldset>
 
   <script is:inline type="application/json" data-canvases set:html={canvasesJson} />
@@ -407,7 +412,9 @@ const floatFramesJson = JSON.stringify(
             ? 'Deep 1.5" stretching'
             : `Float frame (${FLOAT_FRAMES.find((c) => c.id === state.floatFrameColourId)?.label ?? state.floatFrameColourId})`;
     const deliveryLabel =
-      state.delivery === "self" ? "Self collection" : "Local delivery";
+      state.delivery === "self"
+        ? "Self collection"
+        : "Local delivery (from S$30)";
     return [
       "Hi Fine Art Printing, I'd like a quote for canvas printing.",
       "",
@@ -504,7 +511,7 @@ const floatFramesJson = JSON.stringify(
       groups.push({ label: "Float frame", amount: floatFrameLine.amount });
     }
     if (deliveryLine) {
-      groups.push({ label: "Local delivery", amount: deliveryLine.amount });
+      groups.push({ label: "Local delivery (from)", amount: deliveryLine.amount });
     }
 
     const lineRows = groups
@@ -526,6 +533,15 @@ const floatFramesJson = JSON.stringify(
           </div>`
         : "";
 
+    const deliveryNote =
+      state.delivery === "local"
+        ? `
+          <p class="quote-result__note">
+            Local delivery starts at S$30. Oversized or fragile pieces can cost
+            more, and we'll confirm that with you before delivery.
+          </p>`
+        : "";
+
     output.innerHTML = `
       <div class="quote-result" aria-live="polite">
         <div class="quote-breakdown">
@@ -533,9 +549,10 @@ const floatFramesJson = JSON.stringify(
           ${minRow}
         </div>
         <div class="quote-result__totalbar">
-          <div class="quote-result__label">Estimated total, all-in</div>
+          <div class="quote-result__label">${state.delivery === "local" ? "Estimated total, all-in, from" : "Estimated total, all-in"}</div>
           <div class="quote-result__amount">${formatSGDWhole(result.grandTotal)}</div>
         </div>
+        ${deliveryNote}
       </div>
     `;
 
