@@ -102,6 +102,25 @@ const papersJson = JSON.stringify(
     <!-- populated by JS -->
   </div>
 
+  <!--
+    Framing opt-in. Most people who print with us want the piece on a wall, but
+    the quote flow only ever asked about the print, so the framing conversation
+    never started. Ticking this adds a line to the message they send us.
+  -->
+  <div class="paper-quote__frame" data-quote-frame hidden>
+    <label class="paper-quote__frame-label">
+      <input type="checkbox" name="wantsFraming" data-quote-framing />
+      <span class="paper-quote__frame-copy">
+        <strong>Quote me for framing too.</strong>
+        <span>
+          We frame in the same studio, so the print never has to be rolled up and
+          taken somewhere else. Quoted separately from the print, and priced to
+          compete with any framer you would otherwise take it to.
+        </span>
+      </span>
+    </label>
+  </div>
+
   <div class="paper-quote__actions" data-quote-actions hidden>
     <a class="paper-quote__btn paper-quote__btn--wa" data-quote-wa href="#" target="_blank" rel="noopener">
       <WhatsAppIcon size={16} />
@@ -457,6 +476,63 @@ const papersJson = JSON.stringify(
   }
 
   /* Actions */
+  .paper-quote__frame {
+    border-top: 1px solid var(--color-border-soft, rgba(0,0,0,0.08));
+    padding-top: 22px;
+  }
+  /*
+    Deliberately the loudest thing between the price and the buttons. This is
+    the one prompt on the page that stops a print leaving in a tube, so it is
+    sized to be read rather than skimmed past.
+  */
+  .paper-quote__frame-label {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 22px 24px;
+    border: 2px solid rgba(26, 53, 80, 0.28);
+    border-radius: 14px;
+    background: #FAF7F1;
+    cursor: pointer;
+    line-height: 1.55;
+    color: var(--color-subtle, #6b6b6b);
+    transition: border-color 150ms ease-out, background 150ms ease-out;
+  }
+  .paper-quote__frame-label:hover {
+    border-color: rgba(26, 53, 80, 0.6);
+  }
+  .paper-quote__frame-label:has(input:checked) {
+    border-color: var(--color-petrol, #1A3550);
+    background: var(--color-selected-bg, #F1F5F9);
+  }
+  .paper-quote__frame-label:focus-within {
+    outline: 2px solid #1A3550;
+    outline-offset: 2px;
+  }
+  .paper-quote__frame-label input {
+    margin-top: 2px;
+    width: 22px;
+    height: 22px;
+    flex: none;
+    accent-color: var(--color-petrol, #1A3550);
+    cursor: pointer;
+  }
+  .paper-quote__frame-copy {
+    display: grid;
+    gap: 4px;
+  }
+  .paper-quote__frame-label strong {
+    display: block;
+    color: var(--color-ink, #1A1A1A);
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 19px;
+    line-height: 1.3;
+  }
+  .paper-quote__frame-copy > span {
+    font-size: 15px;
+  }
+
   .paper-quote__actions {
     display: flex;
     flex-wrap: wrap;
@@ -517,6 +593,7 @@ const papersJson = JSON.stringify(
     height: number;
     quantity: number;
     units: "cm" | "in";
+    wantsFraming: boolean;
   };
 
   function readForm(form: HTMLFormElement): FormState {
@@ -527,6 +604,7 @@ const papersJson = JSON.stringify(
       height: parseFloat(String(data.get("height") ?? "0")),
       quantity: Math.max(1, Math.floor(parseFloat(String(data.get("quantity") ?? "1")) || 1)),
       units: (data.get("units") as "cm" | "in") ?? "cm",
+      wantsFraming: data.get("wantsFraming") !== null,
     };
   }
 
@@ -536,14 +614,18 @@ const papersJson = JSON.stringify(
 
   function buildQuoteMessage(state: FormState, totalText: string): string {
     const paper = PAPERS.find((p) => p.id === state.paperId);
-    return [
+    const lines = [
       "Hi Fine Art Printing, I'd like a quote.",
       "",
       `Paper: ${paper?.name ?? state.paperId}`,
       `Size: ${state.width} × ${state.height} ${state.units}`,
       `Quantity: ${state.quantity}`,
       `Estimated total: ${totalText}`,
-    ].join("\n");
+    ];
+    if (state.wantsFraming) {
+      lines.push("", "Please also quote me for framing.");
+    }
+    return lines.join("\n");
   }
 
   function render(form: HTMLFormElement) {
@@ -567,6 +649,7 @@ const papersJson = JSON.stringify(
 
     const output = form.querySelector<HTMLElement>("[data-quote-output]")!;
     const actions = form.querySelector<HTMLElement>("[data-quote-actions]")!;
+    const framing = form.querySelector<HTMLElement>("[data-quote-frame]")!;
 
     if (!result.ok) {
       output.innerHTML = `
@@ -575,6 +658,7 @@ const papersJson = JSON.stringify(
         </div>
       `;
       actions.hidden = true;
+      framing.hidden = true;
       return;
     }
 
@@ -586,13 +670,14 @@ const papersJson = JSON.stringify(
         : "";
     output.innerHTML = `
       <div class="quote-result" aria-live="polite">
-        <div class="quote-result__label">Estimated total, all-in</div>
+        <div class="quote-result__label">Estimated total, printing only</div>
         <div class="quote-result__amount">${formatSGDWhole(result.grandTotal)}</div>
         ${each}
       </div>
     `;
 
     actions.hidden = false;
+    framing.hidden = false;
     const wa = actions.querySelector<HTMLAnchorElement>("[data-quote-wa]")!;
     const contact = actions.querySelector<HTMLAnchorElement>("[data-quote-contact]")!;
     const message = buildQuoteMessage(state, formatSGD(result.grandTotal));

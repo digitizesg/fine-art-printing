@@ -7,6 +7,7 @@ import DisplayHeading from "../components/DisplayHeading.astro";
 import VisitSection from "../components/VisitSection.astro";
 import PaperRecommender from "../components/PaperRecommender.astro";
 import PaperQuoteCalculator from "../components/PaperQuoteCalculator.astro";
+import FeaturedExamples from "../components/FeaturedExamples.astro";
 import ReviewSection from "../components/ReviewSection.astro";
 import GoogleReviewsBadge from "../components/GoogleReviewsBadge.astro";
 import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
@@ -18,6 +19,10 @@ const papers = await listPapers();
 
 const { rating, userRatingsTotal } = reviewsData;
 const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'd like a quote for printing on paper.")}`;
+
+const waFramingLink = `${business.whatsappLink}?text=${encodeURIComponent(
+  "Hi Fine Art Printing, I'd like a print framed as well. Can you quote me for both?",
+)}`;
 
 const description =
   "Archival fine art printing on Hahnemühle, Fotospeed, and Datajet papers. Singapore's only Hahnemühle Gold-certified studio. Get an instant indicative quote below.";
@@ -38,6 +43,29 @@ const featuredPapers = papers.filter((p) => p.featured);
 
 const finishLabel = (f: string) => f.replace("-", " ");
 const durabilityLabel = (d: string) => d.charAt(0).toUpperCase() + d.slice(1);
+
+const framingReasons = [
+  {
+    title: "It is never rolled",
+    body:
+      "A print that goes into a tube has to be flattened again before it can be framed, and flattening a heavy cotton rag paper is not always clean. Framed here, it stays flat from the moment it leaves the printer.",
+  },
+  {
+    title: "We already know the paper",
+    body:
+      "Deckle edges, textured rag, and gloss baryta each want to be mounted differently. We chose the paper with you, so we know whether to float it, hinge it, or mat over the edge.",
+  },
+  {
+    title: "One team, one lead time",
+    body:
+      "Printing and framing happen in sequence in the same studio, so you make one trip and get one date. No handing a fresh print to a second supplier and hoping.",
+  },
+  {
+    title: "If something is wrong, it is ours",
+    body:
+      "When the print and the frame come from two places, each one points at the other. Here there is nobody to point at.",
+  },
+];
 
 const whyChooseUs = [
   {
@@ -60,11 +88,16 @@ const whyChooseUs = [
 const faqs = [
   {
     q: "I'd like to order, what should I do?",
-    a: `Get in touch via WhatsApp, our contact form, email, or phone. If you already know the paper and size, the calculator above gives you a quick indicative price. The price excludes packaging or shipping. Add-ons:
+    a: `Get in touch via WhatsApp, our contact form, email, or phone. If you already know the paper and size, the calculator above gives you a quick indicative price. The price covers the print itself and excludes framing, packaging, or shipping. How you take it away:
+- Framed and ready to hang: quoted with your print, nothing to flatten later
 - Self collection, no tube: free
 - Self collection, with tube: S$6
 - Local Singapore delivery via tube: S$11
 For international shipments, message us for a shipping quote.`,
+  },
+  {
+    q: "Can you frame the print for me?",
+    a: "Yes, and it is worth saying we would rather you let us. We frame in the same studio, so the print never has to be rolled up, taken somewhere else, and flattened out again. Solid wood profiles, acid-free mats, and conservation glazing on request, at prices that stand up against any framer you would otherwise use. Tick the framing box on the calculator above and we will quote for both together, or price any size yourself at artframing.com.sg, which is our own framing site.",
   },
   {
     q: "What file types can you print from?",
@@ -116,7 +149,9 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
           <p class="mt-6 max-w-[640px] text-[16px] leading-relaxed text-subtle">
             Hahnemühle Gold-certified, 12-colour Canon Pro-566, original Canon
             inks. We print one-offs, limited editions, and corporate runs on
-            archival fine-art papers, sized exactly the way you want them.
+            archival fine-art papers, sized exactly the way you want them. We
+            frame them here too, so a print never has to leave rolled up in a
+            tube.
           </p>
 
           <div class="mt-8 flex flex-wrap items-center gap-3">
@@ -397,6 +432,90 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
     </div>
   </section>
 
+  <!--
+    Framing.
+
+    A lot of customers print here and then take the print to a framer down the
+    road, which is worse for them and worse for us: the print gets rolled,
+    handled, and flattened again by someone who has never seen the paper. This
+    sits directly under the calculator because that is the moment the decision
+    is actually made.
+  -->
+  <section id="framing" class="border-t border-border-soft bg-white scroll-mt-6">
+    <div class="mx-auto max-w-[1180px] px-6 py-20">
+      <div class="grid gap-12 md:grid-cols-12 md:gap-14">
+        <div class="md:col-span-5">
+          <Eyebrow>Print and frame together</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">
+            Most prints end up on a wall. Let us take it that far.
+          </DisplayHeading>
+          <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
+            We frame in the same studio we print in, so your print goes from the
+            printer to the framing room without ever being rolled into a tube.
+            Solid wood profiles cut and joined in-house, acid-free mats, and
+            conservation glazing on request, priced to compete with any framer
+            you would otherwise take the print to.
+          </p>
+
+          <div class="mt-8 flex flex-wrap items-center gap-3">
+            <a
+              href={waFramingLink}
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-2 rounded-pill bg-petrol px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
+            >
+              <WhatsAppIcon size={16} />
+              <span>Ask for a framing price</span>
+            </a>
+            <a
+              href="/custom-framing"
+              class="inline-flex items-center gap-2 rounded-pill border border-ink/20 px-5 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:border-ink/45"
+            >
+              See our frame profiles
+            </a>
+          </div>
+
+          <p class="mt-5 text-[14px] leading-relaxed text-subtle">
+            Want a price without asking anyone? Our framing site
+            <a
+              href="https://artframing.com.sg/order"
+              target="_blank"
+              rel="noopener"
+              class="underline decoration-ink/25 underline-offset-2 hover:decoration-ink"
+              >artframing.com.sg</a
+            > prices any size online, and it is the same studio and the same team.
+          </p>
+        </div>
+
+        <div class="md:col-span-7">
+          <ol class="grid grid-cols-1 gap-x-10 gap-y-10 sm:grid-cols-2">
+            {framingReasons.map((row, i) => (
+              <li class="border-t border-ink/10 pt-5">
+                <span class="font-serif italic text-[14px] text-[var(--color-gold-text)]">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 class="mt-2 font-serif text-[19px] font-medium leading-[1.3] text-ink">
+                  {row.title}
+                </h3>
+                <p class="mt-3 text-[15px] leading-relaxed text-subtle">
+                  {row.body}
+                </p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Real framed work from the studio, so the offer is shown, not just claimed -->
+  <FeaturedExamples
+    service="custom-framing"
+    eyebrow="Framed here"
+    heading="Framed in the same studio."
+    limit={6}
+  />
+
   <!-- How ordering works -->
   <section class="border-t border-border-soft bg-[#FAF7F1]">
     <div class="mx-auto max-w-[1180px] px-6 py-20">
@@ -437,8 +556,9 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
           <p class="mt-3 text-[15px] leading-relaxed text-subtle">
             We open the file at print size, flag any resolution or
             colour issues, confirm the final price, then print on
-            approval. Typical turnaround is 3 to 5 working days. Pick up
-            at our studio or we courier anywhere in Singapore.
+            approval. Typical turnaround is 3 to 5 working days. Collect
+            it rolled, or have us frame it first and collect it ready to
+            hang.
           </p>
         </li>
       </ol>
