@@ -15,17 +15,6 @@ import { listCanvases } from "../lib/canvases";
 import { business } from "../data/business";
 import reviewsData from "../data/reviews.json";
 
-/**
- * A sample of the size-by-size comparison, chosen to span the range rather
- * than to flatter: the smallest size is where our advantage is narrowest.
- * Our figures come from the live pricing engine (Datajet poly-cotton, 1"
- * stretcher, collection).
- */
-const priceComparisons = [
-  { size: '16" x 16"', theirs: "$164", ours: "$102" },
-  { size: '24" x 36"', theirs: "$456", ours: "$212" },
-  { size: '40" x 60"', theirs: "$882", ours: "$435" },
-] as const;
 
 
 const canvases = await listCanvases();
@@ -75,6 +64,14 @@ const whyChooseUs = [
 ];
 
 const faqs = [
+  {
+    q: "How does your pricing compare to other canvas printers?",
+    a: `In August 2026 we priced our canvas against another established Singapore canvas printer, size for size, on a like-for-like poly-cotton canvas with a 1" stretcher bar. We were cheaper on all 21 sizes we compared, by between 25% and 55%. For example a 16" x 16" was $102 against their $164, and a 40" x 60" was $435 against their $882.
+
+We are cheaper because printing, stretching and framing all happen in our own studio, rather than the work, and the margin, passing between three companies. It is not a reflection of the materials: we are Singapore's only Hahnemühle Gold-certified studio and print on Canon Pro-566 pigment ink machines.
+
+Those figures are our prices for collection. Anything you add, such as a float frame or delivery, is on top for both of us.`,
+  },
   {
     q: "Do you stretch and frame the canvas, or do I need to arrange that elsewhere?",
     a: `We offer the full service in-house. You can print, stretch and frame with us or you can take your printed canvas elsewhere if you prefer, but its genuinely advisable to leverage the same vendor.`,
@@ -369,67 +366,24 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
     </div>
   </section>
 
-  <!-- Price comparison. Sits directly above the calculator so the claim lands
-       immediately before a visitor sees a number and can check it.
-
-       Quality leads and price follows, deliberately: "cheaper" on its own
-       invites the reader to assume a thinner canvas and a worse print, which
-       is the opposite of the point. -->
+  <!-- Price comparison. A single line, not a section: the claim is worth
+       making but it is not what the page is about, and it sits just above the
+       calculator so a visitor can check it a second later. Detail lives in the
+       FAQ rather than on the page. -->
   <section class="border-t border-border-soft bg-ink text-white">
-    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
-      <div class="grid gap-10 md:grid-cols-12 md:items-center">
-        <div class="md:col-span-7">
-          <span class="font-serif italic text-[14px] text-[var(--color-gold-text)]">
-            We checked
-          </span>
-          <h2 class="mt-3 font-serif text-[30px] font-medium leading-[1.15] text-white sm:text-[36px]">
-            Museum-grade printing, at around half what the biggest studio in
-            Singapore charges
-          </h2>
-          <p class="mt-5 max-w-[560px] text-[16px] leading-relaxed text-white/70">
-            We priced our canvas against the largest canvas printer in
-            Singapore, size for size, on a like-for-like poly-cotton canvas
-            with a 1&quot; stretcher bar. We were cheaper on every single size
-            we compared, by between 25% and 55%.
-          </p>
-          <p class="mt-5 max-w-[560px] text-[15px] leading-relaxed text-white/60">
-            Not because we cut corners. We are Singapore&apos;s only
-            Hahnem&uuml;hle Gold-certified studio, we print on Canon Pro-566
-            pigment ink machines, and every canvas is stretched by hand and
-            checked in our own studio. We are cheaper because printing,
-            stretching and framing all happen under one roof, rather than the
-            work, and the margin, passing between three companies.
-          </p>
-        </div>
-
-        <div class="md:col-span-5">
-          <div class="rounded-lg border border-white/15 bg-white/[0.04] p-6 sm:p-8">
-            <p class="text-[13px] uppercase tracking-wider text-white/50">
-              Like-for-like, 1&quot; stretched
-            </p>
-            <dl class="mt-5 space-y-4">
-              {priceComparisons.map((row) => (
-                <div class="flex items-baseline justify-between gap-4 border-b border-white/10 pb-4 last:border-0 last:pb-0">
-                  <dt class="text-[15px] text-white/70">{row.size}</dt>
-                  <dd class="flex items-baseline gap-3 text-right">
-                    <span class="text-[15px] text-white/40 line-through">
-                      {row.theirs}
-                    </span>
-                    <span class="font-serif text-[20px] font-medium text-white">
-                      {row.ours}
-                    </span>
-                  </dd>
-                </div>
-              ))}
-            </dl>
-            <p class="mt-6 text-[13px] leading-relaxed text-white/50">
-              Our prices for collection, printed on Datajet poly-cotton and
-              stretched on 1&quot; bars. Compared in August 2026 against
-              published prices for the equivalent product.
-            </p>
-          </div>
-        </div>
-      </div>
+    <div class="mx-auto max-w-[1180px] px-6 py-8">
+      <p class="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-1 text-center">
+        <span class="font-serif text-[19px] font-medium leading-snug text-white sm:text-[21px]">
+          Size for size, we came out 25% to 55% cheaper than another
+          established Singapore canvas printer.
+        </span>
+        <a
+          href="#price-comparison"
+          class="text-[15px] text-white/60 underline underline-offset-4 transition hover:text-white"
+        >
+          How we compare
+        </a>
+      </p>
     </div>
   </section>
 
@@ -536,7 +490,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
   </section>
 
   <!-- FAQ -->
-  <section class="border-t border-border-soft bg-white">
+  <section id="price-comparison" class="border-t border-border-soft bg-white scroll-mt-6">
     <div class="mx-auto max-w-[1180px] px-6 py-20">
       <div class="grid gap-10 md:grid-cols-12">
         <div class="md:col-span-4">
