@@ -66,11 +66,7 @@ const whyChooseUs = [
 const faqs = [
   {
     q: "How does your pricing compare to other canvas printers?",
-    a: `We compare ourselves regularly against other studios in Singapore, on a like-for-like canvas and finish. On our most recent comparison we came out cheaper on every size, by as much as 55%.
-
-That is not a reflection of what you get. We are Singapore's only Hahnemühle Gold-certified studio and print on Canon Pro-566 pigment ink machines. We can price the way we do because printing, stretching and framing all happen in our own studio, so the work, and the margin, never passes between three companies.
-
-The simplest way to check is the calculator above: put your size in and compare it against anyone you like.`,
+    a: `We compare ourselves regularly against other studios in Singapore, on a like-for-like canvas and finish. On our most recent comparison we came out cheaper on every size, by as much as 55%.\n\nThat is not a reflection of what you get. We are Singapore's only Hahnemühle Gold-certified studio, we print on Canon Pro-566 pigment ink machines, and every canvas is stretched by hand and checked before it leaves.\n\nThe simplest way to check is the calculator above: put your size in and compare it against anyone you like.`,
   },
   {
     q: "Do you stretch and frame the canvas, or do I need to arrange that elsewhere?",
@@ -297,6 +293,55 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
     </div>
   </section>
 
+  <!-- Price comparison. A single line, not a section: the claim is worth
+       making but it is not what the page is about, and it sits just above the
+       calculator so a visitor can check it a second later. Detail lives in the
+       FAQ rather than on the page. -->
+  <section class="border-t border-border-soft bg-ink text-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-8">
+      <p class="mx-auto max-w-[760px] text-center">
+        <span class="block font-serif italic text-[15px] text-[var(--color-gold-text)]">
+          Did you know
+        </span>
+        <span class="mt-2 block font-serif text-[19px] font-medium leading-snug text-white sm:text-[21px]">
+          We offer premium quality canvas printing &amp; stretching, but when we
+          compared our pricing size-for-size with another popular vendor we
+          found that our pricing is up to 55% cheaper.
+        </span>
+        <a
+          href="#price-comparison"
+          class="mt-3 inline-block text-[15px] text-white/60 underline underline-offset-4 transition hover:text-white"
+        >
+          How we compare
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Calculator -->
+  <section id="calculator" class="border-t border-border-soft bg-[#FAF7F1] scroll-mt-6">
+    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+      <div class="grid gap-10 md:grid-cols-12">
+        <div class="md:col-span-4">
+          <Eyebrow>Quote</Eyebrow>
+          <DisplayHeading level={2} class="mt-3">Get a price now.</DisplayHeading>
+          <p class="mt-5 max-w-[380px] text-[15px] leading-relaxed text-subtle">
+            Pick your size, canvas, and how you want it finished. The total
+            covers print, stretching or framing if chosen, wire and hooks for
+            hanging, and local delivery from S$30 if you choose it.
+          </p>
+          <p class="mt-5 max-w-[380px] text-[14px] leading-relaxed text-subtle">
+            Need help choosing, or have a corporate-scale order? WhatsApp us,
+            we'll guide you to the right canvas and finish.
+          </p>
+        </div>
+        <div class="md:col-span-8">
+          <CanvasQuoteCalculator />
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Comparison table -->
   <section class="border-t border-border-soft bg-white">
     <div class="mx-auto max-w-[1180px] px-6 py-20">
@@ -362,55 +407,6 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 
       <div class="mt-10">
         <CanvasRecommender />
-      </div>
-    </div>
-  </section>
-
-  <!-- Price comparison. A single line, not a section: the claim is worth
-       making but it is not what the page is about, and it sits just above the
-       calculator so a visitor can check it a second later. Detail lives in the
-       FAQ rather than on the page. -->
-  <section class="border-t border-border-soft bg-ink text-white">
-    <div class="mx-auto max-w-[1180px] px-6 py-8">
-      <p class="mx-auto max-w-[760px] text-center">
-        <span class="block font-serif italic text-[15px] text-[var(--color-gold-text)]">
-          Did you know
-        </span>
-        <span class="mt-2 block font-serif text-[19px] font-medium leading-snug text-white sm:text-[21px]">
-          We offer premium quality canvas printing &amp; stretching, but when we
-          compared our pricing size-for-size with another popular vendor we
-          found that our pricing is up to 55% cheaper.
-        </span>
-        <a
-          href="#price-comparison"
-          class="mt-3 inline-block text-[15px] text-white/60 underline underline-offset-4 transition hover:text-white"
-        >
-          How we compare
-        </a>
-      </p>
-    </div>
-  </section>
-
-  <!-- Calculator -->
-  <section id="calculator" class="border-t border-border-soft bg-[#FAF7F1] scroll-mt-6">
-    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
-      <div class="grid gap-10 md:grid-cols-12">
-        <div class="md:col-span-4">
-          <Eyebrow>Quote</Eyebrow>
-          <DisplayHeading level={2} class="mt-3">Get a price now.</DisplayHeading>
-          <p class="mt-5 max-w-[380px] text-[15px] leading-relaxed text-subtle">
-            Pick your size, canvas, and how you want it finished. The total
-            covers print, stretching or framing if chosen, wire and hooks for
-            hanging, and local delivery from S$30 if you choose it.
-          </p>
-          <p class="mt-5 max-w-[380px] text-[14px] leading-relaxed text-subtle">
-            Need help choosing, or have a corporate-scale order? WhatsApp us,
-            we'll guide you to the right canvas and finish.
-          </p>
-        </div>
-        <div class="md:col-span-8">
-          <CanvasQuoteCalculator />
-        </div>
       </div>
     </div>
   </section>

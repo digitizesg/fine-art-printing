@@ -8,7 +8,20 @@ import FrameLightbox from "./FrameLightbox.astro";
 import "../styles/canvas-quote.css";
 
 const canvases = await listCanvases();
-const featured = canvases.filter((c) => c.featured);
+// Datajet leads, rather than sitting last on display order. It is the canvas
+// the price comparison above is based on, so opening on anything dearer meant
+// the first number a visitor saw was built on a substrate costing twice as
+// much, which quietly argued against the claim they had just read. They can
+// still trade up; the rest keep their configured order.
+const featured = canvases
+  .filter((c) => c.featured)
+  .sort((a, b) =>
+    a.slug === "datajet-polycotton-canvas"
+      ? -1
+      : b.slug === "datajet-polycotton-canvas"
+        ? 1
+        : 0,
+  );
 const canvasesJson = JSON.stringify(
   featured.map((c) => ({
     id: c.slug,
