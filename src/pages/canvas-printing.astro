@@ -304,14 +304,26 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
           compared our pricing size-for-size with another popular vendor we
           found that our pricing is up to 55% cheaper.
         </p>
-        <p class="mt-4 text-[15px] leading-relaxed text-white/60">
-          Compared like-for-like, on the same canvas weight and the same 1&quot;
-          stretcher, across every size both studios offer. We are
-          Singapore&apos;s only Hahnem&uuml;hle Gold-certified studio and print
-          on Canon Pro-566 pigment ink machines, so the saving is not coming
-          out of the work. Put your size into the calculator below and compare
-          it against anyone you like.
-        </p>
+        {/* The supporting detail is there for anyone who wants it and out of
+            the way for everyone else. A native <details> so it works without
+            JavaScript and stays keyboard-reachable. */}
+        <details class="group mt-3">
+          <summary
+            class="inline-flex cursor-pointer list-none items-center gap-1.5 text-[15px] text-white/60 underline underline-offset-4 transition hover:text-white"
+          >
+            <span class="group-open:hidden">How we compare</span>
+            <span class="hidden group-open:inline">Hide</span>
+            <span aria-hidden class="transition-transform group-open:rotate-180">&darr;</span>
+          </summary>
+          <p class="mt-4 text-[15px] leading-relaxed text-white/60">
+            Compared like-for-like, on the same canvas weight and the same
+            1&quot; stretcher, across every size both studios offer. We are
+            Singapore&apos;s only Hahnem&uuml;hle Gold-certified studio and
+            print on Canon Pro-566 pigment ink machines, so the saving is not
+            coming out of the work. Put your size into the calculator below and
+            compare it against anyone you like.
+          </p>
+        </details>
       </div>
     </div>
   </section>
