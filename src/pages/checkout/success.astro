@@ -125,6 +125,15 @@ const description = "Thanks for your order at Fine Art Printing.";
             currency: 'SGD',
           })
         }
+        // OpenAI (ChatGPT) Ads: every paid order counts as a purchase.
+        // amount is in cents, matching OpenAI's example (2599 = 25.99).
+        if (window.oaiq) {
+          window.oaiq('measure', 'order_created', {
+            type: 'contents',
+            amount: Math.round(Number(totalSGD) * 100),
+            currency: 'SGD',
+          }, { event_id: reference })
+        }
       }
     </script>
   )}

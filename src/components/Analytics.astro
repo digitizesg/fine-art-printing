@@ -15,8 +15,15 @@
  *
  * Only loads on production builds so localhost / dev traffic doesn't pollute
  * analytics. Loaded from BaseLayout only, so the admin area is untracked.
+ *
+ * Exception to "everything in GTM": the OpenAI (ChatGPT) Ads measurement
+ * pixel is loaded here directly, per OpenAI's setup instructions. Its
+ * conversions are sent with window.oaiq("measure", ...) right next to the
+ * matching dataLayer pushes (contact forms, checkout success). Those calls
+ * are guarded on window.oaiq, which only exists on production builds.
  */
 const GTM_ID = "GTM-WRHWRQV";
+const OPENAI_PIXEL_ID = "SmXtZ8Kgq5hyuK2aHx2qnr";
 const isProd = import.meta.env.PROD;
 ---
 {isProd && (
@@ -45,6 +52,22 @@ const isProd = import.meta.env.PROD;
         j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
         f.parentNode.insertBefore(j, f);
       })(window, document, 'script', 'dataLayer', GTM_ID);
+    </script>
+    <script is:inline define:vars={{ OPENAI_PIXEL_ID }}>
+      (function (w, d, s, u) {
+        if (w.oaiq) return;
+        var q = function () {
+          q.q.push(arguments);
+        };
+        q.q = [];
+        w.oaiq = q;
+        var js = d.createElement(s);
+        js.async = true;
+        js.src = u;
+        var f = d.getElementsByTagName(s)[0];
+        f.parentNode.insertBefore(js, f);
+      })(window, document, 'script', 'https://bzrcdn.openai.com/sdk/oaiq.min.js');
+      oaiq('init', { pixelId: OPENAI_PIXEL_ID });
     </script>
   </>
 )}
