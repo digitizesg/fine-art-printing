@@ -160,6 +160,24 @@ export const POST: APIRoute = async ({ request }) => {
       );
     }
   } else {
+    // No pending row. Before treating this as a FAP order, make sure the
+    // session came from a FAP checkout: every one of ours returns to
+    // /checkout/success. Other sites on the shared Stripe account don't
+    // always tag metadata.source (artframing.com.sg returns to /order), and
+    // recording them here sent their customers an empty FAP confirmation
+    // (FAP-2026-0057 was an Art Framing order).
+    let successPath = "";
+    try {
+      successPath = new URL(
+        (fullSession.success_url ?? "").replace("{CHECKOUT_SESSION_ID}", ""),
+      ).pathname;
+    } catch {
+      successPath = "";
+    }
+    if (successPath !== "/checkout/success") {
+      return new Response("not-our-session", { status: 200 });
+    }
+
     // Pending row was never written (e.g. checkout endpoint had a
     // Supabase blip). Reconstruct what we can from the Stripe session.
     const fallbackTotal = (fullSession.amount_total ?? 0) / 100;
