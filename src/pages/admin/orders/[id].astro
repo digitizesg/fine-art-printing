@@ -46,7 +46,7 @@ if (Astro.request.method === "POST" && id) {
     else saveMessage = "Note saved.";
   } else if (action === "update_status") {
     const next = String(form.get("status") ?? "");
-    const allowed = new Set(["pending", "paid", "cancelled", "failed"]);
+    const allowed = new Set(["pending", "paid", "cancelled", "failed", "abandoned"]);
     if (!allowed.has(next)) {
       saveError = "Invalid status.";
     } else {
@@ -135,6 +135,7 @@ const stripeDashUrl = row.stripe_payment_intent_id
             <option value="pending" selected={row.status === "pending"}>pending</option>
             <option value="cancelled" selected={row.status === "cancelled"}>cancelled</option>
             <option value="failed" selected={row.status === "failed"}>failed</option>
+            <option value="abandoned" selected={row.status === "abandoned"}>abandoned</option>
           </select>
           <button type="submit" class="admin-btn" style="padding:6px 14px;font-size:13px;">Update</button>
         </form>

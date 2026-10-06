@@ -3,9 +3,19 @@ export const prerender = false;
 import AdminLayout from "../../../layouts/AdminLayout.astro";
 import { createSupabaseServerClient } from "../../../lib/supabase-server";
 
-type StatusFilter = "all" | "pending" | "paid" | "cancelled" | "failed";
+type StatusFilter = "all" | "pending" | "paid" | "cancelled" | "failed" | "abandoned";
 
 const supabase = createSupabaseServerClient(Astro);
+
+// Stripe expires an unpaid checkout after 24 hours. The webhook marks those
+// rows abandoned when Stripe tells us; this catches any it missed, so the
+// list isn't cluttered with checkouts that were opened and never paid. A late
+// payment still flips the row to paid (the webhook updates any unpaid row).
+await supabase
+  .from("orders")
+  .update({ status: "abandoned" })
+  .eq("status", "pending")
+  .lt("created_at", new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString());
 const url = Astro.url;
 const filterStatus = (url.searchParams.get("status") ?? "all") as StatusFilter;
 
@@ -18,6 +28,9 @@ let query = supabase
   .limit(200);
 if (filterStatus !== "all") {
   query = query.eq("status", filterStatus);
+} else {
+  // "All" means real orders; abandoned checkouts have their own filter.
+  query = query.neq("status", "abandoned");
 }
 
 // Run the rows + counts queries in parallel.
@@ -27,10 +40,10 @@ const [{ data: rows, error }, { data: countRows }] = await Promise.all([
 ]);
 
 const counts: Record<StatusFilter, number> = {
-  all: 0, pending: 0, paid: 0, cancelled: 0, failed: 0,
+  all: 0, pending: 0, paid: 0, cancelled: 0, failed: 0, abandoned: 0,
 };
 for (const r of countRows ?? []) {
-  counts.all++;
+  if (r.status !== "abandoned") counts.all++;
   const s = r.status as StatusFilter;
   if (s in counts) counts[s]++;
 }
@@ -66,6 +79,7 @@ const filters: { key: StatusFilter; label: string }[] = [
   { key: "pending", label: "Pending" },
   { key: "cancelled", label: "Cancelled" },
   { key: "failed", label: "Failed" },
+  { key: "abandoned", label: "Abandoned" },
 ];
 ---
 <AdminLayout title="Orders">

@@ -53,6 +53,23 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
+  // A checkout that was opened but never paid. The pending row written when
+  // the customer clicked Checkout would otherwise sit at "pending" forever.
+  // Only pending rows move; a paid order is never touched.
+  if (event.type === "checkout.session.expired") {
+    const expired = event.data.object as Stripe.Checkout.Session;
+    const supabase = createSupabaseAdminClient();
+    if (supabase) {
+      const { error } = await supabase
+        .from("orders")
+        .update({ status: "abandoned" })
+        .eq("stripe_session_id", expired.id)
+        .eq("status", "pending");
+      if (error) console.error("[stripe-webhook] abandon update failed:", error.message);
+    }
+    return new Response("ok-abandoned", { status: 200 });
+  }
+
   if (event.type !== "checkout.session.completed") {
     // Acknowledge other events without further work.
     return new Response("ignored", { status: 200 });
