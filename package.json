@@ -23,6 +23,7 @@
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.1",
     "@tailwindcss/vite": "^4.2.4",
+    "@vercel/analytics": "^1.6.1",
     "astro": "^6.1.10",
     "date-fns": "^4.1.0",
     "lite-youtube-embed": "^0.3.4",

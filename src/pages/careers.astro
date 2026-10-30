@@ -529,6 +529,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({ event: "careers_form_submit", role });
+      (window as any).fapTrack?.("Job application");
 
       form.hidden = true;
       if (success) success.hidden = false;

@@ -6,6 +6,7 @@ import SEO from "../components/SEO.astro";
 import FloatingWhatsApp from "../components/FloatingWhatsApp.astro";
 import CartToast from "../components/CartToast.astro";
 import Analytics from "../components/Analytics.astro";
+import VercelTracking from "../components/VercelTracking.astro";
 import { organizationSchema } from "../lib/schema";
 
 interface Props {
@@ -64,5 +65,6 @@ const combinedJsonLd: Record<string, unknown>[] = [
     <Footer />
     <FloatingWhatsApp />
     <CartToast />
+    <VercelTracking />
   </body>
 </html>

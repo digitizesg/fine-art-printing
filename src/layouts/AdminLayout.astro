@@ -12,6 +12,11 @@ const user = Astro.locals.user;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} · Fine Art Printing admin</title>
     <link rel="stylesheet" href="/admin/admin.css" />
+    <script is:inline>
+      // Marks this browser as staff so the public site's Vercel Web Analytics
+      // (src/components/VercelTracking.astro) leaves its visits out.
+      try { localStorage.setItem('fap_staff', '1') } catch (e) {}
+    </script>
   </head>
   <body class="admin-shell admin-shell--app">
     <header class="admin-topbar">
@@ -24,6 +29,7 @@ const user = Astro.locals.user;
           <a href="/admin/papers">Papers</a>
           <a href="/admin/canvases">Canvases</a>
           <a href="/admin/float-frames">Float frames</a>
+          <a href="/admin/insights">Insights</a>
         </nav>
         <div class="admin-topbar__user">
           <span>{user?.email}</span>

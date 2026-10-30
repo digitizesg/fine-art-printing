@@ -35,6 +35,10 @@ if (Astro.request.method === "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Sign in · Fine Art Printing admin</title>
     <link rel="stylesheet" href="/admin/admin.css" />
+    <script is:inline>
+      // Staff browser: leave it out of the public site's visitor figures.
+      try { localStorage.setItem('fap_staff', '1') } catch (e) {}
+    </script>
   </head>
   <body class="admin-shell admin-shell--auth">
     <main class="admin-card">

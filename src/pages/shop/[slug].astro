@@ -984,6 +984,7 @@ const jsonLd = [
       cartBtn.addEventListener("click", () => {
         if (!pendingLine) return;
         cart.add(pendingLine);
+        (window as any).fapTrack?.("Added to cart");
         window.dispatchEvent(
           new CustomEvent("fap-cart-toast", {
             detail: {

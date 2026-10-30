@@ -208,6 +208,7 @@ const description =
         submitBtn.textContent = "Continue to payment";
         return;
       }
+      (window as any).fapTrack?.("Checkout started", { type: "Custom payment" });
       window.location.href = data.url;
     } catch (err) {
       setHint("Network error. Please try again.");

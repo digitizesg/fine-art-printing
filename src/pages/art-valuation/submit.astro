@@ -331,6 +331,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
           if (ts && typeof ts.reset === "function") ts.reset();
           return;
         }
+        (window as any).fapTrack?.("Checkout started", { type: "Valuation" });
         window.location.href = data.url;
       } catch {
         errEl.textContent = "Network error. Please try again.";

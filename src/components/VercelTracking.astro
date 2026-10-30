@@ -1,0 +1,124 @@
+---
+// Vercel Web Analytics for the public site (never the admin): page views plus
+// the visitor actions below, read back on /admin/insights. No cookies.
+// Copied from jcplaw.com.sg's tracker and adapted for Fine Art Printing.
+//
+// This sits beside GTM, not instead of it. GTM already turns wa.me, tel:,
+// mailto:, form and purchase events into the Google Ads conversions, so
+// nothing here touches the dataLayer: that would double-count them. See
+// Analytics.astro.
+//
+// Every visit is tagged with how it arrived (its "channel"): Google Ads clicks
+// carry gclid/gbraid/wbraid (or utm_medium=cpc), which Vercel drops from the
+// address, so the channel is worked out here on landing, kept for the visit in
+// sessionStorage, sent once as a "Visit" event and added to every action. That
+// is what lets /admin/insights split visits and contacts into paid and unpaid.
+//
+// Staff are left out: any browser that has opened /admin is marked
+// (localStorage fap_staff, set by AdminLayout) and from then on sends nothing,
+// neither page views (Vercel's webAnalyticsBeforeSend hook) nor actions.
+//
+// window.fapTrack(name, data) is defined inline so the contact forms, cart and
+// order thank-you page can call it the moment they need to. Event names are
+// what the dashboard shows, so keep them short and human, and never put
+// personal details (names, phone numbers, emails) in the data.
+import Analytics from '@vercel/analytics/astro'
+---
+
+<Analytics />
+<script is:inline>
+  ;(function () {
+    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments) }
+
+    var isStaff = false
+    try { isStaff = localStorage.getItem('fap_staff') === '1' } catch (e) {}
+    window.webAnalyticsBeforeSend = function (ev) { return isStaff ? null : ev }
+
+    // How this visit arrived, decided on the first page of the visit.
+    var CH_KEY = 'fap_channel'
+    function workOutChannel() {
+      var q = new URLSearchParams(location.search)
+      var medium = (q.get('utm_medium') || '').toLowerCase()
+      var source = (q.get('utm_source') || '').toLowerCase()
+      if (q.get('gclid') || q.get('gbraid') || q.get('wbraid') || q.get('gad_source')) return 'Google Ads'
+      if (q.get('msclkid')) return 'Microsoft Ads'
+      if (/^(cpc|ppc|paid|paidsearch|paid_search|sem)$/.test(medium)) return source.indexOf('bing') >= 0 ? 'Microsoft Ads' : 'Google Ads'
+      if (q.get('fbclid') || /paid_?social/.test(medium)) return 'Social media'
+      if (/chatgpt|openai|perplexity|gemini|claude|copilot/.test(source)) return 'AI assistants'
+      if (source) return 'Campaign: ' + source
+      var ref = ''
+      try { ref = document.referrer ? new URL(document.referrer).hostname.replace(/^www\./, '') : '' } catch (e) {}
+      if (!ref) return 'Direct'
+      if (/(^|\.)fineartprinting\.com\.sg$/.test(ref)) return null // moving within the site
+      if (/(^|\.)stripe\.com$/.test(ref)) return null // back from paying
+      if (/chatgpt|openai|perplexity|gemini\.google|claude\.ai|copilot/.test(ref)) return 'AI assistants'
+      if (/(^|\.)(google|bing|yahoo|duckduckgo|baidu|brave|ecosia)\./.test(ref) || /googlequicksearchbox/.test(ref)) return 'Search (not ads)'
+      if (/facebook|instagram|linkedin|tiktok|pinterest|t\.co$|x\.com$|lnkd\.in/.test(ref)) return 'Social media'
+      return 'Other websites'
+    }
+    var channel = null
+    var isNewVisit = false
+    try { channel = sessionStorage.getItem(CH_KEY) } catch (e) {}
+    if (!channel) {
+      channel = workOutChannel() || 'Direct'
+      isNewVisit = true
+      try { sessionStorage.setItem(CH_KEY, channel) } catch (e) {}
+    }
+
+    window.fapTrack = function (name, data) {
+      if (isStaff) return
+      var d = data || {}
+      if (!d.channel) d.channel = channel
+      try { window.va('event', { name: name, data: d }) } catch (e) {}
+    }
+    if (isNewVisit) window.fapTrack('Visit', { landing: location.pathname })
+
+    // Which service a page belongs to, for quote requests.
+    function serviceOf(p) {
+      if (/^\/(print-on-paper|papers)(\/|$)/.test(p)) return 'Paper printing'
+      if (/^\/(canvas-printing|canvases)(\/|$)/.test(p)) return 'Canvas printing'
+      if (/^\/canvas-stretching/.test(p)) return 'Canvas stretching'
+      if (/^\/custom-framing/.test(p)) return 'Framing'
+      if (/^\/art-scanning/.test(p)) return 'Art scanning'
+      if (/^\/scanning-restoration/.test(p)) return 'Photo scanning and restoration'
+      if (/^\/art-restoration/.test(p)) return 'Art restoration'
+      if (/^\/art-valuation/.test(p)) return 'Art valuation'
+      return 'Other'
+    }
+
+    // Which part of the page a click came from, for the "where on the page" list.
+    var PLACES = [
+      ['.fap-fab-wa', 'Floating WhatsApp button'],
+      ['.paper-quote, .canvas-quote, .psc', 'Price calculator'],
+      ['.visit-section', 'Visit and contact section'],
+      ['body > header', 'Header'],
+      ['.footer', 'Footer'],
+    ]
+    function placeOf(el) {
+      for (var i = 0; i < PLACES.length; i++) if (el.closest(PLACES[i][0])) return PLACES[i][1]
+      var p = location.pathname
+      if (p === '/' || p === '') return 'Homepage'
+      if (p.indexOf('/contact') === 0) return 'Contact page'
+      if (p.indexOf('/shop') === 0 || p.indexOf('/cart') === 0) return 'Shop'
+      if (p.indexOf('/checkout') === 0) return 'Order confirmation'
+      if (p.indexOf('/articles/') === 0) return 'Article'
+      if (serviceOf(p) !== 'Other') return 'Service page'
+      return 'Other page'
+    }
+
+    document.addEventListener('click', function (e) {
+      var a = e.target && e.target.closest && e.target.closest('a[href], button')
+      if (!a) return
+      var href = a.getAttribute('href') || ''
+      var place = placeOf(a)
+      var inCalc = !!a.closest('.paper-quote, .canvas-quote, .psc')
+      // A WhatsApp click from a price calculator carries the worked-out quote,
+      // so it counts as a quote request rather than a plain WhatsApp click.
+      if (inCalc && /wa\.me|whatsapp/i.test(href)) window.fapTrack('Quote request', { service: serviceOf(location.pathname), place: place })
+      else if (/wa\.me|whatsapp/i.test(href)) window.fapTrack('WhatsApp', { place: place })
+      else if (href.indexOf('tel:') === 0) window.fapTrack('Phone call', { place: place })
+      else if (href.indexOf('mailto:') === 0) window.fapTrack('Email', { place: place })
+      else if (inCalc && /^\/contact/.test(href)) window.fapTrack('Quote to contact form', { service: serviceOf(location.pathname) })
+    }, true)
+  })()
+</script>

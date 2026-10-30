@@ -1,0 +1,1015 @@
+---
+export const prerender = false
+import { getCollection } from 'astro:content'
+import AdminLayout from '../../layouts/AdminLayout.astro'
+import { createSupabaseServerClient } from '../../lib/supabase-server'
+import { analyticsConfigured, visitsBy, eventsBy } from '../../lib/vercelAnalytics'
+import type { Row } from '../../lib/vercelAnalytics'
+
+// Admin-only: src/middleware.ts sends anyone without an admin session to
+// /admin/login before this page runs, the same as every other admin page.
+//
+// Website insights from Vercel Web Analytics: who visits, where from, what
+// they look at, which services draw interest, and how people get in touch.
+// Visitor actions are sent by src/components/VercelTracking.astro; paid orders
+// come from the orders table. Copied from jcplaw.com.sg's /admin/insights.
+
+const RANGES = [7, 30, 90]
+const daysParam = Number(Astro.url.searchParams.get('days'))
+const days = RANGES.includes(daysParam) ? daysParam : 30
+const DAY = 86400000
+// The clock moves in 10-minute steps so repeat loads ask Vercel the same
+// questions and are served from the cache in lib/vercelAnalytics.ts.
+const STEP = 10 * 60 * 1000
+const now = Math.floor(Date.now() / STEP) * STEP
+// ?day=YYYY-MM-DD narrows the page to one day (clicked from the daily chart),
+// compared with the day before. Vercel's days are UTC, so a day here runs
+// 8am to 8am Singapore time, matching the bars it was clicked from.
+const dayParam = Astro.url.searchParams.get('day') ?? ''
+const day = /^\d{4}-\d{2}-\d{2}$/.test(dayParam) && !Number.isNaN(Date.parse(dayParam)) ? dayParam : null
+const dayStart = day ? Date.parse(`${day}T00:00:00Z`) : 0
+const iso = (t: number) => new Date(t).toISOString()
+const range = day
+  ? { since: iso(dayStart), until: iso(dayStart + DAY) }
+  : { since: iso(now - days * DAY), until: iso(now) }
+const before = day
+  ? { since: iso(dayStart - DAY), until: iso(dayStart) }
+  : { since: iso(now - 2 * days * DAY), until: range.since }
+// The one-day view also shows the same day a week earlier on the tiles, since
+// weekdays and weekends differ.
+const weekBefore = day ? { since: iso(dayStart - 7 * DAY), until: iso(dayStart - 6 * DAY) } : null
+const shiftDay = (d: string, by: number) => iso(Date.parse(`${d}T00:00:00Z`) + by * DAY).slice(0, 10)
+const todayUtc = iso(now).slice(0, 10)
+const compareText = day ? 'vs the day before' : `vs previous ${days} days`
+const prevName = day ? 'The day before' : `Previous ${days} days`
+
+// Vercel caps every list at 100 rows (limit must be 100 or less), so the page
+// list covers the top 100 pages and daily figures are asked for one row per day.
+// The ways of getting in touch, plus paid orders. "Quote request" is a
+// WhatsApp click from a price calculator, which carries the worked-out quote.
+const CONTACTS = ['WhatsApp', 'Phone call', 'Email', 'Quote request', 'Enquiry sent', 'Order placed']
+const one = (c: string) => `eventName eq '${c}'`
+
+// Vercel allows about 400 queries an hour for the whole team, shared with the
+// jcplaw and Flex Fitness dashboards. One load here makes 24 (26 for a single
+// day), and loads in the same 10 minutes are answered from the cache.
+const configured = analyticsConfigured()
+let data: any = null
+let failed = ''
+// In the one-day view the chart is by hour; if Vercel won't group by hour the
+// day still shows, just without the hourly chart.
+let unit: 'day' | 'hour' = day ? 'hour' : 'day'
+async function load(u: 'day' | 'hour') {
+  const [daily, prevDaily, pages, referrers, devices, countries, actions, prevActions, placeRows, pageRows, channelVisits, prevChannelVisits, channelActions, channelLanding,
+    prevPages, prevReferrers, prevPlaceRows, prevPageRows, weekDaily, weekActions, ...perContactDaily] =
+    await Promise.all([
+      // Totals are added up from the daily rows: Vercel's own count endpoint
+      // lags a day behind the daily figures.
+      visitsBy(range, u, 100),
+      visitsBy(before, u, 100),
+      visitsBy(range, 'requestPath', 100),
+      visitsBy(range, 'referrerHostname', 10),
+      visitsBy(range, 'deviceType', 5),
+      visitsBy(range, 'country', 8),
+      eventsBy(range, 'eventName', 20),
+      eventsBy(before, 'eventName', 20),
+      eventsBy(range, ['eventName', 'eventData/place'], 100),
+      eventsBy(range, ['eventName', 'requestPath'], 100),
+      // How visits arrived (paid or not): the tracker sends one "Visit" event
+      // per visit with its channel, and puts the channel on every action.
+      eventsBy(range, 'eventData/channel', 20, one('Visit')),
+      eventsBy(before, 'eventData/channel', 20, one('Visit')),
+      eventsBy(range, ['eventName', 'eventData/channel'], 100),
+      eventsBy(range, ['eventData/channel', 'eventData/landing'], 100, one('Visit')),
+      // The same lists for the previous period, for the change beside each row.
+      visitsBy(before, 'requestPath', 100),
+      visitsBy(before, 'referrerHostname', 20),
+      eventsBy(before, ['eventName', 'eventData/place'], 100),
+      eventsBy(before, ['eventName', 'requestPath'], 100),
+      weekBefore ? visitsBy(weekBefore, 'day', 2) : Promise.resolve([]),
+      weekBefore ? eventsBy(weekBefore, 'eventName', 20) : Promise.resolve([]),
+      // One series per contact type; each is at most 90 rows.
+      ...CONTACTS.map((c) => eventsBy(range, u, 100, one(c))),
+    ])
+  const isContact = (r: Row) => CONTACTS.includes(String(r.eventName))
+  const sumDays = (rows: Row[]) => ({
+    visitors: (rows ?? []).reduce((a, r) => a + Number(r.visitors ?? 0), 0),
+    pageviews: (rows ?? []).reduce((a, r) => a + Number(r.pageviews ?? 0), 0),
+  })
+  return {
+    total: sumDays(daily as Row[]), prevTotal: sumDays(prevDaily as Row[]), weekTotal: sumDays(weekDaily as Row[]), daily, prevDaily, pages, referrers, devices, countries,
+    actions, prevActions, weekActions, actionDaily: (perContactDaily as Row[][]).flat(),
+    contactPlace: (placeRows as Row[]).filter(isContact), contactPages: (pageRows as Row[]).filter(isContact),
+    quotePages: (pageRows as Row[]).filter((r) => r.eventName === 'Quote request'),
+    prevQuotePages: (prevPageRows as Row[]).filter((r) => r.eventName === 'Quote request'),
+    channelVisits, prevChannelVisits, channelActions, channelLanding,
+    prevPages, prevReferrers,
+    prevContactPlace: (prevPlaceRows as Row[]).filter(isContact), prevContactPages: (prevPageRows as Row[]).filter(isContact),
+  }
+}
+if (configured) {
+  try {
+    data = await load(unit)
+  } catch (e) {
+    if (unit === 'hour') {
+      try {
+        unit = 'day'
+        data = await load('day')
+      } catch (e2) {
+        failed = (e2 as Error).message
+      }
+    } else {
+      failed = (e as Error).message
+    }
+  }
+}
+
+// Paid orders straight from the database: the true count, whatever analytics
+// saw. Only the payment date and order type are read; no personal details.
+type Ord = { paid_at: string; kind: string | null }
+let orders: Ord[] = []
+let prevOrderRows: Ord[] = []
+let weekOrders = 0
+let ordersOk = false
+try {
+  const sb = createSupabaseServerClient(Astro)
+  const q = (r: { since: string; until: string }) =>
+    sb.from('orders').select('paid_at, kind').eq('status', 'paid').gte('paid_at', r.since).lt('paid_at', r.until).limit(5000)
+  const [cur, prev, week] = await Promise.all([
+    q(range),
+    q(before),
+    weekBefore ? sb.from('orders').select('id', { count: 'exact', head: true }).eq('status', 'paid').gte('paid_at', weekBefore.since).lt('paid_at', weekBefore.until) : Promise.resolve({ count: 0, error: null }),
+  ])
+  if (!cur.error) {
+    ordersOk = true
+    orders = (cur.data as Ord[]) ?? []
+    prevOrderRows = (prev.data as Ord[]) ?? []
+    weekOrders = (week as { count: number | null }).count ?? 0
+  }
+} catch {
+  ordersOk = false
+}
+const prevOrders = prevOrderRows.length
+const KIND_NAME: Record<string, string> = { shop: 'Shop orders', custom_payment: 'Custom payments', valuation: 'Art valuations' }
+const kindName = (k: string | null) => KIND_NAME[k ?? ''] ?? 'Other orders'
+
+// ---- Naming ---------------------------------------------------------------
+const articles = await getCollection('articles')
+const titles = new Map<string, string>()
+for (const a of articles) titles.set(`/articles/${a.id.replace(/\.md$/, '')}/`, a.data.title)
+const FIXED: Record<string, string> = {
+  '/': 'Homepage',
+  '/print-on-paper/': 'Print on paper',
+  '/canvas-printing/': 'Canvas printing',
+  '/canvas-stretching/': 'Canvas stretching',
+  '/custom-framing/': 'Custom framing',
+  '/art-scanning/': 'Art scanning',
+  '/scanning-restoration/': 'Photo scanning and restoration',
+  '/art-restoration/': 'Art restoration',
+  '/art-valuation/': 'Art valuation',
+  '/art-valuation/submit/': 'Art valuation form',
+  '/shop/': 'Shop',
+  '/cart/': 'Cart',
+  '/checkout/success/': 'Order confirmed',
+  '/make-payment/': 'Make a payment',
+  '/contact/': 'Contact',
+  '/about/': 'About us',
+  '/gallery/': 'Gallery',
+  '/careers/': 'Careers',
+  '/articles/': 'Articles',
+  '/tools/': 'Free tools',
+  '/tools/crop-visualiser/': 'Crop visualiser (tool)',
+  '/tools/image-analyser/': 'Image analyser (tool)',
+  '/tools/wall-visualiser/': 'Wall visualiser (tool)',
+}
+const norm = (p: string) => (p.endsWith('/') ? p : p + '/')
+// Anything not named above: the last part of the address, as words, with the
+// kind of page after it for papers, canvases and shop artworks.
+const readable = (p: string) => {
+  const last = p.replace(/\/$/, '').split('/').pop() || p
+  const words = decodeURIComponent(last).replace(/-/g, ' ')
+  const kind = p.startsWith('/papers/') ? ' (paper)' : p.startsWith('/canvases/') ? ' (canvas)' : p.startsWith('/shop/') ? ' (shop)' : ''
+  return `${words.charAt(0).toUpperCase()}${words.slice(1)}${kind}`
+}
+const pageName = (p: string) =>
+  p === 'Others' ? 'Other pages'
+  : /^\/404\/?$/.test(p) ? 'Page not found (404)'
+  : FIXED[norm(p)] ?? titles.get(norm(p)) ?? readable(p)
+
+// Which service a page belongs to. Service pages and their paper or canvas
+// pages count directly; articles count where their address names the service.
+function serviceOf(path: string): string | null {
+  const p = norm(path)
+  if (/^\/(print-on-paper|papers)\//.test(p)) return 'Paper printing'
+  if (/^\/(canvas-printing|canvases)\//.test(p)) return 'Canvas printing'
+  if (/^\/canvas-stretching\//.test(p)) return 'Canvas stretching'
+  if (/^\/custom-framing\//.test(p)) return 'Framing'
+  if (/^\/art-scanning\//.test(p)) return 'Art scanning'
+  if (/^\/scanning-restoration\//.test(p)) return 'Photo scanning and restoration'
+  if (/^\/art-restoration\//.test(p)) return 'Art restoration'
+  if (/^\/art-valuation\//.test(p)) return 'Art valuation'
+  if (/^\/(shop|cart)\//.test(p)) return 'Shop (art prints)'
+  if (/^\/tools\//.test(p)) return 'Free tools'
+  if (p.startsWith('/articles/') && p !== '/articles/') {
+    if (/canvas|wrap/.test(p)) return 'Canvas printing'
+    if (/restor|photograph/.test(p)) return 'Photo scanning and restoration'
+    if (/paper|hahnemuhle|giclee|print/.test(p)) return 'Paper printing'
+  }
+  return null
+}
+
+const sourceName = (h: string) =>
+  h === '' ? 'Direct, apps and unknown'
+  : h === 'Others' ? 'Other sites'
+  : /gemini\.google|chatgpt|openai|perplexity|claude\.ai|copilot/.test(h) ? 'AI assistants'
+  : /googlequicksearchbox/.test(h) ? 'Google app'
+  : /(^|\.)google\./.test(h) ? 'Google search'
+  : /(^|\.)bing\.com$/.test(h) ? 'Bing'
+  : /facebook\.com$|fb\.com$/.test(h) ? 'Facebook'
+  : /instagram\.com$/.test(h) ? 'Instagram'
+  : /linkedin\.com$|lnkd\.in$/.test(h) ? 'LinkedIn'
+  : /pinterest\./.test(h) ? 'Pinterest'
+  : /(^|\.)stripe\.com$/.test(h) ? 'Stripe (back from paying)'
+  : h.replace(/^www\./, '')
+const deviceName = (d: string) => (d ? d[0].toUpperCase() + d.slice(1) : 'Unknown')
+const countryNames = new Intl.DisplayNames(['en'], { type: 'region' })
+const countryName = (c: string) => {
+  if (c === 'Others') return 'Other countries'
+  try { return c ? countryNames.of(c) ?? c : 'Unknown' } catch { return c }
+}
+
+// ---- Figures --------------------------------------------------------------
+// Event counts come back as count, events or total depending on the query.
+const n = (r: Row) => Number(r.count ?? r.events ?? r.total ?? r.pageviews ?? 0)
+const fmt = (x: number) => x.toLocaleString('en-SG')
+function pct(a: number, b: number) {
+  if (!(b > 0)) return '–'
+  if (!a) return '0%'
+  const share = a / b
+  return (share * 100).toFixed(share < 0.1 ? 1 : 0) + '%'
+}
+const change = (cur: number, prev: number, against = compareText) => {
+  if (!prev) return null
+  const d = Math.round(((cur - prev) / prev) * 100)
+  return { text: `${d > 0 ? '+' : ''}${d}% ${against}`, dir: d > 0 ? 'up' : d < 0 ? 'down' : 'flat' }
+}
+// The change beside each row of a list: up or down by how many on the previous
+// period, "new" when it wasn't there. Only shown once the previous period has
+// figures at all, so the first weeks of tracking don't read "new" everywhere.
+type Delta = { text: string; dir: 'up' | 'down' | 'flat'; title: string }
+const delta = (cur: number, prev: Map<string, number> | undefined, label: string): Delta | null => {
+  if (!prev || prev.size === 0) return null
+  const was = prev.get(label) ?? 0
+  const title = `${prevName}: ${fmt(was)}`
+  if (!was) return { text: 'new', dir: 'up', title }
+  if (cur === was) return { text: '=', dir: 'flat', title }
+  return { text: `${cur > was ? '▲' : '▼'} ${fmt(Math.abs(cur - was))}`, dir: cur > was ? 'up' : 'down', title }
+}
+function tally(rows: Row[], label: (r: Row) => string, value: (r: Row) => number = (r) => r.visitors) {
+  const out = new Map<string, number>()
+  for (const r of rows ?? []) {
+    const v = value(r)
+    if (v > 0) out.set(label(r), (out.get(label(r)) ?? 0) + v)
+  }
+  return out
+}
+const sumActions = (rows: Row[], names: string[]) => (rows ?? []).filter((r) => names.includes(String(r.eventName))).reduce((s, r) => s + n(r), 0)
+
+function series(rows: Row[], value: (r: Row) => number, end = now) {
+  const byDay = new Map<string, number>()
+  for (const r of rows ?? []) {
+    const d = String(r.timestamp ?? r.day).slice(0, 10)
+    byDay.set(d, (byDay.get(d) ?? 0) + value(r))
+  }
+  return Array.from({ length: days }, (_, i) => {
+    const d = new Date(end - (days - 1 - i) * DAY).toISOString().slice(0, 10)
+    return { day: d, value: byDay.get(d) ?? 0 }
+  })
+}
+const dayLabel = (d: string) => new Date(d + 'T00:00:00Z').toLocaleDateString('en-SG', { day: 'numeric', month: 'short', timeZone: 'UTC' })
+
+type Item = { label: string; value: number }
+function top(rows: Row[], label: (r: Row) => string, value: (r: Row) => number = (r) => r.visitors, limit = 10): Item[] {
+  const merged = new Map<string, Item & { other: boolean }>()
+  for (const r of rows ?? []) {
+    const v = value(r)
+    if (v <= 0) continue
+    const l = label(r)
+    const m = merged.get(l)
+    if (m) m.value += v
+    else merged.set(l, { label: l, value: v, other: Object.values(r).includes('Others') })
+  }
+  return [...merged.values()].sort((a, b) => Number(a.other) - Number(b.other) || b.value - a.value).slice(0, limit)
+}
+const max = (items: Item[]) => Math.max(1, ...items.map((i) => i.value))
+const fromMap = (m: Map<string, number>, limit = 10): Item[] => [...m.entries()].map(([label, value]) => ({ label, value })).sort((a, b) => b.value - a.value).slice(0, limit)
+
+const visitors = data?.total.visitors ?? 0
+const contacts = data ? sumActions(data.actions, CONTACTS) : 0
+const prevContacts = data ? sumActions(data.prevActions, CONTACTS) : 0
+const contactVisitors = data ? (data.actions as Row[]).filter((r) => CONTACTS.includes(String(r.eventName))).reduce((s, r) => s + Number(r.visitors ?? 0), 0) : 0
+const quotes = data ? sumActions(data.actions, ['Quote request']) : 0
+const prevQuotes = data ? sumActions(data.prevActions, ['Quote request']) : 0
+
+// Interest by service, worked out from the page list.
+function serviceTally(rows: Row[], value: (r: Row) => number = (r) => r.visitors) {
+  const out = new Map<string, number>()
+  for (const r of rows ?? []) {
+    const s = serviceOf(String(r.requestPath))
+    if (s) out.set(s, (out.get(s) ?? 0) + value(r))
+  }
+  return out
+}
+
+const orderTally = (rows: Ord[]) => {
+  const out = new Map<string, number>()
+  for (const o of rows) out.set(kindName(o.kind), (out.get(kindName(o.kind)) ?? 0) + 1)
+  return out
+}
+
+type Tile = { label: string; value: string; note?: ReturnType<typeof change>; note2?: ReturnType<typeof change>; help: string; key?: boolean }
+const WEEK = 'vs same day last week'
+const tiles: Tile[] = [
+  ...(data ? [{ label: 'Visitors', value: fmt(visitors), note: change(visitors, data.prevTotal.visitors), note2: day ? change(visitors, data.weekTotal.visitors, WEEK) : null, help: `${fmt(data.total.pageviews)} page views, ${(data.total.pageviews / (visitors || 1)).toFixed(1)} per visitor` }] : []),
+  ...(data ? [{ label: 'Contacts', value: fmt(contacts), note: change(contacts, prevContacts), note2: day ? change(contacts, sumActions(data.weekActions, CONTACTS), WEEK) : null, help: 'WhatsApp, call and email clicks, quote requests, enquiry forms and orders', key: true }] : []),
+  ...(ordersOk ? [{ label: 'Orders paid', value: fmt(orders.length), note: change(orders.length, prevOrders), note2: day ? change(orders.length, weekOrders, WEEK) : null, help: 'Shop orders, custom payments and art valuations paid online', key: true }] : []),
+  ...(data ? [
+    { label: 'Quote requests', value: fmt(quotes), note: change(quotes, prevQuotes), help: 'Prices from the calculators sent to us on WhatsApp' },
+    { label: 'Visitors who got in touch', value: pct(contactVisitors, visitors), help: `${fmt(contactVisitors)} of ${fmt(visitors)} visitors` },
+    { label: 'Pages per visitor', value: (data.total.pageviews / (visitors || 1)).toFixed(1), note: null, help: `${fmt(data.total.pageviews)} page views in all` },
+  ] : []),
+]
+
+// Daily trend, from the first day anything was counted, so a new site doesn't
+// show weeks of empty chart. In the one-day view: 24 hours, labelled in
+// Singapore time (8am to 7am).
+function hourSeries(rows: Row[], value: (r: Row) => number, start = dayStart) {
+  const byHour = new Map<string, number>()
+  for (const r of rows ?? []) {
+    const k = String(r.timestamp ?? '').slice(0, 13)
+    byHour.set(k, (byHour.get(k) ?? 0) + value(r))
+  }
+  return Array.from({ length: 24 }, (_, i) => {
+    const t = iso(start + i * 3600_000)
+    return { day: t, value: byHour.get(t.slice(0, 13)) ?? 0 }
+  })
+}
+const hourly = unit === 'hour'
+const visitorsDaily = data ? (hourly ? hourSeries(data.daily, (r) => r.visitors) : series(data.daily, (r) => r.visitors)) : []
+// The previous period's visitors, laid over the bars as a dotted line.
+const prevVisitorsDaily = data ? (hourly ? hourSeries(data.prevDaily, (r) => r.visitors, dayStart - DAY) : series(data.prevDaily, (r) => r.visitors, now - days * DAY)) : []
+const contactsDaily = data ? (hourly ? hourSeries(data.actionDaily, n) : series(data.actionDaily, n)) : []
+const firstActive = day ? 0 : visitorsDaily.findIndex((p, i) => p.value > 0 || (contactsDaily[i]?.value ?? 0) > 0)
+const startAt = firstActive > 0 ? firstActive : 0
+const sgHour = (isoHour: string) => {
+  const h = (new Date(isoHour).getUTCHours() + 8) % 24
+  return `${h % 12 === 0 ? 12 : h % 12}${h < 12 ? 'am' : 'pm'}`
+}
+const pointLabel = (key: string) => (hourly ? sgHour(key) : dayLabel(key.slice(0, 10)))
+const longDay = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString('en-SG', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' })
+const trend = visitorsDaily.slice(startAt).map((p, i) => ({ day: p.day, visitors: p.value, contacts: contactsDaily[startAt + i]?.value ?? 0, prev: prevVisitorsDaily[startAt + i]?.value ?? 0, prevDay: prevVisitorsDaily[startAt + i]?.day ?? '' }))
+const showPrev = trend.some((t) => t.prev > 0)
+const trimmed = startAt > 0
+// Drawn twice: a wide chart for desktop and a narrower, taller one for phones
+// (CSS shows one), so the labels stay a readable size on both.
+const PAD_B = 22
+const peak = Math.max(1, ...trend.map((t) => Math.max(t.visitors, showPrev ? t.prev : 0)))
+const niceMax = (() => {
+  const steps = [4, 8, 10, 20, 40, 50, 100, 200, 250, 500, 1000, 2000, 5000, 10000]
+  return steps.find((s) => s >= peak) ?? Math.ceil(peak / 1000) * 1000
+})()
+const gridLines = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(niceMax * f))
+const charts = [
+  { cls: 'ix-chart--wide', CW: 760, CH: 200, PAD_L: 34, ticks: hourly ? [0, 4, 8, 12, 16, 20, 23] : null },
+  { cls: 'ix-chart--narrow', CW: 360, CH: 230, PAD_L: 32, ticks: hourly ? [0, 6, 12, 18, 23] : null },
+].map((c) => {
+  const step = (c.CW - c.PAD_L) / Math.max(1, trend.length)
+  const yOf = (v: number) => (c.CH - PAD_B) - (v / niceMax) * (c.CH - PAD_B - 8)
+  const xTicks = c.ticks ?? (trend.length <= (c.CW > 400 ? 8 : 5) ? trend.map((_, i) => i) : [0, Math.floor((trend.length - 1) / 2), trend.length - 1])
+  return {
+    ...c, step, yOf, xTicks,
+    barW: Math.min(36, Math.max(3, step * 0.62)),
+    cx: (i: number) => c.PAD_L + step * i + step / 2,
+    prevLine: trend.map((t, i) => `${c.PAD_L + step * i + step / 2},${yOf(t.prev)}`).join(' '),
+  }
+})
+const dayHref = (d: string) => `?days=${days}&day=${d}`
+const avg = (xs: number[]) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0)
+
+const METHOD_NAME: Record<string, string> = { 'Enquiry sent': 'Enquiry form', 'Quote request': 'Quote on WhatsApp', 'Order placed': 'Order paid' }
+const methodItems: Item[] = data ? CONTACTS.map((c) => ({ label: METHOD_NAME[c] ?? c, value: sumActions(data.actions, [c]) })).filter((i) => i.value > 0) : []
+// Shares of the rows themselves: a visitor can use two devices, so dividing by
+// unique visitors gave more than 100%.
+const deviceItems: Item[] = data ? top(data.devices, (r) => deviceName(String(r.deviceType))) : []
+
+type Panel = { title: string; unit: string; items: Item[]; note?: string; prev?: Map<string, number> }
+const LIMIT = 8
+const reading: Panel[] = !data ? [] : [
+  { title: 'Most visited pages', unit: 'visitors', items: top(data.pages, (r) => pageName(String(r.requestPath)), undefined, LIMIT), prev: tally(data.prevPages, (r) => pageName(String(r.requestPath))) },
+  { title: 'Interest by service', unit: 'visitors', items: fromMap(serviceTally(data.pages), LIMIT), note: 'Each service page with its paper, canvas and article pages added together', prev: serviceTally(data.prevPages) },
+]
+const contactPanels: Panel[] = [
+  ...(data ? [{ title: 'Quote requests by service', unit: 'quotes', items: fromMap(serviceTally(data.quotePages, n), LIMIT), prev: serviceTally(data.prevQuotePages, n) }] : []),
+  ...(ordersOk ? [{ title: 'Orders paid by type', unit: 'orders', items: fromMap(orderTally(orders), LIMIT), prev: orderTally(prevOrderRows) }] : []),
+  ...(data ? [{ title: 'Pages people get in touch from', unit: 'times', items: top(data.contactPages, (r) => pageName(String(r.requestPath)), n, LIMIT), prev: tally(data.prevContactPages, (r) => pageName(String(r.requestPath)), n) }] : []),
+]
+const audience: Panel[] = !data ? [] : [
+  { title: 'Where visitors come from', unit: 'visitors', items: top(data.referrers, (r) => sourceName(String(r.referrerHostname)), undefined, LIMIT), prev: tally(data.prevReferrers, (r) => sourceName(String(r.referrerHostname))) },
+  { title: 'Countries', unit: 'visitors', items: top(data.countries, (r) => countryName(String(r.country)), undefined, LIMIT) },
+]
+const placeItems: Item[] = data ? top(data.contactPlace, (r) => String(r['eventData/place'] || 'Unknown'), n, 6) : []
+const prevPlace = data ? tally(data.prevContactPlace, (r) => String(r['eventData/place'] || 'Unknown'), n) : undefined
+
+// ---- Paid vs unpaid ---------------------------------------------------------
+// From the "Visit" events and the channel on each action (VercelTracking.astro).
+type Channel = { name: string; visits: number; contacts: number; whatsapp: number; calls: number; emails: number; quotes: number; forms: number; orders: number; contactVisitors: number }
+const NO_CHANNEL = 'Unknown'
+// AI assistants tag their links with utm_source (e.g. chatgpt.com); count
+// those as AI assistants even if they were filed as a campaign.
+const channelName = (raw: string) =>
+  !raw ? NO_CHANNEL
+  : /^Campaign: .*(chatgpt|openai|perplexity|gemini|claude|copilot)/i.test(raw) ? 'AI assistants'
+  : raw
+const PAID = ['Google Ads', 'Microsoft Ads']
+const COLUMN: Record<string, keyof Channel> = { WhatsApp: 'whatsapp', 'Phone call': 'calls', Email: 'emails', 'Quote request': 'quotes', 'Enquiry sent': 'forms', 'Order placed': 'orders' }
+const channelRows: Channel[] = (() => {
+  if (!data) return []
+  const byName = new Map<string, Channel>()
+  const get = (raw: string) => {
+    const k = channelName(raw)
+    if (!byName.has(k)) byName.set(k, { name: k, visits: 0, contacts: 0, whatsapp: 0, calls: 0, emails: 0, quotes: 0, forms: 0, orders: 0, contactVisitors: 0 })
+    return byName.get(k)!
+  }
+  for (const r of (data.channelVisits ?? []) as Row[]) get(String(r['eventData/channel'] ?? '')).visits += n(r)
+  for (const r of (data.channelActions ?? []) as Row[]) {
+    const ev = String(r.eventName)
+    if (!CONTACTS.includes(ev)) continue
+    const c = get(String(r['eventData/channel'] ?? ''))
+    c.contacts += n(r)
+    c.contactVisitors += Number(r.visitors ?? 0)
+    ;(c[COLUMN[ev]] as number) += n(r)
+  }
+  // Paid first, then by visits; the unknown bucket always last.
+  return [...byName.values()].filter((c) => c.visits || c.contacts).sort((a, b) =>
+    Number(a.name === NO_CHANNEL) - Number(b.name === NO_CHANNEL) || Number(PAID.includes(b.name)) - Number(PAID.includes(a.name)) || b.visits - a.visits)
+})()
+const tracked = channelRows.filter((c) => c.name !== NO_CHANNEL)
+const channelTotals = tracked.reduce((t, c) => ({ visits: t.visits + c.visits, contacts: t.contacts + c.contacts }), { visits: 0, contacts: 0 })
+const paid = channelRows.filter((c) => PAID.includes(c.name)).reduce((t, c) => ({ visits: t.visits + c.visits, contacts: t.contacts + c.contacts, orders: t.orders + c.orders, contactVisitors: t.contactVisitors + c.contactVisitors }), { visits: 0, contacts: 0, orders: 0, contactVisitors: 0 })
+const unpaid = { visits: channelTotals.visits - paid.visits, contactVisitors: tracked.filter((c) => !PAID.includes(c.name)).reduce((s, c) => s + c.contactVisitors, 0) }
+const prevPaidVisits = data ? ((data.prevChannelVisits ?? []) as Row[]).filter((r) => PAID.includes(String(r['eventData/channel']))).reduce((s, r) => s + n(r), 0) : 0
+const rate = (who: number, of: number) => (of > 0 ? Math.min(who / of, 1) : 0)
+const adLanding: Item[] = data ? top(((data.channelLanding ?? []) as Row[]).filter((r) => PAID.includes(String(r['eventData/channel']))), (r) => pageName(String(r['eventData/landing'] ?? '')), n, 8) : []
+const hasChannels = channelTotals.visits > 0 || channelTotals.contacts > 0
+const prevChannel = data ? tally(data.prevChannelVisits, (r) => channelName(String(r['eventData/channel'] ?? '')), n) : undefined
+
+const ACTION_HELP: Record<string, string> = {
+  WhatsApp: 'Clicked a WhatsApp link or button',
+  'Phone call': 'Clicked a phone number',
+  Email: 'Clicked an email address',
+  'Quote request': 'Sent a price from a calculator to us on WhatsApp',
+  'Enquiry sent': 'Sent an enquiry form',
+  'Order placed': 'Paid for an order, custom payment or valuation',
+  'Quote to contact form': 'Took a calculator price to the contact form',
+  'Added to cart': 'Added a shop print to the cart',
+  'Checkout started': 'Went on to pay (shop, custom payment or valuation)',
+  'Job application': 'Sent a job application from the careers page',
+}
+// "Visit" is the per-visit channel marker, not something a visitor did.
+const actionItems = data ? top((data.actions as Row[]).filter((r) => r.eventName !== 'Visit'), (r) => String(r.eventName), n, 20) : []
+const SEG = ['seg-0', 'seg-1', 'seg-2', 'seg-3', 'seg-4', 'seg-5']
+
+// Every action, split into ways of getting in touch and everything else, each
+// with its change on the previous period and a small icon.
+const ACTION_ICON: Record<string, string> = {
+  WhatsApp: 'M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3Z',
+  'Phone call': 'M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2',
+  Email: 'M4 6h16v12H4zM4 7l8 6 8-6',
+  'Quote request': 'M4 4h16v16H4zM8 8h8M8 12h3M13 12h3M8 16h3M13 16h3',
+  'Enquiry sent': 'M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M8 13h8M8 17h5',
+  'Order placed': 'M3 6h18v12H3zM3 10h18M7 15h3',
+  'Quote to contact form': 'M5 12h14M13 6l6 6-6 6',
+  'Added to cart': 'M3 4h2l2.5 11h11L21 8H6.5M10 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2zM17 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2z',
+  'Checkout started': 'M3 6h18v12H3zM3 10h18M15 15h3',
+  'Job application': 'M4 8h16v11H4zM9 8V5h6v3',
+}
+const prevCount = (name: string) => n(((data?.prevActions ?? []) as Row[]).find((r) => r.eventName === name) ?? ({} as Row))
+const actionRow = (i: Item) => ({ ...i, prev: prevCount(i.label), help: ACTION_HELP[i.label] ?? '', icon: ACTION_ICON[i.label] ?? 'M12 5v14M5 12h14' })
+const actionGroups = [
+  { title: 'Ways of getting in touch', rows: actionItems.filter((a) => CONTACTS.includes(a.label)).map(actionRow) },
+  { title: 'Other actions', rows: actionItems.filter((a) => !CONTACTS.includes(a.label)).map(actionRow) },
+].filter((g) => g.rows.length)
+const actionChange = (cur: number, prev: number) => {
+  if (!prev) return null
+  const d = Math.round(((cur - prev) / prev) * 100)
+  return { text: `${d > 0 ? '+' : ''}${d}%`, dir: d > 0 ? 'up' : d < 0 ? 'down' : 'flat' }
+}
+---
+
+<AdminLayout title="Insights">
+  <div class="ix">
+  <header class="ix-head">
+    <div>
+      <p class="ix-eyebrow">fineartprinting.com.sg</p>
+      <h1>{day ? longDay(day) : 'Website insights'}</h1>
+      <p class="ix-lede">{day ? 'This day only (8am to 8am Singapore time), compared with the day before and the same day a week earlier.' : 'Who visits, what they look at, and how they get in touch. Updated live.'}</p>
+    </div>
+    {day ? (
+      <nav class="ix-range" aria-label="Day">
+        <a href={dayHref(shiftDay(day, -1))}>← Previous day</a>
+        {day < todayUtc ? <a href={dayHref(shiftDay(day, 1))}>Next day →</a> : null}
+        <a href={`?days=${days}`} class="is-on">Back to {days} days</a>
+      </nav>
+    ) : (
+      <nav class="ix-range" aria-label="Date range">
+        {RANGES.map((r) => <a href={`?days=${r}`} class:list={{ 'is-on': r === days }} aria-current={r === days ? 'true' : undefined}>{r} days</a>)}
+      </nav>
+    )}
+  </header>
+
+  {!configured && (
+    <p class="ix-note">Visitor figures aren't connected yet. Two steps in Vercel: turn on Web Analytics for this project, then save a Vercel access token as VERCEL_ANALYTICS_TOKEN and redeploy. Paid orders come from the database and are already live below.</p>
+  )}
+  {failed && <p class="ix-note ix-note--err">Couldn't load the figures from Vercel right now. Try again in a minute. ({failed})</p>}
+
+  {tiles.length > 0 && (
+    <div class="ix-tiles">
+      {tiles.map((t) => (
+        <div class:list={['ix-tile', { 'is-key': t.key }]}>
+          <span class="ix-tile__label">{t.label}</span>
+          <strong class="ix-tile__value">{t.value}</strong>
+          {t.note ? <span class:list={['ix-delta', `is-${t.note.dir}`]}>{t.note.text}</span> : null}
+          {t.note2 ? <span class:list={['ix-delta', `is-${t.note2.dir}`]}>{t.note2.text}</span> : null}
+          <span class="ix-tile__help">{t.help}</span>
+        </div>
+      ))}
+    </div>
+  )}
+
+  {data && (
+    <section class="ix-card ix-trend">
+      <div class="ix-card__head">
+        <div>
+          <h2>{day ? 'Visitors and contacts by hour' : 'Visitors and contacts per day'}</h2>
+          <p class="ix-sub">{day
+            ? (hourly ? 'Singapore time. Hover over an hour for its numbers.' : 'Hourly figures are not available for this day.')
+            : `${trimmed ? `From ${dayLabel(trend[0].day)}, when counting started. ` : ''}Each day runs 8am to 8am Singapore time. Click a day to see it on its own.`}</p>
+        </div>
+        <span class="ix-legend"><i class="dot dot--visitors"></i>Visitors <i class="dot dot--contacts"></i>Contacts{showPrev ? <><i class="dot dot--prev"></i>Visitors, {prevName.toLowerCase()}</> : null}</span>
+      </div>
+      {trend.every((t) => !t.visitors && !t.contacts) ? <p class="ix-empty">Nothing counted yet in this period.</p> : (
+        <>{charts.map(({ cls, CW, CH, PAD_L, yOf, step, barW, cx: colX, prevLine, xTicks }) => (
+        <svg class={`ix-chart ${cls}`} viewBox={`0 0 ${CW} ${CH}`} role="img" aria-label={`Visitors and contacts per day, last ${days} days`}>
+          {gridLines.map((g) => (
+            <g>
+              <line x1={PAD_L} x2={CW} y1={yOf(g)} y2={yOf(g)} class="grid" />
+              <text x={PAD_L - 6} y={yOf(g) + 4} class="ylab" text-anchor="end">{g}</text>
+            </g>
+          ))}
+          {trend.map((t, i) => {
+            const cx = colX(i)
+            const bars = (
+              <>
+                <rect x={cx - step / 2} y="0" width={step} height={CH - PAD_B} class="hit" />
+                {t.visitors > 0 ? <rect x={cx - barW / 2} y={yOf(t.visitors)} width={barW} height={(CH - PAD_B) - yOf(t.visitors)} rx={Math.min(5, barW / 3)} class="bar-v" /> : null}
+                {t.contacts > 0 ? <rect x={cx - barW / 2} y={yOf(t.contacts)} width={barW} height={(CH - PAD_B) - yOf(t.contacts)} rx={t.contacts >= t.visitors ? Math.min(5, barW / 3) : 0} class="bar-c" /> : null}
+                <title>{`${pointLabel(t.day)}: ${fmt(t.visitors)} visitors, ${fmt(t.contacts)} contacts${showPrev ? ` (${hourly ? 'same hour the day before' : dayLabel(t.prevDay.slice(0, 10))}: ${fmt(t.prev)} visitors)` : ''}${day ? '' : '. Click to see this day'}`}</title>
+              </>
+            )
+            return day ? <g class="col">{bars}</g> : <a href={dayHref(t.day.slice(0, 10))} class="col col--link">{bars}</a>
+          })}
+          {showPrev ? (
+            <g class="prev" aria-hidden="true">
+              <polyline points={prevLine} />
+              {trend.map((t, i) => <circle cx={colX(i)} cy={yOf(t.prev)} r="2.5" />)}
+            </g>
+          ) : null}
+          {xTicks.filter((i) => trend[i]).map((i) => (
+            <text x={colX(i)} y={CH - 4} class="xlab" text-anchor={i === 0 && 400 > CW ? 'start' : i === trend.length - 1 && 400 > CW ? 'end' : 'middle'} dx={i === 0 && 400 > CW ? -6 : 0}>{pointLabel(trend[i].day)}</text>
+          ))}
+        </svg>
+        ))}</>
+      )}
+      {showPrev ? (
+        <p class="ix-compare">{hourly
+          ? <>{fmt(trend.reduce((a, t) => a + t.visitors, 0))} visitors this day, against {fmt(trend.reduce((a, t) => a + t.prev, 0))} the day before. The dotted line is the day before, hour by hour.</>
+          : <>{avg(trend.map((t) => t.visitors)).toFixed(1)} visitors a day on average, against {avg(trend.map((t) => t.prev)).toFixed(1)} over the same days of the {prevName.toLowerCase()}. The dotted line is that earlier period, day by day.</>}</p>
+      ) : null}
+    </section>
+  )}
+
+  {data && (
+    <section class="ix-section">
+      <h2 class="ix-section__title">Paid and unpaid visits</h2>
+      {!hasChannels ? (
+        <div class="ix-card"><p class="ix-empty">Counting visits by how they arrived started with this dashboard. Figures appear here as visits come in.</p></div>
+      ) : (
+        <>
+          <div class="ix-tiles ix-tiles--paid">
+            <div class="ix-tile is-key">
+              <span class="ix-tile__label">Visits from ads</span>
+              <strong class="ix-tile__value">{fmt(paid.visits)}</strong>
+              {change(paid.visits, prevPaidVisits) ? <span class:list={['ix-delta', `is-${change(paid.visits, prevPaidVisits)!.dir}`]}>{change(paid.visits, prevPaidVisits)!.text}</span> : null}
+              <span class="ix-tile__help">{pct(paid.visits, channelTotals.visits)} of all visits</span>
+            </div>
+            <div class="ix-tile is-key">
+              <span class="ix-tile__label">Contacts from ads</span>
+              <strong class="ix-tile__value">{fmt(paid.contacts)}</strong>
+              <span class="ix-tile__help">{pct(paid.contacts, channelTotals.contacts)} of all contacts · {fmt(paid.orders)} order{paid.orders === 1 ? '' : 's'}</span>
+            </div>
+            <div class="ix-tile">
+              <span class="ix-tile__label">Ad visitors who got in touch</span>
+              <strong class="ix-tile__value">{pct(Math.round(rate(paid.contactVisitors, paid.visits) * 1000), 1000)}</strong>
+              <span class="ix-tile__help">Unpaid visitors: {pct(Math.round(rate(unpaid.contactVisitors, unpaid.visits) * 1000), 1000)}</span>
+            </div>
+          </div>
+          <div class="ix-stack-cards">
+            <div class="ix-card">
+              <div class="ix-card__head"><h3>How visits arrived</h3><span class="ix-unit">visits · contacts</span></div>
+              <div class="ix-table-wrap"><table class="ix-table">
+                <colgroup><col class="c-name" /><col /><col /><col /><col /><col /><col /><col /><col /></colgroup>
+                <thead>
+                  <tr class="group"><th></th><th></th><th colspan="6"><span>Contacts</span></th><th></th></tr>
+                  <tr><th>Channel</th><th>Visits</th><th class="g-start">WhatsApp</th><th>Call</th><th>Email</th><th>Quote</th><th>Form</th><th class="g-end">Order</th><th>Got in touch</th></tr>
+                </thead>
+                <tbody>
+                  {channelRows.map((c) => (
+                    <tr class:list={{ 'is-paid': PAID.includes(c.name), 'is-untracked': c.name === NO_CHANNEL }}>
+                      <td>{c.name}</td>
+                      <td>{c.name === NO_CHANNEL ? '–' : fmt(c.visits)}{c.name === NO_CHANNEL ? null : (() => { const d = delta(c.visits, prevChannel, c.name); return d ? <span class:list={['ix-chg', `is-${d.dir}`]} title={d.title}>{d.text}</span> : null })()}</td>
+                      <td class:list={['g-start', { zero: !c.whatsapp }]}>{fmt(c.whatsapp)}</td>
+                      <td class:list={{ zero: !c.calls }}>{fmt(c.calls)}</td>
+                      <td class:list={{ zero: !c.emails }}>{fmt(c.emails)}</td>
+                      <td class:list={{ zero: !c.quotes }}>{fmt(c.quotes)}</td>
+                      <td class:list={{ zero: !c.forms }}>{fmt(c.forms)}</td>
+                      <td class:list={['g-end', { zero: !c.orders }]}>{fmt(c.orders)}</td>
+                      <td>{c.visits ? pct(Math.round(rate(c.contactVisitors, c.visits) * 1000), 1000) : '–'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table></div>
+              <p class="ix-foot-note">Contacts are clicks on WhatsApp, phone numbers and email addresses, calculator quotes sent on WhatsApp, enquiry forms sent and orders paid. "Got in touch" is the share of that channel's visitors who did any of these.</p>
+            </div>
+            <div class="ix-card">
+              <div class="ix-card__head"><h3>Pages ad visitors land on</h3><span class="ix-unit">visits</span></div>
+              {adLanding.length === 0 ? <p class="ix-empty">No ad visits yet in this period.</p> : (
+                <ol class="ix-list">
+                  {adLanding.map((i, idx) => (
+                    <li style={`--w:${Math.max(3, (i.value / max(adLanding)) * 100)}%`}>
+                      <span class="rank">{idx + 1}</span><span class="label" title={i.label}>{i.label}</span><span class="val">{fmt(i.value)}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </section>
+  )}
+
+  {(methodItems.length > 0 || contactPanels.length > 0) && (
+    <section class="ix-section">
+      <h2 class="ix-section__title">Getting in touch</h2>
+      <div class="ix-grid ix-grid--2">
+        {data && (
+          <div class="ix-card">
+            <div class="ix-card__head"><h3>How people get in touch</h3><span class="ix-unit">times</span></div>
+            {methodItems.length === 0 ? <p class="ix-empty">No contacts yet in this period.</p> : (
+              <>
+                <div class="ix-stack" aria-hidden="true">
+                  {methodItems.map((m, i) => <span class={SEG[i % SEG.length]} style={`flex:${m.value}`} />)}
+                </div>
+                <ul class="ix-keys">
+                  {methodItems.map((m, i) => (
+                    <li><i class={`dot ${SEG[i % SEG.length]}`}></i><span>{m.label}</span><b>{fmt(m.value)}</b><small>{pct(m.value, contacts)}</small></li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {placeItems.length > 0 && (
+              <>
+                <div class="ix-card__head ix-card__head--sub"><h3>Where on the page</h3><span class="ix-unit">times</span></div>
+                <ol class="ix-list">
+                  {placeItems.map((i, idx) => (
+                    <li style={`--w:${Math.max(3, (i.value / max(placeItems)) * 100)}%`}>
+                      <span class="rank">{idx + 1}</span><span class="label" title={i.label}>{i.label}</span><span class="val">{fmt(i.value)}</span>{(() => { const c = delta(i.value, prevPlace, i.label); return c ? <span class:list={['ix-chg', `is-${c.dir}`]} title={c.title}>{c.text}</span> : null })()}
+                    </li>
+                  ))}
+                </ol>
+              </>
+            )}
+          </div>
+        )}
+        {contactPanels.map((p) => (
+          <div class="ix-card">
+            <div class="ix-card__head"><h3>{p.title}</h3><span class="ix-unit">{p.unit}</span></div>
+            {p.items.length === 0 ? <p class="ix-empty">Nothing yet in this period.</p> : (
+              <ol class="ix-list">
+                {p.items.map((i, idx) => (
+                  <li style={`--w:${Math.max(3, (i.value / max(p.items)) * 100)}%`}>
+                    <span class="rank">{idx + 1}</span><span class="label" title={i.label}>{i.label}</span><span class="val">{fmt(i.value)}</span>{(() => { const c = delta(i.value, p.prev, i.label); return c ? <span class:list={['ix-chg', `is-${c.dir}`]} title={c.title}>{c.text}</span> : null })()}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {reading.length > 0 && (
+    <section class="ix-section">
+      <h2 class="ix-section__title">What people look at</h2>
+      <div class="ix-grid ix-grid--2">
+        {reading.map((p) => (
+          <div class="ix-card">
+            <div class="ix-card__head"><h3>{p.title}</h3><span class="ix-unit">{p.unit}</span></div>
+            {p.items.length === 0 ? <p class="ix-empty">Nothing yet in this period.</p> : (
+              <ol class="ix-list">
+                {p.items.map((i, idx) => (
+                  <li style={`--w:${Math.max(3, (i.value / max(p.items)) * 100)}%`}>
+                    <span class="rank">{idx + 1}</span><span class="label" title={i.label}>{i.label}</span><span class="val">{fmt(i.value)}</span>{(() => { const c = delta(i.value, p.prev, i.label); return c ? <span class:list={['ix-chg', `is-${c.dir}`]} title={c.title}>{c.text}</span> : null })()}
+                  </li>
+                ))}
+              </ol>
+            )}
+            {p.note ? <p class="ix-foot-note">{p.note}</p> : null}
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  {audience.length > 0 && (
+    <section class="ix-section">
+      <h2 class="ix-section__title">Who visits</h2>
+      <div class="ix-grid">
+        {audience.map((p) => (
+          <div class="ix-card">
+            <div class="ix-card__head"><h3>{p.title}</h3><span class="ix-unit">{p.unit}</span></div>
+            {p.items.length === 0 ? <p class="ix-empty">Nothing yet in this period.</p> : (
+              <ol class="ix-list">
+                {p.items.map((i, idx) => (
+                  <li style={`--w:${Math.max(3, (i.value / max(p.items)) * 100)}%`}>
+                    <span class="rank">{idx + 1}</span><span class="label" title={i.label}>{i.label}</span><span class="val">{fmt(i.value)}</span>{(() => { const c = delta(i.value, p.prev, i.label); return c ? <span class:list={['ix-chg', `is-${c.dir}`]} title={c.title}>{c.text}</span> : null })()}
+                  </li>
+                ))}
+              </ol>
+            )}
+          </div>
+        ))}
+        <div class="ix-card">
+          {(() => {
+            const total = deviceItems.reduce((s, i) => s + i.value, 0)
+            return (
+              <div class="ix-split">
+                <div class="ix-card__head"><h3>Devices</h3><span class="ix-unit">share</span></div>
+                {deviceItems.length === 0 ? <p class="ix-empty">Nothing yet.</p> : (
+                  <>
+                    <div class="ix-stack" aria-hidden="true">
+                      {deviceItems.map((m, i) => <span class={SEG[i % SEG.length]} style={`flex:${m.value}`} />)}
+                    </div>
+                    <ul class="ix-keys">
+                      {deviceItems.map((m, i) => (
+                        <li><i class={`dot ${SEG[i % SEG.length]}`}></i><span>{m.label}</span><b>{pct(m.value, total)}</b><small>{fmt(m.value)}</small></li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </div>
+            )
+          })()}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {data && (
+    <section class="ix-section">
+      <h2 class="ix-section__title">Every visitor action</h2>
+      {actionGroups.length === 0 ? <div class="ix-card"><p class="ix-empty">No actions recorded yet in this period.</p></div> : (
+        <div class="ix-grid ix-grid--2">
+          {actionGroups.map((g) => {
+            const top = Math.max(1, ...g.rows.map((r) => r.value))
+            const total = g.rows.reduce((a, r) => a + r.value, 0)
+            return (
+              <div class="ix-card">
+                <div class="ix-card__head"><h3>{g.title}</h3><span class="ix-unit">{fmt(total)} in all</span></div>
+                <ul class="ix-acts">
+                  {g.rows.map((a) => {
+                    const ch = actionChange(a.value, a.prev)
+                    return (
+                      <li>
+                        <span class="ix-acts__icon" aria-hidden="true">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d={a.icon} /></svg>
+                        </span>
+                        <span class="ix-acts__text">
+                          <span class="ix-acts__name">{a.label}</span>
+                          <span class="ix-acts__help">{a.help}</span>
+                          <span class="ix-acts__bar"><span style={`width:${Math.max(4, (a.value / top) * 100)}%`} /></span>
+                        </span>
+                        <span class="ix-acts__num">
+                          <b>{fmt(a.value)}</b>
+                          {ch ? <span class:list={['ix-acts__chg', `is-${ch.dir}`]} title={`${fmt(a.prev)} ${compareText}`}>{ch.text}</span> : null}
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ul>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </section>
+  )}
+
+  <p class="ix-foot">
+    Visitor figures are from Vercel Web Analytics: live website traffic only, bots and staff browsers left out, no cookies. Visitors are added up day by day, so someone who comes back on another day counts again. Paid orders come from the website's own database. Google Analytics and Google Ads get their figures through Tag Manager as before, so the numbers will not match exactly.
+  </p>
+  </div>
+</AdminLayout>
+
+<style>
+  /* Colours and fonts for this page, matched to the admin (admin.css). */
+  .ix {
+    --ink: #1a1a1a; --ink-dim: #444; --ink-mute: #666; --hair: rgba(0, 0, 0, 0.10);
+    --accent: #1a3550; --serif: "Lora", Georgia, serif; --sans: "Nunito", system-ui, sans-serif;
+    font-size: 15px;
+  }
+  .ix-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 1.5rem; flex-wrap: wrap; margin: 0.5rem 0 1.75rem; }
+  .ix-eyebrow { margin: 0 0 0.35rem; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-mute); }
+  .ix-head h1 { font-family: var(--serif); font-weight: 500; font-size: clamp(2rem, 3.2vw, 2.6rem); line-height: 1.1; margin: 0 0 0.4rem; color: var(--ink); }
+  .ix-lede { margin: 0; color: var(--ink-dim); font-size: 15px; }
+  .ix-range { display: inline-flex; padding: 4px; gap: 2px; background: #fff; border: 1px solid var(--hair); border-radius: 999px; box-shadow: 0 1px 2px rgba(2, 17, 68, 0.04); }
+  .ix-range a { padding: 7px 16px; border-radius: 999px; color: var(--ink-dim); text-decoration: none; font-size: 14px; font-weight: 500; }
+  .ix-range a:hover { color: var(--ink); }
+  .ix-range a.is-on { background: var(--ink); color: #fff; }
+
+  .ix-note { background: #EEF3F9; border: 1px solid #C9DAEA; color: var(--ink); border-radius: 12px; padding: 12px 16px; font-size: 14px; margin: 0 0 18px; }
+  .ix-note--err { background: #FBEDE8; border-color: #EBC2B4; }
+
+  .ix-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 18px; }
+  @media (max-width: 820px) { .ix-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .ix-tile { position: relative; background: #fff; border: 1px solid var(--hair); border-radius: 16px; padding: 18px 20px 16px; display: flex; flex-direction: column; gap: 4px; box-shadow: 0 1px 2px rgba(2, 17, 68, 0.04); overflow: hidden; }
+  .ix-tile.is-key::before { content: ''; position: absolute; inset: 0 0 auto; height: 3px; background: #C9A24A; }
+  .ix-tile__label { font-size: 13px; color: var(--ink-mute); font-weight: 500; }
+  .ix-tile__value { font-family: var(--serif); font-weight: 500; font-size: 40px; line-height: 1.05; color: var(--ink); font-variant-numeric: lining-nums tabular-nums; margin: 2px 0; }
+  .ix-tile__help { font-size: 13.5px; color: var(--ink-mute); line-height: 1.45; }
+  .ix-delta { align-self: flex-start; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: #F1F3F6; color: var(--ink-mute); }
+  .ix-delta.is-up { background: #E7F4EC; color: #2F7A4A; }
+  .ix-delta.is-down { background: #FBEDE8; color: #B94A2C; }
+
+  .ix-card { background: #fff; border: 1px solid var(--hair); border-radius: 16px; padding: 20px 22px; box-shadow: 0 1px 2px rgba(2, 17, 68, 0.04); }
+  .ix-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+  .ix-card__head h2, .ix-card__head h3 { margin: 0; font-family: var(--sans); font-size: 15px; font-weight: 600; color: var(--ink); }
+  .ix-card__head--sub { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--hair); }
+  .ix-sub { margin: 4px 0 0; font-size: 12.5px; color: var(--ink-mute); }
+  .ix-unit { font-size: 12px; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.08em; }
+  .ix-empty { margin: 0; color: var(--ink-mute); font-size: 14px; }
+  .ix-foot-note { margin: 14px 0 0; font-size: 12.5px; color: var(--ink-mute); }
+
+  .ix-trend { margin-bottom: 8px; }
+  .ix-legend { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-dim); }
+  .ix-legend .dot { margin-left: 10px; }
+  .dot { display: inline-block; width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+  .dot--visitors { background: var(--accent); }
+  .dot--contacts { background: #C9A24A; }
+  .ix-chart { display: block; width: 100%; height: auto; }
+  .ix-chart--narrow { display: none; }
+  @media (max-width: 600px) { .ix-chart--wide { display: none; } .ix-chart--narrow { display: block; } }
+  .ix-chart .grid { stroke: #EDF0F4; stroke-width: 1; }
+  .ix-chart .ylab, .ix-chart .xlab { font: 11px var(--sans); fill: var(--ink-mute); }
+  .ix-chart .hit { fill: transparent; }
+  .ix-chart .col:hover .hit { fill: rgba(30, 90, 139, 0.05); }
+  .ix-chart .col--link { cursor: pointer; }
+  .ix-chart .col--link:hover .bar-v { fill: var(--ink); }
+  .ix-chart .bar-v { fill: var(--accent); }
+  .ix-chart .bar-c { fill: #C9A24A; }
+
+  .ix-section { margin-top: 30px; }
+  .ix-section__title { font-family: var(--serif); font-weight: 500; font-size: 1.35rem; color: var(--ink); margin: 0 0 12px; }
+  .ix-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: start; }
+  .ix-grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* Channel table full width, ad landing pages under it. */
+  .ix-stack-cards { display: grid; gap: 14px; }
+  /* Grid items default to their content's width; let wide tables scroll inside their card instead. */
+  .ix-stack-cards > *, .ix-grid > *, .ix-card { min-width: 0; }
+  .ix-tiles--paid { margin-bottom: 14px; }
+  .ix-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .ix-table { min-width: 680px; }
+  .ix-table-wrap { overflow-x: auto; }
+  .ix-table { table-layout: fixed; }
+  .ix-table col.c-name { width: 22%; }
+  .ix-table--ads { min-width: 0; table-layout: auto; }
+  .ix-table--ads td:first-child { max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ix-table--ads td:last-child { font-weight: 400; }
+  .ix-table th { text-align: center; font-size: 11.5px; font-weight: 600; color: var(--ink-mute); text-transform: uppercase; letter-spacing: 0.06em; padding: 0 0 8px; border-bottom: 1px solid var(--hair); }
+  .ix-table td { text-align: center; padding: 9px 0; border-bottom: 1px solid #F1F3F6; font-variant-numeric: tabular-nums; color: var(--ink); }
+  .ix-table th:first-child, .ix-table td:first-child { text-align: left; }
+  .ix-table tr:last-child td { border-bottom: 0; }
+  /* The four contact columns read as one group under a "Contacts" label. */
+  .ix-table tr.group th { border-bottom: 0; padding-bottom: 4px; }
+  .ix-table tr.group th span { display: block; padding-bottom: 5px; border-bottom: 1px solid var(--hair); color: var(--ink-dim); }
+  .ix-table .g-start { border-left: 1px solid #EDF0F4; }
+  .ix-table .g-end { border-right: 1px solid #EDF0F4; }
+  .ix-table td:last-child { font-weight: 600; }
+  .ix-table tr.is-paid td { font-weight: 600; }
+  .ix-table td.zero { color: #C3C9D2; }
+  .ix-table tr.is-untracked td { color: var(--ink-mute); font-style: italic; }
+  .ix-table tr.is-untracked td.zero { color: #D5DAE1; }
+  .ix-table tr.is-paid td:first-child::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: #C9A24A; margin-right: 8px; vertical-align: 1px; }
+  @media (max-width: 960px) { .ix-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 640px) { .ix-grid, .ix-grid--2 { grid-template-columns: 1fr; } }
+
+  .ix-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .ix-list li { position: relative; display: grid; grid-template-columns: 22px 1fr auto; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; font-size: 15px; isolation: isolate; }
+  /* Each rank has its own colour, petrol at the top through teal and green
+     to gold at the bottom, so the order reads at a glance. */
+  .ix-list li { --c: #C9A24A; }
+  .ix-list li:nth-child(1) { --c: #1A3550; }
+  .ix-list li:nth-child(2) { --c: #2874AA; }
+  .ix-list li:nth-child(3) { --c: #2A8FB3; }
+  .ix-list li:nth-child(4) { --c: #2BA39A; }
+  .ix-list li:nth-child(5) { --c: #45AE78; }
+  .ix-list li:nth-child(6) { --c: #7AB45C; }
+  .ix-list li:nth-child(7) { --c: #ABB04F; }
+  .ix-list li::before { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--w); background: color-mix(in srgb, var(--c) 38%, white); box-shadow: inset 4px 0 0 var(--c); border-radius: 8px; z-index: -1; }
+  .ix-list .rank { font-size: 12px; color: var(--ink-mute); font-variant-numeric: tabular-nums; }
+  .ix-list .label { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ix-list .val { font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }
+  .ix-list li:has(.ix-chg), .ix-list:has(.ix-chg) li { grid-template-columns: 22px 1fr auto 52px; }
+  .ix-chg { justify-self: end; font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 999px; background: #F1F3F6; color: var(--ink-mute); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .ix-chg.is-up { background: #E7F4EC; color: #2F7A4A; }
+  .ix-chg.is-down { background: #FBEDE8; color: #B94A2C; }
+  .ix-table .ix-chg { margin-left: 6px; }
+  .ix-compare { margin: 10px 0 0; font-size: 13px; color: var(--ink-dim); }
+  .ix-chart .prev polyline { fill: none; stroke: var(--ink); stroke-opacity: 0.55; stroke-width: 1.5; stroke-dasharray: 3 4; stroke-linejoin: round; }
+  .ix-chart .prev circle { fill: #fff; stroke: var(--ink); stroke-opacity: 0.6; stroke-width: 1.3; }
+  .dot--prev { background: transparent; border: 1.5px dashed var(--ink); opacity: 0.6; }
+
+  .ix-stack { display: flex; gap: 3px; height: 12px; border-radius: 6px; overflow: hidden; margin-bottom: 14px; }
+  .seg-0 { background: #25A366; }
+  .seg-1 { background: var(--ink); }
+  .seg-2 { background: #6E9CC4; }
+  .seg-3 { background: #C9A24A; }
+  .seg-4 { background: #8C6BB1; }
+  .seg-5 { background: #B94A2C; }
+  .ix-keys { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
+  .ix-keys li { display: grid; grid-template-columns: 14px 1fr auto 52px; align-items: center; gap: 8px; font-size: 14px; color: var(--ink); }
+  .ix-keys b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .ix-keys small { color: var(--ink-mute); text-align: right; font-variant-numeric: tabular-nums; }
+  .ix-split + .ix-split { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--hair); }
+
+  .ix-acts { list-style: none; margin: 0; padding: 0; }
+  .ix-acts li { display: grid; grid-template-columns: 38px 1fr auto; align-items: center; gap: 14px; padding: 14px 0; border-top: 1px solid #F1F3F6; }
+  .ix-acts li:first-child { border-top: 0; padding-top: 2px; }
+  .ix-acts__icon { width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; background: #EEF3F9; color: var(--accent); }
+  .ix-acts__icon svg { width: 19px; height: 19px; }
+  .ix-acts__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .ix-acts__name { font-size: 14.5px; font-weight: 600; color: var(--ink); }
+  .ix-acts__help { font-size: 12.5px; color: var(--ink-mute); line-height: 1.4; }
+  .ix-acts__bar { display: block; height: 4px; margin-top: 6px; border-radius: 2px; background: #EEF1F5; overflow: hidden; }
+  .ix-acts__bar span { display: block; height: 100%; border-radius: 2px; background: var(--accent); }
+  .ix-acts__num { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; min-width: 56px; }
+  .ix-acts__num b { font-family: var(--serif); font-weight: 500; font-size: 26px; line-height: 1; color: var(--ink); font-variant-numeric: lining-nums tabular-nums; }
+  .ix-acts__chg { font-size: 11.5px; font-weight: 600; color: var(--ink-mute); }
+  .ix-acts__chg.is-up { color: #2F7A4A; }
+  .ix-acts__chg.is-down { color: #B94A2C; }
+
+  .ix-foot { margin-top: 28px; font-size: 12.5px; color: var(--ink-mute); max-width: 80ch; line-height: 1.55; }
+
+  /* Phones. The chart is drawn in a 760-wide box and shrinks to fit, so its
+     labels are set larger in box units to stay readable once scaled down. */
+  @media (max-width: 600px) {
+    .ix-head { gap: 1rem; margin-bottom: 1.25rem; }
+    .ix-head h1 { font-size: 1.75rem; }
+    .ix-lede { font-size: 14px; }
+    .ix-range { width: 100%; overflow-x: auto; scrollbar-width: none; }
+    .ix-range a { flex: 1 0 auto; text-align: center; padding: 8px 12px; font-size: 13.5px; white-space: nowrap; }
+    .ix-tiles, .ix-tiles--paid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .ix-tiles--paid .ix-tile:nth-child(3):last-child { grid-column: 1 / -1; }
+    .ix-tile { padding: 14px 14px 12px; border-radius: 14px; }
+    .ix-tile__value { font-size: 30px; }
+    .ix-tile__help { font-size: 12px; }
+    .ix-delta { font-size: 11px; padding: 2px 7px; }
+    .ix-card { padding: 16px; border-radius: 14px; }
+    .ix-card__head { flex-wrap: wrap; row-gap: 6px; }
+    .ix-legend { flex-wrap: wrap; row-gap: 4px; font-size: 12px; }
+    .ix-legend .dot:first-child { margin-left: 0; }
+    .ix-section { margin-top: 24px; }
+    .ix-section__title { font-size: 1.2rem; }
+    .ix-list li { font-size: 13.5px; padding: 7px 8px; gap: 6px; }
+    .ix-list li:has(.ix-chg), .ix-list:has(.ix-chg) li { grid-template-columns: 18px 1fr auto 46px; }
+    .ix-table { font-size: 13px; min-width: 640px; }
+    .ix-table th:first-child, .ix-table td:first-child { position: sticky; left: 0; background: #fff; z-index: 1; }
+    .ix-acts li { grid-template-columns: 32px 1fr auto; gap: 10px; }
+    .ix-acts__icon { width: 32px; height: 32px; }
+    .ix-acts__num b { font-size: 22px; }
+  }
+  @media (max-width: 360px) {
+    .ix-tiles, .ix-tiles--paid { grid-template-columns: 1fr; }
+  }
+</style>

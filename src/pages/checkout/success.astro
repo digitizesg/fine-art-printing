@@ -125,6 +125,13 @@ const description = "Thanks for your order at Fine Art Printing.";
             currency: 'SGD',
           })
         }
+        // Vercel Web Analytics (insights dashboard): the order type only, no
+        // reference or amount. fapTrack is defined further down the page, so
+        // it is queued until the page has loaded.
+        var orderType = kind === 'shop' ? 'Shop order' : kind === 'valuation' ? 'Valuation' : 'Custom payment'
+        window.addEventListener('DOMContentLoaded', function () {
+          if (window.fapTrack) window.fapTrack('Order placed', { type: orderType })
+        })
         // OpenAI (ChatGPT) Ads: every paid order counts as a purchase.
         // amount is in cents, matching OpenAI's example (2599 = 25.99).
         if (window.oaiq) {

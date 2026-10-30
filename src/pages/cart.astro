@@ -585,6 +585,7 @@ const catalogJson = JSON.stringify({
         btn.textContent = "Proceed to checkout";
         return;
       }
+      (window as any).fapTrack?.("Checkout started", { type: "Shop order" });
       window.location.href = data.url;
     } catch (e) {
       errEl.textContent = "Network error. Please try again.";
