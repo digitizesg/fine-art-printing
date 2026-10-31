@@ -19,6 +19,8 @@
   --color-gold-text: #8A6A2F;
   --color-border: rgba(0, 0, 0, 0.15);
   --color-border-soft: rgba(0, 0, 0, 0.08);
+  /* Form field outlines: darker than --color-border so empty boxes are easy to see. */
+  --color-input-border: rgba(0, 0, 0, 0.4);
 
   --font-serif: "Lora", Georgia, serif;
   --font-sans: "Nunito", system-ui, sans-serif;
