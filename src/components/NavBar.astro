@@ -34,6 +34,11 @@ const navLinks = [
   { href: "/shop", label: "Shop" },
 ];
 
+// Highlight the section the visitor is in.
+const path = Astro.url.pathname.replace(/\/$/, "") || "/";
+const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
+const inServices = services.some((s) => isActive(s.href));
+
 const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I'd like a quick quote.")}`;
 ---
 <header class="relative border-b border-border-soft bg-white">
@@ -46,7 +51,7 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     <!-- Desktop nav -->
     <nav class="hidden md:flex items-center gap-5 lg:gap-7">
       <details class="services-menu">
-        <summary class="services-menu__trigger text-[16.5px] text-muted hover:text-ink transition-colors">
+        <summary class:list={["services-menu__trigger nav-link", { "is-active": inServices }]}>
           Services
           <svg class="services-menu__chevron" width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
             <path d="M2 4l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -72,7 +77,8 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       {navLinks.map((link) => (
         <a
           href={link.href}
-          class="text-[16.5px] text-muted hover:text-ink transition-colors"
+          class:list={["nav-link", { "is-active": isActive(link.href) }]}
+          aria-current={isActive(link.href) ? "page" : undefined}
         >
           {link.label}
         </a>
@@ -90,7 +96,7 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
         </svg>
         <span class="nav-cart__count" data-nav-cart-count hidden>0</span>
       </a>
-      <Button href="/contact" variant="secondary" class="!py-2 !px-4 !text-[16.5px]">
+      <Button href="/contact" variant="primary" class="!py-2.5 !px-5 !text-[16.5px]">
         Get in touch <span aria-hidden="true">→</span>
       </Button>
     </nav>
@@ -155,7 +161,7 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
           <WhatsAppIcon size={16} />
           <span>WhatsApp us</span>
         </a>
-        <Button href="/contact" variant="secondary" class="w-full">
+        <Button href="/contact" variant="primary" class="w-full">
           Get in touch <span aria-hidden="true">→</span>
         </Button>
       </div>
@@ -164,6 +170,33 @@ const waHref = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
 </header>
 
 <style>
+  /* Main menu: full-strength ink and semibold so it reads clearly, with a
+     petrol underline on hover and on the section you're in. */
+  .nav-link {
+    position: relative;
+    font-size: 16.5px;
+    font-weight: 600;
+    color: var(--color-ink);
+    padding: 6px 0;
+    transition: color 150ms;
+  }
+  .nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--color-petrol);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 180ms ease;
+  }
+  .nav-link:hover { color: var(--color-petrol); }
+  .nav-link:hover::after,
+  .nav-link.is-active::after { transform: scaleX(1); }
+  .nav-link.is-active { color: var(--color-petrol); }
   .is-hidden {
     display: none !important;
   }
