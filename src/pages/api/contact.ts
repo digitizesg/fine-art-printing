@@ -147,9 +147,9 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
 <html><body style="margin:0;padding:0;background:#f6f3ec;font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
 <div style="max-width:600px;margin:0 auto;padding:32px 20px;">
   <div style="background:#fff;border-radius:12px;border:1px solid rgba(0,0,0,0.06);padding:28px;">
-    <p style="margin:0 0 4px;font-size:12px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">Fine Art Printing</p>
+    <p style="margin:0 0 4px;font-size:13.5px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">Fine Art Printing</p>
     <h1 style="margin:0 0 16px;font-family:'Lora',Georgia,serif;font-weight:500;font-size:22px;color:#1a1a1a;">Contact form: ${escapeHtml(name)}</h1>
-    <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:14px;color:#1a1a1a;margin:0 0 20px;">
+    <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:15.5px;color:#1a1a1a;margin:0 0 20px;">
       <tr><td style="padding:6px 0;color:#666;width:120px;">Name</td><td style="padding:6px 0;">${escapeHtml(name)}</td></tr>
       <tr><td style="padding:6px 0;color:#666;">Prefers contact via</td><td style="padding:6px 0;">${prefLabelHtml}</td></tr>
       ${phoneRow}
@@ -157,11 +157,11 @@ export const POST: APIRoute = async ({ request, clientAddress }) => {
       ${attachments.length > 0 ? `<tr><td style="padding:6px 0;color:#666;">Attachments</td><td style="padding:6px 0;">${attachments.length} file${attachments.length === 1 ? "" : "s"}</td></tr>` : ""}
     </table>
     <div style="border-top:1px solid #eee;padding-top:18px;">
-      <p style="margin:0 0 8px;font-size:12px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">Message</p>
-      <div style="font-size:14.5px;line-height:1.6;color:#1a1a1a;white-space:pre-wrap;">${escapeHtml(message)}</div>
+      <p style="margin:0 0 8px;font-size:13.5px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">Message</p>
+      <div style="font-size:16px;line-height:1.6;color:#1a1a1a;white-space:pre-wrap;">${escapeHtml(message)}</div>
     </div>
   </div>
-  <p style="margin:18px 8px 0;font-size:12px;color:#888;line-height:1.6;">${preferred === "email" ? "Reply directly to this email to respond — the customer's email is set as the Reply-To." : `Customer prefers ${prefLabel.toLowerCase()}. Reach them on the number above.`}</p>
+  <p style="margin:18px 8px 0;font-size:13.5px;color:#888;line-height:1.6;">${preferred === "email" ? "Reply directly to this email to respond — the customer's email is set as the Reply-To." : `Customer prefers ${prefLabel.toLowerCase()}. Reach them on the number above.`}</p>
 </div>
 </body></html>`;
 

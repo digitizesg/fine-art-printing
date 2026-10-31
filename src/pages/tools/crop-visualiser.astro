@@ -51,7 +51,7 @@ const presets = [
   <!-- Hero -->
   <section class="bg-white">
     <div class="mx-auto max-w-[1180px] px-6 pt-12 pb-8 md:pt-16 md:pb-10">
-      <p class="text-[12.5px] text-muted">
+      <p class="text-[14px] text-muted">
         <a href="/tools" class="hover:text-ink hover:underline underline-offset-2">Tools</a>
         <span class="px-1.5 text-subtle" aria-hidden="true">›</span>
         <span class="text-ink">Crop visualiser</span>
@@ -243,7 +243,7 @@ const presets = [
         <div class="md:col-span-4">
           <Eyebrow>Why crops happen</Eyebrow>
           <DisplayHeading level={2} class="mt-3">Different shapes, different prints.</DisplayHeading>
-          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+          <p class="mt-5 max-w-[360px] text-[16px] leading-relaxed text-subtle">
             Your image and the print paper rarely have the same proportions.
             When they don't match, something has to give: either you crop
             into the image, or you accept white borders on the long edges.
@@ -251,33 +251,33 @@ const presets = [
         </div>
         <ol class="md:col-span-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <li class="rounded-card border border-border-soft bg-white p-5">
-            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">3:2</p>
+            <p class="text-[13.5px] font-semibold uppercase tracking-wide text-petrol">3:2</p>
             <p class="mt-2 font-serif text-[18px] font-medium text-ink">DSLR / mirrorless cameras</p>
-            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+            <p class="mt-2 text-[15px] leading-relaxed text-subtle">
               The default for most full-frame and APS-C cameras. Pairs
               naturally with 60×90, 40×60, or A-series prints (close to 1:√2).
             </p>
           </li>
           <li class="rounded-card border border-border-soft bg-white p-5">
-            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">4:3</p>
+            <p class="text-[13.5px] font-semibold uppercase tracking-wide text-petrol">4:3</p>
             <p class="mt-2 font-serif text-[18px] font-medium text-ink">Phones, micro four thirds</p>
-            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+            <p class="mt-2 text-[15px] leading-relaxed text-subtle">
               Most iPhone and Android default photos. Crops cleanly to 30×40,
               60×80. Loses a bit on the edges for 5:7 or 4:5.
             </p>
           </li>
           <li class="rounded-card border border-border-soft bg-white p-5">
-            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">1:1</p>
+            <p class="text-[13.5px] font-semibold uppercase tracking-wide text-petrol">1:1</p>
             <p class="mt-2 font-serif text-[18px] font-medium text-ink">Instagram, square crops</p>
-            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+            <p class="mt-2 text-[15px] leading-relaxed text-subtle">
               Square photos pair with square prints. If you want them on a
               tall print, expect borders or a deliberate crop into your subject.
             </p>
           </li>
           <li class="rounded-card border border-border-soft bg-white p-5">
-            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">Tip</p>
+            <p class="text-[13.5px] font-semibold uppercase tracking-wide text-petrol">Tip</p>
             <p class="mt-2 font-serif text-[18px] font-medium text-ink">Borders are free.</p>
-            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+            <p class="mt-2 text-[15px] leading-relaxed text-subtle">
               If a tight crop is cutting off something important, ask us
               about printing the image at its original aspect with a clean
               white border on a larger sheet.
@@ -336,7 +336,7 @@ const presets = [
     text-underline-offset: 3px;
   }
   .crop-vis__drop-hint {
-    font-size: 13px;
+    font-size: 14.5px;
     color: var(--color-subtle);
     margin: 0;
   }
@@ -347,7 +347,7 @@ const presets = [
     border-radius: 10px;
     background: rgba(220, 38, 38, 0.06);
     color: #b1271f;
-    font-size: 14px;
+    font-size: 15.5px;
   }
 
   /* Result */
@@ -429,7 +429,7 @@ const presets = [
   }
   .crop-vis__stage-hint {
     margin: 0;
-    font-size: 12px;
+    font-size: 13.5px;
     color: var(--color-muted);
     text-align: center;
   }
@@ -466,7 +466,7 @@ const presets = [
   }
   .crop-vis__preset span strong {
     display: block;
-    font-size: 13.5px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--color-ink);
     line-height: 1.15;
@@ -474,7 +474,7 @@ const presets = [
   .crop-vis__preset span em {
     display: block;
     font-style: normal;
-    font-size: 11.5px;
+    font-size: 13px;
     color: var(--color-muted);
     margin-top: 2px;
   }
@@ -503,14 +503,14 @@ const presets = [
   .crop-vis__field {
     display: grid;
     gap: 5px;
-    font-size: 12px;
+    font-size: 13.5px;
     color: var(--color-muted);
   }
   .crop-vis__field input {
     padding: 9px 11px;
     border: 1px solid var(--color-border, rgba(0, 0, 0, 0.15));
     border-radius: 8px;
-    font-size: 15px;
+    font-size: 16px;
     width: 92px;
     font-variant-numeric: tabular-nums;
     background: #fff;
@@ -546,7 +546,7 @@ const presets = [
     display: inline-block;
     padding: 6px 14px;
     border-radius: 999px;
-    font-size: 12.5px;
+    font-size: 14px;
     font-weight: 600;
     color: var(--color-muted);
   }
@@ -567,7 +567,7 @@ const presets = [
     border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
   }
   .crop-vis__readout dt {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--color-muted);
     margin-bottom: 2px;
   }
@@ -575,14 +575,14 @@ const presets = [
     margin: 0;
     font-family: var(--font-serif);
     font-weight: 500;
-    font-size: 14.5px;
+    font-size: 16px;
     color: var(--color-ink);
     font-variant-numeric: tabular-nums;
   }
 
   .crop-vis__hint {
     margin: 0;
-    font-size: 12.5px;
+    font-size: 14px;
     color: var(--color-subtle);
   }
 
@@ -602,7 +602,7 @@ const presets = [
     color: var(--color-ink);
     border-radius: 999px;
     padding: 10px 18px;
-    font-size: 13.5px;
+    font-size: 15px;
     font-weight: 600;
     cursor: pointer;
     transition: background 150ms ease-out;
@@ -614,7 +614,7 @@ const presets = [
     gap: 8px;
     padding: 11px 18px;
     border-radius: 999px;
-    font-size: 14px;
+    font-size: 15.5px;
     font-weight: 700;
     text-decoration: none;
     background: #25D366;

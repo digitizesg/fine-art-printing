@@ -118,7 +118,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
           <div class="mt-8 flex flex-wrap items-center gap-3">
             <a
               href="#quote"
-              class="inline-flex items-center gap-2 rounded-pill bg-petrol px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#142a40]"
+              class="inline-flex items-center gap-2 rounded-pill bg-petrol px-5 py-2.5 text-[15.5px] font-semibold text-white transition-colors hover:bg-[#142a40]"
             >
               Get a price now <span aria-hidden="true">↓</span>
             </a>
@@ -126,7 +126,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
               href={waLink}
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 rounded-pill border border-[#1ebe5b] bg-[#25D366] px-5 py-2.5 text-[14px] font-semibold text-white transition-colors hover:bg-[#1ebe5b]"
+              class="inline-flex items-center gap-2 rounded-pill border border-[#1ebe5b] bg-[#25D366] px-5 py-2.5 text-[15.5px] font-semibold text-white transition-colors hover:bg-[#1ebe5b]"
             >
               <WhatsAppIcon size={16} />
               <span>WhatsApp us</span>
@@ -167,13 +167,13 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
       <ol class="mt-14 grid grid-cols-1 gap-x-10 gap-y-12 sm:grid-cols-3">
         {whyScanWithUs.map((row, i) => (
           <li class="border-t border-ink/10 pt-5">
-            <span class="font-serif italic text-[14px] text-[var(--color-gold-text)]">
+            <span class="font-serif italic text-[15.5px] text-[var(--color-gold-text)]">
               {String(i + 1).padStart(2, "0")}
             </span>
             <h3 class="mt-2 font-serif text-[20px] font-medium leading-[1.3] text-ink">
               {row.title}
             </h3>
-            <p class="mt-3 text-[15px] leading-relaxed text-subtle">
+            <p class="mt-3 text-[16px] leading-relaxed text-subtle">
               {row.body}
             </p>
           </li>
@@ -191,12 +191,12 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
           <DisplayHeading level={2} class="mt-3">
             Get a price now.
           </DisplayHeading>
-          <p class="mt-5 max-w-[380px] text-[15px] leading-relaxed text-subtle">
+          <p class="mt-5 max-w-[380px] text-[16px] leading-relaxed text-subtle">
             Pick the size of your original and whether you need calibrated
             colour matching. Submit photos for an exact quote, condition and
             surface texture can shift the workflow.
           </p>
-          <p class="mt-4 max-w-[380px] text-[14px] leading-relaxed text-subtle">
+          <p class="mt-4 max-w-[380px] text-[15.5px] leading-relaxed text-subtle">
             Restoring an old photo instead?{" "}
             <a href="/scanning-restoration" class="text-petrol underline-offset-2 hover:underline">
               See photo restoration →
@@ -231,7 +231,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
                 <path d="M2 6l3 3 5-6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </span>
-            <span class="text-[14.5px] leading-relaxed text-ink">{u}</span>
+            <span class="text-[16px] leading-relaxed text-ink">{u}</span>
           </li>
         ))}
       </ul>
@@ -258,8 +258,8 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
           class="group block rounded-card border border-border-soft bg-white p-6 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
         >
           <p class="font-serif text-[20px] font-medium text-ink">Print on paper</p>
-          <p class="mt-2 text-[14px] leading-relaxed text-subtle">Archival Hahnemühle papers, configured to your size.</p>
-          <span class="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-petrol">
+          <p class="mt-2 text-[15.5px] leading-relaxed text-subtle">Archival Hahnemühle papers, configured to your size.</p>
+          <span class="mt-4 inline-flex items-center gap-1.5 text-[14.5px] font-semibold text-petrol">
             View paper options
             <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
           </span>
@@ -269,8 +269,8 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
           class="group block rounded-card border border-border-soft bg-white p-6 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
         >
           <p class="font-serif text-[20px] font-medium text-ink">Print on canvas</p>
-          <p class="mt-2 text-[14px] leading-relaxed text-subtle">Premium canvas substrates, stretched and framed in-house.</p>
-          <span class="mt-4 inline-flex items-center gap-1.5 text-[13px] font-semibold text-petrol">
+          <p class="mt-2 text-[15.5px] leading-relaxed text-subtle">Premium canvas substrates, stretched and framed in-house.</p>
+          <span class="mt-4 inline-flex items-center gap-1.5 text-[14.5px] font-semibold text-petrol">
             View canvas options
             <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
           </span>
@@ -288,7 +288,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
           <DisplayHeading level={2} class="mt-3">
             Common questions.
           </DisplayHeading>
-          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+          <p class="mt-5 max-w-[360px] text-[16px] leading-relaxed text-subtle">
             If yours isn't here, send us a photo and dimensions, we'll come
             back with a steer.
           </p>
@@ -299,7 +299,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
               <h3 class="font-serif text-[18px] font-medium leading-[1.3] text-ink">
                 {q}
               </h3>
-              <p class="mt-3 text-[14.5px] leading-relaxed text-subtle whitespace-pre-line">
+              <p class="mt-3 text-[16px] leading-relaxed text-subtle whitespace-pre-line">
                 {a}
               </p>
             </li>

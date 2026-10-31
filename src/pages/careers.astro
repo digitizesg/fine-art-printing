@@ -54,10 +54,10 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
         {CAREER_ROLES.map((r) => (
           <div class="flex h-full flex-col rounded-card border border-border-soft bg-white p-6">
             <p class="font-serif text-[19px] font-medium text-ink">{r.title}</p>
-            <p class="mt-2 flex-1 text-[14px] leading-relaxed text-subtle">{r.blurb}</p>
+            <p class="mt-2 flex-1 text-[15.5px] leading-relaxed text-subtle">{r.blurb}</p>
             <button
               type="button"
-              class="careers-role-apply mt-5 inline-flex w-fit items-center gap-1.5 text-[14px] font-semibold text-petrol"
+              class="careers-role-apply mt-5 inline-flex w-fit items-center gap-1.5 text-[15.5px] font-semibold text-petrol"
               data-apply-role={r.value}
             >
               Apply for this role
@@ -66,7 +66,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
           </div>
         ))}
       </div>
-      <p class="mt-6 text-[14px] leading-relaxed text-subtle">
+      <p class="mt-6 text-[15.5px] leading-relaxed text-subtle">
         Don't see your role? We still like meeting good people. Choose
         <strong>“Open application”</strong> in the form below and tell us what you do.
       </p>
@@ -79,7 +79,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
       <div class="max-w-[720px]">
         <Eyebrow>Apply</Eyebrow>
         <DisplayHeading level={2} class="mt-3">Send us your application.</DisplayHeading>
-        <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
+        <p class="mt-5 text-[16.5px] leading-relaxed text-subtle">
           Fill this in and it comes straight to us. Attach a CV if you have one,
           it helps, but a few honest lines about yourself and your experience is
           a perfectly good start.
@@ -199,7 +199,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     min-width: 0;
   }
   .careers-form__field > span {
-    font-size: 15px;
+    font-size: 16px;
     color: var(--color-ink);
     font-weight: 600;
   }
@@ -260,11 +260,11 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
   .careers-form__dropzone-prompt {
     display: grid;
     gap: 6px;
-    font-size: 15px;
+    font-size: 16px;
     color: var(--color-subtle);
   }
   .careers-form__dropzone-prompt strong { color: var(--color-petrol); font-weight: 600; }
-  .careers-form__dropzone-prompt span { font-size: 13px; color: var(--color-muted); }
+  .careers-form__dropzone-prompt span { font-size: 14.5px; color: var(--color-muted); }
   .careers-form__files {
     list-style: none;
     margin: 12px 0 0;
@@ -280,14 +280,14 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     background: #fff;
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 15.5px;
     color: var(--color-ink);
   }
   .careers-form__files li button {
     background: none;
     border: 0;
     color: var(--color-muted);
-    font-size: 13px;
+    font-size: 14.5px;
     text-decoration: underline;
     cursor: pointer;
     padding: 0;
@@ -322,7 +322,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
   }
   .careers-form__submit:hover { background: #142a40; }
   .careers-form__submit:disabled { opacity: 0.55; cursor: not-allowed; }
-  .careers-form__hint { margin: 0; font-size: 14px; color: var(--color-subtle); }
+  .careers-form__hint { margin: 0; font-size: 15.5px; color: var(--color-subtle); }
   .careers-form__hint--err { color: #8a1414; }
 
   .careers-form__success {
@@ -354,12 +354,12 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
   .careers-form__success p {
     margin: 0 auto 8px;
     max-width: 46ch;
-    font-size: 15px;
+    font-size: 16px;
     color: #2E5638;
     line-height: 1.6;
   }
   .careers-form__success p:last-child { margin-bottom: 0; }
-  .careers-form__success-detail { font-size: 13px !important; color: #4C7158 !important; }
+  .careers-form__success-detail { font-size: 14.5px !important; color: #4C7158 !important; }
 </style>
 
 <script>

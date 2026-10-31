@@ -41,7 +41,7 @@ const description = "Thanks for your order at Fine Art Printing.";
       <h1 class="mt-3 font-serif text-[clamp(1.85rem,3.5vw,2.4rem)] font-medium leading-[1.1] text-ink text-balance">
         Thank you.
       </h1>
-      <p class="mt-6 mx-auto max-w-[560px] text-[15.5px] leading-relaxed text-subtle">
+      <p class="mt-6 mx-auto max-w-[560px] text-[16.5px] leading-relaxed text-subtle">
         {kind === "valuation"
           ? "Your payment was successful and we've received your submission. We'll review the artwork(s) and respond within 2 to 3 working days. A confirmation email is on its way."
           : "Your payment was successful and your order is in our queue. A confirmation email is on its way with your full order details."}
@@ -50,23 +50,23 @@ const description = "Thanks for your order at Fine Art Printing.";
       {reference && (
         <div class="mt-10 mx-auto max-w-[480px] rounded-card border border-border-soft bg-[#FAF7F1] p-6 text-left">
           <div class="flex items-baseline justify-between gap-4">
-            <p class="text-[12px] font-semibold uppercase tracking-wide text-muted">Reference</p>
+            <p class="text-[13.5px] font-semibold uppercase tracking-wide text-muted">Reference</p>
             <p class="font-mono text-[16px] font-medium text-ink tracking-tight">{reference}</p>
           </div>
           {totalSGD != null && (
             <div class="mt-3 flex items-baseline justify-between gap-4">
-              <p class="text-[12px] font-semibold uppercase tracking-wide text-muted">Total paid</p>
+              <p class="text-[13.5px] font-semibold uppercase tracking-wide text-muted">Total paid</p>
               <p class="font-serif text-[18px] font-medium text-ink">S${totalSGD.toLocaleString("en-SG")}</p>
             </div>
           )}
           {kind !== "valuation" && deliveryMethod === "self" && (
-            <p class="mt-3 text-[13px] text-subtle">
+            <p class="mt-3 text-[14.5px] text-subtle">
               Self-collection from our studio. We'll WhatsApp or email you
               when your order is ready (typically 5-7 working days).
             </p>
           )}
           {deliveryMethod === "local" && (
-            <p class="mt-3 text-[13px] text-subtle">
+            <p class="mt-3 text-[14.5px] text-subtle">
               We'll arrange courier once your order is ready (typically 5-7
               working days). The full delivery address and a tracking link
               are in your confirmation email. Delivery starts at S$30, so if
@@ -77,14 +77,14 @@ const description = "Thanks for your order at Fine Art Printing.";
         </div>
       )}
 
-      <p class="mt-8 text-[13px] text-subtle">
+      <p class="mt-8 text-[14.5px] text-subtle">
         Don't see the email? Check your spam folder, or{" "}
         <a href={business.whatsappLink} target="_blank" rel="noopener" class="font-semibold text-petrol hover:underline">message us on WhatsApp</a>.
       </p>
 
       <div class="mt-10 flex flex-wrap justify-center gap-3">
-        <a href="/shop" class="inline-flex items-center justify-center rounded-full bg-petrol px-6 py-3 text-[14px] font-semibold text-white">Browse more artwork</a>
-        <a href="/" class="inline-flex items-center justify-center rounded-full border border-border-soft px-6 py-3 text-[14px] font-semibold text-ink">Back to home</a>
+        <a href="/shop" class="inline-flex items-center justify-center rounded-full bg-petrol px-6 py-3 text-[15.5px] font-semibold text-white">Browse more artwork</a>
+        <a href="/" class="inline-flex items-center justify-center rounded-full border border-border-soft px-6 py-3 text-[15.5px] font-semibold text-ink">Back to home</a>
       </div>
     </div>
   </section>

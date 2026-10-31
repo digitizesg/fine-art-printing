@@ -60,13 +60,13 @@ function lineItemsHtml(lines: OrderEmailLine[]): string {
     .map(
       (l) => `
       <tr>
-        <td style="padding:10px 12px;border-bottom:1px solid #eee;font-family:'Lora',Georgia,serif;font-size:14px;color:#1a1a1a;">
+        <td style="padding:10px 12px;border-bottom:1px solid #eee;font-family:'Lora',Georgia,serif;font-size:15.5px;color:#1a1a1a;">
           <strong>${escapeHtml(l.artworkTitle)}</strong>
-          ${l.artworkArtist ? `<br><span style="font-size:12px;color:#666;">${escapeHtml(l.artworkArtist)}</span>` : ""}
-          <br><span style="font-size:12px;color:#666;">${escapeHtml(l.description)}</span>
+          ${l.artworkArtist ? `<br><span style="font-size:13.5px;color:#666;">${escapeHtml(l.artworkArtist)}</span>` : ""}
+          <br><span style="font-size:13.5px;color:#666;">${escapeHtml(l.description)}</span>
         </td>
-        <td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:13px;color:#1a1a1a;text-align:center;font-variant-numeric:tabular-nums;">${l.quantity}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:14px;color:#1a1a1a;text-align:right;font-variant-numeric:tabular-nums;">${fmtSGD(l.unitPriceSGD * l.quantity)}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:14.5px;color:#1a1a1a;text-align:center;font-variant-numeric:tabular-nums;">${l.quantity}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #eee;font-size:15.5px;color:#1a1a1a;text-align:right;font-variant-numeric:tabular-nums;">${fmtSGD(l.unitPriceSGD * l.quantity)}</td>
       </tr>`,
     )
     .join("");
@@ -97,16 +97,16 @@ function shellHtml(opts: {
 <div style="max-width:600px;margin:0 auto;padding:32px 20px;">
   <div style="background:#fff;border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,0.06);">
     <div style="padding:28px 28px 8px;">
-      <p style="margin:0 0 4px;font-size:12px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">Fine Art Printing</p>
+      <p style="margin:0 0 4px;font-size:13.5px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">Fine Art Printing</p>
       <h1 style="margin:0 0 12px;font-family:'Lora',Georgia,serif;font-weight:500;font-size:22px;color:#1a1a1a;">${escapeHtml(heading)}</h1>
-      <p style="margin:0;font-size:14.5px;line-height:1.6;color:#444;">${intro}</p>
+      <p style="margin:0;font-size:16px;line-height:1.6;color:#444;">${intro}</p>
     </div>
     <table cellpadding="0" cellspacing="0" style="width:100%;margin:20px 0 0;border-collapse:collapse;">
       <thead>
         <tr style="background:#faf7f1;">
-          <th style="padding:10px 12px;border-bottom:1px solid #eee;text-align:left;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#666;">Item</th>
-          <th style="padding:10px 12px;border-bottom:1px solid #eee;text-align:center;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#666;width:60px;">Qty</th>
-          <th style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:#666;width:90px;">Total</th>
+          <th style="padding:10px 12px;border-bottom:1px solid #eee;text-align:left;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#666;">Item</th>
+          <th style="padding:10px 12px;border-bottom:1px solid #eee;text-align:center;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#666;width:60px;">Qty</th>
+          <th style="padding:10px 12px;border-bottom:1px solid #eee;text-align:right;font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:#666;width:90px;">Total</th>
         </tr>
       </thead>
       <tbody>
@@ -114,18 +114,18 @@ function shellHtml(opts: {
       </tbody>
     </table>
     <table cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;">
-      <tr><td style="padding:10px 12px;text-align:right;font-size:13px;color:#666;">Subtotal</td><td style="padding:10px 12px;text-align:right;width:90px;font-size:13px;color:#1a1a1a;font-variant-numeric:tabular-nums;">${fmtSGD(ctx.subtotalSGD)}</td></tr>
-      <tr><td style="padding:6px 12px;text-align:right;font-size:13px;color:#666;">Delivery</td><td style="padding:6px 12px;text-align:right;width:90px;font-size:13px;color:#1a1a1a;font-variant-numeric:tabular-nums;">${ctx.deliverySGD === 0 ? "Free" : fmtSGD(ctx.deliverySGD)}</td></tr>
+      <tr><td style="padding:10px 12px;text-align:right;font-size:14.5px;color:#666;">Subtotal</td><td style="padding:10px 12px;text-align:right;width:90px;font-size:14.5px;color:#1a1a1a;font-variant-numeric:tabular-nums;">${fmtSGD(ctx.subtotalSGD)}</td></tr>
+      <tr><td style="padding:6px 12px;text-align:right;font-size:14.5px;color:#666;">Delivery</td><td style="padding:6px 12px;text-align:right;width:90px;font-size:14.5px;color:#1a1a1a;font-variant-numeric:tabular-nums;">${ctx.deliverySGD === 0 ? "Free" : fmtSGD(ctx.deliverySGD)}</td></tr>
       <tr><td style="padding:10px 12px;text-align:right;font-family:'Lora',Georgia,serif;font-size:16px;color:#1a1a1a;border-top:1px solid #eee;font-weight:500;">Total</td><td style="padding:10px 12px;text-align:right;width:90px;font-family:'Lora',Georgia,serif;font-size:16px;color:#1a1a1a;border-top:1px solid #eee;font-weight:500;font-variant-numeric:tabular-nums;">${fmtSGD(ctx.totalSGD)}</td></tr>
     </table>
     <div style="padding:20px 28px 28px;border-top:1px solid #eee;background:#faf7f1;">
-      <p style="margin:0 0 4px;font-size:12px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">Order reference</p>
-      <p style="margin:0 0 14px;font-family:ui-monospace,Menlo,monospace;font-size:14px;color:#1a1a1a;">${escapeHtml(ctx.reference)}</p>
-      <p style="margin:0 0 4px;font-size:12px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">${ctx.deliveryMethod === "local" ? "Delivery to" : "Collection"}</p>
-      <p style="margin:0;font-size:13.5px;color:#1a1a1a;line-height:1.5;">${escapeHtml(addressLine || "Self-collection from our studio")}</p>
+      <p style="margin:0 0 4px;font-size:13.5px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">Order reference</p>
+      <p style="margin:0 0 14px;font-family:ui-monospace,Menlo,monospace;font-size:15.5px;color:#1a1a1a;">${escapeHtml(ctx.reference)}</p>
+      <p style="margin:0 0 4px;font-size:13.5px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">${ctx.deliveryMethod === "local" ? "Delivery to" : "Collection"}</p>
+      <p style="margin:0;font-size:15px;color:#1a1a1a;line-height:1.5;">${escapeHtml(addressLine || "Self-collection from our studio")}</p>
     </div>
   </div>
-  <p style="margin:20px 8px 0;font-size:12px;color:#888;line-height:1.6;">${footer}</p>
+  <p style="margin:20px 8px 0;font-size:13.5px;color:#888;line-height:1.6;">${footer}</p>
 </div>
 </body>
 </html>`;
@@ -239,30 +239,30 @@ export async function sendValuationCustomerConfirmation(
 <div style="max-width:600px;margin:0 auto;padding:32px 20px;">
   <div style="background:#fff;border-radius:12px;border:1px solid rgba(0,0,0,0.06);overflow:hidden;">
     <div style="padding:28px;">
-      <p style="margin:0 0 4px;font-size:12px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">Fine Art Printing</p>
+      <p style="margin:0 0 4px;font-size:13.5px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">Fine Art Printing</p>
       <h1 style="margin:0 0 12px;font-family:'Lora',Georgia,serif;font-weight:500;font-size:22px;color:#1a1a1a;">Submission received.</h1>
-      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#333;">
+      <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#333;">
         Thanks${firstName ? `, ${escapeHtml(firstName)}` : ""}. We've received your art valuation submission and your payment of <strong>${fmtSGD(ctx.totalSGD)}</strong> for ${ctx.quantity} artwork${ctx.quantity === 1 ? "" : "s"}.
       </p>
-      <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#333;">
+      <p style="margin:0 0 16px;font-size:16px;line-height:1.6;color:#333;">
         We'll review your submission and respond within <strong>2 to 3 working days</strong>. If we need any further information about the artwork or artist we'll reach out by email.
       </p>
       <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;margin:16px 0 8px;">
         <tr>
-          <td style="padding:6px 0;font-size:13px;color:#666;">Reference</td>
-          <td style="padding:6px 0;font-size:13px;color:#1a1a1a;font-family:monospace;text-align:right;">${escapeHtml(ctx.reference)}</td>
+          <td style="padding:6px 0;font-size:14.5px;color:#666;">Reference</td>
+          <td style="padding:6px 0;font-size:14.5px;color:#1a1a1a;font-family:monospace;text-align:right;">${escapeHtml(ctx.reference)}</td>
         </tr>
         <tr>
-          <td style="padding:6px 0;font-size:13px;color:#666;">Artworks submitted</td>
-          <td style="padding:6px 0;font-size:13px;color:#1a1a1a;text-align:right;">${ctx.quantity}</td>
+          <td style="padding:6px 0;font-size:14.5px;color:#666;">Artworks submitted</td>
+          <td style="padding:6px 0;font-size:14.5px;color:#1a1a1a;text-align:right;">${ctx.quantity}</td>
         </tr>
         <tr>
-          <td style="padding:6px 0;font-size:13px;color:#666;border-top:1px solid #eee;">Paid</td>
+          <td style="padding:6px 0;font-size:14.5px;color:#666;border-top:1px solid #eee;">Paid</td>
           <td style="padding:6px 0;font-family:'Lora',Georgia,serif;font-size:16px;color:#1a1a1a;text-align:right;border-top:1px solid #eee;">${fmtSGD(ctx.totalSGD)}</td>
         </tr>
       </table>
     </div>
-    <div style="padding:16px 28px;background:#FAF7F1;border-top:1px solid rgba(0,0,0,0.06);font-size:12px;color:#666;line-height:1.5;">
+    <div style="padding:16px 28px;background:#FAF7F1;border-top:1px solid rgba(0,0,0,0.06);font-size:13.5px;color:#666;line-height:1.5;">
       Reply to this email if you need to add any details, or message us on WhatsApp.
       <br>Fine Art Printing — Hahnemühle Gold-certified studio in Singapore.
     </div>
@@ -299,8 +299,8 @@ export async function sendValuationStudioNotification(
   const subject = `New valuation · ${ctx.reference} · ${ctx.quantity} works · ${fmtSGD(ctx.totalSGD)}`;
 
   const photosHtml = ctx.signedPhotoUrls.length
-    ? `<p style="margin:16px 0 8px;font-size:13px;font-weight:600;color:#1a1a1a;">Photos (links expire in 7 days)</p>
-       <ul style="margin:0;padding-left:20px;font-size:13px;line-height:1.8;color:#1a3550;">
+    ? `<p style="margin:16px 0 8px;font-size:14.5px;font-weight:600;color:#1a1a1a;">Photos (links expire in 7 days)</p>
+       <ul style="margin:0;padding-left:20px;font-size:14.5px;line-height:1.8;color:#1a3550;">
          ${ctx.signedPhotoUrls
            .map(
              (p) =>
@@ -311,8 +311,8 @@ export async function sendValuationStudioNotification(
     : "";
 
   const detailsHtml = ctx.additionalDetails
-    ? `<p style="margin:16px 0 4px;font-size:13px;font-weight:600;color:#1a1a1a;">Additional details from customer</p>
-       <p style="margin:0;font-size:13.5px;line-height:1.6;color:#333;white-space:pre-wrap;">${escapeHtml(ctx.additionalDetails)}</p>`
+    ? `<p style="margin:16px 0 4px;font-size:14.5px;font-weight:600;color:#1a1a1a;">Additional details from customer</p>
+       <p style="margin:0;font-size:15px;line-height:1.6;color:#333;white-space:pre-wrap;">${escapeHtml(ctx.additionalDetails)}</p>`
     : "";
 
   const html = `<!doctype html>
@@ -321,18 +321,18 @@ export async function sendValuationStudioNotification(
 <div style="max-width:640px;margin:0 auto;padding:32px 20px;">
   <div style="background:#fff;border-radius:12px;border:1px solid rgba(0,0,0,0.06);overflow:hidden;">
     <div style="padding:24px 28px;">
-      <p style="margin:0 0 4px;font-size:12px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">New valuation submission</p>
+      <p style="margin:0 0 4px;font-size:13.5px;color:#888;letter-spacing:0.06em;text-transform:uppercase;">New valuation submission</p>
       <h1 style="margin:0 0 8px;font-family:'Lora',Georgia,serif;font-weight:500;font-size:20px;color:#1a1a1a;">${escapeHtml(ctx.reference)}</h1>
-      <p style="margin:0 0 12px;font-size:13.5px;color:#444;">
+      <p style="margin:0 0 12px;font-size:15px;color:#444;">
         ${escapeHtml(customerLine || "(unknown customer)")}
       </p>
       <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;width:100%;">
         <tr>
-          <td style="padding:6px 0;font-size:13px;color:#666;">Artworks</td>
-          <td style="padding:6px 0;font-size:13px;color:#1a1a1a;text-align:right;">${ctx.quantity}</td>
+          <td style="padding:6px 0;font-size:14.5px;color:#666;">Artworks</td>
+          <td style="padding:6px 0;font-size:14.5px;color:#1a1a1a;text-align:right;">${ctx.quantity}</td>
         </tr>
         <tr>
-          <td style="padding:6px 0;font-size:13px;color:#666;border-top:1px solid #eee;">Total paid</td>
+          <td style="padding:6px 0;font-size:14.5px;color:#666;border-top:1px solid #eee;">Total paid</td>
           <td style="padding:6px 0;font-family:'Lora',Georgia,serif;font-size:16px;color:#1a1a1a;text-align:right;border-top:1px solid #eee;">${fmtSGD(ctx.totalSGD)}</td>
         </tr>
       </table>

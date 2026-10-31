@@ -187,8 +187,8 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
             class="group flex h-full flex-col rounded-card border border-border-soft bg-white p-6 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
           >
             <p class="font-serif text-[18px] font-medium text-ink">{c.title}</p>
-            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">{c.desc}</p>
-            <span class={`mt-5 inline-flex items-center gap-1.5 text-[14px] font-semibold ${c.accent === "wa" ? "text-[#1ebe5b]" : "text-petrol"}`}>
+            <p class="mt-2 text-[15px] leading-relaxed text-subtle">{c.desc}</p>
+            <span class={`mt-5 inline-flex items-center gap-1.5 text-[15.5px] font-semibold ${c.accent === "wa" ? "text-[#1ebe5b]" : "text-petrol"}`}>
               {c.cta === "Open WhatsApp" && <WhatsAppIcon size={14} />}
               {c.cta}
               <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
@@ -206,7 +206,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
         <div class="md:col-span-5">
           <Eyebrow>Visit the studio</Eyebrow>
           <DisplayHeading level={2} class="mt-3">Where to find us.</DisplayHeading>
-          <p class="mt-5 text-[15.5px] leading-relaxed text-subtle">
+          <p class="mt-5 text-[16.5px] leading-relaxed text-subtle">
             We're at Cendex Centre on Lower Delta Road, ten minutes' walk from
             Tiong Bahru MRT, with parking on-site. Drop in during opening
             hours, or message ahead so we can have your job ready when you
@@ -217,7 +217,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
             href={mapsDirectionsHref}
             target="_blank"
             rel="noopener"
-            class="mt-6 inline-flex items-center gap-2 rounded-pill border border-ink/15 bg-white px-5 py-2.5 text-[14px] font-semibold text-ink transition-colors hover:border-petrol hover:bg-petrol hover:text-white"
+            class="mt-6 inline-flex items-center gap-2 rounded-pill border border-ink/15 bg-white px-5 py-2.5 text-[15.5px] font-semibold text-ink transition-colors hover:border-petrol hover:bg-petrol hover:text-white"
           >
             Get directions <span aria-hidden="true">→</span>
           </a>
@@ -253,7 +253,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
   }
   .contact-form__field > span,
   .contact-form__field > legend {
-    font-size: 15px;
+    font-size: 16px;
     color: var(--color-ink);
     font-weight: 600;
     padding: 0;
@@ -301,7 +301,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     border-radius: 10px;
     cursor: pointer;
     background: #fff;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 500;
     color: var(--color-ink);
     text-align: center;
@@ -358,7 +358,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
   .contact-form__dropzone-prompt {
     display: grid;
     gap: 6px;
-    font-size: 15px;
+    font-size: 16px;
     color: var(--color-subtle);
   }
   .contact-form__dropzone-prompt strong {
@@ -366,7 +366,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     font-weight: 600;
   }
   .contact-form__dropzone-prompt span {
-    font-size: 13px;
+    font-size: 14.5px;
     color: var(--color-muted);
   }
   .contact-form__files {
@@ -384,14 +384,14 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     background: #fff;
     border: 1px solid rgba(0, 0, 0, 0.08);
     border-radius: 8px;
-    font-size: 14px;
+    font-size: 15.5px;
     color: var(--color-ink);
   }
   .contact-form__files li button {
     background: none;
     border: 0;
     color: var(--color-muted);
-    font-size: 13px;
+    font-size: 14.5px;
     text-decoration: underline;
     cursor: pointer;
     padding: 0;
@@ -405,7 +405,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
 
   .contact-form__small {
     margin: 10px 0 0;
-    font-size: 13.5px;
+    font-size: 15px;
     color: var(--color-subtle);
     line-height: 1.55;
   }
@@ -436,7 +436,7 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
     opacity: 0.55;
     cursor: not-allowed;
   }
-  .contact-form__hint { margin: 0; font-size: 14px; color: var(--color-subtle); }
+  .contact-form__hint { margin: 0; font-size: 15.5px; color: var(--color-subtle); }
   .contact-form__hint--err { color: #8a1414; }
 
   .contact-form__success {
@@ -468,13 +468,13 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
   .contact-form__success p {
     margin: 0 auto 8px;
     max-width: 42ch;
-    font-size: 15px;
+    font-size: 16px;
     color: #2E5638;
     line-height: 1.6;
   }
   .contact-form__success p:last-child { margin-bottom: 0; }
   .contact-form__success-detail {
-    font-size: 13px !important;
+    font-size: 14.5px !important;
     color: #4C7158 !important;
   }
 </style>

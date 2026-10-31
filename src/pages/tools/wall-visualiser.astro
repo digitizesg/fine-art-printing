@@ -34,7 +34,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
   <!-- Hero -->
   <section class="bg-white">
     <div class="mx-auto max-w-[1180px] px-6 pt-12 pb-8 md:pt-16 md:pb-10">
-      <p class="text-[12.5px] text-muted">
+      <p class="text-[14px] text-muted">
         <a href="/tools" class="hover:text-ink hover:underline underline-offset-2">Tools</a>
         <span class="px-1.5 text-subtle" aria-hidden="true">›</span>
         <span class="text-ink">Wall planner</span>
@@ -242,43 +242,43 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
         <div class="md:col-span-4">
           <Eyebrow>Rules of thumb</Eyebrow>
           <DisplayHeading level={2} class="mt-3">How designers size art to a wall.</DisplayHeading>
-          <p class="mt-5 max-w-[360px] text-[15px] leading-relaxed text-subtle">
+          <p class="mt-5 max-w-[360px] text-[16px] leading-relaxed text-subtle">
             These aren't strict laws, but they're the conventions that make a
             wall look intentional rather than accidental.
           </p>
         </div>
         <ol class="md:col-span-8 grid grid-cols-1 gap-5 sm:grid-cols-2">
           <li class="rounded-card border border-border-soft bg-white p-5">
-            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">⅔ rule</p>
+            <p class="text-[13.5px] font-semibold uppercase tracking-wide text-petrol">⅔ rule</p>
             <p class="mt-2 font-serif text-[18px] font-medium text-ink">Two-thirds of the wall.</p>
-            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+            <p class="mt-2 text-[15px] leading-relaxed text-subtle">
               For a single feature piece, aim for about 65 to 75% of the wall
               width. For art above furniture, the same fraction of the
               furniture's width tends to read best.
             </p>
           </li>
           <li class="rounded-card border border-border-soft bg-white p-5">
-            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">Eye level</p>
+            <p class="text-[13.5px] font-semibold uppercase tracking-wide text-petrol">Eye level</p>
             <p class="mt-2 font-serif text-[18px] font-medium text-ink">Centre at 145–155 cm.</p>
-            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+            <p class="mt-2 text-[15px] leading-relaxed text-subtle">
               Galleries hang the centre of a piece at roughly 152 cm above
               the floor. It works because most people's natural sight line
               lands close to that height.
             </p>
           </li>
           <li class="rounded-card border border-border-soft bg-white p-5">
-            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">Above the sofa</p>
+            <p class="text-[13.5px] font-semibold uppercase tracking-wide text-petrol">Above the sofa</p>
             <p class="mt-2 font-serif text-[18px] font-medium text-ink">15–25 cm gap.</p>
-            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+            <p class="mt-2 text-[15px] leading-relaxed text-subtle">
               Leave a small breathing space between the top of furniture and
               the bottom of the art. Closer reads cramped, farther reads
               disconnected.
             </p>
           </li>
           <li class="rounded-card border border-border-soft bg-white p-5">
-            <p class="text-[12px] font-semibold uppercase tracking-wide text-petrol">Multiples</p>
+            <p class="text-[13.5px] font-semibold uppercase tracking-wide text-petrol">Multiples</p>
             <p class="mt-2 font-serif text-[18px] font-medium text-ink">5 cm between pieces.</p>
-            <p class="mt-2 text-[13.5px] leading-relaxed text-subtle">
+            <p class="mt-2 text-[15px] leading-relaxed text-subtle">
               When hanging two or more works as a set, treat the whole group
               as one composition and keep gaps around 5 cm. Tighter looks
               modern, wider feels more salon-style.
@@ -341,7 +341,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     margin-left: 8px;
     font-family: var(--font-sans);
     font-weight: 500;
-    font-size: 12px;
+    font-size: 13.5px;
     color: var(--color-muted);
     text-transform: lowercase;
     letter-spacing: 0;
@@ -354,7 +354,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
   .wall-vis__field {
     display: grid;
     gap: 5px;
-    font-size: 12.5px;
+    font-size: 14px;
     color: var(--color-muted);
   }
   .wall-vis__field--full { grid-column: 1 / -1; }
@@ -368,7 +368,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     padding: 10px 38px 10px 12px;
     border: 1px solid var(--color-border, rgba(0, 0, 0, 0.15));
     border-radius: 8px;
-    font-size: 15px;
+    font-size: 16px;
     font-variant-numeric: tabular-nums;
     background: #fff;
     color: var(--color-ink);
@@ -384,14 +384,14 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     position: absolute;
     right: 12px;
     font-style: normal;
-    font-size: 12px;
+    font-size: 13.5px;
     color: var(--color-muted);
     pointer-events: none;
   }
   .wall-vis__field-hint {
     grid-column: 1 / -1;
     margin: 4px 0 0;
-    font-size: 12px;
+    font-size: 13.5px;
     color: var(--color-subtle);
     line-height: 1.5;
   }
@@ -400,7 +400,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     align-items: center;
     gap: 9px;
     cursor: pointer;
-    font-size: 13.5px;
+    font-size: 15px;
     color: var(--color-ink);
     user-select: none;
   }
@@ -473,7 +473,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     display: inline-block;
     padding: 7px 14px;
     border-radius: 999px;
-    font-size: 13px;
+    font-size: 14.5px;
     font-weight: 600;
     color: var(--color-muted);
   }
@@ -490,7 +490,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
   .wall-vis__advanced summary {
     cursor: pointer;
     list-style: none;
-    font-size: 13px;
+    font-size: 14.5px;
     font-weight: 600;
     color: var(--color-petrol);
     user-select: none;
@@ -501,7 +501,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
   .wall-vis__advanced summary::-webkit-details-marker { display: none; }
   .wall-vis__advanced summary::after {
     content: "▾";
-    font-size: 10px;
+    font-size: 12px;
     color: var(--color-muted);
     transition: transform 120ms ease-out;
   }
@@ -561,7 +561,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     margin: 0 0 10px;
     font-family: var(--font-sans);
     font-weight: 600;
-    font-size: 11.5px;
+    font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--color-muted);
@@ -573,7 +573,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     text-transform: none;
     letter-spacing: 0;
     font-weight: 400;
-    font-size: 11px;
+    font-size: 13px;
     color: var(--color-subtle);
   }
   .wall-vis__readout-section dl {
@@ -588,7 +588,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     gap: 12px;
   }
   .wall-vis__readout-section dt {
-    font-size: 13px;
+    font-size: 14.5px;
     color: var(--color-subtle);
   }
   .wall-vis__readout-section dd {
@@ -604,7 +604,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     margin: 14px 0 0;
     padding-top: 12px;
     border-top: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
-    font-size: 12.5px;
+    font-size: 14px;
     color: var(--color-subtle);
     line-height: 1.55;
   }
@@ -620,7 +620,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
     gap: 8px;
     padding: 11px 18px;
     border-radius: 999px;
-    font-size: 14px;
+    font-size: 15.5px;
     font-weight: 700;
     text-decoration: none;
     background: #25D366;
@@ -886,7 +886,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
       const centreLine = `<line x1="${wallX}" y1="${yFromAff(r.centreAff)}" x2="${wallX + ww}" y2="${yFromAff(r.centreAff)}" stroke="${centreLineStroke}" stroke-width="0.6" stroke-dasharray="6 6" />`;
 
       // Labels, keep these minimal so the visual stays calm.
-      const labelStyle = `font-family: var(--font-sans, sans-serif); font-size: 12px; fill: rgba(0,0,0,0.55);`;
+      const labelStyle = `font-family: var(--font-sans, sans-serif); font-size: 13.5px; fill: rgba(0,0,0,0.55);`;
       const floorLabel = `<text x="${wallX + ww / 2}" y="${floorY + 13}" text-anchor="middle" style="${labelStyle}">Floor</text>`;
 
       svg.innerHTML = `${bg}${furniture}${centreLine}${pieces.join("")}${floorLine}${floorHatch}${person}${floorLabel}`;
@@ -910,7 +910,7 @@ const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art 
           : `${r.count} in a row`;
       arrangementEl.innerHTML = r.count === 1
         ? `${r.comboW} × ${r.comboH} cm`
-        : `${r.comboW} × ${r.comboH} cm <small style="display:block;font-size:12px;color:var(--color-subtle);font-family:var(--font-sans);font-weight:400;margin-top:2px;">${layoutLabel} · ${r.spacing} cm gaps</small>`;
+        : `${r.comboW} × ${r.comboH} cm <small style="display:block;font-size:13.5px;color:var(--color-subtle);font-family:var(--font-sans);font-weight:400;margin-top:2px;">${layoutLabel} · ${r.spacing} cm gaps</small>`;
       bottomEl.textContent = `${r.bottomAff} cm`;
       centreEl.textContent = `${r.centreAff} cm`;
       topEl.textContent = `${r.topAff} cm`;
