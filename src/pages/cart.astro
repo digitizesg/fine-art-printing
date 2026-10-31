@@ -5,6 +5,7 @@ import Eyebrow from "../components/Eyebrow.astro";
 import { listPapers } from "../lib/papers";
 import { listCanvases } from "../lib/canvases";
 import { listFloatFrames } from "../lib/float-frames";
+import { DELIVERY_LOCAL_SELL } from "../data/pricing/canvas";
 
 const description =
   "Your cart at Fine Art Printing, review prints and checkout via Stripe.";
@@ -63,8 +64,8 @@ const catalogJson = JSON.stringify({
             <label class="cart__delivery-opt">
               <input type="radio" name="delivery" value="local" />
               <span>
-                <strong>Local Singapore delivery · from S$30</strong>
-                <em>Anywhere in Singapore. Address taken at checkout. S$30 covers most orders. Very large or fragile pieces can need a bigger vehicle, and we'll contact you to confirm any extra before we deliver.</em>
+                <strong>Local Singapore delivery · from S${DELIVERY_LOCAL_SELL}</strong>
+                <em>Anywhere in Singapore. Address taken at checkout. S${DELIVERY_LOCAL_SELL} covers most orders. Very large or fragile pieces can need a bigger vehicle, and we'll contact you to confirm any extra before we deliver.</em>
               </span>
             </label>
           </fieldset>
@@ -398,8 +399,8 @@ const catalogJson = JSON.stringify({
 
 <script>
   import { cart, type CartLine } from "../lib/cart";
+  import { DELIVERY_LOCAL_SELL as DELIVERY_LOCAL_SGD } from "../data/pricing/canvas";
 
-  const DELIVERY_LOCAL_SGD = 30;
   const fmtSGD = (n: number) => `S$${n.toLocaleString("en-SG")}`;
 
   type CatalogPaper = { slug: string; name: string; shortName: string; brand: string };

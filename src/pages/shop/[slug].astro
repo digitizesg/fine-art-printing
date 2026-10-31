@@ -760,14 +760,9 @@ const jsonLd = [
 </style>
 
 <script>
-  import { quotePaperPrint, type PaperFamily } from "../../data/pricing/paper";
-  import {
-    quoteCanvasPrint,
-    type CanvasSubstrate,
-    type FloatFrameColour,
-    type StretchingChoice,
-  } from "../../data/pricing/canvas";
-  import { SHOP_ARTWORK_BASE_SGD } from "../../data/pricing/shop";
+  import type { PaperFamily } from "../../data/pricing/paper";
+  import type { CanvasSubstrate, FloatFrameColour } from "../../data/pricing/canvas";
+  import { priceShopLine, type ShopFinishing } from "../../lib/shop-pricing";
   import { cart, type CartLine } from "../../lib/cart";
 
   type ArtworkRef = {
@@ -866,32 +861,31 @@ const jsonLd = [
         return;
       }
 
+      const catalog = { papers, canvases, floatFrames };
+
       if (substrate === "paper") {
         const paperId = getValue("paper_id");
-        const paper = papers.find((p) => p.id === paperId);
-        if (!paper) {
+        const result = priceShopLine(
+          {
+            substrate: "paper",
+            widthCm: w,
+            heightCm: h,
+            paperSlug: paperId,
+            borderCm: parseFloat(getValue("border_cm") || "0"),
+          },
+          catalog,
+        );
+        if (!result.ok || result.substrate !== "paper") {
           priceEl.textContent = "—";
-          noteEl.textContent = "";
+          noteEl.textContent = !result.ok && result.reason === "quote" ? result.message : "";
           setCartEnabled(null);
           return;
         }
-        const border = Math.max(0, parseFloat(getValue("border_cm") || "0") || 0);
-        const result = quotePaperPrint({
-          paper,
-          widthCm: w + border * 2,
-          heightCm: h + border * 2,
-          quantity: 1,
-        });
-        if (!result.ok) {
-          priceEl.textContent = "—";
-          noteEl.textContent = result.message;
-          setCartEnabled(null);
-          return;
-        }
-        const unitPrice = result.grandTotal + SHOP_ARTWORK_BASE_SGD;
+        const border = result.borderCm;
+        const unitPrice = result.unitPriceSGD;
         priceEl.textContent = `S$${unitPrice.toLocaleString("en-SG")}`;
         noteEl.textContent = border > 0
-          ? `Includes ${border} cm border, paper printed at ${w + border * 2} × ${h + border * 2} cm.`
+          ? `Includes ${border} cm border, paper printed at ${result.printWidthCm} × ${result.printHeightCm} cm.`
           : "";
         setCartEnabled({
           artworkId: artwork.id,
@@ -909,53 +903,34 @@ const jsonLd = [
         });
       } else {
         const canvasId = getValue("canvas_id");
-        const canvas = canvases.find((c) => c.id === canvasId) ?? null;
-        const finishing = (getRadio("finishing") ?? "none") as "none" | "1in" | "1.5in" | "float";
+        const finishing = (getRadio("finishing") ?? "none") as ShopFinishing;
         const futureMargin = (getRadio("future_margin") ?? "no") === "yes";
         const wrapType = (getRadio("wrap_type") ?? "mirror") as "mirror" | "gallery" | "colour";
+        const floatFrameSlug = finishing === "float" ? getValue("float_frame") || null : null;
 
-        if (!canvas) {
+        const result = priceShopLine(
+          {
+            substrate: "canvas",
+            widthCm: w,
+            heightCm: h,
+            canvasSlug: canvasId,
+            finishing,
+            floatFrameSlug,
+            futureMargin,
+          },
+          catalog,
+        );
+        if (!result.ok || result.substrate !== "canvas") {
           priceEl.textContent = "—";
-          noteEl.textContent = "";
+          noteEl.textContent = !result.ok && result.reason === "quote" ? result.message : "";
           setCartEnabled(null);
           return;
         }
-
-        let stretching: StretchingChoice = "none";
-        let floatFrame: FloatFrameColour | null = null;
-        let floatFrameSlug: string | null = null;
-        if (finishing === "1in") stretching = "1in";
-        else if (finishing === "1.5in") stretching = "1.5in";
-        else if (finishing === "float") {
-          stretching = "1in";
-          floatFrameSlug = getValue("float_frame") || null;
-          floatFrame = floatFrameSlug ? floatFrames.find((f) => f.id === floatFrameSlug) ?? null : null;
-        }
-
-        // 1.5" = 3.81cm. Only relevant when finishing is "none" and the
-        // customer asks for future-stretching margin. The engine doesn't
-        // know about this, so we add it to the input dimensions.
-        const marginCm = finishing === "none" && futureMargin ? 3.81 : 0;
-
-        const result = quoteCanvasPrint({
-          canvas,
-          widthCm: w + marginCm * 2,
-          heightCm: h + marginCm * 2,
-          stretching,
-          floatFrame,
-          delivery: "self",
-        });
-        if (!result.ok) {
-          priceEl.textContent = "—";
-          noteEl.textContent = result.message;
-          setCartEnabled(null);
-          return;
-        }
-        const unitPrice = result.grandTotal + SHOP_ARTWORK_BASE_SGD;
+        const unitPrice = result.unitPriceSGD;
         priceEl.textContent = `S$${unitPrice.toLocaleString("en-SG")}`;
-        if (marginCm > 0) {
-          const effW = (w + marginCm * 2).toFixed(1);
-          const effH = (h + marginCm * 2).toFixed(1);
+        if (result.marginCm > 0) {
+          const effW = result.printWidthCm.toFixed(1);
+          const effH = result.printHeightCm.toFixed(1);
           noteEl.textContent = `Includes 1.5" stretching margin, canvas printed at ${effW} × ${effH} cm.`;
         } else {
           noteEl.textContent = "";
