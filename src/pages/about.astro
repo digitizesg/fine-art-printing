@@ -9,6 +9,8 @@ import ReviewSection from "../components/ReviewSection.astro";
 import VisitSection from "../components/VisitSection.astro";
 import { business } from "../data/business";
 import reviewsData from "../data/reviews.json";
+import { Image } from "astro:assets";
+import aboutPhoto from "../assets/photos/about-fine-art-printing.jpg";
 
 const { rating, userRatingsTotal } = reviewsData;
 
@@ -106,11 +108,15 @@ const differentiators = [
         </div>
 
         <div class="md:col-span-5 md:sticky md:top-8">
-          <div class="aspect-[4/5] overflow-hidden rounded-2xl border border-border-soft bg-stone-100 shadow-sm">
-            <img
-              src="/photos/about-fine-art-printing.jpg"
+          <div class="aspect-[4/5] overflow-hidden rounded-2xl border border-border-soft bg-stone-100">
+            <Image
+              src={aboutPhoto}
               alt="Inside the Fine Art Printing studio in Singapore"
               class="h-full w-full object-cover"
+              width={1200}
+              widths={[640, 828, 1080, 1200]}
+              sizes="(min-width: 1180px) 890px, (min-width: 768px) 77vw, calc((100vw - 48px) * 1.94)"
+              quality={75}
               loading="eager"
               fetchpriority="high"
             />

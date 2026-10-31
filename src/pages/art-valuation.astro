@@ -8,6 +8,8 @@ import VisitSection from "../components/VisitSection.astro";
 import GoogleReviewsBadge from "../components/GoogleReviewsBadge.astro";
 import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
 import { business } from "../data/business";
+import { Image } from "astro:assets";
+import heroPhoto from "../assets/photos/german-etching-1.jpg";
 
 const description =
   "Art valuation and appraisal services in Singapore. Online submission from S$80 per artwork, or on-site assessment for larger collections. Insurance, estate, and mark-to-market certificates.";
@@ -108,10 +110,16 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 
         <div class="md:col-span-6">
           <figure>
-            <img
-              src="/photos/german-etching-1.jpg"
+            <Image
+              src={heroPhoto}
               alt="Archival print being assessed at the Fine Art Printing studio"
-              class="aspect-[4/5] w-full rounded-card object-cover shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)]"
+              class="aspect-[4/5] w-full rounded-card object-cover"
+              width={1080}
+              widths={[480, 640, 828, 1080]}
+              sizes="(min-width: 1180px) 678px, (min-width: 768px) 58vw, calc((100vw - 48px) * 1.25)"
+              quality={75}
+              loading="eager"
+              fetchpriority="high"
             />
           </figure>
         </div>
@@ -137,7 +145,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 
       <div class="mt-12 grid gap-5 md:grid-cols-2">
         <article class="flex flex-col gap-4 rounded-card border border-border-soft bg-white p-7">
-          <p class="text-[13.5px] font-semibold uppercase tracking-wide text-petrol">Online submission</p>
+          <p class="text-[15px] font-semibold uppercase tracking-wide text-petrol">Online submission</p>
           <h3 class="font-serif text-[26px] font-medium leading-[1.15] text-ink">From <span class="tabular-nums">S$80</span> <span class="text-[16px] font-normal text-subtle">per artwork</span></h3>
           <p class="text-[16px] leading-relaxed text-subtle">Best when you have up to six pieces, can submit good-quality images, and don't need us to come on site.</p>
           <ul class="mt-2 grid gap-2 text-[15.5px] text-ink">
@@ -155,7 +163,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
         </article>
 
         <article class="flex flex-col gap-4 rounded-card border border-border-soft bg-white p-7">
-          <p class="text-[13.5px] font-semibold uppercase tracking-wide text-petrol">Site visit</p>
+          <p class="text-[15px] font-semibold uppercase tracking-wide text-petrol">Site visit</p>
           <h3 class="font-serif text-[26px] font-medium leading-[1.15] text-ink">From <span class="tabular-nums">S$100</span> <span class="text-[16px] font-normal text-subtle">per artwork</span></h3>
           <p class="text-[16px] leading-relaxed text-subtle">Best for larger collections, multi-location holdings, internal procurement, or work that needs an in-person assessment.</p>
           <ul class="mt-2 grid gap-2 text-[15.5px] text-ink">
@@ -173,7 +181,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
         </article>
       </div>
 
-      <p class="mt-8 max-w-[820px] mx-auto text-center text-[14.5px] text-subtle">
+      <p class="mt-8 max-w-[820px] mx-auto text-center text-[15.5px] text-subtle">
         Decades of experience and access to private auction databases sit
         behind every valuation. We aren't able to provide free appraisals.
       </p>

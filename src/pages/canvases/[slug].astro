@@ -91,7 +91,7 @@ const jsonLd = [
 >
   <section class="bg-white">
     <div class="mx-auto max-w-[1180px] px-6 pt-10 pb-8 md:pt-14 md:pb-10">
-      <p class="text-[14.5px] text-muted">
+      <p class="text-[15.5px] text-muted">
         <a href="/canvas-printing" class="hover:text-ink hover:underline underline-offset-2">Canvases</a>
         <span class="px-1.5 text-subtle" aria-hidden="true">›</span>
         <span class="text-ink">{canvas.shortName}</span>
@@ -115,7 +115,7 @@ const jsonLd = [
                 inferSize
                 widths={[480, 720, 1080]}
                 sizes="(max-width: 900px) 96vw, 540px"
-                class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)]"
+                class="w-full rounded-card object-contain bg-[#f4efe7]"
                 loading="eager"
                 fetchpriority="high"
               />
@@ -128,7 +128,7 @@ const jsonLd = [
               {canvas.imageUrls.slice(1).map((url, i) => (
                 <button
                   type="button"
-                  class="aspect-square overflow-hidden rounded-md bg-[#f4efe7] border border-border-soft transition-shadow hover:shadow-md cursor-zoom-in p-0"
+                  class="aspect-square overflow-hidden rounded-md bg-[#f4efe7] border border-border-soft transition-colors hover:border-petrol/40 cursor-zoom-in p-0"
                   data-frame-zoom
                   data-frame-image={url}
                   data-frame-name={`${canvas.name}, sample ${i + 2}`}
@@ -155,34 +155,34 @@ const jsonLd = [
 
           {canvas.notice && (
             <div class="mt-6 rounded-card border border-amber-300 bg-amber-50 px-4 py-3 text-[15.5px] leading-relaxed text-amber-900">
-              <p class="text-[13px] font-semibold uppercase tracking-wider text-amber-700 mb-1">Heads up</p>
+              <p class="text-[15px] font-semibold uppercase tracking-wider text-amber-700 mb-1">Heads up</p>
               <p class="whitespace-pre-line">{canvas.notice}</p>
             </div>
           )}
 
           <dl class="mt-8 grid grid-cols-2 gap-x-6 gap-y-4">
             <div>
-              <dt class="text-[13px] uppercase tracking-wider text-muted">Weight</dt>
+              <dt class="text-[15px] uppercase tracking-wider text-muted">Weight</dt>
               <dd class="mt-1 text-[16px] text-ink tabular-nums">{canvas.gsm}gsm</dd>
             </div>
             <div>
-              <dt class="text-[13px] uppercase tracking-wider text-muted">Finish</dt>
+              <dt class="text-[15px] uppercase tracking-wider text-muted">Finish</dt>
               <dd class="mt-1 text-[16px] text-ink">{finishLabel}</dd>
             </div>
             <div>
-              <dt class="text-[13px] uppercase tracking-wider text-muted">Tone</dt>
+              <dt class="text-[15px] uppercase tracking-wider text-muted">Tone</dt>
               <dd class="mt-1 text-[16px] text-ink">{canvas.tone}</dd>
             </div>
             <div>
-              <dt class="text-[13px] uppercase tracking-wider text-muted">Texture</dt>
+              <dt class="text-[15px] uppercase tracking-wider text-muted">Texture</dt>
               <dd class="mt-1 text-[16px] text-ink">{canvas.texture}</dd>
             </div>
             <div>
-              <dt class="text-[13px] uppercase tracking-wider text-muted">Max width</dt>
+              <dt class="text-[15px] uppercase tracking-wider text-muted">Max width</dt>
               <dd class="mt-1 text-[16px] text-ink tabular-nums">{canvas.maxPrintWidthCm.toFixed(0)} cm</dd>
             </div>
             <div>
-              <dt class="text-[13px] uppercase tracking-wider text-muted">Max length</dt>
+              <dt class="text-[15px] uppercase tracking-wider text-muted">Max length</dt>
               <dd class="mt-1 text-[16px] text-ink tabular-nums">{(canvas.maxPrintLengthCm / 100).toFixed(0)} m</dd>
             </div>
           </dl>
@@ -229,14 +229,14 @@ const jsonLd = [
         <ul class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {related.map((r) => (
             <li>
-              <a href={`/canvases/${r.slug}`} class="group block rounded-card border border-border-soft bg-white overflow-hidden transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]">
+              <a href={`/canvases/${r.slug}`} class="group block rounded-card border border-border-soft bg-white overflow-hidden transition-colors hover:border-petrol/40">
                 {r.imageUrls[0] && (
                   <div class="aspect-[4/3] w-full bg-[#f4efe7] overflow-hidden">
                     <Image src={r.imageUrls[0]} alt={r.name} width={600} height={450} widths={[320, 480, 600]} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 370px" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.02]" />
                   </div>
                 )}
                 <div class="p-5">
-                  <p class="text-[13.5px] text-muted">{r.brand}</p>
+                  <p class="text-[15px] text-muted">{r.brand}</p>
                   <h3 class="mt-1 font-serif text-[18px] font-medium text-ink">{r.shortName}</h3>
                   <p class="mt-2 text-[15px] text-subtle">{r.blurb}</p>
                 </div>

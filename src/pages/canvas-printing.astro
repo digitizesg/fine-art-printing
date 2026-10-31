@@ -14,6 +14,8 @@ import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
 import { listCanvases } from "../lib/canvases";
 import { business } from "../data/business";
 import reviewsData from "../data/reviews.json";
+import { Image } from "astro:assets";
+import heroPhoto from "../assets/photos/canvas-printing.jpg";
 
 
 
@@ -149,10 +151,16 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 
         <div class="md:col-span-6">
           <figure class="relative">
-            <img
-              src="/photos/canvas-printing.jpg"
+            <Image
+              src={heroPhoto}
               alt="Canvas print stretched and ready to hang"
-              class="aspect-[4/5] w-full rounded-card object-cover shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)]"
+              class="aspect-[4/5] w-full rounded-card object-cover"
+              width={1080}
+              widths={[480, 640, 828, 1080, 1200]}
+              sizes="(min-width: 1180px) 678px, (min-width: 768px) 58vw, calc((100vw - 48px) * 1.25)"
+              quality={75}
+              loading="eager"
+              fetchpriority="high"
             />
           </figure>
         </div>
@@ -186,9 +194,14 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
               class:list={["paper-pick", i === 0 && "is-active"]}
             >
               {c.imageUrls[0] ? (
-                <img
+                <Image
                   src={c.imageUrls[0]}
                   alt=""
+                  width={256}
+                  height={256}
+                  widths={[128, 256]}
+                  sizes="84px"
+                  quality={75}
                   loading="lazy"
                   class="paper-pick__thumb"
                 />
@@ -211,9 +224,14 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
             >
               <div class="paper-showcase__media">
                 {canvas.imageUrls[0] ? (
-                  <img
+                  <Image
                     src={canvas.imageUrls[0]}
                     alt={`Sample print on ${canvas.name}`}
+                    width={1080}
+                    height={1080}
+                    widths={[480, 640, 828, 1080]}
+                    sizes="(min-width: 1180px) 452px, (min-width: 768px) 38vw, calc(100vw - 48px)"
+                    quality={75}
                     loading="lazy"
                     class="paper-showcase__image"
                   />
@@ -341,7 +359,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
             {featuredCanvases.map((c) => (
               <tr class="border-b border-border-soft align-top">
                 <td class="py-4 pr-4">
-                  <div class="text-[13.5px] text-muted">{c.brand}</div>
+                  <div class="text-[15px] text-muted">{c.brand}</div>
                   <div class="font-serif text-[16px] font-medium text-ink">
                     {c.shortName}
                     {c.popular && <span class="popular-badge popular-badge--inline">Popular</span>}

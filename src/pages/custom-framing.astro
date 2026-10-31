@@ -32,6 +32,8 @@ const serviceSchema = {
 };
 
 import { PICTURE_FRAME_GROUPS, PICTURE_FRAMES } from "../data/picture-frames";
+import { Image } from "astro:assets";
+import heroPhoto from "../assets/photos/custom-framing.jpg";
 const profileGroups = PICTURE_FRAME_GROUPS;
 const totalProfiles = PICTURE_FRAMES.length;
 
@@ -140,10 +142,16 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 
         <div class="md:col-span-6">
           <figure class="relative">
-            <img
-              src="/photos/custom-framing.jpg"
+            <Image
+              src={heroPhoto}
               alt="Custom-framed artwork on the wall"
-              class="aspect-square w-full rounded-card object-cover shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)]"
+              class="aspect-square w-full rounded-card object-cover"
+              width={1080}
+              widths={[480, 640, 828, 1080, 1200]}
+              sizes="(min-width: 1180px) 542px, (min-width: 768px) 46vw, calc(100vw - 48px)"
+              quality={75}
+              loading="eager"
+              fetchpriority="high"
             />
           </figure>
         </div>
@@ -211,10 +219,15 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
             <ul class="md:col-span-9 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {group.profiles.map((p) => (
                 <li class="frame-tile">
-                  <img
+                  <Image
                     class="frame-tile__swatch"
                     src={`/photos/picture-frames/${p.image}`}
                     alt=""
+                    width={480}
+                    height={480}
+                    widths={[256, 384, 480]}
+                    sizes="(min-width: 1180px) 200px, (min-width: 1024px) 17vw, (min-width: 640px) 30vw, 45vw"
+                    quality={75}
                     loading="lazy"
                   />
                   <button
@@ -349,7 +362,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
   }
   .frame-tile__label {
     font-family: var(--font-sans);
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.3;
     color: var(--color-ink);
   }

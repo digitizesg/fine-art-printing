@@ -10,48 +10,56 @@ import ServiceTile from "../components/ServiceTile.astro";
 import TrustedBy from "../components/TrustedBy.astro";
 import VisitSection from "../components/VisitSection.astro";
 import { business } from "../data/business";
+import { Image } from "astro:assets";
+import heroPhoto from "../assets/photos/art-printing-framing.jpg";
+import printOnPaperPhoto from "../assets/photos/print-on-paper.jpg";
+import canvasPrintingPhoto from "../assets/photos/canvas-printing.jpg";
+import canvasStretchingPhoto from "../assets/photos/canvas-stretching-framing.jpg";
+import customFramingPhoto from "../assets/photos/custom-framing.jpg";
+import photoRestorationPhoto from "../assets/photos/photo-restoration.jpg";
+import artScanningPhoto from "../assets/photos/art-scanning.jpg";
 
 const coreServices = [
   {
     title: "Print on paper",
     description: "Wide range of options available including Hahnemühle archival grade.",
     href: "/print-on-paper",
-    image: "/photos/print-on-paper.jpg",
+    image: printOnPaperPhoto,
     imageAlt: "Archival print on Hahnemühle paper",
   },
   {
     title: "Canvas printing",
     description: "Printing on premium canvas with the option of stretching and framing.",
     href: "/canvas-printing",
-    image: "/photos/canvas-printing.jpg",
+    image: canvasPrintingPhoto,
     imageAlt: "Canvas print stretched and ready to hang",
   },
   {
     title: "Canvas stretching & framing",
     description: "Relevant if you have an existing canvas that needs stretching and/or framing.",
     href: "/canvas-stretching",
-    image: "/photos/canvas-stretching-framing.jpg",
+    image: canvasStretchingPhoto,
     imageAlt: "Canvas stretched on solid wood bars with a float frame",
   },
   {
     title: "Custom framing",
     description: "Offering a wide selection of solid pine and oak profiles. Premium quality framing.",
     href: "/custom-framing",
-    image: "/photos/custom-framing.jpg",
+    image: customFramingPhoto,
     imageAlt: "Custom-framed artwork on the wall",
   },
   {
     title: "Photo restoration",
     description: "Bring your old photos back to life through our digital restoration services.",
     href: "/scanning-restoration",
-    image: "/photos/photo-restoration.jpg",
+    image: photoRestorationPhoto,
     imageAlt: "Old photograph brought back through digital restoration",
   },
   {
     title: "Art scanning",
     description: "Professionally scan your original artworks for digitisation and/or reproduction.",
     href: "/art-scanning",
-    image: "/photos/art-scanning.jpg",
+    image: artScanningPhoto,
     imageAlt: "Original artwork captured at high resolution",
   },
 ];
@@ -90,7 +98,7 @@ const description =
     <div class="mx-auto max-w-[1180px] px-6 pt-16 pb-10 md:pt-24 md:pb-14">
       <div class="grid items-center gap-10 md:grid-cols-12 md:gap-14">
         <div class="md:col-span-7">
-          <span class="inline-flex items-center rounded-pill bg-petrol/[0.06] px-3 py-1 text-[13.5px] text-petrol">
+          <span class="inline-flex items-center rounded-pill bg-petrol/[0.06] px-3 py-1 text-[15px] text-petrol">
             Singapore's print and framing studio
           </span>
           <h1 class="mt-6 font-serif text-[clamp(2.4rem,5vw,3.4rem)] font-medium leading-[1.05] text-balance text-ink">
@@ -131,11 +139,15 @@ const description =
         </div>
 
         <div class="md:col-span-5">
-          <div class="aspect-[4/5] overflow-hidden rounded-2xl border border-border-soft bg-stone-100 shadow-sm">
-            <img
-              src="/photos/art-printing-framing.jpg"
+          <div class="aspect-[4/5] overflow-hidden rounded-2xl border border-border-soft bg-stone-100">
+            <Image
+              src={heroPhoto}
               alt="Fine art printing and framing in our Singapore studio"
               class="h-full w-full object-cover"
+              width={1080}
+              widths={[480, 640, 828, 1080, 1200]}
+              sizes="(min-width: 1180px) 575px, (min-width: 768px) 50vw, calc((100vw - 48px) * 1.25)"
+              quality={75}
               loading="eager"
               fetchpriority="high"
             />
@@ -160,7 +172,7 @@ const description =
         ))}
       </div>
 
-      <p class="mt-8 text-[14.5px] text-subtle">
+      <p class="mt-8 text-[15.5px] text-subtle">
         We also offer{" "}
         <a href="/art-restoration" class="underline-offset-2 hover:text-ink hover:underline">art restoration</a>,{" "}
         <a href="/art-valuation" class="underline-offset-2 hover:text-ink hover:underline">art valuation</a>, and{" "}
