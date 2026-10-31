@@ -10,18 +10,28 @@ interface Props {
 const { class: className = "" } = Astro.props;
 const { rating, userRatingsTotal } = reviewsData;
 ---
+<!-- Google rating as an outlined card: G mark, big score, stars, and the
+     review count underneath, so it reads at a glance under each hero. -->
 <a
   href={business.googleReviewsUrl}
   target="_blank"
   rel="noopener"
+  aria-label={`Rated ${rating.toFixed(1)} out of 5 from ${userRatingsTotal} Google reviews`}
   class:list={[
-    "inline-flex items-center gap-3 text-[17px] text-subtle hover:text-ink transition-colors",
+    "group inline-flex items-center gap-4 rounded-[14px] border border-ink/20 bg-white py-3 pl-4 pr-5 transition-colors hover:border-ink",
     className,
   ]}
 >
-  <Stars rating={rating} size={26} ariaHidden />
-  <span class="font-semibold text-ink">{rating.toFixed(1)}</span>
-  <span aria-hidden="true">·</span>
-  <GoogleG size={18} />
-  <span>{userRatingsTotal} reviews</span>
+  <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-border-soft">
+    <GoogleG size={26} />
+  </span>
+  <span class="flex flex-col gap-1">
+    <span class="flex items-center gap-2.5">
+      <span class="font-serif text-[26px] font-medium leading-none text-ink">{rating.toFixed(1)}</span>
+      <Stars rating={rating} size={24} ariaHidden />
+    </span>
+    <span class="text-[15.5px] font-semibold text-ink group-hover:underline">
+      {userRatingsTotal} Google reviews
+    </span>
+  </span>
 </a>
