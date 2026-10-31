@@ -23,6 +23,13 @@ export default defineConfig({
         !page.includes("/cart") &&
         !page.includes("/checkout") &&
         !page.includes("/make-payment"),
+      // List each page at the URL that answers (no trailing slash; Vercel
+      // 308s the slashed form), with today's build date as lastmod.
+      serialize(item) {
+        const u = new URL(item.url);
+        if (u.pathname.length > 1) u.pathname = u.pathname.replace(/\/+$/, "");
+        return { ...item, url: u.toString(), lastmod: new Date().toISOString() };
+      },
     }),
   ],
   image: {

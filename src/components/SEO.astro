@@ -15,7 +15,13 @@ const {
   type = "website",
 } = Astro.props;
 
-const canonical = new URL(path, Astro.site ?? "https://fineartprinting.com.sg").toString();
+// The site serves pages without a trailing slash (vercel.json trailingSlash:
+// false 308s /about/ to /about), but Astro's pathname for prerendered pages
+// ends in "/". Strip it so the canonical is the URL that actually answers.
+const canonical = new URL(
+  path.length > 1 ? path.replace(/\/+$/, "") : path,
+  Astro.site ?? "https://fineartprinting.com.sg",
+).toString();
 const ogImage = new URL(image, Astro.site ?? "https://fineartprinting.com.sg").toString();
 const fullTitle = title.includes("Fine Art Printing")
   ? title
