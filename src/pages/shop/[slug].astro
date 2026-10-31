@@ -137,7 +137,7 @@ const jsonLd = [
 
 ---
 <BaseLayout
-  title={`${artwork.title} · Fine Art Printing`}
+  title={`${artwork.title}${artwork.artistName ? ` by ${artwork.artistName}` : ""}, Art Print | Fine Art Printing`}
   description={description}
   jsonLd={jsonLd}
   type="article"
