@@ -189,7 +189,7 @@ const jsonLd = [
 
           <div class="mt-10 flex flex-wrap gap-3">
             <a
-              href="/canvas-printing#calculator"
+              href={`/canvas-printing?canvas=${encodeURIComponent(canvas.slug)}#calculator`}
               class="inline-flex items-center justify-center rounded-pill bg-petrol px-6 py-3 text-[15.5px] font-semibold text-white transition-colors hover:bg-[#142a40]"
             >
               Get a price for {canvas.shortName} <span aria-hidden="true">→</span>

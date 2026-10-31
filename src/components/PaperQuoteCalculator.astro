@@ -703,6 +703,18 @@ const papersJson = JSON.stringify(
         form.querySelectorAll<HTMLInputElement>(
           "input[name='width'], input[name='height']",
         ).forEach((el) => attachDecimalSnap(el, { onChange: update }));
+        // Links like ?paper=<slug>#calculator preselect that paper.
+        // Unknown slugs are ignored and the default stays selected.
+        const wanted = new URLSearchParams(window.location.search).get("paper");
+        if (wanted) {
+          const radio = Array.from(
+            form.querySelectorAll<HTMLInputElement>("input[name='paperId']"),
+          ).find((r) => r.value === wanted);
+          if (radio && !radio.checked) {
+            radio.checked = true;
+            radio.dispatchEvent(new Event("change", { bubbles: true }));
+          }
+        }
         update();
       });
   }
