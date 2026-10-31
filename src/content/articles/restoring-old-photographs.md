@@ -19,4 +19,4 @@ Below is some examples of the before and after.
 ![Photograph Restoration](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/08/restored-master-4.jpg)![Photograph Restoration](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/08/restored-master-2.jpg)![Photograph Restoration](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/08/restored-master-3.jpg)  
 ![Photograph Restoration](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/08/restored-master-5.jpg)
 
-Should you require any kind of [image restoration](/scanning-restoration/) please don’t hesitate to get in touch.
+Should you require any kind of [image restoration](/scanning-restoration) please don’t hesitate to get in touch.

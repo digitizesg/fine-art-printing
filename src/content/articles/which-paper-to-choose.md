@@ -20,7 +20,7 @@ Let’s touch on each of these types of papers in slightly more detail.
 
 ### Cotton Rag Papers
 
-As the name would suggest, cotton rag papers are made from either cotton or a percentage of cotton combined with other materials. As an example, the **Hahnemühle Photo Rag 308** is made from **100% cotton**, whilst the **Hahnemühle Bamboo** is made from **10% cotton and 90% bamboo fibres**. These types of papers provide exceptional results for art printing as the texture of the paper combined with [giclee printing](/what-giclee-printing/) \[12-colours\] is able to produce an almost original artwork look and feel.
+As the name would suggest, cotton rag papers are made from either cotton or a percentage of cotton combined with other materials. As an example, the **Hahnemühle Photo Rag 308** is made from **100% cotton**, whilst the **Hahnemühle Bamboo** is made from **10% cotton and 90% bamboo fibres**. These types of papers provide exceptional results for art printing as the texture of the paper combined with [giclee printing](/articles/what-giclee-printing) \[12-colours\] is able to produce an almost original artwork look and feel.
 
 Cotton rag papers are also typically very durable and have excellent age resistance.
 
@@ -38,7 +38,7 @@ Another key component of fine art papers is the **weight, which is measured in g
 
 Below is a general guide to different paper weights for reference:
 
-**60 – 100gsm** – the standard paper weight for most household printers – think of your typical [A4 sheet of paper](/common-paper-size-measurements/).
+**60 – 100gsm** – the standard paper weight for most household printers – think of your typical [A4 sheet of paper](/articles/common-paper-size-measurements).
 
 **110 – 140gsm** – typically used for mass produced posters. Often laminated to give them extra strength and protection as they aren’t overly sturdy without.
 

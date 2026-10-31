@@ -25,7 +25,7 @@ Some customers will stretch their canvas and then add something known as a float
 
 ## Cost of paper printing & framing vs. canvas printing & stretching
 
-One aspect that might be of importance in your decision making process between [paper printing](/fine-art-printing/) or [canvas printing](/canvas-printing/) is cost. In the table below we have provided 3 typical approaches that our customers will take when printing and framing or stretching with us:
+One aspect that might be of importance in your decision making process between [paper printing](/print-on-paper) or [canvas printing](/canvas-printing) is cost. In the table below we have provided 3 typical approaches that our customers will take when printing and framing or stretching with us:
 
 -   Option 1 – paper printing with a custom made, high quality frame.
 -   Option 2 – canvas printing and stretching without float frame.
@@ -85,7 +85,7 @@ Suffice to say there is obviously a bigger cost saving if you decide to print on
 We do have some people who float the idea of printing on canvas but framing the canvas inside a traditional frame rather than doing canvas stretching. The short answer is that this is absolutely possible, but there are some considerations that may make it more complicated and therefore more expensive. In general, if you haven’t already printed the work, but you know you want to frame it rather than stretch it, we would always recommend choosing a fine art paper rather than canvas in this scenario. This is because:
 
 1.  Paper is generally a less expensive medium than canvas.
-2.  Fine art papers and [Giclee printing](/what-giclee-printing/) techniques produce exceptional results.
+2.  Fine art papers and [Giclee printing](/articles/what-giclee-printing) techniques produce exceptional results.
 3.  A good quality fine art paper can last 80+ years. Its not a “less durable” option than canvas.
 4.  There is less complexity on the mounting of paper vs. canvas inside a traditional frame, thus the cost may be lower if you choose paper.
 5.  If “texture” is what you’re after, there is plenty of fine art papers that offer highly textured surfaces – i.e., Hahnemuhle German Etching.

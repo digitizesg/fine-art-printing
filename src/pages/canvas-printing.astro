@@ -1,5 +1,6 @@
 ---
 export const prerender = true;
+import RelatedArticles from "../components/RelatedArticles.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
@@ -508,6 +509,8 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
   />
 
   <!-- Reviews -->
+  <RelatedArticles ids={["print-on-canvas-or-paper", "canvas-wrapping-options", "mirror-wrap-photoshop"]} />
+
   <ReviewSection />
 
   <!-- Closing CTA -->

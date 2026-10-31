@@ -13,7 +13,7 @@ Known for his stunning 3D perception-shifting sculptures, Michael Murphy, whose 
 
 ## How we supported the event
 
-Fine Art Printing was delighted to support this event through the handling of [high quality printing](/fine-art-printing/) and framing of all the photographs featured in the event. Leveraging a Hahnemuhle Fine Art Pearl for the photographs and [Hahnemuhle Canvas Artist](/canvas-printing/) for the large Airwallex timeline display.
+Fine Art Printing was delighted to support this event through the handling of [high quality printing](/print-on-paper) and framing of all the photographs featured in the event. Leveraging a Hahnemuhle Fine Art Pearl for the photographs and [Hahnemuhle Canvas Artist](/canvas-printing) for the large Airwallex timeline display.
 
 ![Michael Murphy Shifted Perspectives exhibition in Singapore](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2024/09/michael-murphy-shifted-perspectives.jpg)
 

@@ -16,7 +16,7 @@ We love unique artworks but sometimes there is factors involved that make purcha
 -   You might just want something decorative to jazz up your space and a print does the job just as well.
 -   You might be concerned about your environment and protecting an original artwork within it.
 
-If one or more of these factors resonate with you then perhaps you can consider framing a print or putting up a [stretched canvas](/canvas-wrapping-options/) instead?
+If one or more of these factors resonate with you then perhaps you can consider framing a print or putting up a [stretched canvas](/articles/canvas-wrapping-options) instead?
 
 Many of our customers come to us either with pre-purchased digital image files, photographs of their family, or a general idea of the type of picture they want. We can then help to bring these files to life either in a traditional frame or as a stretched canvas. This can be a really affordable way to spruce up your walls with images and artwork reproductions that perfectly match your requirements without breaking the bank.
 
@@ -52,13 +52,13 @@ Affordable Art Fair takes place in Singapore every November and brings together 
 
 ## Etsy, iStock, Unsplash and more
 
-There is so many talented creators and photographers out there and many of them upload works for sale on sites such as Etsy, iStock and Shutterstock. There is also Unsplash which provides a huge range of professional grade photographs, often for free. Lastly you can also check out our own [artist platform](/buy-prints/) which contains works from digital creators and photographers.
+There is so many talented creators and photographers out there and many of them upload works for sale on sites such as Etsy, iStock and Shutterstock. There is also Unsplash which provides a huge range of professional grade photographs, often for free. Lastly you can also check out our own [artist platform](/shop) which contains works from digital creators and photographers.
 
 We have worked with countless customers who are decorating their walls either for a home or office setting and wish to leverage images available from such sources.
 
 If we take Etsy as an example you can purchase a print ready digital download file from as little as $5. You can then provide these files to us for printing and either professionally frame or just pop into a standard sized IKEA frame.
 
-A 70 x 50cm IKEA frame costs around $25 whilst printing on a [high quality archival paper](/what-archival-painting/) will cost around $50 – $65. This would help you spruce up that empty wall space for less than $100.
+A 70 x 50cm IKEA frame costs around $25 whilst printing on a [high quality archival paper](/articles/what-archival-painting) will cost around $50 – $65. This would help you spruce up that empty wall space for less than $100.
 
 In this situation we’d always like to remind you that the print is going to outlast the frame, but if your requirement is simply to temporarily spruce up your home then this is perhaps the best option available.
 

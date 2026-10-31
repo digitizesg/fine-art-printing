@@ -1,0 +1,65 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import Eyebrow from "./Eyebrow.astro";
+import DisplayHeading from "./DisplayHeading.astro";
+
+/**
+ * "Related reading" strip for service pages: links the guides that support
+ * that service, so visitors still researching stay on the site and the
+ * articles get links from the pages that matter. Pass article ids (file
+ * names without .md) in the order to show them.
+ */
+interface Props {
+  ids: string[];
+  heading?: string;
+}
+const { ids, heading = "Worth reading before you order." } = Astro.props;
+const all = await getCollection("articles");
+const articles = ids
+  .map((id) => all.find((a) => a.id.replace(/\.md$/, "") === id))
+  .filter((a): a is NonNullable<typeof a> => Boolean(a));
+---
+{articles.length > 0 && (
+  <section class="border-t border-border-soft bg-white">
+    <div class="mx-auto max-w-[1180px] px-6 py-16 md:py-20">
+      <Eyebrow>Related reading</Eyebrow>
+      <DisplayHeading level={2} class="mt-3">{heading}</DisplayHeading>
+      <ul class="mt-10 grid grid-cols-1 gap-5 md:grid-cols-3">
+        {articles.map((article) => (
+          <li>
+            <a
+              href={`/articles/${article.id.replace(/\.md$/, "")}`}
+              class="group flex h-full flex-col overflow-hidden rounded-card border border-border-soft bg-white transition-colors hover:border-ink/40"
+            >
+              {article.data.hero && (
+                <div class="aspect-[16/10] overflow-hidden bg-stone-100">
+                  <Image
+                    src={article.data.hero}
+                    alt=""
+                    width={720}
+                    height={450}
+                    widths={[360, 540, 720]}
+                    sizes="(max-width: 768px) 96vw, 33vw"
+                    class="h-full w-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
+              )}
+              <div class="flex flex-1 flex-col p-6">
+                <h3 class="font-serif text-[20px] font-medium leading-snug text-ink">{article.data.title}</h3>
+                {article.data.excerpt && (
+                  <p class="mt-3 text-[16px] leading-relaxed text-subtle">{article.data.excerpt}</p>
+                )}
+                <span class="mt-auto pt-5 inline-flex items-center gap-1.5 text-[16px] font-semibold text-petrol">
+                  Read article
+                  <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
+                </span>
+              </div>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+)}

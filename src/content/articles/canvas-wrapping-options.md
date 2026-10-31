@@ -71,7 +71,7 @@ Mirror wrap looks very similar to gallery wrap in many respects, but rather than
 
 The one aspect to be cautious of with mirror wrap is if you have people or objects close to the edges of your image as sometimes the mirroring effect can produce weird results. In general its possible to further edit the edges of the image after mirroring to resolve these problems, so it can still be a viable option.
 
-We have a standalone article available on [how to create mirror wrap for your images in Photoshop](/mirror-wrap-photoshop/) if you’re interested in reading more. If you order [canvas printing](/canvas-printing/) from us we’ll generally be happy to sort out the mirror wrap creation on your behalf as part of our service.
+We have a standalone article available on [how to create mirror wrap for your images in Photoshop](/articles/mirror-wrap-photoshop) if you’re interested in reading more. If you order [canvas printing](/canvas-printing) from us we’ll generally be happy to sort out the mirror wrap creation on your behalf as part of our service.
 
 ## Which wrapping option should I choose?
 

@@ -5,7 +5,7 @@ slug: canvas-printing-stretching
 excerpt: "Premium canvases, gold-certified studio, in-house stretching, what sets us apart on canvas."
 hero: /photos/hahnemuhle-canvas-artist-1.jpg
 ---
-Theres plenty of vendors out there offering [canvas printing and stretching](/canvas-printing/), but why should you choose us? In this article I am going to try and convince you on why we are the best in Singapore.
+Theres plenty of vendors out there offering [canvas printing and stretching](/canvas-printing), but why should you choose us? In this article I am going to try and convince you on why we are the best in Singapore.
 
 ## High Quality Canvas
 
@@ -23,7 +23,7 @@ We don’t use cheap, non-brand varnishes, but the premium varnish directly from
 
 ## Hahnemuhle Gold Certified Studio
 
-We are the first and only [Hahnemuhle Certified Gold Studio](/hahnemuhle-gold-certified-studio/) in Singapore. To achieve this certification we must (a) print on a high volume of Hahnemuhle media during a 24 month cycle, and (b) show our skills and commitment to consistently producing high quality prints.
+We are the first and only [Hahnemuhle Certified Gold Studio](/articles/hahnemuhle-gold-certified-studio) in Singapore. To achieve this certification we must (a) print on a high volume of Hahnemuhle media during a 24 month cycle, and (b) show our skills and commitment to consistently producing high quality prints.
 
 We are proud to be able to point to external certification as validation of our print quality and the volume of prints that we produce.
 
@@ -31,7 +31,7 @@ We are proud to be able to point to external certification as validation of our 
 
 We are constantly investing in our printing technology and personal skills to improve our output. We were the very first print studio in Singapore to acquire the brand new Canon Pro-566 printer in 2024, upgrading from the previous model we acquired in 2021.
 
-This 12 colour [giclee printer](/what-giclee-printing/) brings Canon’s latest upgrades which further enhances the quality of our prints. The new inks for example can last up to 200 years and have improved scratch resistance vs. the earlier models.
+This 12 colour [giclee printer](/articles/what-giclee-printing) brings Canon’s latest upgrades which further enhances the quality of our prints. The new inks for example can last up to 200 years and have improved scratch resistance vs. the earlier models.
 
 ## Proper Colour Management Workflow
 

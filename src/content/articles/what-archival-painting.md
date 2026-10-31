@@ -53,6 +53,6 @@ When handling archival paper, it is important to do so with clean hands \[or mor
 
 If you require any further assistance or advice regarding archival paper and canvases, please don’t hesitate to get in touch. You may wish to check out our archival quality papers and canvases at the following links below.
 
-[Fine Art Paper](/fine-art-printing/)
+[Fine Art Paper](/print-on-paper)
 
-[Canvas Printing](/canvas-printing/)
+[Canvas Printing](/canvas-printing)

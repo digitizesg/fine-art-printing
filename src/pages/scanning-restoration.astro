@@ -1,5 +1,6 @@
 ---
 export const prerender = true;
+import RelatedArticles from "../components/RelatedArticles.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
@@ -275,4 +276,5 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
   </section>
 
   <VisitSection />
+  <RelatedArticles ids={["restoring-old-photographs", "how-large-print-digital-image", "what-giclee-printing"]} />
 </BaseLayout>

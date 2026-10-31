@@ -11,7 +11,7 @@ So you’ve decided you’d like to print a particular digital image but you are
 2.  At what distance will you be viewing the work from.
 3.  The cost associated with the printing itself and any subsequent additional costs such as framing.
 
-In this article we’ll try to provide some guideline information to consider but we’d encourage you to get in touch if you need further help. We’ve also created a free tool that allows you to upload your [image to check its size and resolution](/image-analyser/), but if this is all totally new to you, it might be best to read on first.
+In this article we’ll try to provide some guideline information to consider but we’d encourage you to get in touch if you need further help. We’ve also created a free tool that allows you to upload your [image to check its size and resolution](/tools/image-analyser), but if this is all totally new to you, it might be best to read on first.
 
 ## What defines a high resolution image?
 
@@ -57,4 +57,4 @@ For smaller prints where you may have a shorter viewing distance, the need for 3
 
 ## Can you enlarge my image and resolution?
 
-Yes, in many cases we may be able to enlarge your original image and use various techniques and software to create a larger version of your original. You can check out our services page on [image enhancement](/scanning-restoration/) for more details on how we can help or just get in touch.
+Yes, in many cases we may be able to enlarge your original image and use various techniques and software to create a larger version of your original. You can check out our services page on [image enhancement](/scanning-restoration) for more details on how we can help or just get in touch.

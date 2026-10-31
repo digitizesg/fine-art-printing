@@ -1,5 +1,6 @@
 ---
 export const prerender = true;
+import RelatedArticles from "../components/RelatedArticles.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { faqPageSchema } from "../lib/schema";
 import Eyebrow from "../components/Eyebrow.astro";
@@ -286,6 +287,8 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
     eyebrow="Recent work"
     heading="Pieces we've framed."
   />
+
+  <RelatedArticles ids={["what-archival-painting", "why-invest-high-quality-paper", "print-on-canvas-or-paper"]} />
 
   <ReviewSection />
   <VisitSection />

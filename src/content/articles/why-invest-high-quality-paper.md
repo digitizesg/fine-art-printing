@@ -33,7 +33,7 @@ It is best to look for established and known manufacturers when paying a premium
 
 Generally speaking, a higher quality paper tends to be heavier in terms of the gsm \[grams per square meter\] which makes it feel more substantial to the touch. This additional weight also increases the papers durability and reduces the chances of damage when handling or mounting inside a frame. Normal quality papers will more often than not be lighter and thinner which makes them extremely prone to getting bend marks, impact damage, tearing, and curling.
 
-Higher end papers for [fine art printing](/fine-art-printing/) will typically fall into the **range of 280 – 310gsm**.
+Higher end papers for [fine art printing](/print-on-paper) will typically fall into the **range of 280 – 310gsm**.
 
 Lower quality papers that you might see used for mass produced posters are typically **around 110 – 140gsm**.
 
@@ -43,7 +43,7 @@ This is something you really need to see and touch to appreciate, but higher qua
 
 Normal quality papers tend to look and feel rather basic and lack specialist finishes.
 
-You can read more about texture and finishes of paper in our guide on [which fine art paper to choose](/which-paper-to-choose/).
+You can read more about texture and finishes of paper in our guide on [which fine art paper to choose](/articles/which-paper-to-choose).
 
 ## Environmental impact
 

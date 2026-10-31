@@ -14,7 +14,7 @@ The process of Giclee printing today involves the usage of a high-quality printe
 Giclee printing is very popular among artists and photographers because they tend to offer exceptional colour accuracy, strong detail, and a quality that is difficult to achieve with more traditional printing methods.
 
 ![Geometric shapes printed on Hahnemuhle FineArt Pearl paper](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/03/fineart-pearl-giclee-printing.jpg)  
-The print above was printed on [Hahnemühle FineArt Pearl](/fine-art-printing/), 285gsm paper.
+The print above was printed on [Hahnemühle FineArt Pearl](/print-on-paper), 285gsm paper.
 
 Combining high quality pigment inks and archival grade papers or canvases Giclee printing is exceptionally durable and resistant to fading. It is for this reason that Giclee printing is an excellent option for artists and photographers who are selling their works to end customers.
 
@@ -29,7 +29,7 @@ This gives a much smoother gradient transition and wider colour gamut. In simple
 In our opinion there’s no real limitation on the type of images that can be printed using Giclee printing. It is often connected with the process of printing fine art reproductions or higher end printing, but it is equally accessible and relevant for producing digital download prints you might buy from popular sites such as Etsy for example.
 
 ![Giclee Printing on Hahnemuhle German Etching](https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles/2023/03/german-etching-giclee-print.jpg)  
-Printing above was produced on [Hahnemühle German Etching](/fine-art-printing/), 310gsm
+Printing above was produced on [Hahnemühle German Etching](/print-on-paper), 310gsm
 
 If you are looking for a high quality print output and the option to choose from a range of quality and interesting papers and canvases, then Giclee printing is a great option.
 
@@ -49,6 +49,6 @@ Pricing will differ based on the size of your print and your choice of paper or 
 
 We specialise in Giclee printing and use both Canon & Epson printers, official manufacturer inks, and a range of exceptionally high-quality papers and canvases from Hahnemühle.
 
-Check out our [fine art printing](/fine-art-printing/) or [canvas printing](/canvas-printing/) pages for more information and pricing.
+Check out our [fine art printing](/print-on-paper) or [canvas printing](/canvas-printing) pages for more information and pricing.
 
 If you are interested in coming to check out our paper and canvas samples in person, feel free to make an appointment to visit our showroom at 120 Lower Delta Road, #08-01/02 Cendex Centre, 169208.
