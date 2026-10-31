@@ -5,13 +5,8 @@ import { idempotencyKey } from "../../lib/stripe-idem";
 import { listPapers } from "../../lib/papers";
 import { listCanvases } from "../../lib/canvases";
 import { listFloatFrames } from "../../lib/float-frames";
-import { quotePaperPrint } from "../../data/pricing/paper";
-import { SHOP_ARTWORK_BASE_SGD } from "../../data/pricing/shop";
-import {
-  quoteCanvasPrint,
-  type FloatFrameColour,
-  type StretchingChoice,
-} from "../../data/pricing/canvas";
+import { DELIVERY_LOCAL_SELL } from "../../data/pricing/canvas";
+import { priceShopLine, type ShopCatalog } from "../../lib/shop-pricing";
 
 export const prerender = false;
 
@@ -56,7 +51,7 @@ interface PricedLine {
   config: Record<string, unknown>;
 }
 
-const DELIVERY_LOCAL_SGD = 30;
+const DELIVERY_LOCAL_SGD = DELIVERY_LOCAL_SELL;
 const DELIVERY_LOCAL_CENTS = DELIVERY_LOCAL_SGD * 100;
 
 function bad(msg: string, status = 400) {
@@ -91,6 +86,23 @@ export const POST: APIRoute = async ({ request, url }) => {
     listCanvases(),
     listFloatFrames(),
   ]);
+  const catalog: ShopCatalog = {
+    papers: papers.map((p) => ({
+      id: p.slug,
+      name: p.name,
+      sellPricePerSqm: p.sellPricePerSqm,
+      maxPrintWidthCm: p.maxPrintWidthCm,
+      maxPrintLengthCm: p.maxPrintLengthCm,
+    })),
+    canvases: canvases.map((c) => ({
+      id: c.slug,
+      name: c.name,
+      sellPricePerSqm: c.sellPricePerSqm,
+      maxPrintWidthCm: c.maxPrintWidthCm,
+      maxPrintLengthCm: c.maxPrintLengthCm,
+    })),
+    floatFrames: floatFrames.map((f) => ({ id: f.slug, label: f.label, sellPerM: f.sellPerM })),
+  };
 
   const priced: PricedLine[] = [];
   const stripeLineItems: NonNullable<
@@ -107,67 +119,29 @@ export const POST: APIRoute = async ({ request, url }) => {
     let descriptionParts: string[] = [];
     const config: Record<string, unknown> = {};
 
-    if (line.substrate === "paper") {
-      const paper = papers.find((p) => p.slug === line.paperSlug);
-      if (!paper) return bad(`Paper not found: ${line.paperSlug}`);
-      const border = Math.max(0, Number(line.borderCm) || 0);
-      const result = quotePaperPrint({
-        paper: {
-          id: paper.slug,
-          name: paper.name,
-          sellPricePerSqm: paper.sellPricePerSqm,
-          maxPrintWidthCm: paper.maxPrintWidthCm,
-          maxPrintLengthCm: paper.maxPrintLengthCm,
-        },
-        widthCm: line.widthCm + border * 2,
-        heightCm: line.heightCm + border * 2,
-        quantity: 1,
-      });
-      if (!result.ok) return bad(`${line.artworkTitle}: ${result.message}`);
-      // Match the shop-page calculation: engine total + flat artwork
-      // base fee. Without this the cart shows S$X but Stripe charges
-      // S$X-10 per print — direct revenue loss.
-      unitSGD = result.grandTotal + SHOP_ARTWORK_BASE_SGD;
+    const result = priceShopLine(line, catalog);
+    if (!result.ok) {
+      if (result.reason === "unknown-substrate") {
+        return bad(`Unknown substrate on "${line.artworkTitle}".`);
+      }
+      if (result.reason === "quote") return bad(`${line.artworkTitle}: ${result.message}`);
+      return bad(result.message);
+    }
+    unitSGD = result.unitPriceSGD;
+
+    if (result.substrate === "paper") {
+      const { paper, borderCm: border } = result;
       descriptionParts.push(`${line.widthCm} × ${line.heightCm} cm`, paper.name);
       if (border > 0) descriptionParts.push(`${border}cm border`);
-      config.paperSlug = paper.slug;
+      config.paperSlug = paper.id;
       config.paperName = paper.name;
       if (border > 0) config.borderCm = border;
-    } else if (line.substrate === "canvas") {
-      const canvas = canvases.find((c) => c.slug === line.canvasSlug);
-      if (!canvas) return bad(`Canvas not found: ${line.canvasSlug}`);
-      const finishing = line.finishing ?? "none";
-      const futureMargin = !!line.futureMargin;
-
-      let stretching: StretchingChoice = "none";
-      let floatFrame: FloatFrameColour | null = null;
-      if (finishing === "1in") stretching = "1in";
-      else if (finishing === "1.5in") stretching = "1.5in";
-      else if (finishing === "float") {
-        stretching = "1in";
-        const ff = floatFrames.find((f) => f.slug === line.floatFrameSlug);
-        if (!ff) return bad(`Float frame not found: ${line.floatFrameSlug}`);
-        floatFrame = { id: ff.slug, label: ff.label, sellPerM: ff.sellPerM };
-        config.floatFrameSlug = ff.slug;
-        config.floatFrameLabel = ff.label;
+    } else {
+      const { canvas, finishing, futureMargin, floatFrame } = result;
+      if (floatFrame) {
+        config.floatFrameSlug = floatFrame.id;
+        config.floatFrameLabel = floatFrame.label;
       }
-      const marginCm = finishing === "none" && futureMargin ? 3.81 : 0;
-      const result = quoteCanvasPrint({
-        canvas: {
-          id: canvas.slug,
-          name: canvas.name,
-          sellPricePerSqm: canvas.sellPricePerSqm,
-          maxPrintWidthCm: canvas.maxPrintWidthCm,
-          maxPrintLengthCm: canvas.maxPrintLengthCm,
-        },
-        widthCm: line.widthCm + marginCm * 2,
-        heightCm: line.heightCm + marginCm * 2,
-        stretching,
-        floatFrame,
-        delivery: "self",
-      });
-      if (!result.ok) return bad(`${line.artworkTitle}: ${result.message}`);
-      unitSGD = result.grandTotal + SHOP_ARTWORK_BASE_SGD;
       descriptionParts.push(`${line.widthCm} × ${line.heightCm} cm`, canvas.name);
       if (finishing === "1in") descriptionParts.push('1" stretching');
       else if (finishing === "1.5in") descriptionParts.push('1.5" stretching');
@@ -177,13 +151,11 @@ export const POST: APIRoute = async ({ request, url }) => {
         descriptionParts.push(futureMargin ? "Rolled + 1.5\" stretching margin" : "Rolled");
         if (line.wrapType) descriptionParts.push(`Wrap: ${line.wrapType}`);
       }
-      config.canvasSlug = canvas.slug;
+      config.canvasSlug = canvas.id;
       config.canvasName = canvas.name;
       config.finishing = finishing;
       if (futureMargin) config.futureMargin = true;
       if (line.wrapType) config.wrapType = line.wrapType;
-    } else {
-      return bad(`Unknown substrate on "${line.artworkTitle}".`);
     }
 
     const description = descriptionParts.join(" · ");

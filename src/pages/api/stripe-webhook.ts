@@ -10,6 +10,7 @@ import {
   type ValuationEmailContext,
 } from "../../lib/emails";
 import { extractShippingAddress } from "../../lib/stripe-shipping";
+import { DELIVERY_LOCAL_SELL } from "../../data/pricing/canvas";
 
 export const prerender = false;
 
@@ -199,7 +200,7 @@ export const POST: APIRoute = async ({ request }) => {
     // Supabase blip). Reconstruct what we can from the Stripe session.
     const fallbackTotal = (fullSession.amount_total ?? 0) / 100;
     const fallbackDelivery =
-      deliveryMethod === "local" ? 30 : 0;
+      deliveryMethod === "local" ? DELIVERY_LOCAL_SELL : 0;
     const fallbackSubtotal = Math.max(0, fallbackTotal - fallbackDelivery);
     const fallbackLines: OrderEmailContext["lines"] = (fullSession.line_items?.data ?? [])
       .filter((li) => li.description !== "Local Singapore delivery")
