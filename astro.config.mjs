@@ -11,6 +11,17 @@ export default defineConfig({
   output: 'server',
   adapter: vercel({
     imageService: true,
+    // Vercel only serves widths listed in `sizes` (anything else is
+    // snapped to the nearest one). The small widths cover thumbnails;
+    // `formats` lets Vercel hand AVIF to browsers that accept it and
+    // WebP to the rest (Vercel's default is WebP only).
+    imagesConfig: {
+      sizes: [128, 256, 320, 384, 480, 640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+      formats: ['image/avif', 'image/webp'],
+      // Must be repeated here: once imagesConfig is set, the adapter
+      // drops image.remotePatterns entries that carry a protocol.
+      remotePatterns: [{ protocol: 'https', hostname: '*.supabase.co' }],
+    },
   }),
   integrations: [
     sitemap({

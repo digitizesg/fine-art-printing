@@ -84,8 +84,8 @@ const tools: Tool[] = [
             href={t.status === "live" ? t.href : "#"}
             aria-disabled={t.status !== "live"}
             class:list={[
-              "group flex h-full flex-col rounded-card border border-border-soft bg-white p-6 transition-shadow",
-              t.status === "live" && "hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]",
+              "group flex h-full flex-col rounded-card border border-border-soft bg-white p-6 transition-colors",
+              t.status === "live" && "hover:border-petrol/40",
               t.status !== "live" && "pointer-events-none opacity-70",
             ]}
           >

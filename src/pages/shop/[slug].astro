@@ -144,7 +144,7 @@ const jsonLd = [
 >
   <section class="bg-white">
     <div class="mx-auto max-w-[1180px] px-6 pt-10 pb-16 md:pt-14 md:pb-20">
-      <p class="text-[14.5px] text-muted">
+      <p class="text-[15.5px] text-muted">
         <a href="/shop" class="hover:text-ink hover:underline underline-offset-2">Shop</a>
         <span class="px-1.5 text-subtle" aria-hidden="true">›</span>
         <span class="text-ink">{artwork.title}</span>
@@ -167,7 +167,7 @@ const jsonLd = [
                 data-frame-name={artwork.title}
                 loading="eager"
                 fetchpriority="high"
-                class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)] cursor-zoom-in"
+                class="w-full rounded-card object-contain bg-[#f4efe7] cursor-zoom-in"
               />
             ) : (
               /* Fallback for rows that haven't been backfilled yet —
@@ -182,7 +182,7 @@ const jsonLd = [
                 data-frame-name={artwork.title}
                 loading="eager"
                 fetchpriority="high"
-                class="w-full rounded-card object-contain bg-[#f4efe7] shadow-[0_24px_60px_-24px_rgba(0,0,0,0.30)] cursor-zoom-in"
+                class="w-full rounded-card object-contain bg-[#f4efe7] cursor-zoom-in"
               />
             )}
           </figure>
@@ -191,7 +191,7 @@ const jsonLd = [
               {artwork.galleryImages.map((img, i) => (
                 <button
                   type="button"
-                  class="aspect-square overflow-hidden rounded-md bg-[#f4efe7] border border-border-soft cursor-zoom-in transition-shadow hover:shadow-md focus:outline focus:outline-2 focus:outline-petrol focus:outline-offset-2"
+                  class="aspect-square overflow-hidden rounded-md bg-[#f4efe7] border border-border-soft cursor-zoom-in transition-colors hover:border-petrol/40 focus:outline focus:outline-2 focus:outline-petrol focus:outline-offset-2"
                   data-frame-zoom
                   data-frame-image={img.url}
                   data-frame-name={`${artwork.title}, view ${i + 2}`}
@@ -575,7 +575,7 @@ const jsonLd = [
   }
   .artwork-config__hint {
     margin: 0;
-    font-size: 14px;
+    font-size: 15px;
     color: var(--color-subtle);
   }
   .artwork-config__border {
@@ -601,7 +601,7 @@ const jsonLd = [
     border-color: var(--color-petrol);
   }
   .artwork-config__border-suffix {
-    font-size: 14.5px;
+    font-size: 15.5px;
     color: var(--color-subtle);
   }
   .artwork-config__help {
@@ -616,7 +616,7 @@ const jsonLd = [
     padding: 4px 10px;
     border: 1px solid rgba(0, 0, 0, 0.12);
     border-radius: 999px;
-    font-size: 14px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--color-petrol);
     background: #fff;
@@ -654,7 +654,7 @@ const jsonLd = [
   }
   .artwork-config__help-body p {
     margin: 0 0 8px;
-    font-size: 14.5px;
+    font-size: 15.5px;
     line-height: 1.5;
     color: var(--color-subtle);
   }
@@ -671,7 +671,7 @@ const jsonLd = [
     gap: 4px;
   }
   .artwork-config__price-label {
-    font-size: 13.5px;
+    font-size: 15px;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--color-muted);
@@ -706,7 +706,7 @@ const jsonLd = [
   }
   .artwork-config__cta-feedback {
     margin: 8px 0 0;
-    font-size: 14.5px;
+    font-size: 15.5px;
     color: var(--color-petrol);
   }
   .artwork-config__cta-feedback a {
@@ -716,7 +716,7 @@ const jsonLd = [
   }
   .artwork-config__small {
     margin: 8px 0 0;
-    font-size: 13.5px;
+    font-size: 15px;
     color: var(--color-subtle);
     line-height: 1.5;
   }
@@ -727,7 +727,7 @@ const jsonLd = [
     border: 1px solid var(--color-border-soft, rgba(0, 0, 0, 0.08));
     border-radius: 10px;
     background: #faf8f3;
-    font-size: 14.5px;
+    font-size: 15.5px;
     line-height: 1.45;
     color: var(--color-ink);
     display: grid;
@@ -755,7 +755,7 @@ const jsonLd = [
   .artwork-config__delivery-meta {
     grid-area: meta;
     color: var(--color-subtle);
-    font-size: 13.5px;
+    font-size: 15px;
   }
 </style>
 

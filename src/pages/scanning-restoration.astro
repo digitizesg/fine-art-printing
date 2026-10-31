@@ -10,6 +10,8 @@ import GoogleReviewsBadge from "../components/GoogleReviewsBadge.astro";
 import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
 import PhotoServiceCalculator from "../components/PhotoServiceCalculator.astro";
 import { business } from "../data/business";
+import { Image } from "astro:assets";
+import heroPhoto from "../assets/photos/photo-restoration.jpg";
 
 const description =
   "Photo restoration, scanning, enlargement, and image enhancement in Singapore. Old family photos brought back to print quality. Pricing starts from S$200 depending on condition.";
@@ -126,10 +128,16 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 
         <div class="md:col-span-6">
           <figure>
-            <img
-              src="/photos/photo-restoration.jpg"
+            <Image
+              src={heroPhoto}
               alt="Old photograph brought back through digital restoration"
-              class="aspect-[4/5] w-full rounded-card object-cover shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)]"
+              class="aspect-[4/5] w-full rounded-card object-cover"
+              width={1080}
+              widths={[480, 640, 828, 1080, 1200]}
+              sizes="(min-width: 1180px) 678px, (min-width: 768px) 58vw, calc((100vw - 48px) * 1.25)"
+              quality={75}
+              loading="eager"
+              fetchpriority="high"
             />
           </figure>
         </div>
@@ -221,22 +229,22 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
       <div class="mt-10 grid gap-5 md:grid-cols-2">
         <a
           href="/print-on-paper"
-          class="group block rounded-card border border-border-soft bg-white p-6 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
+          class="group block rounded-card border border-border-soft bg-white p-6 transition-colors hover:border-petrol/40"
         >
           <p class="font-serif text-[20px] font-medium text-ink">Print on paper</p>
           <p class="mt-2 text-[15.5px] leading-relaxed text-subtle">Archival Hahnemühle papers, configured to your size.</p>
-          <span class="mt-4 inline-flex items-center gap-1.5 text-[14.5px] font-semibold text-petrol">
+          <span class="mt-4 inline-flex items-center gap-1.5 text-[15.5px] font-semibold text-petrol">
             View paper options
             <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
           </span>
         </a>
         <a
           href="/canvas-printing"
-          class="group block rounded-card border border-border-soft bg-white p-6 transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
+          class="group block rounded-card border border-border-soft bg-white p-6 transition-colors hover:border-petrol/40"
         >
           <p class="font-serif text-[20px] font-medium text-ink">Print on canvas</p>
           <p class="mt-2 text-[15.5px] leading-relaxed text-subtle">Premium canvas substrates, stretched and framed in-house.</p>
-          <span class="mt-4 inline-flex items-center gap-1.5 text-[14.5px] font-semibold text-petrol">
+          <span class="mt-4 inline-flex items-center gap-1.5 text-[15.5px] font-semibold text-petrol">
             View canvas options
             <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
           </span>

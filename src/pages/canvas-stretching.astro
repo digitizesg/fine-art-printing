@@ -13,6 +13,8 @@ import GoogleReviewsBadge from "../components/GoogleReviewsBadge.astro";
 import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
 import { business } from "../data/business";
 import reviewsData from "../data/reviews.json";
+import { Image } from "astro:assets";
+import heroPhoto from "../assets/photos/canvas-stretching-framing.jpg";
 
 const { rating, userRatingsTotal } = reviewsData;
 const waLink = `${business.whatsappLink}?text=${encodeURIComponent("Hi Fine Art Printing, I have a canvas I'd like stretched.")}`;
@@ -120,10 +122,16 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 
         <div class="md:col-span-6">
           <figure class="relative">
-            <img
-              src="/photos/canvas-stretching-framing.jpg"
+            <Image
+              src={heroPhoto}
               alt="Canvas stretched on solid wood bars with a float frame"
-              class="aspect-[4/5] w-full rounded-card object-cover shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)]"
+              class="aspect-[4/5] w-full rounded-card object-cover"
+              width={1080}
+              widths={[480, 640, 828, 1080, 1200]}
+              sizes="(min-width: 1180px) 678px, (min-width: 768px) 58vw, calc((100vw - 48px) * 1.25)"
+              quality={75}
+              loading="eager"
+              fetchpriority="high"
             />
           </figure>
         </div>

@@ -48,7 +48,7 @@
 .canvas-quote__field {
   display: grid;
   gap: 6px;
-  font-size: 14.5px;
+  font-size: 15.5px;
   font-weight: 600;
   color: var(--color-ink);
 }
@@ -91,7 +91,7 @@
   display: inline-block;
   padding: 7px 16px;
   border-radius: 999px;
-  font-size: 14.5px;
+  font-size: 15.5px;
   font-weight: 600;
   color: var(--color-muted);
 }
@@ -173,7 +173,7 @@
   color: var(--color-ink);
 }
 .finishing-card__desc {
-  font-size: 13.5px;
+  font-size: 15px;
   color: var(--color-subtle);
 }
 
@@ -275,7 +275,7 @@
 }
 .frame-colour__name {
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--color-ink);
   line-height: 1.25;
@@ -324,12 +324,12 @@
   color: var(--color-ink);
 }
 .delivery-card__desc {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--color-subtle);
 }
 .delivery-note {
   margin: 10px 0 0;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.55;
   color: var(--color-subtle);
 }
@@ -371,7 +371,7 @@
 }
 .quote-result__totalbar .quote-result__label {
   font-family: var(--font-sans);
-  font-size: 14.5px;
+  font-size: 15.5px;
   color: var(--color-muted);
   margin: 0;
 }
@@ -386,7 +386,7 @@
 
 .quote-result__note {
   margin: 12px 0 0;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.55;
   color: var(--color-subtle);
 }

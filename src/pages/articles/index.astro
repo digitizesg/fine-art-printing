@@ -62,7 +62,7 @@ const fmtDate = (d: Date) =>
           <li>
             <a
               href={`/articles/${article.id.replace(/\.md$/, "")}`}
-              class="group block overflow-hidden rounded-card border border-border-soft bg-white transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
+              class="group block overflow-hidden rounded-card border border-border-soft bg-white transition-colors hover:border-petrol/40"
             >
               {article.data.hero ? (
                 <div class="aspect-[16/10] overflow-hidden bg-stone-100">
@@ -82,7 +82,7 @@ const fmtDate = (d: Date) =>
                 <div class="aspect-[16/10] bg-gradient-to-br from-stone-100 to-stone-200" aria-hidden="true" />
               )}
               <div class="p-6">
-                <p class="text-[13.5px] text-muted">{fmtDate(article.data.date as Date)}</p>
+                <p class="text-[15px] text-muted">{fmtDate(article.data.date as Date)}</p>
                 <h2 class="mt-2 font-serif text-[19px] font-medium leading-snug text-ink">
                   {article.data.title}
                 </h2>
@@ -91,7 +91,7 @@ const fmtDate = (d: Date) =>
                     {article.data.excerpt}
                   </p>
                 )}
-                <span class="mt-5 inline-flex items-center gap-1.5 text-[14.5px] font-semibold text-petrol">
+                <span class="mt-5 inline-flex items-center gap-1.5 text-[15.5px] font-semibold text-petrol">
                   Read article
                   <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
                 </span>

@@ -15,6 +15,8 @@ import WhatsAppIcon from "../components/icons/WhatsAppIcon.astro";
 import { listPapers } from "../lib/papers";
 import { business } from "../data/business";
 import reviewsData from "../data/reviews.json";
+import { Image } from "astro:assets";
+import heroPhoto from "../assets/photos/print-on-paper.jpg";
 
 const papers = await listPapers();
 
@@ -178,10 +180,16 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
 
         <div class="md:col-span-6">
           <figure class="relative">
-            <img
-              src="/photos/print-on-paper.jpg"
+            <Image
+              src={heroPhoto}
               alt="An archival print on Hahnemühle paper"
-              class="aspect-[4/5] w-full rounded-card object-cover shadow-[0_24px_60px_-24px_rgba(0,0,0,0.35)]"
+              class="aspect-[4/5] w-full rounded-card object-cover"
+              width={1080}
+              widths={[480, 640, 828, 1080, 1200]}
+              sizes="(min-width: 1180px) 678px, (min-width: 768px) 58vw, calc((100vw - 48px) * 1.25)"
+              quality={75}
+              loading="eager"
+              fetchpriority="high"
             />
           </figure>
         </div>
@@ -215,9 +223,14 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
               class:list={["paper-pick", i === 0 && "is-active"]}
             >
               {p.imageUrls[0] ? (
-                <img
+                <Image
                   src={p.imageUrls[0]}
                   alt=""
+                  width={256}
+                  height={256}
+                  widths={[128, 256]}
+                  sizes="84px"
+                  quality={75}
                   loading="lazy"
                   class="paper-pick__thumb"
                 />
@@ -240,9 +253,14 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
             >
               <div class="paper-showcase__media">
                 {paper.imageUrls[0] ? (
-                  <img
+                  <Image
                     src={paper.imageUrls[0]}
                     alt={`Sample print on ${paper.name}`}
+                    width={1080}
+                    height={1080}
+                    widths={[480, 640, 828, 1080]}
+                    sizes="(min-width: 1180px) 452px, (min-width: 768px) 38vw, calc(100vw - 48px)"
+                    quality={75}
                     loading="lazy"
                     class="paper-showcase__image"
                   />
@@ -350,7 +368,7 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
                 i >= 5 && "comparison-extra",
               ]}>
                 <td class="py-4 pr-4">
-                  <div class="text-[13.5px] text-muted">{p.brand}</div>
+                  <div class="text-[15px] text-muted">{p.brand}</div>
                   <div class="font-serif text-[16px] font-medium text-ink">
                     {p.shortName}
                     {p.popular && <span class="popular-badge popular-badge--inline">Popular</span>}

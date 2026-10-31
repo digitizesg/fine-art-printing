@@ -35,7 +35,7 @@ const jsonLd = {
           in your chosen size, then finished in our Singapore studio. Pick a
           piece, configure it the way you want, ship or pick up.
         </p>
-        <div class="mt-5 max-w-[640px] rounded-card border border-border-soft bg-[#faf8f3] px-4 py-3 text-[14.5px] leading-relaxed">
+        <div class="mt-5 max-w-[640px] rounded-card border border-border-soft bg-[#faf8f3] px-4 py-3 text-[15.5px] leading-relaxed">
           <p class="font-medium text-ink">How delivery works</p>
           <ul class="mt-2 space-y-1 text-subtle">
             <li><strong class="text-ink">Self-collection</strong> from our Singapore studio: <strong class="text-ink">free</strong>.</li>
@@ -61,7 +61,7 @@ const jsonLd = {
           <li>
             <a
               href={`/shop/${art.slug}`}
-              class="group block rounded-card border border-border-soft bg-white overflow-hidden transition-shadow hover:shadow-[0_12px_32px_-12px_rgba(0,0,0,0.18)]"
+              class="group block rounded-card border border-border-soft bg-white overflow-hidden transition-colors hover:border-petrol/40"
             >
               <div class="aspect-[4/3] w-full bg-[#f4efe7] overflow-hidden">
                 {art.imageWidth && art.imageHeight ? (
@@ -92,9 +92,9 @@ const jsonLd = {
                   {art.title}
                 </h2>
                 {art.artistName && (
-                  <p class="mt-1 text-[14px] text-muted">{art.artistName}</p>
+                  <p class="mt-1 text-[15px] text-muted">{art.artistName}</p>
                 )}
-                <span class="mt-4 inline-flex items-center gap-1.5 text-[14.5px] font-semibold text-petrol">
+                <span class="mt-4 inline-flex items-center gap-1.5 text-[15.5px] font-semibold text-petrol">
                   Configure & price
                   <span class="transition-transform duration-150 group-hover:translate-x-0.5" aria-hidden="true">→</span>
                 </span>
