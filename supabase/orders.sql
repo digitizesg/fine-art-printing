@@ -11,7 +11,8 @@ create sequence if not exists public.orders_reference_seq;
 
 create or replace function public.generate_order_reference() returns text as $$
 declare
-  yr text := to_char(now(), 'YYYY');
+  -- Singapore year (now() is UTC); applied live 31 Oct 2026.
+  yr text := to_char(now() at time zone 'Asia/Singapore', 'YYYY');
   seq int;
 begin
   seq := nextval('public.orders_reference_seq');
