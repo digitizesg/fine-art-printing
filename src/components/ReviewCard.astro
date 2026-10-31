@@ -49,9 +49,12 @@ const dateFromTime = review.time
 
   <Stars rating={review.rating} class="mt-4" />
 
-  <p class="mt-3 text-[15.5px] leading-relaxed text-ink/90">
+  <p class="review-text mt-3 text-[15.5px] leading-relaxed text-ink/90" data-review-text>
     {review.text}
   </p>
+  <button type="button" class="review-more mt-2 self-start text-[15px] font-semibold text-petrol hover:underline" data-review-more hidden aria-expanded="false">
+    Read more
+  </button>
 
   <a
     href={review.author_url}
@@ -62,3 +65,40 @@ const dateFromTime = review.time
     View on Google →
   </a>
 </article>
+
+<style>
+  /* Every review shows the same six lines so the grid stays even; longer
+     ones get a "Read more" toggle (added by the script below only when the
+     text actually overflows). */
+  .review-text {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 6;
+    line-clamp: 6;
+    overflow: hidden;
+  }
+  .review-text.is-open {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    overflow: visible;
+  }
+</style>
+
+<script>
+  function setUpReviews() {
+    document.querySelectorAll<HTMLElement>("[data-review-text]").forEach((text) => {
+      const btn = text.nextElementSibling as HTMLButtonElement | null;
+      if (!btn || btn.dataset.ready) return;
+      btn.dataset.ready = "1";
+      if (text.scrollHeight <= text.clientHeight + 2) return;
+      btn.hidden = false;
+      btn.addEventListener("click", () => {
+        const open = text.classList.toggle("is-open");
+        btn.textContent = open ? "Show less" : "Read more";
+        btn.setAttribute("aria-expanded", String(open));
+      });
+    });
+  }
+  setUpReviews();
+</script>
