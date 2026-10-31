@@ -99,18 +99,18 @@ const jsonLd = [serviceSchema, faqPageSchema(faqs)];
             return it ready to hang. Optional float frame for a gallery finish.
           </p>
 
-          <div class="mt-8 flex flex-wrap items-center gap-3">
+          <div class="mt-8 flex items-center gap-2 sm:gap-3">
             <a
               href="#calculator"
-              class="inline-flex items-center gap-2 rounded-pill bg-petrol px-7 py-3.5 text-[17px] font-semibold text-white transition-colors hover:bg-[#142a40]"
+              class="inline-flex flex-1 sm:flex-none items-center justify-center gap-2 whitespace-nowrap rounded-pill bg-petrol px-3.5 py-3.5 text-[15.5px] sm:px-7 sm:text-[17px] font-semibold text-white transition-colors hover:bg-[#142a40]"
             >
-              Get a quote <span aria-hidden="true">↓</span>
+              Get a quote <span aria-hidden="true" class="hidden min-[380px]:inline">↓</span>
             </a>
             <a
               href={waLink}
               target="_blank"
               rel="noopener"
-              class="inline-flex items-center gap-2 rounded-pill border border-[#1ebe5b] bg-[#25D366] px-7 py-3.5 text-[17px] font-semibold text-white transition-colors hover:bg-[#1ebe5b]"
+              class="inline-flex flex-1 sm:flex-none items-center justify-center gap-2 whitespace-nowrap rounded-pill border border-[#1ebe5b] bg-[#25D366] px-3.5 py-3.5 text-[15.5px] sm:px-7 sm:text-[17px] font-semibold text-white transition-colors hover:bg-[#1ebe5b]"
             >
               <WhatsAppIcon size={19} />
               <span>WhatsApp us</span>
