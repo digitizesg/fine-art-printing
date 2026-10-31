@@ -7,7 +7,7 @@ hero: https://uemacvqwjqbxaedfwhll.supabase.co/storage/v1/object/public/articles
 ---
 This article focuses on covering different options for **creating images of your digital artwork or photography** for usage in various settings such as web and social media. We’ll walk you through 4 different options along with the pros and cons of each. We’ll also give you some useful tips and tricks on how to make the process as pain free as possible.
 
-If you are creating mockup images for usage on our artist selling platform its always best to size your images at around 822\[w\] x 528\[h\] pixels. We encourage people to use a mixture of close-ups and mockups to best showcase their work.
+We encourage people to use a mixture of close-ups and mockups to best showcase their work.
 
 Generally speaking there are 4 options that you can consider for creating beautiful mockups of your artwork. Below is a quick summary, after which we’ll talk about each one in a little more detail.
 
